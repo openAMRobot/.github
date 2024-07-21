@@ -50,11 +50,11 @@ Here’s an overview of our project structure:
 -   │ │ ├── usage-guide.md
 -   │ │ └── FAQ.md
 -   │ └── README.md
--   ├── .gitignore
--   ├── README.md
--   ├── CONTRIBUTING.md
--   ├── CODE_OF_CONDUCT.md
--   └── LICENSE
+-   #### ├── .gitignore
+-   #### ├── README.md
+-   #### ├── CONTRIBUTING.md
+-   #### ├── CODE_OF_CONDUCT.md
+-   #### └── LICENSE
 
 ## Explanation
 
