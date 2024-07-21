@@ -21,40 +21,40 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 ## 📁 Repository Structure
 
 Here’s an overview of our project structure:
-# OpenAMR/
-- **├── .github/
-- **│ ├── ISSUE_TEMPLATE.md
-- **│ ├── PULL_REQUEST_TEMPLATE.md
-- **│ ├── CODEOWNERS
-- **│ └── README.md
-- **├── docs/
-- **│ ├── hardware/
-- **│ │ ├── CAD_files/
-- **│ │ ├── schematics/
-- **│ │ ├── BOM/
-- **│ │ ├── pictures/
-- **│ │ ├── datasheets/
-- **│ │ ├── README.md
-- **│ │ ├── build-guide.md
-- **│ │ ├── assembly-guide.md
-- **│ │ └── FAQ.md
-- **│ ├── software/
-- **│ │ ├── UI/
-- **│ │ │ ├── src/
-- **│ │ ├── ROS/
-- **│ │ │ ├── src/
-- **│ │ ├── Firmware/
-- **│ │ │ ├── src/
-- **│ │ ├── README.md
-- **│ │ ├── setup-guide.md
-- **│ │ ├── usage-guide.md
-- **│ │ └── FAQ.md
-- **│ └── README.md
-- **├── .gitignore
-- **├── README.md
-- **├── CONTRIBUTING.md
-- **├── CODE_OF_CONDUCT.md
-- **└── LICENSE
+### OpenAMR/
+-   #### ├── .github/
+-   │ ├── ISSUE_TEMPLATE.md
+-   │ ├── PULL_REQUEST_TEMPLATE.md
+-   │ ├── CODEOWNERS
+-   │ └── README.md
+-   ├── docs/
+-   │ ├── hardware/
+-   │ │ ├── CAD_files/
+-   │ │ ├── schematics/
+-   │ │ ├── BOM/
+-   │ │ ├── pictures/
+-   │ │ ├── datasheets/
+-   │ │ ├── README.md
+-   │ │ ├── build-guide.md
+-   │ │ ├── assembly-guide.md
+-   │ │ └── FAQ.md
+-   │ ├── software/
+-   │ │ ├── UI/
+-   │ │ │ ├── src/
+-   │ │ ├── ROS/
+-   │ │ │ ├── src/
+-   │ │ ├── Firmware/
+-   │ │ │ ├── src/
+-   │ │ ├── README.md
+-   │ │ ├── setup-guide.md
+-   │ │ ├── usage-guide.md
+-   │ │ └── FAQ.md
+-   │ └── README.md
+-   ├── .gitignore
+-   ├── README.md
+-   ├── CONTRIBUTING.md
+-   ├── CODE_OF_CONDUCT.md
+-   └── LICENSE
 
 ## Explanation
 
