@@ -28,7 +28,7 @@ Here’s an overview of our project structure:
 -   │ ├── CODEOWNERS
 -   │ └── README.md
 -   #### ├── [docs/](https://github.com/openAMRobot/OpenAMR/tree/main/docs)
--   #### │ ├── hardware/
+-   #### 🛠️│ ├── hardware/
 -   │ │ ├── CAD_files/
 -   │ │ ├── schematics/
 -   │ │ ├── BOM/
