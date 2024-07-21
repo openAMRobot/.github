@@ -27,8 +27,8 @@ Here’s an overview of our project structure:
 -   │ ├── PULL_REQUEST_TEMPLATE.md
 -   │ ├── CODEOWNERS
 -   │ └── README.md
--   ├── docs/
--   │ ├── hardware/
+-   #### ├── docs/
+-   ##### │ ├── hardware/
 -   │ │ ├── CAD_files/
 -   │ │ ├── schematics/
 -   │ │ ├── BOM/
@@ -38,7 +38,7 @@ Here’s an overview of our project structure:
 -   │ │ ├── build-guide.md
 -   │ │ ├── assembly-guide.md
 -   │ │ └── FAQ.md
--   │ ├── software/
+-   #### │ ├── software/
 -   │ │ ├── UI/
 -   │ │ │ ├── src/
 -   │ │ ├── ROS/
