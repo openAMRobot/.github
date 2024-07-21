@@ -74,7 +74,7 @@ We welcome contributions from everyone! To get involved:
 
 - **Open an issue:** use our [Issue Template](https://github.com/openAMRobot/.github/blob/main/ISSUE_TEMPLATE.md) to report bugs or suggest improvements.
 - **Submit a pull request:** Follow our [Pull Request Template](https://github.com/openAMRobot/.github/blob/main/PULL_REQUEST_TEMPLATE.md) to propose changes.
-- **Read contributing guidelines:** Review our [CONTRIBUTING.md](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md) for detailed contribution instructions.
+- **Read contributing guidelines:** Review our [CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md) for detailed contribution instructions.
 
 ## 👩‍💻 Useful resources
 
