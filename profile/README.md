@@ -21,7 +21,7 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 ## 📁 Repository Structure
 
 Here’s an overview of our project structure:
-### OpenAMR/
+### 🤖OpenAMR/
 -   #### ├── .github/
 -   │ ├── ISSUE_TEMPLATE.md
 -   │ ├── PULL_REQUEST_TEMPLATE.md
@@ -38,7 +38,7 @@ Here’s an overview of our project structure:
 -   │ │ ├── build-guide.md
 -   │ │ ├── assembly-guide.md
 -   │ │ └── FAQ.md
--   #### │ ├── software/
+-   #### 🖥️│ ├── software/
 -   │ │ ├── UI/
 -   │ │ │ ├── src/
 -   │ │ ├── ROS/
