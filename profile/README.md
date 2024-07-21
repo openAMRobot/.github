@@ -27,7 +27,7 @@ Here’s an overview of our project structure:
 -   │ ├── PULL_REQUEST_TEMPLATE.md
 -   │ ├── CODEOWNERS
 -   │ └── README.md
--   #### 📁├── [docs/](https://github.com/openAMRobot/OpenAMR/tree/main/docs)
+-   #### 📖├── [docs/](https://github.com/openAMRobot/OpenAMR/tree/main/docs)
 -   #### 🛠️│ ├── hardware/
 -   │ │ ├── CAD_files/
 -   │ │ ├── schematics/
