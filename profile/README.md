@@ -79,7 +79,7 @@ We welcome contributions from everyone! To get involved:
 ## 👩‍💻 Useful resources
 
 - **[Linorobot](https://github.com/linorobot/linorobot2):** find detailed guides on firmware and software (ROS2, Tensy board connection, firmware, etc).
-- **[Documentation](https://github.com/openAMRobot/docs):** find detailed guides on hardware and software.
+- **[Documentation](https://github.com/openAMRobot/OpenAMR/tree/main/docs):** find detailed guides on hardware and software.
 - **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** learn how to get started with the robot’s software.
 - **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** instructions for using and customizing the software.
 
