@@ -1,22 +1,22 @@
 ## Hi there 👋
 
-# OpenAMR: Affordable Autonomous Mobile Robot
+# OpenAMR: affordable Autonomous Mobile Robot
 
 Welcome to OpenAMR! We're a passionate team of robotics enthusiasts based in the Mechatronics Lab of the BHT University in Berlin. Our mission is to democratize robotics technology by sharing comprehensive, open-source resources for building affordable autonomous mobile robots. Whether you’re a small or medium enterprise, an individual entrepreneur, or a specialist, we invite you to join us in creating innovative automation solutions.
 
-## 🚀 Project Aim
+## 🚀 Project aim
 
 OpenAMR provides a detailed guide for building an affordable and versatile autonomous mobile robot. Our robot is designed to:
 
-- **Automate Goods Movement:** Efficiently move goods in warehouses, manufacturing plants, and farms.
-- **Enhance Operational Efficiency:** Improve logistics and material transport with advanced navigation and modular design.
-- **Be Cost-Effective:** Achieve a preliminary production cost of under €3000.
+- **Automate goods movement:** efficiently move goods in warehouses, manufacturing plants, and farms.
+- **Enhance operational efficiency:** improve logistics and material transport with advanced navigation and modular design.
+- **Be Cost-Effective:** achieve a preliminary production cost of under €3000.
 
 ### Key Features:
 
-- **High Manufacturability:** Designed with simplicity in mind to facilitate easy production with basic technologies.
-- **Advanced Navigation:** Utilizes LiDAR SLAM technology for accurate navigation and obstacle avoidance.
-- **Modular Design:** Features a customizable platform for various attachments, including conveyors, elevators, and more.
+- **High manufacturability:** designed with simplicity in mind to facilitate easy production with basic technologies.
+- **Advanced navigation:** utilizes LiDAR SLAM technology for accurate navigation and obstacle avoidance.
+- **Modular design:** features a customizable platform for various attachments, including conveyors, elevators, and more.
 
 ## 📁 Repository Structure
 
@@ -28,7 +28,7 @@ Here’s an overview of our project structure:
 -   │ ├── CODEOWNERS
 -   │ └── README.md
 -   #### ├── docs/
--   ##### │ ├── hardware/
+-   │ ├── hardware/
 -   │ │ ├── CAD_files/
 -   │ │ ├── schematics/
 -   │ │ ├── BOM/
@@ -58,15 +58,15 @@ Here’s an overview of our project structure:
 
 ## Explanation
 
-- **`.github/`**: Contains GitHub-specific files including templates for issues and pull requests.
-- **`docs/`**: Contains documentation for both hardware and software aspects of the project.
-  - **`hardware/`**: Includes CAD files, schematics, BOM, pictures, datasheets, and guides for building and assembling the robot.
-  - **`software/`**: Contains source code and documentation for UI, ROS, and Firmware.
-- **`.gitignore`**: Specifies files and directories to be ignored by Git.
-- **`README.md`**: The main README file for the project.
-- **`CONTRIBUTING.md`**: Guidelines for contributing to the project.
-- **`CODE_OF_CONDUCT.md`**: Code of conduct for community interactions.
-- **`LICENSE`**: The license under which the project is distributed.
+- **`.github/`**: contains GitHub-specific files including templates for issues and pull requests and the general README
+- **`docs/`**: contains documentation for both hardware and software aspects of the project.
+  - **`hardware/`**: includes CAD files, schematics, BOM, pictures, datasheets, and guides for building and assembling the robot.
+  - **`software/`**: contains source code and documentation for UI, ROS, and Firmware.
+- **`.gitignore`**: specifies files and directories to be ignored by Git.
+- **`README.md`**: detailed README file for the project.
+- **`CONTRIBUTING.md`**: guidelines for contributing to the project.
+- **`CODE_OF_CONDUCT.md`**: code of conduct for community interactions.
+- **`LICENSE`**: the license under which the project is distributed.
 
 ## 🌈 Contribution Guidelines
 
@@ -78,22 +78,23 @@ We welcome contributions from everyone! To get involved:
 
 ## 👩‍💻 Useful Resources
 
-- **[Documentation](https://github.com/openAMRobot/docs):** Find detailed guides on hardware and software.
-- **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** Learn how to get started with the robot’s software.
-- **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** Instructions for using and customizing the software.
+- **[Linorobot](https://github.com/linorobot/linorobot2):** find detailed guides on firmware and software (ROS2, Tensy board connection, firmware, etc).
+- **[Documentation](https://github.com/openAMRobot/docs):** find detailed guides on hardware and software.
+- **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** learn how to get started with the robot’s software.
+- **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** instructions for using and customizing the software.
 
-## 🍿 Fun Facts
+## 🍿 Fun facts
 
-- **Breakfast Club:** Our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borscht, keeping our creativity and energy high!
-- **Origin Story:** This project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the MIT license to benefit the community.
+- **Breakfast Club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borscht, keeping our creativity and energy high!
+- **Origin Story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the MIT license to benefit the community.
 
 ## 📸 Visuals
 
 Here’s what our completed robot looks like:
 
-![Mobile Robot General View](https://github.com/openAMRobot/docs/blob/main/hardware/pictures/robot_general_view.png)
+![Mobile Robot General View](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_views.jpg)
 
-## 🧙 Get Involved
+## 🧙 Get involved
 
 Join us in advancing robotics technology! We're based at the Mechatronics Lab of the BHT University in Berlin and are eager to grow this project with contributions from like-minded individuals. Dive into our documentation, ask questions, and help us make this technology accessible to everyone. Together, we can transform automation and robotics for small and medium enterprises worldwide.
 
