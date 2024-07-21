@@ -28,7 +28,7 @@ Here’s an overview of our project structure:
 -   │ ├── CODEOWNERS
 -   │ └── README.md
 -   #### ├── docs/
--   │ ├── hardware/
+-   #### │ ├── hardware/
 -   │ │ ├── CAD_files/
 -   │ │ ├── schematics/
 -   │ │ ├── BOM/
@@ -68,15 +68,15 @@ Here’s an overview of our project structure:
 - **`CODE_OF_CONDUCT.md`**: code of conduct for community interactions.
 - **`LICENSE`**: the license under which the project is distributed.
 
-## 🌈 Contribution Guidelines
+## 🌈 Contribution guidelines
 
 We welcome contributions from everyone! To get involved:
 
-- **Open an Issue:** Use our [Issue Template](https://github.com/openAMRobot/.github/blob/main/ISSUE_TEMPLATE.md) to report bugs or suggest improvements.
-- **Submit a Pull Request:** Follow our [Pull Request Template](https://github.com/openAMRobot/.github/blob/main/PULL_REQUEST_TEMPLATE.md) to propose changes.
-- **Read Contributing Guidelines:** Review our [CONTRIBUTING.md](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md) for detailed contribution instructions.
+- **Open an issue:** use our [Issue Template](https://github.com/openAMRobot/.github/blob/main/ISSUE_TEMPLATE.md) to report bugs or suggest improvements.
+- **Submit a pull request:** Follow our [Pull Request Template](https://github.com/openAMRobot/.github/blob/main/PULL_REQUEST_TEMPLATE.md) to propose changes.
+- **Read contributing guidelines:** Review our [CONTRIBUTING.md](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md) for detailed contribution instructions.
 
-## 👩‍💻 Useful Resources
+## 👩‍💻 Useful resources
 
 - **[Linorobot](https://github.com/linorobot/linorobot2):** find detailed guides on firmware and software (ROS2, Tensy board connection, firmware, etc).
 - **[Documentation](https://github.com/openAMRobot/docs):** find detailed guides on hardware and software.
@@ -85,8 +85,8 @@ We welcome contributions from everyone! To get involved:
 
 ## 🍿 Fun facts
 
-- **Breakfast Club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borscht, keeping our creativity and energy high!
-- **Origin Story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the MIT license to benefit the community.
+- **Breakfast club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borscht, keeping our creativity and energy high!
+- **Origin story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the MIT license to benefit the community.
 
 ## 📸 Visuals
 
