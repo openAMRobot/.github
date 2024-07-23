@@ -92,7 +92,7 @@ We welcome contributions from everyone! To get involved:
 
 Here’s what our completed robot looks like:
 
-![Mobile Robot General View](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_views.jpg)
+![Mobile Robot General View](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_SME_logistics.jpg)
 
 ## 🧙 Get involved
 
