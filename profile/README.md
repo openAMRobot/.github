@@ -22,6 +22,7 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 
 Here’s an overview of our project structure:
 ### 🤖OpenAMR/
+-   #### ├── [Wiki/](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot)
 -   #### ├── .github/
 -   │ ├── ISSUE_TEMPLATE.md
 -   │ ├── PULL_REQUEST_TEMPLATE.md
@@ -57,7 +58,7 @@ Here’s an overview of our project structure:
 -   #### └── LICENSE
 
 ## Explanation
-
+- **`Wiki`**: [contains comprehensive documentation on the project](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot)
 - **`.github/`**: contains GitHub-specific files including templates for issues and pull requests and the general README
 - **`docs/`**: contains documentation for both hardware and software aspects of the project.
   - **`hardware/`**: includes CAD files, schematics, BOM, pictures, datasheets, and guides for building and assembling the robot.
@@ -82,6 +83,7 @@ We welcome contributions from everyone! To get involved:
 - **[Documentation](https://github.com/openAMRobot/OpenAMR/tree/main/docs):** find detailed guides on hardware and software.
 - **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** learn how to get started with the robot’s software.
 - **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** instructions for using and customizing the software.
+- **[Wiki](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot):** detailed description on how to set up robot (AMR).
 
 ## 🍿 Fun facts
 
