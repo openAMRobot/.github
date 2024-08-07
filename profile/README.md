@@ -22,7 +22,7 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 
 Here’s an overview of our project structure:
 ### 🤖OpenAMR/
--   #### ├── [Wiki/](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot)
+-   #### ├── [Wiki/](https://github.com/openAMRobot/OpenAMR/wiki) 
 -   #### ├── .github/
 -   │ ├── ISSUE_TEMPLATE.md
 -   │ ├── PULL_REQUEST_TEMPLATE.md
