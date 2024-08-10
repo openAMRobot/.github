@@ -102,3 +102,7 @@ Join us in advancing robotics technology! We're based at the Mechatronics Lab of
 
 Feel free to explore, contribute, and innovate!
 
+## 💡 Explore our offerings
+
+We offer a freemium model with premium upgrades, consulting services for customization, and training programs to enhance your AMR experience. You can purchase hardware kits, subscribe to cloud-based services, and choose from support packages for ongoing assistance.
+
