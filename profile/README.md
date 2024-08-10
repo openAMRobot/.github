@@ -101,8 +101,3 @@ Here’s what our completed robot looks like:
 Join us in advancing robotics technology! We're based at the Mechatronics Lab of the BHT University in Berlin and are eager to grow this project with contributions from like-minded individuals. Dive into our documentation, ask questions, and help us make this technology accessible to everyone. Together, we can transform automation and robotics for small and medium enterprises worldwide.
 
 Feel free to explore, contribute, and innovate!
-
-## 💡 Explore our offerings for businesses
-
-We offer a freemium model with premium upgrades, consulting services for customization, and training programs to enhance your AMR experience. You can purchase hardware kits, subscribe to cloud-based services, and choose from support packages for ongoing assistance.
-
