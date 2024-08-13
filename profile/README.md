@@ -21,7 +21,7 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 ## 📁 Repository Structure
 
 Here’s an overview of our project structure:
-### 🤖OpenAMR/
+### 🤖[OpenAMR/](https://github.com/openAMRobot/OpenAMR)
 -   #### ├── [Wiki/](https://github.com/openAMRobot/OpenAMR/wiki) 
 -   #### ├── .github/
 -   │ ├── ISSUE_TEMPLATE.md
