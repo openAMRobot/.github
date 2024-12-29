@@ -12,13 +12,13 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 - **Enhance operational efficiency:** improve logistics and material transport with advanced navigation and modular design.
 - **Be Cost-Effective:** achieve a preliminary production cost of under €3000.
 
-### Key Features:
+### Key features:
 
 - **High manufacturability:** designed with simplicity in mind to facilitate easy production with basic technologies.
 - **Advanced navigation:** utilizes LiDAR SLAM technology for accurate navigation and obstacle avoidance.
 - **Modular design:** features a customizable platform for various attachments, including conveyors, elevators, and more.
 
-## 📁 Repository Structure
+## 📁 Repository structure
 
 Here’s an overview of our project structure:
 ### 🤖[OpenAMR/](https://github.com/openAMRobot/OpenAMR)
