@@ -71,7 +71,7 @@ Here’s an overview of our project structure:
 - **`CODE_OF_CONDUCT.md`**: code of conduct for community interactions.
 - **`LICENSE`**: the license under which the project is distributed.
 
-## 🌈 Contribution guidelines
+## 🤝 Contribution guidelines
 
 We welcome contributions from everyone! To get involved:
 
@@ -89,7 +89,7 @@ We welcome contributions from everyone! To get involved:
 
 ## 🍿 Fun facts
 
-- **Breakfast club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borscht, keeping our creativity and energy high!
+- **Breakfast club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borsch, keeping our creativity and energy high!
 - **Origin story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the MIT license to benefit the community.
 
 ## 📸 Visuals
