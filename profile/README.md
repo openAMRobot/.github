@@ -4,7 +4,7 @@
 
 Welcome to OpenAMR! We're a passionate team of robotics enthusiasts based in the Mechatronics Lab of the BHT University in Berlin. Our mission is to democratize robotics technology by sharing comprehensive, open-source resources for building affordable autonomous mobile robots. Whether you’re a small or medium enterprise, an individual entrepreneur, or a specialist, we invite you to join us in creating innovative automation solutions.
 
-| Attention! Our new educational project |
+| :mortar_board: Attention! Our new educational project |
 |----------|
 | [The AI robotics playbook: from learning to implementation.](https://botshareai.github.io/Botshare_book/) |
 
