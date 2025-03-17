@@ -3,6 +3,7 @@
 # OpenAMR: affordable Autonomous Mobile Robot
 
 Welcome to OpenAMR! We're a passionate team of robotics enthusiasts based in the Mechatronics Lab of the BHT University in Berlin. Our mission is to democratize robotics technology by sharing comprehensive, open-source resources for building affordable autonomous mobile robots. Whether you’re a small or medium enterprise, an individual entrepreneur, or a specialist, we invite you to join us in creating innovative automation solutions.
+!!! For who want to know more - **[The Botshare Book](https://botshareai.github.io/Botshare_book/):** The AI Robotics playbook: From learning to implementation.
 
 ## 🚀 Project aim
 
@@ -60,6 +61,7 @@ Here’s an overview of our project structure:
 ### 📥[OpenAMR_UI_dev/](https://github.com/openAMRobot/OpenAMR_UI_dev)
 
 ## Explanation
+- **`Botshare_book`**: [The Botshare Book: AI, Robotics & Smart Automation](https://botshareai.github.io/Botshare_book/)
 - **`Wiki`**: [contains comprehensive documentation on the project](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot)
 - **`.github/`**: contains GitHub-specific files including templates for issues and pull requests and the general README
 - **`docs/`**: contains documentation for both hardware and software aspects of the project.
@@ -86,6 +88,7 @@ We welcome contributions from everyone! To get involved:
 - **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** learn how to get started with the robot’s software.
 - **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** instructions for using and customizing the software.
 - **[Wiki](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot):** detailed description on how to set up robot (AMR).
+- **[The Botshare Book](https://botshareai.github.io/Botshare_book/):** The AI Robotics playbook: From learning to implementation.
 
 ## 🍿 Fun facts
 
@@ -96,7 +99,7 @@ We welcome contributions from everyone! To get involved:
 
 Here’s what our completed robot looks like:
 
-![Mobile Robot General View](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_SME_logistics.jpg)
+![Mobile robot general view](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_SME_logistics.jpg)
 
 ## 🧙 Get involved
 
