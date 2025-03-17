@@ -6,7 +6,7 @@ Welcome to OpenAMR! We're a passionate team of robotics enthusiasts based in the
 
 | ### Attention! Our new educational project ### |
 |----------|
-|**[The AI robotics playbook: from learning to implementation.]:(https://botshareai.github.io/Botshare_book/) **|
+|**[The AI robotics playbook: from learning to implementation.](https://botshareai.github.io/Botshare_book/) **|
 
 
 
