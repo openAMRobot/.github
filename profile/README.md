@@ -113,7 +113,7 @@ Join us in advancing robotics technology! We're based at the Mechatronics Lab of
 Feel free to explore, contribute, and innovate!
 
 ### Support Our Project
-Help us bring innovative AI & robotics education to the next generation! Your support enables us to enhance the curriculum and develop cutting-edge projects.
+Help us bring innovative AI & robotics project to the next level!
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
 
