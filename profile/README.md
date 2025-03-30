@@ -111,3 +111,10 @@ Here’s what our completed robot looks like:
 Join us in advancing robotics technology! We're based at the Mechatronics Lab of the BHT University in Berlin and are eager to grow this project with contributions from like-minded individuals. Dive into our documentation, ask questions, and help us make this technology accessible to everyone. Together, we can transform automation and robotics for small and medium enterprises worldwide.
 
 Feel free to explore, contribute, and innovate!
+
+### Support Our Project
+Help us bring innovative AI & robotics education to the next generation! Your support enables us to enhance the curriculum and develop cutting-edge projects.
+
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
+
+Every contribution, big or small, helps us grow. Thank you for your support!
