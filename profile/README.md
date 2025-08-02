@@ -116,6 +116,7 @@ Feel free to explore, contribute, and innovate!
 Help us bring innovative AI & robotics project to the next level!
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
-
+[![Donate on GitHub](https://github.com/sponsors/openAMRobot)
+[![Donate on Patreon](https://github.com/sponsors/openAMRobot)
 Every contribution, big or small, helps us grow. Thank you for your support!
 
