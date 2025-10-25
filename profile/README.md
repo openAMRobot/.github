@@ -2,7 +2,20 @@
 
 # OpenAMR: affordable Autonomous Mobile Robot
 
-Welcome to OpenAMR! We're a passionate team of robotics enthusiasts based in the Mechatronics Lab of the BHT University in Berlin. Our mission is to democratize robotics technology by sharing comprehensive, open-source resources for building affordable autonomous mobile robots. Whether you’re a small or medium enterprise, an individual entrepreneur, or a specialist, we invite you to join us in creating innovative automation solutions.
+Welcome to OpenAMR.
+We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) focused on democratizing mobile robotics through high-quality, open-source designs. Our goal is to enable SMEs, entrepreneurs, and specialists to learn and build reliable, affordable AMRs with clear, production-ready guidance.
+
+**Planned releases (next 6 months):**
+- Carrier PCB (compute + power + sensors)
+- Autodocking + wireless charging (ROS2 package & routines)
+- Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
+- Hub-motor drivetrain with suspension (mechanical + control)
+- Robotic arm integration (mounts, drivers, wiring, examples)
+- ML-based CV for object recognition & grasp cues
+- Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
+- Educational notes: academic/learning guides for each subsystem
+
+Join us to prototype, adapt, and deploy open AMRs—together.
 
 ## 🚀 Project aim
 
