@@ -2,8 +2,6 @@
 
 # OpenAMRobot: affordable Autonomous Dual-arm Mobile Robot
 
-Welcome to OpenAMR.
-
 We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) focused on democratizing mobile robotics through high-quality, open-source designs. Our goal is to enable SMEs, entrepreneurs, and specialists to learn and build reliable, affordable AMRs with clear, production-ready guidance.
 
 **Planned releases (next 6 months):**
