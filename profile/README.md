@@ -14,7 +14,7 @@ We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) foc
 - Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
 - Educational notes: academic/learning guides for each subsystem
 
-Join us to prototype, adapt, and deploy open AMRs—together.
+Join us to prototype, adapt, and deploy open AMRs - together.
 
 ## 🚀 Project aim
 
