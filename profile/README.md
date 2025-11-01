@@ -9,11 +9,9 @@ We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) foc
 - Autodocking + wireless charging (ROS2 package & routines)
 - Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
 - Hub-motor drivetrain with suspension (mechanical + control)
-- Robotic arm integration (mounts, drivers, wiring, examples)
+- Robotic arm integration and linear lift integration (mounts, drivers, wiring, examples)
 - ML-based CV for object recognition & grasp cues
 - Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
-- Robotics arm and linear lift integration
-- Perception module integration 
 - Educational notes: academic/learning guides for each subsystem
 
 Join us to prototype, adapt, and deploy open AMRs—together.
