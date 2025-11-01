@@ -5,7 +5,7 @@
 We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) focused on democratizing mobile robotics through high-quality, open-source designs. Our goal is to enable SMEs, entrepreneurs, and specialists to learn and build reliable, affordable AMRs with clear, production-ready guidance.
 
 **Planned releases (next 6 months):**
-- Carrier PCB (compute + power + sensors)
+- [Carrier PCB (compute + power + sensors)](https://github.com/orgs/openAMRobot/discussions/9)
 - Autodocking + wireless charging (ROS2 package & routines)
 - Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
 - Hub-motor drivetrain with suspension (mechanical + control)
