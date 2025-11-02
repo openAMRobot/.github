@@ -23,6 +23,7 @@ OpenAMR provides a detailed guide for building an affordable and versatile auton
 - **Automate goods movement:** efficiently move goods in warehouses, manufacturing plants, and farms.
 - **Enhance operational efficiency:** improve logistics and material transport with advanced navigation and modular design.
 - **Be Cost-Effective:** achieve a preliminary production cost of under €3000.
+**Support project:** [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
 
 ### Key features:
 
