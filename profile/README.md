@@ -17,6 +17,8 @@ _____________________________________________________________________
 
 Join us to prototype, adapt, and deploy open AMRs - together.
 
+[![Support on Patreon - Supporter Tier – €5/month](https://img.shields.io/badge/Support%20on-Patreon-orange)](https://www.patreon.com/cw/Botshare)
+
 ## 🚀 Project aim
 
 OpenAMR is an open-source initiative dedicated to developing an affordable, modular dual-arm autonomous mobile robot. 
@@ -29,8 +31,6 @@ The platform bridges real-world robotics with research and education while targe
 - **Remain open and cost-efficient:** target a total production cost below €3500 for the mobile base and €3500 for the dual-arm upper module, providing accessible, reproducible technology for research, education, and prototyping.
 
 Beyond the platform itself, OpenAMR serves as a collaborative foundation for learning and innovation in robotics, embedded systems, computer vision, machine learning, and mechanical design - empowering engineers, students, and creators to build, adapt, and evolve the next generation of autonomous robotic systems.
-
-**Support project:** [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
 
 ### Key features:
 
