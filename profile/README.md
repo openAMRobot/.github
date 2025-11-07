@@ -22,7 +22,7 @@ Join us to prototype, adapt, and deploy open AMRs - together.
 OpenAMR is an open-source initiative dedicated to developing an affordable, modular dual-arm autonomous mobile robot. 
 The platform bridges real-world robotics with research and education while targeting automation challenges in last-mile logistics, CEP, grocery delivery, and related industries.
 
-**Our system is built to:**
+### Our system is built to:
 
 - **Advance intelligent automation:** integrate computer vision and ML for perception, object recognition, and adaptive grasping in dynamic environments.
 - **Enable modular, versatile manipulation:** combine a dual-arm robotic architecture with interchangeable payload tools and open hardware design for flexibility and customization.
