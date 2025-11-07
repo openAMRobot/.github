@@ -131,7 +131,7 @@ Help us bring innovative AI & robotics project to the next level!
 
 [![Support on Patreon - Supporter Tier – €5/month](https://img.shields.io/badge/Support%20on-Patreon-orange)](https://www.patreon.com/cw/Botshare)
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
-[![Donate on GitHub](https://github.com/sponsors/openAMRobot)
+[![Donate on GitHub](https://img.shields.io/badge/Sponsor%20on-GitHub-pink?logo=github-sponsors)](https://github.com/sponsors/openAMRobot)
 
 Every contribution, big or small, helps us grow. Thank you for your support!
 
