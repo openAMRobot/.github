@@ -7,10 +7,11 @@ We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) foc
 **Planned releases (next 6 months):**
 - Carrier PCB (compute + power + sensors) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/9)
 - Autodocking + wireless charging (ROS2 package & routines)
-- Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
 - Hub-motor drivetrain with suspension (mechanical + control)
+- Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
 - Robotic arm integration and linear lift integration (mounts, drivers, wiring, examples)
 - ML-based CV for object recognition & grasp cues
+_____________________________________________________________________
 - Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
 - Educational notes: academic/learning guides for each subsystem
 
@@ -18,11 +19,16 @@ Join us to prototype, adapt, and deploy open AMRs - together.
 
 ## 🚀 Project aim
 
-OpenAMR provides a detailed guide for building an affordable and versatile autonomous mobile robot. Our robot is designed to:
+OpenAMR is an open-source initiative dedicated to developing an affordable, modular dual-arm autonomous mobile robot. 
+The platform bridges real-world robotics with research and education while targeting automation challenges in last-mile logistics, CEP, grocery delivery, and related industries.
 
-- **Automate goods movement:** efficiently move goods in warehouses, manufacturing plants, and farms.
-- **Enhance operational efficiency:** improve logistics and material transport with advanced navigation and modular design.
-- **Be Cost-Effective:** achieve a preliminary production cost of under €3000.
+**Our system is built to:**
+
+- **Advance intelligent automation:** integrate computer vision and ML for perception, object recognition, and adaptive grasping in dynamic environments.
+- **Enable modular, versatile manipulation:** combine a dual-arm robotic architecture with interchangeable payload tools and open hardware design for flexibility and customization.
+- **Remain open and cost-efficient:** target a total production cost below €3500 for the mobile base and €3500 for the dual-arm upper module, providing accessible, reproducible technology for research, education, and prototyping.
+
+Beyond the platform itself, OpenAMR serves as a collaborative foundation for learning and innovation in robotics, embedded systems, computer vision, machine learning, and mechanical design - empowering engineers, students, and creators to build, adapt, and evolve the next generation of autonomous robotic systems.
 
 **Support project:** [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
 
@@ -74,7 +80,7 @@ Here’s an overview of our project structure:
 ### 📥[OpenAMR_UI_dev/](https://github.com/openAMRobot/OpenAMR_UI_dev)
 
 ## Explanation
-- **`Botshare_book`**: [The Botshare Book: AI, Robotics & Smart Automation](https://botshareai.github.io/Botshare_book/)
+- **`Botshare_book`**: [The Botshare Book: AI, Robotics & Smart Automation](https://botshareai.github.io/Botshare_book/) (in progress...)
 - **`Wiki`**: [contains comprehensive documentation on the project](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot)
 - **`.github/`**: contains GitHub-specific files including templates for issues and pull requests and the general README
 - **`docs/`**: contains documentation for both hardware and software aspects of the project.
@@ -125,7 +131,6 @@ Help us bring innovative AI & robotics project to the next level!
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
 [![Donate on GitHub](https://github.com/sponsors/openAMRobot)
-[![Donate on Patreon](https://github.com/sponsors/openAMRobot)
 
 Every contribution, big or small, helps us grow. Thank you for your support!
 
@@ -133,7 +138,7 @@ Every contribution, big or small, helps us grow. Thank you for your support!
 
 |     :mortar_board: Attention! Our new educational project!     |
 |----------|
-|      :books: **[The AI Robotics Playbook: From learning to implementation](https://botshareai.github.io/Botshare_book/)**      |
+|      :books: **[The AI Robotics Playbook: From learning to implementation](https://botshareai.github.io/Botshare_book/)**  (in progress...)    |
 
 
 
