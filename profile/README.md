@@ -6,7 +6,7 @@ We’re a robotics team from the Mechatronics Lab at BHT University (Berlin) foc
 
 **Planned releases (next 6 months):**
 - Carrier PCB (compute + power + sensors) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/9)
-- Autodocking + wireless charging (ROS2 package & routines)
+- Autodocking + wireless charging (ROS2 package & routines) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/13)
 - Hub-motor drivetrain with suspension (mechanical + control)
 - Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
 - Robotic arm integration and linear lift integration (mounts, drivers, wiring, examples)
