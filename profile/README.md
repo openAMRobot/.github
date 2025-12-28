@@ -15,7 +15,7 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 - ML-based CV for object recognition & grasp cues
 _____________________________________________________________________
 - Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
-- Training and upscilling notes: learning guides for each subsystem
+- Training and upskilling notes: learning guides for each subsystem
 
 A key focus of the next development phase is AI-based perception and intuitive human-robot interaction. Depth-camera-driven computer vision enables reliable navigation, object recognition, and pick-and-place assistance in dynamic environments, while higher-level interaction tools aim to simplify configuration, supervision, and task reconfiguration for SMEs. OpenAMRobot continues to prioritize open, cost-efficient, and production-ready designs, targeting practical deployment, straightforward maintenance, and rapid adaptation to new workflows without requiring deep robotics expertise. As an open-source initiative, the project remains broadly applicable across multiple industrial niches, while being validated through concrete, representative use cases.
 
