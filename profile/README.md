@@ -2,7 +2,7 @@
 
 # OpenAMRobot: affordable Autonomous Dual-arm Mobile Robot
 
-We are a robotics team from the Mechatronics Lab at BHT University (Berlin), developing a single end-to-end mobile manipulation system built as a modular architecture that combines mobile platform, dual-arm manipulation, and CV/ML-based perception.
+OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platform developed by a robotics team at the Mechatronics Lab of BHT University (Berlin). The project focuses on building a modular, end-to-end mobile manipulation system that combines a mobile base, robotic arm integration, adjustable linear lift for the arms, and AI-based perception into a single, production-oriented architecture. OpenAMRobot is designed not as a fixed product, but as a flexible platform that can be adapted, extended, and deployed across different industrial and research scenarios.
 
 Our mission is to make advanced mobile robotics accessible by providing high-quality, open-source, production-oriented designs that help SMEs, entrepreneurs, and specialists build reliable, affordable autonomous robots without reinventing foundational technology.
 
@@ -15,7 +15,9 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 - ML-based CV for object recognition & grasp cues
 _____________________________________________________________________
 - Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
-- Educational notes: academic/learning guides for each subsystem
+- Training and upscilling notes: learning guides for each subsystem
+
+A key focus of the next development phase is AI-based perception and intuitive human-robot interaction. Depth-camera-driven computer vision enables reliable navigation, object recognition, and pick-and-place assistance in dynamic environments, while higher-level interaction tools aim to simplify configuration, supervision, and task reconfiguration for SMEs. OpenAMRobot continues to prioritize open, cost-efficient, and production-ready designs, targeting practical deployment, straightforward maintenance, and rapid adaptation to new workflows without requiring deep robotics expertise. As an open-source initiative, the project remains broadly applicable across multiple industrial niches, while being validated through concrete, representative use cases.
 
 Join us to prototype, adapt, and deploy open AMRs - together.
 
@@ -24,6 +26,8 @@ Join us to prototype, adapt, and deploy open AMRs - together.
 [![Donate on GitHub](https://img.shields.io/badge/Sponsor%20on-GitHub-pink?logo=github-sponsors)](https://github.com/sponsors/openAMRobot)
 
 ## 🚀 Project aim
+
+While maintaining its original goals of accessibility and modularity, OpenAMRobot is evolving toward human-centric mobile robotics. The platform emphasizes shoulder-to-shoulder collaboration with human operators in shared workspaces, supporting operator-in-the-loop control, task handover, and assistance-oriented behaviors rather than full isolation or rigid automation. Robotic arm integration and height-adjustable linear actuators are treated as enabling components, allowing the robot to adapt ergonomically to different tasks, workstations, and human collaborators.
 
 OpenAMR is an open-source initiative developing a versatile, modular dual-arm autonomous mobile robot designed as an end-to-end embodied AI system.
 The platform bridges real-world deployment with research and education, while addressing practical automation challenges in manufacturing, last-mile logistics, CEP, grocery delivery, and related industries.
