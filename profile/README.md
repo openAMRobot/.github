@@ -134,6 +134,11 @@ Join us in advancing robotics technology! We're based at the Mechatronics Lab of
 
 Feel free to explore, contribute, and innovate!
 
+This repository is maintained by the OpenAMRobot team.
+
+Current maintainers:
+- [Mobius-Line](https://github.com/Mobius-Line) — scope: ROS 2 stack, simulation, bringup
+
 ### Support Our Project
 Help us bring innovative AI & robotics project to the next level!
 
