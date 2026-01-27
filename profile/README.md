@@ -100,6 +100,29 @@ Here’s an overview of our project structure:
 - **`CODE_OF_CONDUCT.md`**: code of conduct for community interactions.
 - **`LICENSE`**: the license under which the project is distributed.
 
+## 🧙 Get involved
+
+Join us in advancing robotics technology! We're based at the Mechatronics Lab of the BHT University in Berlin and are eager to grow this project with contributions from like-minded individuals. Dive into our documentation, ask questions, and help us make this technology accessible to everyone. Together, we can transform automation and robotics for small and medium enterprises worldwide.
+
+OpenAMR is an **open collaboration**.
+
+You can contribute by:
+- Reporting bugs or issues
+- Proposing improvements or new features
+- Submitting pull requests (code, hardware designs, documentation)
+- Improving examples, tutorials, or educational materials
+
+### Quick Start for Contributors
+
+1. Fork this repository  
+2. Create a new branch for your changes  
+3. Make your changes following project guidelines  
+4. Submit a Pull Request  
+
+Please read **[CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md)** before submitting your first contribution.
+
+Feel free to explore, contribute, and innovate!
+
 ## 🤝 Contribution guidelines
 
 We welcome contributions from everyone! To get involved:
@@ -107,6 +130,31 @@ We welcome contributions from everyone! To get involved:
 - **Open an issue:** use our [Issue Template](https://github.com/openAMRobot/.github/blob/main/ISSUE_TEMPLATE.md) to report bugs or suggest improvements.
 - **Submit a pull request:** Follow our [Pull Request Template](https://github.com/openAMRobot/.github/blob/main/PULL_REQUEST_TEMPLATE.md) to propose changes.
 - **Read contributing guidelines:** Review our [CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md) for detailed contribution instructions.
+
+## Recognition of Contributors
+
+OpenAMR is built by people, and **contributors are always credited**.
+
+We recognize contributors through:
+- GitHub commit history and pull requests
+- GitHub contributors list
+- Explicit acknowledgements in documentation
+- Optional listing in `[CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md)`
+- Mentions in release notes or changelogs (when applicable)
+
+Major or long-term contributors may be recognized as **Maintainers**.
+
+## Maintainers
+
+Maintainers are contributors who:
+- Actively review pull requests
+- Help guide technical decisions
+- Support the community
+
+Maintainer roles are **earned through contribution and trust**, not assigned automatically.
+
+Current maintainers:
+- [Mobius-Line](https://github.com/Mobius-Line) — scope: ROS 2 stack, simulation, bringup
 
 ## 👩‍💻 Useful resources
 
@@ -128,16 +176,6 @@ Here’s what our completed robot looks like:
 
 ![Mobile robot general view](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_SME_logistics.jpg)
 
-## 🧙 Get involved
-
-Join us in advancing robotics technology! We're based at the Mechatronics Lab of the BHT University in Berlin and are eager to grow this project with contributions from like-minded individuals. Dive into our documentation, ask questions, and help us make this technology accessible to everyone. Together, we can transform automation and robotics for small and medium enterprises worldwide.
-
-Feel free to explore, contribute, and innovate!
-
-This repository is maintained by the OpenAMRobot team.
-
-Current maintainers:
-- [Mobius-Line](https://github.com/Mobius-Line) — scope: ROS 2 stack, simulation, bringup
 
 ### Support Our Project
 Help us bring innovative AI & robotics project to the next level!
@@ -148,11 +186,19 @@ Help us bring innovative AI & robotics project to the next level!
 
 Every contribution, big or small, helps us grow. Thank you for your support!
 
+## License and Rights
 
+### License
 
-|     :mortar_board: Attention! Our new educational project!     |
-|----------|
-|      :books: **[The AI Robotics Playbook: From learning to implementation](https://botshareai.github.io/Botshare_book/)**  (in progress...)    |
+This project is licensed under the **MIT License**.  
+See the `LICENSE` file for details.
 
+### Rights and Contributions
 
+- The **OpenAMRobot organization** retains the rights to the OpenAMR project as a whole.
+- Each contributor **retains copyright** to their individual contributions.
+- By submitting a pull request, contributors grant OpenAMRobot the right to use, modify, and distribute their contributions under the project license.
 
+This ensures open collaboration and long-term sustainability of the project.
+
+OpenAMR is developed and maintained by the **OpenAMRobot organization** with a strong background in robotics R&D and education.
