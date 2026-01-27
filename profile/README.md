@@ -168,7 +168,7 @@ Current maintainers:
 ## 🍿 Fun facts
 
 - **Breakfast club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borsch, keeping our creativity and energy high!
-- **Origin story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the MIT license to benefit the community.
+- **Origin story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the **MIT license** to benefit the community.
 
 ## 📸 Visuals
 
@@ -191,7 +191,7 @@ Every contribution, big or small, helps us grow. Thank you for your support!
 ### License
 
 This project is licensed under the **MIT License**.  
-See the `LICENSE` file for details.
+See the `LICENSE` [LICENSE](https://github.com/openAMRobot/OpenAMR/blob/main/LICENSE) file for details.
 
 ### Rights and Contributions
 
