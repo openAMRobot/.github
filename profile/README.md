@@ -84,8 +84,7 @@ Here’s an overview of our project structure:
 -   #### ├── CONTRIBUTING.md
 -   #### ├── CODE_OF_CONDUCT.md
 -   #### └── LICENSE
-### 👨‍💻[OpenAMR_UI_package/](https://github.com/openAMRobot/OpenAMR_UI_package)
-### 📥[OpenAMR_UI_dev/](https://github.com/openAMRobot/OpenAMR_UI_dev)
+### 👨‍💻[openamrobot-ui/](https://github.com/openAMRobot/openamrobot-ui)
 
 ## Explanation
 - **`Botshare_book`**: [The Botshare Book: AI, Robotics & Smart Automation](https://botshareai.github.io/Botshare_book/) (in progress...)
