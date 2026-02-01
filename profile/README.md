@@ -7,10 +7,11 @@ OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platf
 Our mission is to make advanced mobile robotics accessible by providing high-quality, open-source, production-oriented designs that help SMEs, entrepreneurs, and specialists build reliable, affordable autonomous robots without reinventing foundational technology.
 
 **Planned releases (next 6 months):**
+- OpenAMRobot organization repos structure [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/15)
 - Carrier PCB (compute + power + sensors) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/9)
 - Autodocking + wireless charging (ROS2 package & routines) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/13)
 - Hub-motor drivetrain with suspension (mechanical + control)
-- Operator UI (ROS2) for teleop, maps, telemetry, way points and logs
+- Operator UI (ROS2) for teleop, maps, telemetry, way points and logs [Сurrent discussion](https://github.com/openAMRobot/openamrobot-ui)
 - Robotic arm integration and linear lift integration (mounts, drivers, wiring, examples)
 - ML-based CV for object recognition & grasp cues
 _____________________________________________________________________
