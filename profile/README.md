@@ -20,7 +20,7 @@ _____________________________________________________________________
 
 A key focus of the next development phase is AI-based perception and intuitive human-robot interaction. Depth-camera-driven computer vision enables reliable navigation, object recognition, and pick-and-place assistance in dynamic environments, while higher-level interaction tools aim to simplify configuration, supervision, and task reconfiguration for SMEs. OpenAMRobot continues to prioritize open, cost-efficient, and production-ready designs, targeting practical deployment, straightforward maintenance, and rapid adaptation to new workflows without requiring deep robotics expertise. As an open-source initiative, the project remains broadly applicable across multiple industrial niches, while being validated through concrete, representative use cases.
 
-Join us to prototype, adapt, and deploy open AMRs - together.
+Join us to prototype, adapt, and deploy OpenAMRobots - together.
 
 [![Support on Patreon - Supporter Tier – €5/month](https://img.shields.io/badge/Support%20on-Patreon-orange)](https://www.patreon.com/cw/Botshare)
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BotshareAI)
@@ -163,7 +163,6 @@ Current maintainers:
 - **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** learn how to get started with the robot’s software.
 - **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** instructions for using and customizing the software.
 - **[Wiki](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot):** detailed description on how to set up robot (AMR).
-- **[The Botshare Book](https://botshareai.github.io/Botshare_book/):** The AI Robotics playbook: From learning to implementation.
 
 ## 🍿 Fun facts
 
