@@ -153,9 +153,6 @@ Maintainers are contributors who:
 
 Maintainer roles are **earned through contribution and trust**, not assigned automatically.
 
-Current maintainers:
-- [Mobius-Line](https://github.com/Mobius-Line) — scope: ROS 2 stack, simulation, bringup
-
 ## 👩‍💻 Useful resources
 
 - **[Linorobot](https://github.com/linorobot/linorobot2):** find detailed guides on firmware and software (ROS2, Tensy board connection, firmware, etc).
