@@ -197,4 +197,6 @@ See the `LICENSE` [LICENSE](https://github.com/openAMRobot/OpenAMR/blob/main/LIC
 
 This ensures open collaboration and long-term sustainability of the project.
 
+**We are not restricting you with IP — we are enabling you with our groundwork**
+
 OpenAMR is developed and maintained by the **OpenAMRobot organization** with a strong background in robotics R&D and education.
