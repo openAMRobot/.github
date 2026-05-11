@@ -2,7 +2,7 @@
 
 # OpenAMRobot: affordable Autonomous Dual-arm Mobile Robot
 
-OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platform developed by a robotics team at the Mechatronics Lab of BHT University (Berlin). The project focuses on building a modular, end-to-end mobile manipulation system that combines a mobile base, robotic arm integration, adjustable linear lift for the arms, and AI-based perception into a single, production-oriented architecture. OpenAMRobot is designed not as a fixed product, but as a flexible platform that can be adapted, extended, and deployed across different industrial and research scenarios.
+OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platform developed by Botshare robotics team. The project focuses on building a modular, end-to-end mobile manipulation system that combines a mobile base, robotic arm integration, adjustable linear lift for the arms, and AI-based perception into a single, production-oriented architecture. OpenAMRobot is designed not as a fixed product, but as a flexible platform that can be adapted, extended, and deployed across different industrial and research scenarios.
 
 ![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/OpenAMR_10.png)
 
