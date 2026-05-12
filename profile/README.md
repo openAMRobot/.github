@@ -32,11 +32,11 @@ Support open-source robotics, ROS2 development, AI robotics education, Dual-arm 
 
 | Tier | Price | Link |
 |---|---:|---|
-| Community | €19/month | [Subscribe](STRIPE_LINK_COMMUNITY) |
-| Builder | €79/month | [Subscribe](STRIPE_LINK_BUILDER) |
-| Pro Support | €299/month | [Subscribe](STRIPE_LINK_PRO_SUPPORT) |
-| Startup Support | €750/month | [Subscribe](STRIPE_LINK_STARTUP_SUPPORT) |
-| Lab Support | €1,500/month | [Subscribe](STRIPE_LINK_LAB_SUPPORT) |
+| Community | €19/month | [Subscribe](https://buy.stripe.com/6oUcN55OPc6s3pL4KDgUM00) |
+| Builder | €79/month | [Subscribe](https://buy.stripe.com/14A28r0uvdaw9O9eldgUM01) |
+| Pro Support | €299/month | [Subscribe](https://buy.stripe.com/dRm4gz4KLdaw6BX4KDgUM02) |
+| Startup Support | €750/month | [Subscribe](https://buy.stripe.com/7sY8wPfpp8Ugf8t90TgUM03) |
+| Lab Support | €1,500/month | [Subscribe](https://buy.stripe.com/eVq14ndhh2vSaSda4XgUM04) |
 
 GitHub Sponsors: https://github.com/sponsors/openAMRobot
 
@@ -200,11 +200,11 @@ Support open-source robotics, ROS2 development, AI robotics education, Dual-arm 
 
 | Tier | Price | Link |
 |---|---:|---|
-| Community | €19/month | [Subscribe](STRIPE_LINK_COMMUNITY) |
-| Builder | €79/month | [Subscribe](STRIPE_LINK_BUILDER) |
-| Pro Support | €299/month | [Subscribe](STRIPE_LINK_PRO_SUPPORT) |
-| Startup Support | €750/month | [Subscribe](STRIPE_LINK_STARTUP_SUPPORT) |
-| Lab Support | €1,500/month | [Subscribe](STRIPE_LINK_LAB_SUPPORT) |
+| Community | €19/month | [Subscribe](https://buy.stripe.com/6oUcN55OPc6s3pL4KDgUM00) |
+| Builder | €79/month | [Subscribe](https://buy.stripe.com/14A28r0uvdaw9O9eldgUM01) |
+| Pro Support | €299/month | [Subscribe](https://buy.stripe.com/dRm4gz4KLdaw6BX4KDgUM02) |
+| Startup Support | €750/month | [Subscribe](https://buy.stripe.com/7sY8wPfpp8Ugf8t90TgUM03) |
+| Lab Support | €1,500/month | [Subscribe](https://buy.stripe.com/eVq14ndhh2vSaSda4XgUM04) |
 
 GitHub Sponsors: https://github.com/sponsors/openAMRobot
 
