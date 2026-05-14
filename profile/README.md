@@ -42,113 +42,146 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 > ## Ecosystem Repository Structure
 >
 > ```text
-> OpenAMRobot Ecosystem
+> openAMRobot/
 > │
-> ├── openamr
-> │   ├── Community entry point
-> │   ├── Legacy platform repository
-> │   ├── Public project presentation
-> │   └── Historical hardware/software documentation
+> ├── .github
+> │
+> ├── openamrobot-manifest
+> ├── openamrobot-docs
+> ├── openamrobot-interfaces
+> ├── openamrobot-comm
+> ├── openamrobot-ui
 > │
 > ├── openamr-platform-sw
-> │   ├── ROS 2 robot software
-> │   ├── Navigation (Nav2)
-> │   ├── Docking
-> │   ├── Simulation (Gazebo)
-> │   ├── Perception
-> │   ├── Drivers
-> │   ├── Robot bringup
-> │   └── Control systems
+> │   ├── ros2/
+> │   │   └── src/
+> │   │       ├── openamrobot_description/
+> │   │       ├── openamrobot_gazebo/
+> │   │       ├── openamrobot_nav2/
+> │   │       ├── openamrobot_docking/
+> │   │       ├── openamrobot_bringup/
+> │   │       ├── openamrobot_control/
+> │   │       ├── openamrobot_drivers/
+> │   │       └── openamrobot_perception/
+> │   │
+> │   ├── simulation/
+> │   │   ├── worlds/
+> │   │   ├── models/
+> │   │   └── scenarios/
+> │   │
+> │   ├── config/
+> │   │   ├── robot/
+> │   │   ├── nav2/
+> │   │   ├── docking/
+> │   │   └── simulation/
+> │   │
+> │   ├── scripts/
+> │   │   ├── setup_workspace.sh
+> │   │   ├── build.sh
+> │   │   └── run_simulation.sh
+> │   │
+> │   ├── tools/
+> │   │
+> │   ├── docs/
+> │   │   ├── architecture/
+> │   │   ├── getting_started/
+> │   │   ├── safety/
+> │   │   ├── simulation/
+> │   │   ├── navigation/
+> │   │   └── docking/
+> │   │
+> │   ├── .github/
+> │   ├── README.md
+> │   ├── LICENSE
+> │   ├── CONTRIBUTING.md
+> │   ├── SECURITY.md
+> │   ├── NOTICE.md
+> │   ├── AUTHORS.md
+> │   └── CHANGELOG.md
 > │
 > ├── openamr-platform-fw
-> │   ├── Embedded firmware
-> │   ├── STM32
-> │   ├── Teensy
-> │   ├── ESP32
-> │   ├── Motor interfaces
-> │   ├── Sensor interfaces
-> │   ├── Safety systems
-> │   └── Low-level communication
+> │   ├── boards/
+> │   │   ├── stm32/
+> │   │   ├── teensy_4_1/
+> │   │   ├── esp32/
+> │   │   └── arduino/
+> │   │
+> │   ├── firmware/
+> │   │   ├── motor_controller_bridge/
+> │   │   ├── sensor_bridge/
+> │   │   ├── encoder_reader/
+> │   │   ├── battery_monitor/
+> │   │   └── safety_io/
+> │   │
+> │   ├── configs/
+> │   │   ├── communication/
+> │   │   ├── safety/
+> │   │   └── motor_controllers/
+> │   │
+> │   ├── docs/
+> │   │   ├── architecture/
+> │   │   ├── flashing/
+> │   │   ├── bringup/
+> │   │   ├── safety/
+> │   │   └── troubleshooting/
+> │   │
+> │   ├── tests/
+> │   ├── tools/
+> │   ├── .github/
+> │   ├── README.md
+> │   ├── LICENSE
+> │   ├── CONTRIBUTING.md
+> │   ├── SECURITY.md
+> │   ├── NOTICE.md
+> │   ├── AUTHORS.md
+> │   └── CHANGELOG.md
 > │
 > ├── openamr-platform-hw
-> │   ├── Mechanical CAD
-> │   ├── Chassis
-> │   ├── Electrical systems
-> │   ├── Wiring
-> │   ├── PCB designs
-> │   ├── BOMs
-> │   ├── Manufacturing
-> │   └── Assembly documentation
-> │
-> ├── openamrobot-interfaces
-> │   ├── ROS 2 messages
-> │   ├── ROS 2 services
-> │   ├── ROS 2 actions
-> │   ├── Shared schemas
-> │   └── Interface contracts
-> │
-> ├── openamrobot-comm
-> │   ├── REST APIs
-> │   ├── WebSocket bridges
-> │   ├── MQTT communication
-> │   ├── Fleet communication
-> │   ├── Middleware
-> │   ├── Cloud communication
-> │   └── Telemetry infrastructure
-> │
-> ├── openamrobot-ui
-> │   ├── Operator UI
-> │   ├── Dashboards
-> │   ├── Fleet visualization
-> │   ├── Teleoperation
-> │   ├── Maps & telemetry
-> │   ├── Monitoring
-> │   └── Human-robot interaction
-> │
-> ├── openamrobot-docs
-> │   ├── Tutorials
-> │   ├── Onboarding
-> │   ├── Safety documentation
-> │   ├── Architecture documentation
-> │   ├── Compatibility matrices
-> │   ├── Contributor documentation
-> │   └── Ecosystem standards
-> │
-> ├── Future ecosystem expansion
+> │   ├── mechanical/
+> │   │   ├── cad/
+> │   │   ├── chassis/
+> │   │   ├── drawings/
+> │   │   └── renderings/
 > │   │
-> │   ├── openamrobot-humanoid
-> │   │   ├── Dual-arm upper body
-> │   │   ├── Humanoid manipulation
-> │   │   ├── Arm coordination
-> │   │   ├── Linear lift systems
-> │   │   ├── Human interaction
-> │   │   └── Embodied AI integration
+> │   ├── electrical/
+> │   │   ├── pcb/
+> │   │   ├── wiring/
+> │   │   ├── power_distribution/
+> │   │   ├── sensors/
+> │   │   ├── motor_control/
+> │   │   └── computing/
 > │   │
-> │   ├── openamrobot-fleet
-> │   │   ├── Fleet management
-> │   │   ├── Multi-robot orchestration
-> │   │   ├── Remote monitoring
-> │   │   └── Cloud coordination
+> │   ├── manufacturing/
+> │   │   ├── bom/
+> │   │   ├── assembly/
+> │   │   └── vendors/
 > │   │
-> │   ├── openamrobot-ai
-> │   │   ├── Computer vision
-> │   │   ├── Perception pipelines
-> │   │   ├── ML inference
-> │   │   ├── Grasp planning
-> │   │   └── AI-assisted autonomy
+> │   ├── interfaces/
+> │   │   ├── electrical/
+> │   │   └── mechanical/
 > │   │
-> │   └── openamrobot-simulation-assets
-> │       ├── Robot models
-> │       ├── Industrial environments
-> │       ├── Test scenarios
-> │       └── Benchmark environments
+> │   ├── assets/
+> │   │   ├── images/
+> │   │   └── videos/
+> │   │
+> │   ├── docs/
+> │   │   ├── architecture/
+> │   │   ├── assembly/
+> │   │   ├── safety/
+> │   │   └── troubleshooting/
+> │   │
+> │   ├── .github/
+> │   ├── README.md
+> │   ├── LICENSE
+> │   ├── CONTRIBUTING.md
+> │   ├── SECURITY.md
+> │   ├── NOTICE.md
+> │   ├── AUTHORS.md
+> │   └── CHANGELOG.md
 > │
-> └── Legacy repositories
->     ├── EOD-robot
->     ├── OpenAMR_UI_dev
->     ├── OpenAMR_UI_package
->     ├── OpenAMR_UI
->     └── Botshare_docs
+> ├── openamh-humanoid-sw
+> ├── openamh-humanoid-fw
+> └── openamh-humanoid-hw
 > ```
 >
 > ## Active Core Repositories
