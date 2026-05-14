@@ -189,17 +189,14 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 ## Planned releases (next 6 months)
 
 - OpenAMRobot organization ecosystem structure
-  - Current discussion:
-  - https://github.com/orgs/openAMRobot/discussions/15
+  - Current discussion: https://github.com/orgs/openAMRobot/discussions/15
 
 - Carrier PCB (compute + power + sensors)
-  - Current discussion:
-  - https://github.com/orgs/openAMRobot/discussions/9
+  - Current discussion: https://github.com/orgs/openAMRobot/discussions/9
 
 - Autodocking + wireless charging
   - ROS 2 package & routines
-  - Current discussion:
-  - https://github.com/orgs/openAMRobot/discussions/13
+  - Current discussion: https://github.com/orgs/openAMRobot/discussions/13
 
 - Hub-motor drivetrain with suspension
   - mechanical + control integration
