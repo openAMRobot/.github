@@ -2,33 +2,190 @@
 
 # OpenAMRobot: affordable Autonomous Dual-arm Mobile Robot
 
-OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platform developed by Botshare robotics team. The project focuses on building a modular, end-to-end mobile manipulation system that combines a mobile base, robotic arm integration, adjustable linear lift for the arms, and AI-based perception into a single, production-oriented architecture. OpenAMRobot is designed not as a fixed product, but as a flexible platform that can be adapted, extended, and deployed across different industrial and research scenarios.
+OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platform developed by the Botshare robotics team.
 
-![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/OpenAMR_10.png)
+The project focuses on building a modular, end-to-end mobile manipulation ecosystem that combines:
 
-Our mission is to make advanced mobile robotics accessible by providing high-quality, open-source, production-oriented designs that help SMEs, entrepreneurs, and specialists build reliable, affordable autonomous robots without reinventing foundational technology.
+- autonomous mobile robotics
+- robotic arm integration
+- adjustable linear lift systems
+- AI-based perception
+- ROS 2 software infrastructure
+- embedded firmware
+- operator interfaces
+- simulation and navigation systems
 
-**Planned releases (next 6 months):**
-- OpenAMRobot organization repos structure [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/15)
-- Carrier PCB (compute + power + sensors) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/9)
-- Autodocking + wireless charging (ROS2 package & routines) [Сurrent discussion](https://github.com/orgs/openAMRobot/discussions/13)
-- Hub-motor drivetrain with suspension (mechanical + control)
-- Operator UI (ROS2) for teleop, maps, telemetry, way points and logs [Сurrent discussion](https://github.com/openAMRobot/openamrobot-ui)
-- Robotic arm integration and linear lift integration (mounts, drivers, wiring, examples)
-- ML-based CV for object recognition & grasp cues
-_____________________________________________________________________
-- Complete documentation: HW/Wiring diagrams, BOMs, assembly & tests
-- Training and upskilling notes: learning guides for each subsystem
+into a flexible, production-oriented robotics platform.
 
-A key focus of the next development phase is AI-based perception and intuitive human-robot interaction. Depth-camera-driven computer vision enables reliable navigation, object recognition, and pick-and-place assistance in dynamic environments, while higher-level interaction tools aim to simplify configuration, supervision, and task reconfiguration for SMEs. OpenAMRobot continues to prioritize open, cost-efficient, and production-ready designs, targeting practical deployment, straightforward maintenance, and rapid adaptation to new workflows without requiring deep robotics expertise. As an open-source initiative, the project remains broadly applicable across multiple industrial niches, while being validated through concrete, representative use cases.
+OpenAMRobot is designed not as a fixed product, but as a modular ecosystem that can be adapted, extended, and deployed across different industrial, research, logistics, educational, and service robotics scenarios.
 
-Join us to prototype, adapt, and deploy OpenAMRobots - together.
+![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMR_10.png)
 
-## Support OpenAMRobot
+Our mission is to make advanced mobile robotics accessible by providing high-quality, open-source, production-oriented designs that help SMEs, entrepreneurs, researchers, students, and robotics specialists build reliable and affordable autonomous robots without reinventing foundational technology.
 
-Support open-source robotics, ROS2 development, AI robotics education, Dual-arm mobile robot research.
+---
 
-### Monthly subscriptions
+> [!IMPORTANT]
+> ## OpenAMRobot Ecosystem Architecture
+>
+> OpenAMRobot is transitioning from a monolithic repository structure into a modular robotics ecosystem focused on:
+>
+> - maintainability
+> - scalability
+> - interoperability
+> - contributor onboarding
+> - long-term open-source collaboration
+> - simulation-first robotics development
+>
+> ![OpenAMRobot Ecosystem](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMRobot_ecosystem.png)
+>
+> ### Active Core Repositories
+>
+> | Repository | Purpose |
+> |---|---|
+> | [`openamr`](https://github.com/openAMRobot/openamr) | Main OpenAMRobot platform repository and community entry point |
+> | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software, simulation, navigation, docking, drivers, perception, and robot bringup |
+> | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, low-level microcontroller systems, motor interfaces, and hardware communication |
+> | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical systems, BOMs, manufacturing files, and mechatronics |
+> | [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces) | Shared ROS 2 messages, services, actions, schemas, and interface contracts |
+> | [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm) | APIs, middleware, telemetry, transport protocols, interoperability, and communication infrastructure |
+> | [`openamrobot-ui`](https://github.com/openAMRobot/openamrobot-ui) | Operator interfaces, dashboards, visualization tools, and user-facing applications |
+> | [`openamrobot-docs`](https://github.com/openAMRobot/openamrobot-docs) | Central documentation, onboarding, tutorials, safety, compatibility matrices, and contributor documentation |
+>
+> ### Platform Direction
+>
+> OpenAMRobot is evolving toward:
+>
+> - dual-arm autonomous mobile robotics
+> - human-centric mobile manipulation
+> - modular ROS 2 robotics infrastructure
+> - AI-assisted perception and interaction
+> - fleet-ready robotics systems
+> - simulation-first development
+> - affordable and production-oriented open robotics
+>
+> ### Legacy Repositories
+>
+> The following repositories are considered legacy repositories and are preserved primarily for:
+>
+> - historical context
+> - migration support
+> - forks
+> - archived development history
+> - compatibility references
+>
+> Legacy repositories:
+>
+> - [`EOD-robot`](https://github.com/openAMRobot/EOD-robot)
+> - [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev)
+> - [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package)
+> - [`OpenAMR_UI`](https://github.com/openAMRobot/OpenAMR_UI)
+> - [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs)
+>
+> Active development should target the new modular ecosystem repositories listed above.
+
+---
+
+## Planned releases (next 6 months)
+
+- OpenAMRobot organization ecosystem structure
+  - Current discussion:
+  - https://github.com/orgs/openAMRobot/discussions/15
+
+- Carrier PCB (compute + power + sensors)
+  - Current discussion:
+  - https://github.com/orgs/openAMRobot/discussions/9
+
+- Autodocking + wireless charging
+  - ROS 2 package & routines
+  - Current discussion:
+  - https://github.com/orgs/openAMRobot/discussions/13
+
+- Hub-motor drivetrain with suspension
+  - mechanical + control integration
+
+- Operator UI (ROS 2)
+  - teleoperation
+  - maps
+  - telemetry
+  - waypoints
+  - logs
+  - https://github.com/openAMRobot/openamrobot-ui
+
+- Robotic arm integration and linear lift integration
+  - mounts
+  - drivers
+  - wiring
+  - examples
+
+- ML-based computer vision
+  - object recognition
+  - grasp cues
+  - perception pipelines
+
+- Complete documentation
+  - hardware
+  - wiring diagrams
+  - BOMs
+  - assembly procedures
+  - testing workflows
+
+- Training and upskilling materials
+  - robotics
+  - ROS 2
+  - AI
+  - embedded systems
+  - mechatronics
+
+---
+
+A key focus of the next development phase is AI-based perception and intuitive human-robot interaction.
+
+Depth-camera-driven computer vision enables:
+
+- reliable navigation
+- object recognition
+- pick-and-place assistance
+- operator guidance
+- task supervision
+- dynamic environment interaction
+
+while higher-level interaction tools aim to simplify:
+
+- configuration
+- deployment
+- supervision
+- diagnostics
+- workflow reconfiguration
+
+for SMEs and robotics integrators.
+
+OpenAMRobot continues to prioritize:
+
+- open development
+- affordability
+- modularity
+- production-oriented engineering
+- maintainability
+- practical deployment
+
+As an open-source initiative, the platform remains broadly applicable across multiple industrial and research niches while being validated through concrete real-world use cases.
+
+Join us to prototype, adapt, and deploy OpenAMRobots — together.
+
+---
+
+# Support OpenAMRobot
+
+Support:
+
+- open-source robotics
+- ROS 2 development
+- AI robotics education
+- dual-arm mobile robot research
+- affordable robotics infrastructure
+
+## Monthly subscriptions
 
 | Tier | Price | Link |
 |---|---:|---|
@@ -38,193 +195,174 @@ Support open-source robotics, ROS2 development, AI robotics education, Dual-arm 
 | Startup Support | €750/month | <a href="https://buy.stripe.com/7sY8wPfpp8Ugf8t90TgUM03" target="_blank">Subscribe</a> |
 | Lab Support | €1,500/month | <a href="https://buy.stripe.com/eVq14ndhh2vSaSda4XgUM04" target="_blank">Subscribe</a> |
 
-GitHub Sponsors: https://github.com/sponsors/openAMRobot
+GitHub Sponsors:
+https://github.com/sponsors/openAMRobot
 
 Every contribution, big or small, helps us grow. Thank you for your support!
 
-## 🚀 Project aim
+---
 
-While maintaining its original goals of accessibility and modularity, OpenAMRobot is evolving toward human-centric mobile robotics. The platform emphasizes shoulder-to-shoulder collaboration with human operators in shared workspaces, supporting operator-in-the-loop control, task handover, and assistance-oriented behaviors rather than full isolation or rigid automation. Robotic arm integration and height-adjustable linear actuators are treated as enabling components, allowing the robot to adapt ergonomically to different tasks, workstations, and human collaborators.
+# Project Aim
 
-OpenAMR is an open-source initiative developing a versatile, modular dual-arm autonomous mobile robot designed as an end-to-end embodied AI system.
-The platform bridges real-world deployment with research and education, while addressing practical automation challenges in manufacturing, last-mile logistics, CEP, grocery delivery, and related industries.
+OpenAMRobot is evolving toward human-centric mobile robotics.
 
-### Our system is built to:
+The platform emphasizes:
 
-- **Advance intelligent automation:** integrate computer vision and ML for perception, object recognition, and adaptive grasping in dynamic environments.
-- **Enable modular, versatile manipulation:** combine a dual-arm robotic architecture with interchangeable payload tools and open hardware design for flexibility and customization.
-- **Remain open and cost-efficient:** target a total production cost below €3500 for the mobile base and €3500 for the dual-arm upper module, providing accessible, reproducible technology for research, education, and prototyping.
+- shoulder-to-shoulder collaboration with human operators
+- operator-in-the-loop control
+- task handover
+- assistance-oriented robotics
+- modular automation systems
 
-Beyond the platform itself, OpenAMR serves as a collaborative foundation for learning and innovation in robotics, embedded systems, computer vision, machine learning, and mechanical design - empowering engineers, students, and creators to build, adapt, and evolve the next generation of autonomous robotic systems.
+rather than isolated or rigid automation.
 
-### Key features:
+Robotic arm integration and height-adjustable linear actuators are treated as enabling components that allow the robot to adapt ergonomically to different tasks, workstations, and human collaborators.
 
-- **High manufacturability:** designed with simplicity in mind to facilitate easy production with basic technologies.
-- **Advanced navigation:** utilizes LiDAR SLAM technology for accurate navigation and obstacle avoidance.
-- **Modular design:** features a customizable platform for various attachments, including conveyors, elevators, and more.
+The platform bridges:
 
-## 📁 Repository structure
+- real-world deployment
+- research
+- education
+- AI robotics
+- industrial automation
+- embodied AI experimentation
 
-Here’s an overview of our project structure:
-### 🤖[OpenAMR/](https://github.com/openAMRobot/OpenAMR)
--   #### ├── [Wiki/](https://github.com/openAMRobot/OpenAMR/wiki) 
--   #### ├── .github/
--   │ ├── ISSUE_TEMPLATE.md
--   │ ├── PULL_REQUEST_TEMPLATE.md
--   │ ├── CODEOWNERS
--   │ └── README.md
--   #### 📖├── [docs/](https://github.com/openAMRobot/OpenAMR/tree/main/docs)
--   #### 🛠️│ ├── hardware/
--   │ │ ├── CAD_files/
--   │ │ ├── schematics/
--   │ │ ├── BOM/
--   │ │ ├── pictures/
--   │ │ ├── datasheets/
--   │ │ ├── README.md
--   │ │ ├── build-guide.md
--   │ │ ├── assembly-guide.md
--   │ │ └── FAQ.md
--   #### 🖥️│ ├── software/
--   │ │ ├── UI/
--   │ │ │ ├── src/
--   │ │ ├── ROS/
--   │ │ │ ├── src/
--   │ │ ├── Firmware/
--   │ │ │ ├── src/
--   │ │ ├── README.md
--   │ │ ├── setup-guide.md
--   │ │ ├── usage-guide.md
--   │ │ └── FAQ.md
--   │ └── README.md
--   #### ├── .gitignore
--   #### ├── README.md
--   #### ├── CONTRIBUTING.md
--   #### ├── CODE_OF_CONDUCT.md
--   #### └── LICENSE
-### 👨‍💻[openamrobot-ui/](https://github.com/openAMRobot/openamrobot-ui)
+while addressing practical automation challenges in:
 
-## Explanation
-- **`Botshare_book`**: [The Botshare Book: AI, Robotics & Smart Automation](https://botshareai.github.io/Botshare_book/) (in progress...)
-- **`Wiki`**: [contains comprehensive documentation on the project](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot)
-- **`.github/`**: contains GitHub-specific files including templates for issues and pull requests and the general README
-- **`docs/`**: contains documentation for both hardware and software aspects of the project.
-  - **`hardware/`**: includes CAD files, schematics, BOM, pictures, datasheets, and guides for building and assembling the robot.
-  - **`software/`**: contains source code and documentation for UI, ROS, and Firmware.
-- **`.gitignore`**: specifies files and directories to be ignored by Git.
-- **`README.md`**: detailed README file for the project.
-- **`CONTRIBUTING.md`**: guidelines for contributing to the project.
-- **`CODE_OF_CONDUCT.md`**: code of conduct for community interactions.
-- **`LICENSE`**: the license under which the project is distributed.
+- manufacturing
+- logistics
+- CEP
+- grocery delivery
+- warehouse automation
+- industrial assistance workflows
 
-## 🧙 Get involved
+---
 
-Join us in advancing robotics technology! We're based at the Mechatronics Lab of the BHT University in Berlin and are eager to grow this project with contributions from like-minded individuals. Dive into our documentation, ask questions, and help us make this technology accessible to everyone. Together, we can transform automation and robotics for small and medium enterprises worldwide.
+## Our system is built to
 
-OpenAMR is an **open collaboration**.
+### Advance intelligent automation
+
+Integrate computer vision and ML for:
+
+- perception
+- object recognition
+- adaptive grasping
+- autonomous assistance
+
+in dynamic environments.
+
+### Enable modular versatile manipulation
+
+Combine:
+
+- dual-arm robotic architecture
+- interchangeable payload systems
+- open hardware design
+- modular ROS 2 software
+
+for flexibility and customization.
+
+### Remain open and cost-efficient
+
+Target affordable and reproducible robotics technology suitable for:
+
+- research
+- education
+- prototyping
+- SMEs
+- startups
+- robotics labs
+
+---
+
+# Get involved
+
+OpenAMRobot is an open collaboration.
 
 You can contribute by:
-- Reporting bugs or issues
-- Proposing improvements or new features
-- Submitting pull requests (code, hardware designs, documentation)
-- Improving examples, tutorials, or educational materials
 
-### Quick Start for Contributors
+- reporting bugs or issues
+- proposing improvements
+- submitting pull requests
+- improving documentation
+- improving tutorials
+- contributing hardware
+- contributing firmware
+- contributing ROS 2 software
+- contributing AI and CV pipelines
+- improving simulation infrastructure
 
-1. Fork this repository  
-2. Create a new branch for your changes  
-3. Make your changes following project guidelines  
-4. Submit a Pull Request  
+## Quick Start for Contributors
 
-Please read **[CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md)** before submitting your first contribution.
+1. Fork the relevant repository
+2. Create a new branch
+3. Make changes following project guidelines
+4. Submit a Pull Request
 
-Feel free to explore, contribute, and innovate!
+Please read the repository-specific `CONTRIBUTING.md` before submitting contributions.
 
-## 🤝 Contribution guidelines
+---
 
-We welcome contributions from everyone! To get involved:
+# Recognition of Contributors
 
-- **Open an issue:** use our [Issue Template](https://github.com/openAMRobot/.github/blob/main/ISSUE_TEMPLATE.md) to report bugs or suggest improvements.
-- **Submit a pull request:** Follow our [Pull Request Template](https://github.com/openAMRobot/.github/blob/main/PULL_REQUEST_TEMPLATE.md) to propose changes.
-- **Read contributing guidelines:** Review our [CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md) for detailed contribution instructions.
-
-## Recognition of Contributors
-
-OpenAMR is built by people, and **contributors are always credited**.
+OpenAMRobot is built by people, and contributors are always credited.
 
 We recognize contributors through:
-- GitHub commit history and pull requests
-- GitHub contributors list
-- Explicit acknowledgements in documentation
-- Optional listing in `[CONTRIBUTING.md](https://github.com/openAMRobot/OpenAMR/blob/main/CONTRIBUTING.md)`
-- Mentions in release notes or changelogs (when applicable)
 
-Major or long-term contributors may be recognized as **Maintainers**.
+- GitHub commit history
+- pull requests
+- contributors lists
+- documentation acknowledgements
+- release notes
+- maintainer roles for long-term contributors
 
-## Maintainers
+---
+
+# Maintainers
 
 Maintainers are contributors who:
-- Actively review pull requests
-- Help guide technical decisions
-- Support the community
 
-Maintainer roles are **earned through contribution and trust**, not assigned automatically.
+- actively review pull requests
+- help guide technical decisions
+- support the community
+- improve architecture and governance
 
-## 👩‍💻 Useful resources
+Maintainer roles are earned through contribution and trust.
 
-- **[Linorobot](https://github.com/linorobot/linorobot2):** find detailed guides on firmware and software (ROS2, Tensy board connection, firmware, etc).
-- **[Documentation](https://github.com/openAMRobot/OpenAMR/tree/main/docs):** find detailed guides on hardware and software.
-- **[Setup Guides](https://github.com/openAMRobot/docs/blob/main/software/setup-guide.md):** learn how to get started with the robot’s software.
-- **[Usage Guides](https://github.com/openAMRobot/docs/blob/main/software/usage-guide.md):** instructions for using and customizing the software.
-- **[Wiki](https://github.com/openAMRobot/OpenAMR/wiki/Setup-your-robot):** detailed description on how to set up robot (AMR).
+---
 
-## 🍿 Fun facts
+# Useful resources
 
-- **Breakfast club:** our team enjoys a variety of breakfasts, from Berlin pastries to Ukrainian borsch, keeping our creativity and energy high!
-- **Origin story:** this project originated from a two-year research effort in Kharkiv, Ukraine, under Botshare. We decided to open-source our work under the **MIT license** to benefit the community.
+- [`openamrobot-docs`](https://github.com/openAMRobot/openamrobot-docs)
+- [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw)
+- [`openamrobot-ui`](https://github.com/openAMRobot/openamrobot-ui)
+- [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces)
+- [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm)
+- [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw)
+- [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw)
 
-## 📸 Visuals
+---
 
-Here’s what our completed robot looks like:
+# Fun facts
 
-![Mobile robot general view](https://github.com/openAMRobot/OpenAMR/blob/main/docs/hardware/pictures/AMR_SME_logistics.jpg)
+- The project originated from long-term robotics R&D work in Kharkiv, Ukraine.
+- Development continues through collaboration between researchers, students, engineers, and robotics enthusiasts.
+- The ecosystem strongly emphasizes affordability, openness, modularity, and practical deployment.
 
+---
 
-### Support Our Project
-Help us bring innovative AI & robotics project to the next level!
+# License and Rights
 
-## Support OpenAMRobot
+## License
 
-Support open-source robotics, ROS2 development, AI robotics education, Dual-arm mobile robot research.
+Most repositories are currently licensed under the MIT License unless stated otherwise.
 
-### Monthly subscriptions
+See repository-specific LICENSE files for details.
 
-| Tier | Price | Link |
-|---|---:|---|
-| Community | €19/month | <a href="https://buy.stripe.com/6oUcN55OPc6s3pL4KDgUM00" target="_blank">Subscribe</a> |
-| Builder | €79/month | <a href="https://buy.stripe.com/14A28r0uvdaw9O9eldgUM01" target="_blank">Subscribe</a> |
-| Pro Support | €299/month | <a href="https://buy.stripe.com/dRm4gz4KLdaw6BX4KDgUM02" target="_blank">Subscribe</a> |
-| Startup Support | €750/month | <a href="https://buy.stripe.com/7sY8wPfpp8Ugf8t90TgUM03" target="_blank">Subscribe</a> |
-| Lab Support | €1,500/month | <a href="https://buy.stripe.com/eVq14ndhh2vSaSda4XgUM04" target="_blank">Subscribe</a> |
+## Rights and Contributions
 
-GitHub Sponsors: https://github.com/sponsors/openAMRobot
+- Contributors retain copyright to their individual contributions.
+- By contributing, contributors allow the OpenAMRobot ecosystem to use, modify, and distribute contributions under the repository license.
+- The OpenAMRobot organization coordinates long-term ecosystem stewardship and infrastructure development.
 
-Every contribution, big or small, helps us grow. Thank you for your support!
-
-## License and Rights
-
-### License
-
-This project is licensed under the **MIT License**.  
-See the `LICENSE` [LICENSE](https://github.com/openAMRobot/OpenAMR/blob/main/LICENSE) file for details.
-
-### Rights and Contributions
-
-- The **OpenAMRobot organization** retains the rights to the OpenAMR project as a whole.
-- Each contributor **retains copyright** to their individual contributions.
-- By submitting a pull request, contributors grant OpenAMRobot the right to use, modify, and distribute their contributions under the project license.
-
-This ensures open collaboration and long-term sustainability of the project.
-
-**We are not restricting you with IP — we are enabling you with our groundwork**
-
-OpenAMR is developed and maintained by the **OpenAMRobot organization** with a strong background in robotics R&D and education.
+We are not restricting you with IP — we are enabling you with our groundwork.
