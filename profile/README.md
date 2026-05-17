@@ -26,7 +26,7 @@ OpenAMRobot combines:
 
 into a flexible, scalable, and research-oriented robotics ecosystem.
 
-![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMR_AI_ecosystem.png)
+![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMRobot_AI_ecosystem.png)
 
 The platform is designed not as a fixed product, but as an open and extensible infrastructure that can be adapted for:
 
