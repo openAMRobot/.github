@@ -1,23 +1,44 @@
-## Hi there 👋
+# OpenAMRobot: Open Embodied AI & Mobile Manipulation Ecosystem
 
-# OpenAMRobot: affordable Autonomous Dual-arm Mobile Robot
+OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem developed by the Botshare robotics team.
 
-OpenAMRobot is an affordable, open-source autonomous dual-arm mobile robot platform developed by the Botshare robotics team.
+The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
-The project focuses on building a modular, end-to-end mobile manipulation ecosystem that combines:
+- mobile manipulation
+- teleoperation
+- imitation learning
+- embodied AI research
+- human-centered robot policy training
+- and AI-driven robotics development
+
+OpenAMRobot combines:
 
 - autonomous mobile robotics
-- robotic arm integration
+- dual-arm manipulation
 - adjustable linear lift systems
 - AI-based perception
+- wearable embodied AI data collection
 - ROS 2 software infrastructure
 - embedded firmware
-- operator interfaces
 - simulation and navigation systems
+- teleoperation and policy training pipelines
+- and modular edge AI architectures
 
-into a flexible, production-oriented robotics platform.
+into a flexible, scalable, and research-oriented robotics ecosystem.
 
-OpenAMRobot is designed not as a fixed product, but as a modular ecosystem that can be adapted, extended, and deployed across different industrial, research, logistics, educational, and service robotics scenarios.
+![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMR_AI_ecosystem.png)
+
+The platform is designed not as a fixed product, but as an open and extensible infrastructure that can be adapted for:
+
+- industrial automation
+- embodied AI research
+- logistics and warehouse robotics
+- educational platforms
+- teleoperation systems
+- human-robot collaboration
+- and next-generation autonomous robotic applications.
+
+OpenAMRobot focuses on building affordable and reproducible robotics infrastructure while reducing dependence on closed proprietary ecosystems and vendor lock-in.
 
 ![Dual-arm Mobile Robot vision](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMR_10.png)
 
