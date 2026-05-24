@@ -120,7 +120,7 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 > │   ├── AUTHORS.md
 > │   └── CHANGELOG.md
 > │
-> ├── openamr-platform-fw
+> ├── openamr-platform-fw (currently see openamr repo)
 > │   ├── boards/
 > │   │   ├── stm32/
 > │   │   ├── teensy_4_1/
@@ -157,7 +157,7 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 > │   ├── AUTHORS.md
 > │   └── CHANGELOG.md
 > │
-> ├── openamr-platform-hw
+> ├── openamr-platform-hw (currently see openamr repo)
 > │   ├── mechanical/
 > │   │   ├── cad/
 > │   │   ├── chassis/
