@@ -445,6 +445,7 @@ Support:
 
 | Tier | Price | Link |
 |---|---:|---|
+| Benefactor | €5/month | <a href="https://buy.stripe.com/9B6cN5dhh9Yk7G1cd5gUM05" target="_blank">Subscribe</a> |
 | Community | €19/month | <a href="https://buy.stripe.com/6oUcN55OPc6s3pL4KDgUM00" target="_blank">Subscribe</a> |
 | Builder | €79/month | <a href="https://buy.stripe.com/14A28r0uvdaw9O9eldgUM01" target="_blank">Subscribe</a> |
 | Pro Support | €299/month | <a href="https://buy.stripe.com/dRm4gz4KLdaw6BX4KDgUM02" target="_blank">Subscribe</a> |
