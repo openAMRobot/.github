@@ -120,7 +120,7 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 > │   ├── AUTHORS.md
 > │   └── CHANGELOG.md
 > │
-> ├── openamr-platform-fw (currently see openamr repo)
+> ├── openamr-platform-fw (currently see [`openamr`](https://github.com/openAMRobot/openamr) repo)
 > │   ├── boards/
 > │   │   ├── stm32/
 > │   │   ├── teensy_4_1/
@@ -209,7 +209,7 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 >
 > | Repository | Purpose |
 > |---|---|
-> | [`openamr`](https://github.com/openAMRobot/openamr) | Main OpenAMRobot platform repository and community entry point (will be transferred to openamr-platform-hw |
+> | [`openamr`](https://github.com/openAMRobot/openamr) | Main OpenAMRobot platform repository and community entry point (will be transferred to openamr-platform-hw) |
 > | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software, simulation, navigation, docking, drivers, perception, and robot bringup |
 > | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, low-level microcontroller systems, motor interfaces, and hardware communication |
 > | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical systems, BOMs, manufacturing files, and mechatronics |
