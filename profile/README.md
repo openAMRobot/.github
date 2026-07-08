@@ -44,23 +44,6 @@ OpenAMRobot focuses on building affordable and reproducible robotics infrastruct
 
 Our mission is to make advanced mobile robotics accessible by providing high-quality, open-source, production-oriented designs that help SMEs, entrepreneurs, researchers, students, and robotics specialists build reliable and affordable autonomous robots without reinventing foundational technology.
 
----
-
-> [!IMPORTANT]
-> ## OpenAMRobot Ecosystem Architecture
->
-> OpenAMRobot is transitioning from a monolithic repository structure into a modular robotics ecosystem focused on:
->
-> - maintainability
-> - scalability
-> - interoperability
-> - contributor onboarding
-> - long-term open-source collaboration
-> - simulation-first robotics development
->
-> ![OpenAMRobot Ecosystem](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMRobot_ecosystem.png)
->
-
 ## 💜 Support OpenAMRobot
 
 Support open-source robotics, ROS 2 development, AI robotics education, and dual-arm mobile robot research.
@@ -89,7 +72,24 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 **❤️ GitHub Sponsors:** <a href="https://github.com/sponsors/openAMRobot" target="_blank" rel="noopener noreferrer"> 🐙 &nbsp;github.com/sponsors/openAMRobot&nbsp;→</a>
 
 *Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
+
+---
+
+> [!IMPORTANT]
+> ## OpenAMRobot Ecosystem Architecture
 >
+> OpenAMRobot is transitioning from a monolithic repository structure into a modular robotics ecosystem focused on:
+>
+> - maintainability
+> - scalability
+> - interoperability
+> - contributor onboarding
+> - long-term open-source collaboration
+> - simulation-first robotics development
+>
+> ![OpenAMRobot Ecosystem](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMRobot_ecosystem.png)
+>
+
 > ## Ecosystem Repository Structure
 >
 > ```text
