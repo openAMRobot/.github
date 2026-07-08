@@ -65,7 +65,7 @@ Our mission is to make advanced mobile robotics accessible by providing high-qua
 
 Support open-source robotics, ROS 2 development, AI robotics education, and dual-arm mobile robot research.
 
-### ⚡ Back the build — one-time, no strings
+### ⚡ Back the build - one-time, no strings
 
 | Tier | What it says about you | Link |
 |---|---|---|
@@ -75,7 +75,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 | 🔩 **Immortal - €100** | Your name goes on the actual robot. Physically. Forever. A machine will roll around carrying your name long after any of us remember why - and you'll have the photo to prove you were there. | <a href="https://buy.stripe.com/00w00jdhhb2o4tPfphgUM09" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 | 🏆 **Founding Backer - €250** | Not a supporter - a co-author. Everything above + a personal thank-you in a build video. When this becomes something, you were one of the people who decided it would. | <a href="https://buy.stripe.com/28EeVdcdddawaSdeldgUM0a" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 
-### 🔁 Monthly subscriptions — build it with us, every month
+### 🔁 Monthly subscriptions - build it with us, every month
 
 | Tier | What you get | Link |
 |---|---|---|
@@ -88,7 +88,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 **❤️ GitHub Sponsors:** <a href="https://github.com/sponsors/openAMRobot" target="_blank" rel="noopener noreferrer"> 🐙 &nbsp;github.com/sponsors/openAMRobot&nbsp;→</a>
 
-*Every contribution — €5 or €1,500 — literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
+*Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
 >
 > ## Ecosystem Repository Structure
 >
