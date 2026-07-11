@@ -2,12 +2,6 @@
 
 OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem developed by the Botshare robotics team.
 
-## 🎥 Demo
-
-[![Watch the OpenAMRobot demo](https://img.youtube.com/vi/i6PCJFTgUF8/maxresdefault.jpg)](https://youtu.be/i6PCJFTgUF8)
-
-▶️ **Click the image to watch the demo**
-
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
 - mobile manipulation
@@ -78,6 +72,13 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 **❤️ GitHub Sponsors:** <a href="https://github.com/sponsors/openAMRobot" target="_blank" rel="noopener noreferrer"> 🐙 &nbsp;github.com/sponsors/openAMRobot&nbsp;→</a>
 
 *Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
+
+---
+## 🎥 Demo
+
+[![Watch the OpenAMRobot demo](https://img.youtube.com/vi/i6PCJFTgUF8/maxresdefault.jpg)](https://youtu.be/i6PCJFTgUF8)
+
+▶️ **Click the image to watch the demo**
 
 ---
 
