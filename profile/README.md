@@ -2,6 +2,12 @@
 
 OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem developed by the Botshare robotics team.
 
+## 🎥 Demo
+
+[![Watch the OpenAMRobot demo](https://img.youtube.com/vi/i6PCJFTgUF8/maxresdefault.jpg)](https://youtu.be/i6PCJFTgUF8)
+
+▶️ **Click the image to watch the demo**
+
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
 - mobile manipulation
@@ -272,26 +278,11 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 ## Planned releases (next 6 months)
 
-- OpenAMRobot organization ecosystem structure
-  - Current discussion: https://github.com/orgs/openAMRobot/discussions/15
-
 - Carrier PCB (compute + power + sensors)
   - Current discussion: https://github.com/orgs/openAMRobot/discussions/9
 
-- Autodocking + wireless charging
-  - ROS 2 package & routines
-  - Current discussion: https://github.com/orgs/openAMRobot/discussions/13
-
 - Hub-motor drivetrain with suspension
   - mechanical + control integration
-
-- Operator UI (ROS 2)
-  - teleoperation
-  - maps
-  - telemetry
-  - waypoints
-  - logs
-  - https://github.com/openAMRobot/openamrobot-ui
 
 - Robotic arm integration and linear lift integration
   - mounts
@@ -447,6 +438,9 @@ Maintainers are contributors who:
 
 Maintainer roles are earned through contribution and trust.
 
+### Maintainer:
+https://github.com/rajindulkar22
+
 ---
 
 ## Useful resources
@@ -498,17 +492,10 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 **❤️ GitHub Sponsors:** <a href="https://github.com/sponsors/openAMRobot" target="_blank" rel="noopener noreferrer"> 🐙 &nbsp;github.com/sponsors/openAMRobot&nbsp;→</a>
 
-*Every contribution — €5 or €1,500 — literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
+*Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
 
 ---
 
-## Fun facts
-
-- The project originated from long-term robotics R&D work in Kharkiv, Ukraine.
-- Development continues through collaboration between researchers, students, engineers, and robotics enthusiasts.
-- The ecosystem strongly emphasizes affordability, openness, modularity, and practical deployment.
-
----
 
 ## License and Rights
 
