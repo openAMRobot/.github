@@ -74,7 +74,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 *Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
 
 ---
-## 🎥 Demo
+## 🎥 Demo (release v0.0.1)
 
 [![Watch the OpenAMRobot demo](https://img.youtube.com/vi/i6PCJFTgUF8/maxresdefault.jpg)](https://youtu.be/i6PCJFTgUF8)
 
