@@ -80,6 +80,12 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 ▶️ **Click the image to watch the demo**
 
+> [!NOTE]
+>
+> Download the complete product release (Hardware + Software + Firmware + UI + Documentation) here:
+>
+> **https://github.com/openAMRobot/openamrobot-release/releases/latest**
+
 ---
 
 > [!IMPORTANT]
