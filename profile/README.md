@@ -445,8 +445,16 @@ Maintainers are contributors who:
 
 Maintainer roles are earned through contribution and trust.
 
-### Maintainer:
-https://github.com/rajindulkar22
+## Maintainer
+
+- **[@rajindulkar22](https://github.com/rajindulkar22)** — Project Maintainer
+
+## Contributors
+
+A sincere thank you to our contributors for their valuable time, effort, and contributions to the project:
+
+- **[@Nahush11](https://github.com/Nahush11)**
+- **[@SHuttooo](https://github.com/SHuttooo)**
 
 ---
 
