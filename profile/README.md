@@ -63,7 +63,7 @@ OpenAMRobot is available in multiple formats depending on your needs.
 | Offering | Starting Price |
 |----------|---------------:|
 | Mobile Robot Platform - full initial price (components and chassis production), MIT license | **€3,500** |
-| DIY Development Kit Mobile Robot Platform (complete hardware, electronics, documentation & software package) | **€5,000** |
+| DIY Development Kit Mobile Robot Platform (assembled complete hardware, electronics, documentation & software package) | **€5,000** |
 | Dual-Arm Embodied AI Robot | **from €10,000** |
 
 > **Note:** Prices are indicative starting prices for standard configurations. Final pricing depends on hardware options, sensors, robotic arms, computing platform, manufacturing location, and customization requirements.
