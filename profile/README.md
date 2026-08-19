@@ -124,147 +124,258 @@ Whether you need a custom mobile robot, a proof of concept, or a complete produc
 
 > ## Ecosystem Repository Structure
 >
-> ```text
-> openAMRobot/
-> │
-> ├── .github
-> │
-> ├── openamrobot-manifest
-> ├── openamrobot-docs
-> ├── openamrobot-interfaces
-> ├── openamrobot-comm
-> ├── openamrobot-ui
-> │
-> ├── openamr-platform-sw
-> │   ├── ros2/
-> │   │   └── src/
-> │   │       ├── openamrobot_description/
-> │   │       ├── openamrobot_gazebo/
-> │   │       ├── openamrobot_nav2/
-> │   │       ├── openamrobot_docking/
-> │   │       ├── openamrobot_bringup/
-> │   │       ├── openamrobot_control/
-> │   │       ├── openamrobot_drivers/
-> │   │       └── openamrobot_perception/
-> │   │
-> │   ├── simulation/
-> │   │   ├── worlds/
-> │   │   ├── models/
-> │   │   └── scenarios/
-> │   │
-> │   ├── config/
-> │   │   ├── robot/
-> │   │   ├── nav2/
-> │   │   ├── docking/
-> │   │   └── simulation/
-> │   │
-> │   ├── scripts/
-> │   │   ├── setup_workspace.sh
-> │   │   ├── build.sh
-> │   │   └── run_simulation.sh
-> │   │
-> │   ├── tools/
-> │   │
-> │   ├── docs/
-> │   │   ├── architecture/
-> │   │   ├── getting_started/
-> │   │   ├── safety/
-> │   │   ├── simulation/
-> │   │   ├── navigation/
-> │   │   └── docking/
-> │   │
-> │   ├── .github/
-> │   ├── README.md
-> │   ├── LICENSE
-> │   ├── CONTRIBUTING.md
-> │   ├── SECURITY.md
-> │   ├── NOTICE.md
-> │   ├── AUTHORS.md
-> │   └── CHANGELOG.md
-> │
-> ├── openamr-platform-fw (currently see [`openamr`](https://github.com/openAMRobot/openamr) repo)
-> │   ├── boards/
-> │   │   ├── stm32/
-> │   │   ├── teensy_4_1/
-> │   │   ├── esp32/
-> │   │   └── arduino/
-> │   │
-> │   ├── firmware/
-> │   │   ├── motor_controller_bridge/
-> │   │   ├── sensor_bridge/
-> │   │   ├── encoder_reader/
-> │   │   ├── battery_monitor/
-> │   │   └── safety_io/
-> │   │
-> │   ├── configs/
-> │   │   ├── communication/
-> │   │   ├── safety/
-> │   │   └── motor_controllers/
-> │   │
-> │   ├── docs/
-> │   │   ├── architecture/
-> │   │   ├── flashing/
-> │   │   ├── bringup/
-> │   │   ├── safety/
-> │   │   └── troubleshooting/
-> │   │
-> │   ├── tests/
-> │   ├── tools/
-> │   ├── .github/
-> │   ├── README.md
-> │   ├── LICENSE
-> │   ├── CONTRIBUTING.md
-> │   ├── SECURITY.md
-> │   ├── NOTICE.md
-> │   ├── AUTHORS.md
-> │   └── CHANGELOG.md
-> │
-> ├── openamr-platform-hw (currently see openamr repo)
-> │   ├── mechanical/
-> │   │   ├── cad/
-> │   │   ├── chassis/
-> │   │   ├── drawings/
-> │   │   └── renderings/
-> │   │
-> │   ├── electrical/
-> │   │   ├── pcb/
-> │   │   ├── wiring/
-> │   │   ├── power_distribution/
-> │   │   ├── sensors/
-> │   │   ├── motor_control/
-> │   │   └── computing/
-> │   │
-> │   ├── manufacturing/
-> │   │   ├── bom/
-> │   │   ├── assembly/
-> │   │   └── vendors/
-> │   │
-> │   ├── interfaces/
-> │   │   ├── electrical/
-> │   │   └── mechanical/
-> │   │
-> │   ├── assets/
-> │   │   ├── images/
-> │   │   └── videos/
-> │   │
-> │   ├── docs/
-> │   │   ├── architecture/
-> │   │   ├── assembly/
-> │   │   ├── safety/
-> │   │   └── troubleshooting/
-> │   │
-> │   ├── .github/
-> │   ├── README.md
-> │   ├── LICENSE
-> │   ├── CONTRIBUTING.md
-> │   ├── SECURITY.md
-> │   ├── NOTICE.md
-> │   ├── AUTHORS.md
-> │   └── CHANGELOG.md
-> │
-> ├── openamh-humanoid-sw
-> ├── openamh-humanoid-fw
-> └── openamh-humanoid-hw
+> ```
+openAMRobot/
+│
+├── .github
+│
+├── openamrobot-manifest
+├── openamrobot-docs
+├── openamrobot-interfaces
+├── openamrobot-comm
+├── openamrobot-ui
+├── openamrobot-manipulation          # shared arm framework + arm packages (franka, rebot), consumed by every product line
+│
+├── openamr-platform-sw
+│   ├── ros2/
+│   │   └── src/
+│   │       ├── openamrobot_description/
+│   │       ├── openamrobot_gazebo/
+│   │       ├── openamrobot_nav2/
+│   │       ├── openamrobot_docking/
+│   │       ├── openamrobot_bringup/
+│   │       ├── openamrobot_control/
+│   │       ├── openamrobot_drivers/
+│   │       └── openamrobot_perception/
+│   │
+│   ├── simulation/
+│   │   ├── worlds/
+│   │   ├── models/
+│   │   └── scenarios/
+│   │
+│   ├── config/
+│   │   ├── robot/
+│   │   ├── nav2/
+│   │   ├── docking/
+│   │   └── simulation/
+│   │
+│   ├── scripts/
+│   │   ├── setup_workspace.sh
+│   │   ├── build.sh
+│   │   └── run_simulation.sh
+│   │
+│   ├── tools/
+│   ├── docs/
+│   │   ├── architecture/
+│   │   ├── getting_started/
+│   │   ├── safety/
+│   │   ├── simulation/
+│   │   ├── navigation/
+│   │   └── docking/
+│   │
+│   ├── .github/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── NOTICE.md
+│   ├── AUTHORS.md
+│   └── CHANGELOG.md
+│
+├── openamr-platform-fw (currently see openamr repo)
+│   ├── boards/
+│   │   ├── stm32/
+│   │   ├── teensy_4_1/
+│   │   ├── esp32/
+│   │   └── arduino/
+│   │
+│   ├── firmware/
+│   │   ├── motor_controller_bridge/
+│   │   ├── sensor_bridge/
+│   │   ├── encoder_reader/
+│   │   ├── battery_monitor/
+│   │   └── safety_io/
+│   │
+│   ├── configs/
+│   │   ├── communication/
+│   │   ├── safety/
+│   │   └── motor_controllers/
+│   │
+│   ├── docs/
+│   │   ├── architecture/
+│   │   ├── flashing/
+│   │   ├── bringup/
+│   │   ├── safety/
+│   │   └── troubleshooting/
+│   │
+│   ├── tests/
+│   ├── tools/
+│   ├── .github/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── NOTICE.md
+│   ├── AUTHORS.md
+│   └── CHANGELOG.md
+│
+├── openamr-platform-hw (currently see openamr repo)
+│   ├── mechanical/
+│   │   ├── cad/
+│   │   ├── chassis/
+│   │   ├── drawings/
+│   │   └── renderings/
+│   │
+│   ├── electrical/
+│   │   ├── pcb/
+│   │   ├── wiring/
+│   │   ├── power_distribution/
+│   │   ├── sensors/
+│   │   ├── motor_control/
+│   │   └── computing/
+│   │
+│   ├── manufacturing/
+│   │   ├── bom/
+│   │   ├── assembly/
+│   │   └── vendors/
+│   │
+│   ├── interfaces/
+│   │   ├── electrical/
+│   │   └── mechanical/
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   └── videos/
+│   │
+│   ├── docs/
+│   │   ├── architecture/
+│   │   ├── assembly/
+│   │   ├── safety/
+│   │   └── troubleshooting/
+│   │
+│   ├── .github/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── NOTICE.md
+│   ├── AUTHORS.md
+│   └── CHANGELOG.md
+│
+├── openamr-upperbody-sw
+│   ├── ros2/
+│   │   └── src/
+│   │       ├── openamrobot_upperbody_description/   # lift + mount interface + combined base+lift+arm model
+│   │       ├── openamrobot_upperbody_gazebo/
+│   │       ├── openamrobot_upperbody_moveit/        # planning groups: arm, arm+lift
+│   │       ├── openamrobot_upperbody_control/       # lift ros2_control + controllers
+│   │       └── openamrobot_upperbody_bringup/       # composes base + lift + arm (arm from openamrobot-manipulation)
+│   │
+│   ├── simulation/
+│   │   ├── worlds/
+│   │   ├── models/
+│   │   └── scenarios/
+│   │
+│   ├── config/
+│   │   ├── lift/
+│   │   ├── moveit/
+│   │   └── simulation/
+│   │
+│   ├── scripts/
+│   ├── tools/
+│   ├── docs/
+│   │   ├── architecture/
+│   │   ├── getting_started/
+│   │   ├── mounting/
+│   │   └── safety/
+│   │
+│   ├── .github/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── NOTICE.md
+│   ├── AUTHORS.md
+│   └── CHANGELOG.md
+│
+├── openamr-upperbody-fw
+│   ├── boards/
+│   │   ├── stm32/
+│   │   └── esp32/
+│   │
+│   ├── firmware/
+│   │   ├── lift_controller/
+│   │   ├── end_effector_bridge/
+│   │   └── safety_io/
+│   │
+│   ├── configs/
+│   │   ├── communication/
+│   │   ├── safety/
+│   │   └── lift/
+│   │
+│   ├── docs/
+│   │   ├── architecture/
+│   │   ├── flashing/
+│   │   ├── bringup/
+│   │   ├── safety/
+│   │   └── troubleshooting/
+│   │
+│   ├── tests/
+│   ├── tools/
+│   ├── .github/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── NOTICE.md
+│   ├── AUTHORS.md
+│   └── CHANGELOG.md
+│
+├── openamr-upperbody-hw
+│   ├── mechanical/
+│   │   ├── cad/
+│   │   ├── lift/
+│   │   ├── mounting_plates/
+│   │   ├── drawings/
+│   │   └── renderings/
+│   │
+│   ├── electrical/
+│   │   ├── pcb/
+│   │   ├── wiring/
+│   │   ├── power_distribution/
+│   │   └── computing/
+│   │
+│   ├── manufacturing/
+│   │   ├── bom/
+│   │   ├── assembly/
+│   │   └── vendors/
+│   │
+│   ├── interfaces/
+│   │   ├── electrical/
+│   │   └── mechanical/
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   └── videos/
+│   │
+│   ├── docs/
+│   │   ├── architecture/
+│   │   ├── assembly/
+│   │   ├── safety/
+│   │   └── troubleshooting/
+│   │
+│   ├── .github/
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CONTRIBUTING.md
+│   ├── SECURITY.md
+│   ├── NOTICE.md
+│   ├── AUTHORS.md
+│   └── CHANGELOG.md
+│
+├── openamh-humanoid-sw
+├── openamh-humanoid-fw
+└── openamh-humanoid-hw
 > ```
 >
 > ## Active Core Repositories
