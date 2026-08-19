@@ -122,63 +122,59 @@ Whether you need a custom mobile robot, a proof of concept, or a complete produc
 > ![OpenAMRobot Ecosystem](https://github.com/openAMRobot/openamr/blob/main/docs/hardware/pictures/OpenAMRobot_ecosystem.png)
 >
 
-> ## Ecosystem Repository Structure
->
-> ```text
+## Ecosystem Repository Structure
+
+```
 openAMRobot/
-> │
-> ├── .github/                  # org-wide config & community health files
-> │
-> ├── openamrobot-manifest      # workspace manifest: which repos + which versions
-> ├── openamrobot-interfaces    # shared ROS 2 msgs/services/actions + device.yaml schema
-> ├── openamrobot-comm          # comm protocols, middleware, transport
-> ├── openamrobot-ui            # operator UI, dashboards, Device Package panels
-> ├── openamrobot-manipulation  # arm framework + manipulation server + arm packages (franka, rebot)
-> ├── openamrobot-docs          # central docs, onboarding, compatibility
-> ├── openamrobot-release       # frozen, versioned product snapshots
-> │
-> ├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
-> ├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
-> ├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
-> ├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
-> ├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
-> ├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
-> │
-> ├── openamh-humanoid-sw       # humanoid (future); mounts arms from openamrobot-manipulation
-> ├── openamh-humanoid-fw
-> └── openamh-humanoid-hw
-> ```
->
-> ## Active Core Repositories
->
-> | Repository | Purpose |
-> |---|---|
-> | [`openamr`](https://github.com/openAMRobot/openamr) | Main OpenAMRobot platform repository and community entry point (will be transferred to openamr-platform-hw) |
-> | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software, simulation, navigation, docking, drivers, perception, and robot bringup |
-> | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, low-level microcontroller systems, motor interfaces, and hardware communication |
-> | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical systems, BOMs, manufacturing files, and mechatronics |
-> | [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces) | Shared ROS 2 messages, services, actions, schemas, and interface contracts |
-> | [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm) | APIs, middleware, telemetry, transport protocols, interoperability, and communication infrastructure |
-> | [`openamrobot-ui`](https://github.com/openAMRobot/openamrobot-ui) | Operator interfaces, dashboards, visualization tools, and user-facing applications |
-> | [`openamrobot-docs`](https://github.com/openAMRobot/openamrobot-docs) | Central documentation, onboarding, tutorials, safety, compatibility matrices, and contributor documentation |
->
-> ## Legacy Repositories
->
-> The following repositories are considered legacy repositories and are preserved primarily for:
->
-> - historical context
-> - migration support
-> - forks
-> - archived development history
-> - compatibility references
->
-> Legacy repositories:
->
-> - [`EOD-robot`](https://github.com/openAMRobot/EOD-robot)
-> - [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev)
-> - [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package)
-> - [`OpenAMR_UI`](https://github.com/openAMRobot/OpenAMR_UI)
-> - [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs)
+│
+├── .github/                  # org-wide config & community health files
+│
+├── openamrobot-manifest      # workspace manifest: which repos + which versions
+├── openamrobot-interfaces    # shared ROS 2 msgs/services/actions + device.yaml schema
+├── openamrobot-comm          # comm protocols, middleware, transport
+├── openamrobot-ui            # operator UI, dashboards, Device Package panels
+├── openamrobot-manipulation  # arm framework + manipulation server + arm packages (franka, rebot)
+├── openamrobot-docs          # central docs, onboarding, compatibility
+├── openamrobot-release       # frozen, versioned product snapshots
+│
+├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
+├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
+├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
+├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
+├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
+├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
+│
+├── openamh-humanoid-sw       # humanoid (future); mounts arms from openamrobot-manipulation
+├── openamh-humanoid-fw
+└── openamh-humanoid-hw
+```
+
+## Active Core Repositories
+
+| Repository | Purpose |
+|---|---|
+| [`openamr`](https://github.com/openAMRobot/openamr) | Main platform repo & community entry point (being transferred into `openamr-platform-hw`) |
+| [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software: simulation, navigation, docking, drivers, perception, bringup |
+| [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, microcontroller systems, motor interfaces, hardware communication |
+| [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical, BOMs, manufacturing files, mechatronics |
+| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + lift model, lift control, MoveIt on the combined model, bringup |
+| [`openamr-upperbody-fw`](https://github.com/openAMRobot/openamr-upperbody-fw) | Lift controller, end-effector, upper-body safety I/O |
+| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Lift mechanics, mounting plates, upper-body wiring, BOM |
+| [`openamrobot-manipulation`](https://github.com/openAMRobot/openamrobot-manipulation) | Arm-integration framework: manipulation server, Device Package format, reference arm packages (Franka, ReBot) |
+| [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces) | Shared ROS 2 messages, services, actions, schemas, interface contracts |
+| [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm) | APIs, middleware, telemetry, transport protocols, interoperability |
+| [`openamrobot-ui`](https://github.com/openAMRobot/openamrobot-ui) | Operator interfaces, dashboards, visualization, user-facing apps |
+| [`openamrobot-docs`](https://github.com/openAMRobot/openamrobot-docs) | Central documentation, onboarding, tutorials, safety, compatibility |
+
+## Legacy Repositories
+
+These repositories are preserved for historical context, migration support, forks, and compatibility reference. They are archived; active development targets the modular ecosystem repositories above.
+
+- [`OpenAMR_UI`](https://github.com/openAMRobot/OpenAMR_UI) (superseded by `openamrobot-ui`)
+- [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev) (superseded by `openamrobot-ui`)
+- [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package) (superseded by `openamrobot-ui`)
+- [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs) (superseded by `openamrobot-docs`)
+- [`EOD-robot`](https://github.com/openAMRobot/EOD-robot) (legacy EOD variant)
 >
 > Active development should target the modular ecosystem repositories listed above.
 
