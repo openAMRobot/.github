@@ -143,10 +143,7 @@ openAMRobot/
 ├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
 ├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
 ├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
-│
-├── openamh-humanoid-sw       # humanoid (future); mounts arms from openamrobot-manipulation
-├── openamh-humanoid-fw
-└── openamh-humanoid-hw
+
 ```
 
 ## Active Core Repositories
