@@ -126,27 +126,27 @@ Whether you need a custom mobile robot, a proof of concept, or a complete produc
 >
 > ```text
 openAMRobot/
-│
-├── .github/                  # org-wide config & community health files
-│
-├── openamrobot-manifest      # workspace manifest: which repos + which versions
-├── openamrobot-interfaces    # shared ROS 2 msgs/services/actions + device.yaml schema
-├── openamrobot-comm          # comm protocols, middleware, transport
-├── openamrobot-ui            # operator UI, dashboards, Device Package panels
-├── openamrobot-manipulation  # arm framework + manipulation server + arm packages (franka, rebot)
-├── openamrobot-docs          # central docs, onboarding, compatibility
-├── openamrobot-release       # frozen, versioned product snapshots
-│
-├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
-├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
-├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
-├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
-├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
-├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
-│
-├── openamh-humanoid-sw       # humanoid (future); mounts arms from openamrobot-manipulation
-├── openamh-humanoid-fw
-└── openamh-humanoid-hw
+> │
+> ├── .github/                  # org-wide config & community health files
+> │
+> ├── openamrobot-manifest      # workspace manifest: which repos + which versions
+> ├── openamrobot-interfaces    # shared ROS 2 msgs/services/actions + device.yaml schema
+> ├── openamrobot-comm          # comm protocols, middleware, transport
+> ├── openamrobot-ui            # operator UI, dashboards, Device Package panels
+> ├── openamrobot-manipulation  # arm framework + manipulation server + arm packages (franka, rebot)
+> ├── openamrobot-docs          # central docs, onboarding, compatibility
+> ├── openamrobot-release       # frozen, versioned product snapshots
+> │
+> ├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
+> ├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
+> ├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
+> ├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
+> ├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
+> ├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
+> │
+> ├── openamh-humanoid-sw       # humanoid (future); mounts arms from openamrobot-manipulation
+> ├── openamh-humanoid-fw
+> └── openamh-humanoid-hw
 > ```
 >
 > ## Active Core Repositories
