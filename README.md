@@ -41,6 +41,7 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 - [Technical Steering](TECHNICAL_STEERING.md)
 - [Maintainers](MAINTAINERS.md)
 - [Roadmap](ROADMAP.md)
+- [Documentation Standard](https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_STANDARD.md)
 
 ## Contribution
 
