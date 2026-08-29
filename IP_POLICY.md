@@ -7,7 +7,7 @@ OpenAMRobot is initiated, operated, and controlled by **Botshare LTD**, a Cyprus
 - Company ID: HE479056
 - VAT: 60197356L
 - Address: Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus
-- Email: alex@botshare.ai
+- Email: info@botshare.ai
 - Website: https://botshare.ai
 
 The `openAMRobot` GitHub organization is infrastructure operated by Botshare LTD and is not a separate legal person.
@@ -46,12 +46,12 @@ No contributor may submit material they are not authorized to disclose or licens
 An external contribution may be accepted only when:
 
 1. every commit satisfies the [Developer Certificate of Origin](DCO.md);
-2. the contributor is covered by an executed [Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or [Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement;
+2. the contributor is covered by a recorded electronic acceptance of the [Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or an executed [Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement;
 3. required employer, university, client, sponsor, co-author, joint-inventor, or institutional permissions are documented;
 4. third-party, Background, and materially AI-assisted material is disclosed; and
 5. mandatory reviews and status checks pass.
 
-The applicable executed Contributor Agreement—not the DCO, repository location, or merge alone—governs assignment and licensing of contributor rights.
+The applicable recorded Contributor Agreement—not the DCO, repository location, or merge alone—governs assignment and licensing of contributor rights.
 
 A Contribution becomes an “Accepted Contribution” only when an authorized maintainer merges it into an official repository or Botshare LTD expressly confirms acceptance in writing.
 
@@ -61,10 +61,10 @@ This policy is prospective and does not itself alter historical rights. Botshare
 
 ## 7. Asset-specific licensing
 
-- **Original software and firmware:** normally MIT.
-- **Third-party or derivative software:** applicable upstream licence; no unauthorized relicensing.
-- **Hardware source and CAD:** the licence stated for the applicable repository or files, normally a selected CERN-OHL-2.0 variant.
-- **Documentation and educational content:** the expressly stated content licence.
+- **Original software and firmware:** MIT.
+- **Original documentation, diagrams, tutorials, images, and educational content:** CC BY 4.0.
+- **Original hardware source, CAD, PCB and schematic source, manufacturing source, and CAD-derived robot geometry:** CERN-OHL-P-2.0.
+- **Third-party or derivative material:** applicable upstream licence; no unauthorized relicensing.
 - **Datasets and AI models:** no implied licence; each asset requires explicit terms and provenance.
 - **Logos, names, and brand assets:** excluded from software, content, and hardware licences unless expressly stated.
 - **Confidential or proprietary material:** not published in public repositories and not licensed by implication.
@@ -99,4 +99,4 @@ For a specific Contribution, the signed Contributor Agreement controls assignmen
 
 ## 11. Contact
 
-Questions about ownership, licensing, contributor agreements, third-party material, or brand use: alex@botshare.ai.
+Questions about ownership, licensing, contributor agreements, third-party material, or brand use: info@botshare.ai.

@@ -87,7 +87,7 @@ Contributor Organization represents, warrants, and undertakes that:
 5. Contributions contain no unauthorized confidential information, personal data, credentials, unlawfully obtained material, or prohibited export-controlled material;
 6. third-party and materially AI-assisted content is disclosed with available source, tool/model information, licence, notices, and meaningful modifications;
 7. entering and performing this Agreement breaches no other obligation; and
-8. it will promptly notify alex@botshare.ai if a statement becomes inaccurate.
+8. it will promptly notify info@botshare.ai if a statement becomes inaccurate.
 
 These statements apply when a Contribution is submitted and again when accepted.
 

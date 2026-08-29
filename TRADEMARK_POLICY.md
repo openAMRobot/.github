@@ -38,4 +38,4 @@ This policy does not describe a mark as registered unless Botshare LTD confirms 
 
 ## Requests and reports
 
-Requests for permission and reports of misleading use should be sent to alex@botshare.ai.
+Requests for permission and reports of misleading use should be sent to info@botshare.ai.

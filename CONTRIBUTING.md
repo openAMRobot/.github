@@ -73,4 +73,4 @@ Submission and review do not guarantee acceptance. A contribution is accepted on
 
 ## Conduct and contact
 
-Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report security issues through [SECURITY.md](SECURITY.md). Questions about contribution rights may be sent to alex@botshare.ai.
+Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report security issues through [SECURITY.md](SECURITY.md). Questions about contribution rights may be sent to info@botshare.ai.

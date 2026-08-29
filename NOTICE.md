@@ -7,7 +7,7 @@ Company ID: HE479056
 VAT: 60197356L  
 Chrysanthou Mylona 1, Panayides Building, Office 1  
 3030 Limassol, Cyprus  
-alex@botshare.ai · https://botshare.ai
+info@botshare.ai · https://botshare.ai
 
 Copyright and transferable economic rights in original OpenAMRobot materials are owned by Botshare LTD or used by it under applicable agreements.
 

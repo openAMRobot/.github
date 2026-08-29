@@ -1,0 +1,29 @@
+name: Documentation issue
+description: Report unclear, incorrect, missing, or outdated documentation
+title: "[Docs]: "
+labels: ["documentation", "triage"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Page or file
+      description: Provide the URL or repository path.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear or incorrect?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+  - type: checkboxes
+    id: provenance
+    attributes:
+      label: Submission confirmation
+      options:
+        - label: Any text or media I provide is original or properly licensed and identified.
+          required: true

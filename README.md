@@ -53,6 +53,7 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 
 - [IP Policy](IP_POLICY.md)
 - [Contributor Agreement Process](CLA.md)
+- [Contributor Agreement Recordkeeping](CLA_RECORDKEEPING.md)
 - [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md)
 - [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md)
 - [Trademark Policy](TRADEMARK_POLICY.md)
@@ -86,10 +87,10 @@ The OpenAMRobot ecosystem uses different licenses depending on asset type.
 | Asset Type | Recommended License |
 |---|---|
 | Software | MIT |
-| Documentation | CC BY-SA 4.0 |
-| Hardware CAD | CERN-OHL-S-2.0 |
+| Documentation | CC BY 4.0 |
+| Hardware CAD | CERN-OHL-P-2.0 |
 | Logos & Branding | Reserved |
-| Educational Content | CC BY-SA 4.0 |
+| Educational Content | CC BY 4.0 |
 
 ---
 

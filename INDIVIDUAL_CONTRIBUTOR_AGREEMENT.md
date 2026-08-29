@@ -87,7 +87,7 @@ Contributor represents, warrants, and undertakes that:
 6. Contributor has not submitted unauthorized confidential information, trade secrets, personal data, credentials, unlawfully obtained material, or material whose disclosure or export is prohibited.
 7. Third-party and materially AI-assisted content is disclosed with available source, tool/model information, licence, notices, and meaningful modifications.
 8. Contributor will comply with the repository licence, DCO, contribution, security, provenance, and AI policies.
-9. Contributor will promptly notify alex@botshare.ai if any statement above becomes inaccurate.
+9. Contributor will promptly notify info@botshare.ai if any statement above becomes inaccurate.
 
 These representations apply when the Contribution is submitted and again when it is accepted.
 
