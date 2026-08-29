@@ -7,7 +7,7 @@ OpenAMRobot is initiated, operated, and controlled by **Botshare LTD**, a Cyprus
 - Company ID: HE479056
 - VAT: 60197356L
 - Address: Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus
-- Email: alex@botshare.ai
+- Email: info@botshare.ai
 - Website: https://botshare.ai
 
 The `openAMRobot` GitHub organization is infrastructure operated by Botshare LTD and is not a separate legal person.
@@ -99,4 +99,4 @@ For a specific Contribution, the signed Contributor Agreement controls assignmen
 
 ## 11. Contact
 
-Questions about ownership, licensing, contributor agreements, third-party material, or brand use: alex@botshare.ai.
+Questions about ownership, licensing, contributor agreements, third-party material, or brand use: info@botshare.ai.
