@@ -1,0 +1,38 @@
+name: Hardware issue
+description: Report a CAD, mechanical, electrical, PCB, BOM, or manufacturing issue
+title: "[Hardware]: "
+labels: ["hardware", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not upload confidential designs or third-party files unless you are authorized to disclose them."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: input
+    id: artifact
+    attributes:
+      label: Part, assembly, board, file, or revision
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Safety and operational impact
+      description: State whether the issue could cause injury, damage, loss of control, or regulatory non-compliance.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Reproduction, measurements, and evidence
+  - type: checkboxes
+    id: provenance
+    attributes:
+      label: Submission confirmation
+      options:
+        - label: I am authorized to disclose every attached design, image, measurement, and document.
+          required: true
