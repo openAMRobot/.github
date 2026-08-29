@@ -29,7 +29,7 @@ CLA Assistant acceptance is for contributors acting in their individual capacity
 1. complete the [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md);
 2. have an authorized representative sign it;
 3. identify the Authorized Contributors and GitHub usernames;
-4. send the agreement privately to **alex@botshare.ai** with subject: `OpenAMRobot Corporate Contributor Agreement — [legal entity]`; and
+4. send the agreement privately to **info@botshare.ai** with subject: `OpenAMRobot Corporate Contributor Agreement — [legal entity]`; and
 5. wait for Botshare LTD to confirm coverage before submitting or merging Contributions.
 
 Signed agreements, identity documents, and private authorization records must never be committed to a public repository.
