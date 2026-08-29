@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible software or firmware defect
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include credentials, confidential information, export-controlled data, or third-party material you cannot disclose."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Repository version, tag, or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, ROS version, hardware, browser, and relevant dependencies.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and supporting evidence
+      description: Remove personal, confidential, and security-sensitive information.
+  - type: checkboxes
+    id: provenance
+    attributes:
+      label: Submission confirmation
+      options:
+        - label: I am authorized to disclose everything included in this report.
+          required: true
