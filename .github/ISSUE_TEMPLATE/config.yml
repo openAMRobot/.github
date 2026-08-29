@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/openAMRobot/.github/security/policy
+    about: Report vulnerabilities privately; do not publish exploit details in an issue.
+  - name: Licensing, provenance, or trademark question
+    url: mailto:info@botshare.ai
+    about: Contact Botshare LTD about licensing, provenance, contributor agreements, or brand use.
