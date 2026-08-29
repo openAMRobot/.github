@@ -1,8 +1,8 @@
 # OpenAMRobot Intellectual Property Policy
 
-## 1. Project owner
+## 1. Project operator
 
-OpenAMRobot is a robotics project initiated, operated, and controlled by **Botshare LTD**, a Cyprus company:
+OpenAMRobot is initiated, operated, and controlled by **Botshare LTD**, a Cyprus company:
 
 - Company ID: HE479056
 - VAT: 60197356L
@@ -10,62 +10,93 @@ OpenAMRobot is a robotics project initiated, operated, and controlled by **Botsh
 - Email: alex@botshare.ai
 - Website: https://botshare.ai
 
-The `openAMRobot` GitHub organization is project infrastructure operated by Botshare LTD; it is not a separate legal person.
+The `openAMRobot` GitHub organization is infrastructure operated by Botshare LTD and is not a separate legal person.
 
-## 2. Ownership principle
+## 2. Ownership and licensing
 
-Botshare LTD owns the transferable economic rights in original OpenAMRobot materials created by it or validly assigned to it, including project software, firmware, hardware designs, documentation, architecture, branding, and related materials.
+Botshare LTD owns the rights in original OpenAMRobot material created by it and rights validly assigned to it. This includes, where applicable, transferable copyright and related economic rights, database and design rights, contribution-specific invention rights, project know-how, branding, and contractual rights.
 
-Public distribution under MIT or another open-source, documentation, or open-hardware licence grants the permissions stated in that licence. It does not transfer ownership of underlying copyright, trademarks, patents, know-how, or other intellectual property.
+This statement does not claim:
 
-Authorship, attribution, and non-waivable moral rights remain recognized as required by applicable law.
+- legally non-transferable authorship, inventorship, or moral rights;
+- third-party rights;
+- contributor rights not validly assigned under an executed agreement; or
+- rights that mandatory law reserves to employees, inventors, consumers, or other persons.
 
-## 3. Third-party material
+Public distribution under MIT or another applicable licence grants the permissions stated in that licence. It does not transfer ownership of underlying intellectual property. Existing open-source grants for copies already distributed remain governed by their applicable terms.
 
-Botshare LTD does not claim ownership of third-party material. Upstream copyright notices, licences, patent grants, attribution requirements, and modification notices must be preserved.
+## 3. Company and contributor Background IP
 
-Every repository containing third-party material must identify it through applicable source headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, package metadata, or an equivalent provenance record.
+“Background IP” is material developed or acquired independently of a contribution and identified before acceptance. Botshare LTD retains all rights in its Background IP, including private designs, trade secrets, confidential information, proprietary tooling, commercial know-how, unreleased roadmaps, credentials, customer material, manufacturing data, and non-public datasets.
 
-No contributor may submit confidential information, trade secrets, personal data, export-controlled material, or material they are not authorized to disclose.
+Contributors retain their properly disclosed Background IP, subject only to the licence expressly granted under the applicable Contributor Agreement where necessary to use an Accepted Contribution.
 
-## 4. Accepted contributions
+No public repository may contain Company or third-party confidential information without documented authorization.
+
+## 4. Third-party material
+
+Botshare LTD does not claim ownership of third-party material. Upstream notices, licences, patent grants, attribution requirements, source-offer obligations, and modification notices must be preserved.
+
+Third-party material must be recorded through source headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, dependency manifests, software-bill-of-materials records, or an equivalent provenance mechanism.
+
+No contributor may submit material they are not authorized to disclose or license.
+
+## 5. Accepted external contributions
 
 An external contribution may be accepted only when:
 
 1. every commit satisfies the [Developer Certificate of Origin](DCO.md);
-2. the contributor is covered by the applicable [Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or [Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement;
-3. any required employer, university, client, sponsor, co-author, or institutional authorization has been obtained; and
-4. third-party and AI-assisted material has been disclosed with its source, licence, and required notices.
+2. the contributor is covered by an executed [Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or [Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement;
+3. required employer, university, client, sponsor, co-author, joint-inventor, or institutional permissions are documented;
+4. third-party, Background, and materially AI-assisted material is disclosed; and
+5. mandatory reviews and status checks pass.
 
-The applicable Contributor Agreement governs assignment of transferable economic rights in accepted contributions to Botshare LTD. Submission, discussion, or review of a proposal does not itself constitute acceptance. Acceptance occurs when Botshare LTD or an authorized maintainer merges the contribution into an official OpenAMRobot repository or confirms acceptance in writing.
+The applicable executed Contributor Agreement—not the DCO, repository location, or merge alone—governs assignment and licensing of contributor rights.
 
-Accepted project material may be distributed under the outbound licence applicable to the relevant repository or file.
+A Contribution becomes an “Accepted Contribution” only when an authorized maintainer merges it into an official repository or Botshare LTD expressly confirms acceptance in writing.
 
-## 5. Historical material
+## 6. Historical material
 
-This policy operates prospectively and does not by itself alter rights in historical third-party or contributor material. Any necessary historical assignments will be handled separately by Botshare LTD.
+This policy is prospective and does not itself alter historical rights. Botshare LTD will address any material historical chain-of-title gaps separately.
 
-## 6. Asset-specific licensing
+## 7. Asset-specific licensing
 
-- **Original software:** normally MIT.
-- **Third-party or derivative software:** original applicable licence; no unauthorized relicensing.
-- **Hardware source:** the licence stated for the applicable files or repository, normally a selected CERN-OHL-2.0 variant.
-- **Documentation and educational content:** the licence stated for the applicable files or repository.
-- **Datasets and AI models:** no implied licence; each asset requires explicit terms.
-- **Logos, names, and brand assets:** not licensed by software, documentation, or hardware licences unless explicitly stated.
+- **Original software and firmware:** normally MIT.
+- **Third-party or derivative software:** applicable upstream licence; no unauthorized relicensing.
+- **Hardware source and CAD:** the licence stated for the applicable repository or files, normally a selected CERN-OHL-2.0 variant.
+- **Documentation and educational content:** the expressly stated content licence.
+- **Datasets and AI models:** no implied licence; each asset requires explicit terms and provenance.
+- **Logos, names, and brand assets:** excluded from software, content, and hardware licences unless expressly stated.
+- **Confidential or proprietary material:** not published in public repositories and not licensed by implication.
 
-Where multiple licences apply, the repository must contain a clear per-file or per-directory licence map.
+Mixed repositories must provide a per-file or per-directory licence map.
 
-## 7. Branding
+## 8. Authorship, inventorship, and attribution
 
-OpenAMRobot, OpenAMR, associated logos, official visual identity, and official project names are brand assets controlled by Botshare LTD. Their use is governed by the [Trademark Policy](TRADEMARK_POLICY.md).
+Botshare LTD respects authorship, inventorship, attribution, and moral rights to the extent required by applicable law. Attribution may be maintained through Git history, notices, AUTHORS files, patent records, or equivalent records.
 
-## 8. Records and enforcement
+Attribution does not itself create ownership, employment, partnership, governance authority, endorsement, or a right to compensation.
 
-Botshare LTD will maintain non-public records of contributor agreements, contributor identities, GitHub accounts, agreement versions, dates, and covered contributions. Public repositories must not contain identity documents or signed agreements.
+## 9. Records and enforcement
 
-Required contribution checks must not be bypassed except through a documented emergency decision by an authorized Botshare LTD representative.
+Botshare LTD maintains private records linking:
 
-## 9. Contact
+- contributor legal identity and verified contact information;
+- executed agreement and version;
+- applicable corporate authorization;
+- GitHub identity;
+- pull requests and commit hashes;
+- acceptance date and accepting maintainer; and
+- disclosed third-party and Background Material.
 
-Questions about licensing, assignments, third-party material, or brand use should be sent to alex@botshare.ai.
+Signed agreements and identity documents must not be committed publicly.
+
+Required contribution checks must not be bypassed except through a documented, time-limited emergency decision by an authorized Botshare LTD representative, followed by retrospective review.
+
+## 10. Governing hierarchy
+
+For a specific Contribution, the signed Contributor Agreement controls assignment and inbound licensing. The applicable repository or file licence controls outbound public permissions. A third-party licence controls the corresponding third-party material. This policy governs project administration and does not override mandatory law or an executed agreement.
+
+## 11. Contact
+
+Questions about ownership, licensing, contributor agreements, third-party material, or brand use: alex@botshare.ai.
