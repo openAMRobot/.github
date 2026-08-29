@@ -1,84 +1,43 @@
 # Security Policy
 
-## Purpose
+## Reporting a vulnerability
 
-This document defines the OpenAMRobot approach to responsible security reporting and disclosure.
+Do not disclose a suspected vulnerability in a public issue, discussion, pull request, or chat.
 
----
+Use either of these private channels:
 
-# Reporting Vulnerabilities
+1. In the **affected repository**, open **Security → Advisories → New draft security advisory**. GitHub’s repository URL has the form:
+   https://github.com/openAMRobot/REPOSITORY/security/advisories/new
+2. Email **info@botshare.ai** with the subject “OpenAMRobot security report”.
 
-If you discover a security vulnerability, please avoid publicly disclosing it immediately.
+Include the affected repository and version or commit, impact, reproduction steps, proof of concept when safe, known mitigations, and a secure contact method. Remove credentials, personal data, third-party confidential information, and unnecessary operational secrets.
 
-Instead:
+If private vulnerability reporting is not enabled for the affected repository, use email. Do not open a public report.
 
-- open a private security advisory if available
-- contact maintainers through appropriate channels
-- provide technical details sufficient for reproduction
+## Scope
 
----
+Reports may concern:
 
-# Scope
+- ROS 2 nodes, services, actions, topics, or launch configuration;
+- remote control, networking, authentication, or authorization;
+- unsafe firmware, bootloaders, update mechanisms, or device interfaces;
+- secrets, credentials, dependency or supply-chain risks;
+- robot motion, stored energy, charging, thermal, electrical, or mechanical safety;
+- AI-related security and unsafe autonomous behavior; or
+- release artifacts and build infrastructure.
 
-Security concerns may include:
+## Response and disclosure
 
-- ROS vulnerabilities
-- remote control vulnerabilities
-- networking issues
-- unsafe default configurations
-- authentication weaknesses
-- unsafe firmware behavior
-- robotics safety issues
-- AI-related security concerns
+Botshare LTD aims to acknowledge, investigate, coordinate remediation, and publish fixes when practical. Do not assume a response or remediation deadline unless Botshare LTD confirms one in writing. Please allow coordinated disclosure before publication.
 
----
+## Experimental nature and user responsibility
 
-# Responsible Disclosure
+OpenAMRobot is experimental and research-oriented. Software and hardware must not be assumed safe for industrial, medical, safety-critical, or autonomous public operation without independent risk assessment, validation, testing, and certification.
 
-The organization aims to:
+Users remain responsible for regulatory compliance, deployment suitability, integration testing, physical safeguards, access control, and operational safety.
 
-- acknowledge reports reasonably quickly
-- investigate reported issues
-- coordinate responsible disclosure
-- publish fixes when practical
+## Supported versions
 
----
+Security support varies by component maturity. Unless a repository states otherwise, reports should target the latest public release or the current default branch.
 
-# Experimental Nature
-
-OpenAMRobot projects are experimental and research-oriented.
-
-No software or hardware should be assumed safe for:
-
-- industrial deployment
-- medical use
-- safety-critical systems
-- autonomous public operation
-
-without independent validation and certification.
-
----
-
-# User Responsibility
-
-Users are responsible for:
-
-- validating safety
-- regulatory compliance
-- deployment suitability
-- integration testing
-- operational safety
-
----
-
-# Supported Versions
-
-Security support expectations may vary by repository and project maturity.
-
-Repositories should document supported versions when applicable.
-
----
-
-# Policy Updates
-
-This policy may evolve as the ecosystem grows.
+Security contact: **info@botshare.ai**.
