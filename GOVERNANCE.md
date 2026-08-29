@@ -1,154 +1,45 @@
 # OpenAMRobot Governance
 
-## Purpose
+## Legal and project authority
 
-This document defines the governance structure of the OpenAMRobot ecosystem.
+OpenAMRobot is initiated, operated, and controlled by **Botshare LTD** (Cyprus Company ID HE479056). The `openAMRobot` GitHub organization is infrastructure through which Botshare LTD operates the project.
 
-The governance model aims to:
+Botshare LTD has final authority over official project scope, repositories, releases, governance, intellectual-property policy, branding, security, and maintainer appointments.
 
-- support open collaboration,
-- maintain project quality,
-- ensure ecosystem sustainability,
-- protect organizational identity,
-- encourage transparent decision making.
+## Maintainers
 
----
+Organization maintainers coordinate the ecosystem and enforce governance. Repository maintainers review contributions within delegated scope.
 
-# Governance Philosophy
-
-OpenAMRobot follows the principle:
-
-> Open technology, protected identity.
-
-The ecosystem is intended to remain:
-
-- open-source friendly,
-- contributor-friendly,
-- academically accessible,
-- commercially usable,
-- organizationally sustainable.
-
----
-
-# Governance Structure
-
-## Organization Maintainers
-
-Organization maintainers are responsible for:
-
-- ecosystem coordination,
-- governance maintenance,
-- infrastructure management,
-- branding protection,
-- repository oversight,
-- release coordination.
-
----
-
-## Repository Maintainers
-
-Each repository may define its own maintainers.
-
-Repository maintainers are responsible for:
-
-- reviewing pull requests,
-- maintaining code quality,
-- managing issues,
-- maintaining documentation,
-- ensuring repository compliance with organization governance.
-
----
+Maintainer status grants operational authority only. It does not transfer ownership of Botshare LTD intellectual property and does not authorize a maintainer to waive contribution, licensing, security, or brand requirements.
 
 ## Contributors
 
-Contributors may:
+Contributors may propose changes through issues, discussions, and pull requests. Contributions must comply with [CONTRIBUTING.md](CONTRIBUTING.md), [DCO.md](DCO.md), [CLA.md](CLA.md), the applicable repository licence, and all third-party notices.
 
-- submit pull requests,
-- report issues,
-- improve documentation,
-- contribute educational content,
-- participate in discussions,
-- propose improvements.
+Transferable economic rights in accepted external contributions are governed by the applicable Contributor Agreement. Attribution and legally applicable authorship or moral rights remain recognized.
 
-Contributors retain copyright ownership of their contributions unless explicitly assigned otherwise.
+## Decisions
 
-By contributing, contributors agree that their contributions may be distributed under repository licenses.
+Technical decisions should be documented in issues, pull requests, architecture records, or maintainer notes. Botshare LTD may accept, reject, defer, revert, or change project direction to protect safety, quality, compatibility, legal compliance, security, IP, and commercial sustainability.
 
----
+## Repository baseline
 
-# Decision Making
+Every active repository must have an effective README and licence. Other controls are applied according to repository type and may be local or inherited from this organization repository:
 
-OpenAMRobot prefers transparent and discussion-driven decision making.
+- contribution and DCO/CLA instructions;
+- security reporting;
+- CODEOWNERS;
+- pull-request template;
+- third-party/provenance notices;
+- CI and required review;
+- release/versioning policy where applicable.
 
-Major decisions should be discussed through:
+Empty placeholder governance files do not satisfy this baseline.
 
-- GitHub Discussions,
-- Issues,
-- Pull Requests,
-- Maintainer meetings,
-- Technical steering discussions.
+## Releases and official status
 
----
+Only repositories, releases, domains, documentation sites, and communications designated by Botshare LTD may claim official OpenAMRobot status. Forks and compatible products must not imply endorsement or certification.
 
-# Repository Governance Requirements
+## Changes to governance
 
-All repositories should contain:
-
-- LICENSE
-- README.md
-- CONTRIBUTING.md
-- CODE_OF_CONDUCT.md
-- SECURITY.md
-- SUPPORT.md
-
-Repositories are encouraged to additionally include:
-
-- ROADMAP.md
-- MAINTAINERS.md
-- RELEASE_POLICY.md
-- CONTRIBUTORS.md
-
----
-
-# Governance Evolution
-
-The governance model may evolve as the ecosystem grows.
-
-Future governance structures may include:
-
-- technical steering committees,
-- domain maintainers,
-- working groups,
-- foundations or associations,
-- industrial advisory boards.
-
----
-
-# Community Expectations
-
-All participants are expected to:
-
-- behave respectfully,
-- support constructive collaboration,
-- encourage learning,
-- maintain professionalism,
-- avoid harmful or deceptive behavior.
-
----
-
-# Ecosystem Sustainability
-
-The organization supports:
-
-- open-source development,
-- educational usage,
-- research collaboration,
-- industrial experimentation,
-- commercial ecosystem growth.
-
-The organization also reserves the right to protect:
-
-- trademarks,
-- branding,
-- organizational identity,
-- official ecosystem representation.
+Governance changes require review by an authorized Botshare LTD representative. No governance change may remove authentic third-party notices or claim rights Botshare LTD does not own.

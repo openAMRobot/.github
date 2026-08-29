@@ -1,113 +1,41 @@
-# OpenAMRobot Trademark Policy
+# OpenAMRobot Brand and Trademark Policy
 
-## Purpose
+## Owner and scope
 
-This policy defines how the OpenAMRobot name, branding, and identity assets may be used.
+OpenAMRobot, OpenAMR, associated logos, official visual identity, official robot names, and related project branding are brand assets controlled by **Botshare LTD**, Cyprus Company ID HE479056.
 
-The goal is to support open-source collaboration while protecting the integrity, identity, and reputation of the OpenAMRobot ecosystem.
+Open-source, documentation, and open-hardware licences do not grant a general right to use these assets as branding.
 
----
+## Uses normally permitted
 
-# Protected Assets
+Subject to applicable law, accurate factual and nominative references are permitted, including:
 
-The following assets are protected and reserved unless explicitly stated otherwise:
+- “compatible with OpenAMRobot”;
+- “based on OpenAMR”;
+- links, reviews, tutorials, and research citations;
+- identification of an unmodified official release;
+- forks clearly marked as unofficial.
 
-- OpenAMRobot
-- OpenAMR
-- official organization logos
-- official project logos
-- graphical identity
-- organization branding
-- official robot names
-- visual identity assets
-- official artwork
-- domain names associated with the organization
+Use only what is reasonably necessary to identify the project and do not imply endorsement.
 
-These assets are not automatically covered by software or hardware licenses.
+## Permission required
 
----
+Written permission from Botshare LTD is required to:
 
-# Allowed Usage
+- use official logos or visual identity as product or company branding;
+- present a modified distribution as an official OpenAMRobot release;
+- use confusingly similar names, domains, logos, or packaging;
+- imply sponsorship, certification, partnership, endorsement, or affiliation;
+- use the marks in commercial product names, services, events, or certification schemes.
 
-The following uses are generally allowed:
+## Forks and derivatives
 
-- factual references
-- educational references
-- research citations
-- compatibility statements
-- links to repositories
-- discussion of the project
-- forks that clearly identify themselves as unofficial
+Forks must identify themselves as unofficial, preserve applicable licence notices, and avoid confusing branding. The ability to copy or modify source code or hardware does not grant official status.
 
-Examples:
+## No registration claim
 
-- "Compatible with OpenAMRobot"
-- "Forked from OpenAMRobot"
-- "Based on OpenAMR"
+This policy does not describe a mark as registered unless Botshare LTD confirms an applicable registration.
 
----
+## Requests and reports
 
-# Prohibited Usage
-
-The following uses are not allowed without permission:
-
-- implying official endorsement
-- pretending official affiliation
-- using identical or confusingly similar branding
-- redistributing modified versions under official branding
-- misleading commercial representation
-- using logos in a deceptive manner
-- presenting unofficial forks as official releases
-
----
-
-# Commercial Usage
-
-Commercial usage of OpenAMRobot software may be allowed under repository licenses.
-
-However, commercial usage of OpenAMRobot branding, trademarks, logos, or official identity requires permission from the organization.
-
----
-
-# Community Projects
-
-Community projects and forks are encouraged.
-
-Community projects should:
-
-- clearly identify themselves as unofficial when applicable
-- avoid confusing branding
-- avoid misleading representation
-- respect repository licenses
-
----
-
-# Trademark Ownership
-
-OpenAMRobot trademarks and branding assets remain property of the OpenAMRobot organization unless explicitly stated otherwise.
-
----
-
-# Fair Use
-
-Reasonable nominative and factual references to OpenAMRobot are generally permitted.
-
-Examples include:
-
-- tutorials
-- reviews
-- academic references
-- compatibility documentation
-- technical discussions
-
----
-
-# Reporting Abuse
-
-Trademark misuse or deceptive representation may be reported through organization communication channels or repository discussions.
-
----
-
-# Policy Updates
-
-This policy may evolve as the ecosystem grows.
+Requests for permission and reports of misleading use should be sent to alex@botshare.ai.

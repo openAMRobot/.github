@@ -1,6 +1,6 @@
 # OpenAMRobot: Open Embodied AI & Mobile Manipulation Ecosystem
 
-OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem developed by the Botshare robotics team.
+OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem initiated, operated, and controlled by **Botshare LTD** (Cyprus Company ID HE479056).
 
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
@@ -165,13 +165,12 @@ openAMRobot/
 
 ## Legacy Repositories
 
-These repositories are preserved for historical context, migration support, forks, and compatibility reference. They are archived; active development targets the modular ecosystem repositories above.
+These repositories are preserved for historical context, migration support, forks, and compatibility reference. Active development targets the modular ecosystem repositories above. Repositories explicitly marked **archived** by GitHub are read-only.
 
-- [`OpenAMR_UI`](https://github.com/openAMRobot/OpenAMR_UI) (superseded by `openamrobot-ui`)
-- [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev) (superseded by `openamrobot-ui`)
-- [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package) (superseded by `openamrobot-ui`)
-- [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs) (superseded by `openamrobot-docs`)
-- [`EOD-robot`](https://github.com/openAMRobot/EOD-robot) (legacy EOD variant)
+- [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev) — archived; superseded by `openamrobot-ui`
+- [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package) — archived; superseded by `openamrobot-ui`
+- [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs) — legacy documentation source; superseded by `openamrobot-docs`
+- [`EOD-robot`](https://github.com/openAMRobot/EOD-robot) — archived legacy EOD variant
 >
 > Active development should target the modular ecosystem repositories listed above.
 
@@ -396,7 +395,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 | 🎯 **Sharpshooter - €25** | You spotted it early and called it. Name on the wall + a shareable "OpenAMRobot Backer" badge - proof you saw it coming while everyone else was still scrolling. | <a href="https://buy.stripe.com/4gMdR9ell1rO2lH90TgUM07" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 | 🕶️ **Insider - €50** | You want in behind the curtain. Everything above + the backer-only build log and early files - every breakthrough, every faceplant, unfiltered. You see it before the internet does. | <a href="https://buy.stripe.com/eVq14nfpp4E0gcx2CvgUM08" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 | 🔩 **Immortal - €100** | Your name goes on the actual robot. Physically. Forever. A machine will roll around carrying your name long after any of us remember why - and you'll have the photo to prove you were there. | <a href="https://buy.stripe.com/00w00jdhhb2o4tPfphgUM09" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
-| 🏆 **Founding Backer - €250** | Not a supporter - a co-author. Everything above + a personal thank-you in a build video. When this becomes something, you were one of the people who decided it would. | <a href="https://buy.stripe.com/28EeVdcdddawaSdeldgUM0a" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
+| 🏆 **Founding Backer - €250** | Not merely a supporter — a founding backer. Everything above + a personal thank-you in a build video. When this becomes something, you were one of the people who decided it would. | <a href="https://buy.stripe.com/28EeVdcdddawaSdeldgUM0a" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 
 ### 🔁 Monthly subscriptions — build it with us, every month
 
@@ -411,7 +410,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 **❤️ GitHub Sponsors:** <a href="https://github.com/sponsors/openAMRobot" target="_blank" rel="noopener noreferrer"> 🐙 &nbsp;github.com/sponsors/openAMRobot&nbsp;→</a>
 
-*Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
+*Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not merely donating. You're helping build it.** 🤖*
 
 ---
 
@@ -451,18 +450,19 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
   
 ---
 
-## License and Rights
+## Licensing, ownership, and contributions
 
-### License
+OpenAMRobot is a project of **Botshare LTD**. Botshare LTD owns the transferable economic rights in original OpenAMRobot materials created by or validly assigned to it. Third-party materials remain subject to their respective owners, licences, and notices.
 
-Most repositories are currently licensed under the MIT License unless stated otherwise.
+Public availability under MIT or another applicable open-source or open-hardware licence grants the permissions stated in that licence; it does not transfer ownership of underlying copyright, trademarks, patents, or other intellectual property.
 
-See repository-specific LICENSE files for details.
+Accepted external contributions require:
 
-### Rights and Contributions
+1. DCO sign-off for every commit; and
+2. an accepted Individual or Corporate Contributor Agreement governing assignment of transferable economic rights to Botshare LTD.
 
-- Contributors retain copyright to their individual contributions.
-- By contributing, contributors allow the OpenAMRobot ecosystem to use, modify, and distribute contributions under the repository license.
-- The OpenAMRobot organization coordinates long-term ecosystem stewardship and infrastructure development.
+Contributor attribution and legally non-waivable authorship or moral rights remain recognized.
 
-We are not restricting you with IP — we are enabling you with our groundwork.
+See the canonical [IP Policy](https://github.com/openAMRobot/.github/blob/main/IP_POLICY.md), [Contribution Guide](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md), and [Contributor Agreement Process](https://github.com/openAMRobot/.github/blob/main/CLA.md).
+
+**Botshare LTD** · HE479056 · Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus · alex@botshare.ai · https://botshare.ai
