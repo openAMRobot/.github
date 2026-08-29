@@ -165,13 +165,12 @@ openAMRobot/
 
 ## Legacy Repositories
 
-These repositories are preserved for historical context, migration support, forks, and compatibility reference. They are archived; active development targets the modular ecosystem repositories above.
+These repositories are preserved for historical context, migration support, forks, and compatibility reference. Active development targets the modular ecosystem repositories above. Repositories explicitly marked **archived** by GitHub are read-only.
 
-- [`OpenAMR_UI`](https://github.com/openAMRobot/OpenAMR_UI) (superseded by `openamrobot-ui`)
-- [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev) (superseded by `openamrobot-ui`)
-- [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package) (superseded by `openamrobot-ui`)
-- [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs) (superseded by `openamrobot-docs`)
-- [`EOD-robot`](https://github.com/openAMRobot/EOD-robot) (legacy EOD variant)
+- [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev) — archived; superseded by `openamrobot-ui`
+- [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package) — archived; superseded by `openamrobot-ui`
+- [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs) — legacy documentation source; superseded by `openamrobot-docs`
+- [`EOD-robot`](https://github.com/openAMRobot/EOD-robot) — archived legacy EOD variant
 >
 > Active development should target the modular ecosystem repositories listed above.
 
@@ -396,7 +395,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 | 🎯 **Sharpshooter - €25** | You spotted it early and called it. Name on the wall + a shareable "OpenAMRobot Backer" badge - proof you saw it coming while everyone else was still scrolling. | <a href="https://buy.stripe.com/4gMdR9ell1rO2lH90TgUM07" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 | 🕶️ **Insider - €50** | You want in behind the curtain. Everything above + the backer-only build log and early files - every breakthrough, every faceplant, unfiltered. You see it before the internet does. | <a href="https://buy.stripe.com/eVq14nfpp4E0gcx2CvgUM08" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 | 🔩 **Immortal - €100** | Your name goes on the actual robot. Physically. Forever. A machine will roll around carrying your name long after any of us remember why - and you'll have the photo to prove you were there. | <a href="https://buy.stripe.com/00w00jdhhb2o4tPfphgUM09" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
-| 🏆 **Founding Backer - €250** | Not a supporter - a co-author. Everything above + a personal thank-you in a build video. When this becomes something, you were one of the people who decided it would. | <a href="https://buy.stripe.com/28EeVdcdddawaSdeldgUM0a" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
+| 🏆 **Founding Backer - €250** | Not merely a supporter — a founding backer. Everything above + a personal thank-you in a build video. When this becomes something, you were one of the people who decided it would. | <a href="https://buy.stripe.com/28EeVdcdddawaSdeldgUM0a" target="_blank" rel="noopener noreferrer">💳&nbsp;Back&nbsp;it&nbsp;→</a> |
 
 ### 🔁 Monthly subscriptions — build it with us, every month
 
@@ -411,7 +410,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 **❤️ GitHub Sponsors:** <a href="https://github.com/sponsors/openAMRobot" target="_blank" rel="noopener noreferrer"> 🐙 &nbsp;github.com/sponsors/openAMRobot&nbsp;→</a>
 
-*Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not donating. You're building it.** 🤖*
+*Every contribution - €5 or €1,500 - literally builds this robot. No billion-dollar lab required. **You're not merely donating. You're helping build it.** 🤖*
 
 ---
 
