@@ -53,6 +53,7 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 
 - [IP Policy](IP_POLICY.md)
 - [Contributor Agreement Process](CLA.md)
+- [Contributor Agreement Recordkeeping](CLA_RECORDKEEPING.md)
 - [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md)
 - [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md)
 - [Trademark Policy](TRADEMARK_POLICY.md)
