@@ -4,7 +4,7 @@
 
 This notice explains how **Botshare LTD** (Company ID HE479056), Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus (“Botshare”, “we”), processes personal data relating to OpenAMRobot contributors.
 
-Contact: alex@botshare.ai.
+Contact: info@botshare.ai.
 
 ## Data processed
 
@@ -48,7 +48,7 @@ Executed agreements, authority records, and chain-of-title evidence are retained
 
 Subject to the GDPR and applicable exceptions, a data subject may request access, rectification, erasure, restriction, portability, or objection to processing based on legitimate interests. A request does not automatically require deletion of records that Botshare must retain for contract, attribution, legal-obligation, or legal-claims purposes.
 
-Requests: alex@botshare.ai.
+Requests: info@botshare.ai.
 
 A data subject may complain to the Office of the Commissioner for Personal Data Protection of the Republic of Cyprus or another competent supervisory authority.
 
