@@ -1,0 +1,32 @@
+name: Feature request
+description: Propose an improvement without submitting confidential know-how
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Issues are public. Do not disclose patent-sensitive, confidential, employer-owned, or third-party material."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the user need, not confidential implementation details.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed outcome
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: provenance
+    attributes:
+      label: Submission confirmation
+      options:
+        - label: I am authorized to disclose the information in this request.
+          required: true
