@@ -1,6 +1,6 @@
 # OpenAMRobot Corporate Contributor Agreement
 
-**Agreement version:** 1.0 — 29 August 2026
+**Agreement version:** 1.1 — 29 August 2026
 
 This Corporate Contributor Agreement (“Agreement”) is entered into between:
 
@@ -8,91 +8,130 @@ This Corporate Contributor Agreement (“Agreement”) is entered into between:
 
 and the legal entity identified in the signature section (“Contributor Organization”).
 
-## 1. Purpose and covered contributors
+## 1. Purpose, definitions, and covered contributors
 
-This Agreement governs contributions submitted to OpenAMRobot by employees, officers, contractors, or other representatives whom Contributor Organization designates in writing (“Authorized Contributors”).
+This Agreement governs contributions submitted to OpenAMRobot by employees, officers, contractors, or other representatives designated in writing by Contributor Organization (“Authorized Contributors”).
 
-Contributor Organization must provide and maintain a list of Authorized Contributors and their GitHub usernames. Removal from the list applies prospectively.
+Contributor Organization must provide and maintain an accurate list of Authorized Contributors and GitHub usernames. Addition requires written notice to and acknowledgement by the Company. Removal is effective prospectively when received by the Company.
 
-“Contribution” includes code, firmware, hardware and CAD designs, schematics, documentation, diagrams, tests, datasets, models, media, specifications, and other submitted work. “Accepted Contribution” means a Contribution merged into an official OpenAMRobot repository by the Company or an authorized maintainer, or otherwise confirmed as accepted by the Company in writing.
+“Contribution” includes source and object code, firmware, inventions, hardware and CAD designs, schematics, documentation, diagrams, tests, databases, datasets, models, media, specifications, and other protectable material submitted through an official OpenAMRobot contribution channel.
+
+“Accepted Contribution” means a Contribution merged by the Company or an authorized maintainer into an official OpenAMRobot repository, or expressly accepted by the Company in writing.
+
+“Background Material” means Contributor Organization material created independently of a Contribution and clearly identified in writing before acceptance.
 
 ## 2. Authority and assignment
 
-Contributor Organization represents that it owns or controls the transferable economic rights in Contributions submitted by its Authorized Contributors or has authority to grant the rights stated here.
+Contributor Organization represents that it owns or controls the rights in Contributions submitted by Authorized Contributors and has obtained all assignments, permissions, inventor consents, and waivers necessary to enter this Agreement.
 
-For good and valuable consideration, Contributor Organization hereby irrevocably assigns to the Company, effective automatically upon acceptance of each Contribution, all worldwide transferable economic rights, title, and interest it owns or controls in the Accepted Contribution, including rights to reproduce, modify, adapt, translate, distribute, publish, communicate, display, perform, commercialize, license, sublicense, enforce, and create derivative works for the full term of those rights and any renewals or extensions.
+In consideration of the parties’ mutual promises and the Company’s evaluation and possible acceptance, maintenance, publication, and distribution of Contributions, Contributor Organization hereby irrevocably assigns to the Company, effective automatically when each Contribution becomes an Accepted Contribution:
 
-To the extent any right cannot be assigned, Contributor Organization grants the Company an exclusive, irrevocable, perpetual, worldwide, fully paid, royalty-free, transferable, sublicensable licence to exercise that right for any purpose. If exclusivity is not legally permitted, the licence is non-exclusive to the minimum extent required by law but otherwise has the same scope.
+1. all worldwide copyright and related transferable economic rights;
+2. transferable database rights, semiconductor-topography rights, registered and unregistered design rights, and analogous rights;
+3. rights in contribution-specific technical inventions, improvements, discoveries, and know-how embodied in the Accepted Contribution, including rights to apply for, prosecute, maintain, enforce, license, and assign patents and registered designs; and
+4. all rights to claim and retain damages or other remedies for infringement occurring after assignment,
+
+in each case only to the extent owned or controlled by Contributor Organization, for the full term and all renewals, revivals, and extensions.
+
+The assignment includes rights to reproduce, modify, adapt, translate, combine, distribute, publish, communicate, display, perform, manufacture, have manufactured, use, sell, offer for sale, import, commercialize, license, sublicense, enforce, and create derivative works.
+
+To the extent a right cannot validly be assigned automatically, Contributor Organization holds it on trust for the Company where permitted, grants the Company an exclusive, irrevocable, perpetual, worldwide, fully paid, royalty-free, transferable, sublicensable licence for any purpose, and will execute reasonable confirmatory documents. If exclusivity or a trust is not legally permitted, the licence is non-exclusive only to the minimum extent required by mandatory law.
 
 No ownership of identified third-party material is transferred.
 
-## 3. Authorized Contributors
+## 3. Background Material
+
+Contributor Organization retains ownership of disclosed Background Material. If an Accepted Contribution necessarily includes or depends on Background Material, Contributor Organization grants the Company and recipients a perpetual, worldwide, irrevocable, royalty-free, transferable, sublicensable licence to use, reproduce, modify, distribute, make, have made, sell, import, and otherwise exploit it as part of, or in connection with, the Accepted Contribution.
+
+Background Material and limitations must be identified in the pull request before acceptance.
+
+## 4. Authorized Contributors and organizational controls
 
 Contributor Organization will:
 
 1. ensure each Authorized Contributor has authority to submit Contributions;
-2. ensure each Authorized Contributor signs commits under the DCO and complies with project policies;
-3. obtain all employee/contractor inventions, copyright, moral-rights, and other consents necessary to give full effect to this Agreement;
-4. notify the Company promptly when an Authorized Contributor’s authority changes; and
-5. maintain accurate records connecting Contributions to Authorized Contributors.
+2. ensure each Authorized Contributor uses an attributable GitHub identity, signs every commit under the DCO, and follows project policies;
+3. obtain all employee, contractor, inventor, copyright, design-right, database-right, confidentiality, and moral-right waivers, assignments, and consents necessary to give full effect to this Agreement;
+4. ensure Contributions do not improperly include rights owned by a customer, university, sponsor, affiliate, or other third party;
+5. notify the Company promptly when an Authorized Contributor’s authority changes; and
+6. maintain records connecting each Contribution to the relevant Authorized Contributor.
 
-An individual’s GitHub activity alone does not prove organizational authorization.
+GitHub activity alone does not establish corporate authorization.
 
-## 4. Outbound licensing
+## 5. Outbound licensing and Company discretion
 
-Contributor Organization authorizes the Company to publish, license, relicense, dual-license, commercialize, maintain, modify, combine, or discontinue Accepted Contributions under MIT or any other licence or commercial terms selected by the Company, subject to third-party obligations.
+Contributor Organization authorizes the Company to publish, withhold, modify, maintain, discontinue, license, relicense, dual-license, sublicense, enforce, and commercialize Accepted Contributions under MIT, another open-source/open-hardware/content licence, proprietary terms, or a combination, subject to mandatory law and third-party obligations.
 
-## 5. Moral rights and consents
+## 6. Authorship, inventorship, and moral rights
 
-Contributor Organization will obtain, to the maximum extent permitted by applicable law, waivers, non-assert commitments, and consents from Authorized Contributors necessary for the Company and its licensees to modify, adapt, combine, publish, omit, commercialize, and use Accepted Contributions.
+Contributor Organization will obtain from Authorized Contributors, to the fullest extent permitted by applicable law, moral-right waivers, non-assert commitments, and consents permitting modification, adaptation, translation, combination, completion, publication, non-publication, removal, destruction, and use with or without attribution.
 
-Legally non-waivable authorship and moral rights remain subject to mandatory law.
+Legally non-waivable authorship, inventorship, and moral rights remain subject to mandatory law. Contributor Organization remains responsible for mandatory employee-inventor compensation and similar obligations arising from its relationship with Authorized Contributors.
 
-## 6. Patent licence
+## 7. Patent rights and defensive termination
 
-Contributor Organization grants the Company and recipients of material distributed by the Company a perpetual, worldwide, royalty-free, irrevocable patent licence to make, have made, use, offer, sell, import, and otherwise transfer implementations of Accepted Contributions, limited to patent claims Contributor Organization can license that are necessarily infringed by an Accepted Contribution alone or in combination with the project as submitted.
+In addition to section 2, Contributor Organization grants the Company and every recipient of an Accepted Contribution a perpetual, worldwide, non-exclusive, irrevocable, royalty-free patent licence to make, have made, use, offer for sale, sell, import, and otherwise transfer the Accepted Contribution.
 
-## 7. Representations
+The licence covers only patent claims Contributor Organization can license that are necessarily infringed by the Accepted Contribution alone or by its combination with OpenAMRobot as submitted. It excludes claims infringed only by a later modification or unrelated combination.
 
-Contributor Organization represents and warrants that:
+The patent licence terminates for a licensee that initiates patent litigation alleging that the Accepted Contribution or OpenAMRobot infringes that licensee’s patent, effective when filed, except for defensive counterclaims. Termination affects only the litigating licensee and only to the extent permitted by law.
 
-1. it is validly existing and the signatory is authorized to bind it;
-2. it has sufficient rights and permissions to enter this Agreement;
-3. Contributions are original except for properly disclosed third-party material;
-4. Contributions do not knowingly violate third-party IP, confidentiality, privacy, contract, database, or other rights;
-5. no Contribution contains unauthorized confidential information, trade secrets, personal data, credentials, export-controlled material, or unlawfully obtained material;
-6. third-party and AI-assisted content is disclosed with available source, licence, required notices, and modifications; and
-7. entering this Agreement does not breach another obligation.
+## 8. Representations and undertakings
 
-Contributor Organization must promptly notify alex@botshare.ai if a representation becomes inaccurate.
+Contributor Organization represents, warrants, and undertakes that:
 
-## 8. Further assurances
+1. it validly exists and its signatory is authorized to bind it;
+2. it owns or controls sufficient rights and permissions;
+3. Contributions are original except for disclosed third-party or Background Material;
+4. it is not knowingly submitting material that violates copyright, patent, trademark, design, database, privacy, confidentiality, contract, trade-secret, or other rights;
+5. Contributions contain no unauthorized confidential information, personal data, credentials, unlawfully obtained material, or prohibited export-controlled material;
+6. third-party and materially AI-assisted content is disclosed with available source, tool/model information, licence, notices, and meaningful modifications;
+7. entering and performing this Agreement breaches no other obligation; and
+8. it will promptly notify alex@botshare.ai if a statement becomes inaccurate.
 
-Contributor Organization will reasonably execute documents and provide information needed to confirm, perfect, register, or enforce the assigned rights.
+These statements apply when a Contribution is submitted and again when accepted.
 
-## 9. No obligation or partnership
+## 9. DCO and contribution records
 
-The Company need not accept, use, publish, maintain, or pay for any Contribution. This Agreement does not create a partnership, joint venture, agency, fiduciary relationship, exclusivity obligation, or project governance right.
+Every Authorized Contributor must provide a valid DCO sign-off for every commit. DCO does not replace this Agreement or independently assign ownership.
 
-## 10. Records and data
+Pull requests, commit hashes, GitHub identities, the Authorized Contributor list, agreement version, and Company acceptance records may identify covered Contributions.
 
-The Company may retain the organization’s identity, signatory details, Authorized Contributor list, GitHub accounts, agreement version, signatures, and Contribution records for contract administration, rights management, legal compliance, and defence of claims. Signed records will be kept privately except where disclosure is required by law.
+## 10. Further assurances
 
-## 11. Liability
+Contributor Organization will, at the Company’s reasonable expense, execute documents and provide information reasonably necessary to evidence, register, perfect, or enforce assigned rights. If local law requires a separate instrument or formality for a registered right, the parties will execute it.
 
-Each party remains responsible for its express representations. Neither party excludes liability that cannot lawfully be excluded. To the extent permitted by law, neither party is liable for indirect or consequential loss arising solely from this Agreement.
+## 11. No obligation, compensation, or relationship
 
-## 12. Term and termination
+The Company need not accept, use, publish, maintain, register, enforce, or pay for a Contribution. Unless separately agreed, no royalty or fee is payable.
 
-Either party may terminate prospectively by written notice. Termination does not revoke assignments, licences, consents, or rights relating to Accepted Contributions submitted before the effective termination date.
+This Agreement creates no partnership, joint venture, agency, fiduciary relationship, exclusivity, governance right, or authority to bind the Company.
 
-## 13. General terms
+## 12. Personal data and records
 
-This Agreement is the entire agreement concerning its subject. Amendments must be in writing accepted by authorized representatives of both parties. Invalid provisions will be adjusted minimally while remaining provisions continue. Electronic signatures and counterparts are valid.
+Botshare LTD is controller of personal data processed for this Agreement. Processing and retention are described in the [Contributor Privacy Notice](CONTRIBUTOR_PRIVACY_NOTICE.md). Signed agreements and identity records are retained privately except where disclosure is required by law.
 
-## 14. Governing law and jurisdiction
+## 13. Liability
 
-This Agreement is governed by the laws of the Republic of Cyprus. The courts of the Republic of Cyprus have exclusive jurisdiction, without preventing the Company from seeking urgent protective relief in another competent jurisdiction.
+Each party remains responsible for its express statements. Nothing excludes or limits liability that cannot lawfully be excluded, including fraud or fraudulent misrepresentation. Subject to mandatory law, neither party is liable to the other solely under this Agreement for indirect or consequential loss.
+
+## 14. Term and termination
+
+Either party may terminate prospectively by written notice. Termination does not revoke or affect assignments, licences, consents, or accrued rights concerning Accepted Contributions submitted before the effective termination date.
+
+## 15. General terms
+
+This Agreement and incorporated documents are the entire agreement about its subject. Material amendments require written acceptance by authorized representatives; publishing replacement text does not amend an executed Agreement.
+
+Contributor Organization may not assign this Agreement without written Company consent. The Company may assign it with OpenAMRobot, relevant intellectual-property rights, or a merger, reorganization, or sale of all or substantially all relevant assets.
+
+Invalid terms will be modified only to the minimum extent necessary or severed. The remainder continues. Delay or failure to enforce is not a waiver. Electronic signatures and counterparts are permitted to the extent recognized by law.
+
+## 16. Governing law and jurisdiction
+
+This Agreement is governed by the laws of the Republic of Cyprus, excluding conflict-of-laws rules. Subject to mandatory jurisdiction that cannot be excluded, the courts of the Republic of Cyprus have exclusive jurisdiction.
+
+Nothing prevents either party from seeking urgent interim or protective relief from a court with competent jurisdiction. The United Nations Convention on Contracts for the International Sale of Goods does not apply.
 
 ## Contributor Organization signature
 
