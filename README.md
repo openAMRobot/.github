@@ -2,7 +2,9 @@
 
 This repository contains the organization-wide governance, contribution, licensing, security, and community standards for the OpenAMRobot ecosystem.
 
-These governance documents apply across the OpenAMRobot GitHub organization unless a repository explicitly defines additional project-specific requirements.
+These governance documents apply across the OpenAMRobot GitHub organization unless a repository defines stricter compatible requirements.
+
+**Project owner:** Botshare LTD, Cyprus Company ID HE479056. The `openAMRobot` GitHub organization is project infrastructure operated by Botshare LTD.
 
 ## Purpose
 
@@ -50,6 +52,9 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 ## Legal & IP
 
 - [IP Policy](IP_POLICY.md)
+- [Contributor Agreement Process](CLA.md)
+- [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md)
+- [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md)
 - [Trademark Policy](TRADEMARK_POLICY.md)
 
 ## Security & Support
@@ -100,9 +105,7 @@ OpenAMRobot encourages contributions from:
 - educators,
 - industrial partners.
 
-Contributors retain ownership of their contributions unless explicitly stated otherwise.
-
-By contributing, contributors agree that their submissions may be distributed under the repository license.
+OpenAMRobot is operated by **Botshare LTD**. Accepted external contributions require DCO sign-off and an applicable Contributor Agreement assigning transferable economic rights to Botshare LTD. Accepted project material is distributed under the applicable repository or file licence. Authorship, attribution, non-waivable moral rights, and third-party rights remain recognized as required.
 
 ---
 

@@ -1,50 +1,34 @@
-# Developer Certificate of Origin (DCO)
+# Developer Certificate of Origin
 
-## Purpose
+OpenAMRobot requires Developer Certificate of Origin (DCO) sign-off for every commit proposed for acceptance.
 
-The Developer Certificate of Origin (DCO) helps confirm that contributors have the right to submit their contributions.
-
-OpenAMRobot may require contributors to sign off commits using the `Signed-off-by` mechanism.
-
----
-
-# DCO Statement
+## DCO 1.1
 
 By making a contribution to this project, I certify that:
 
-1. The contribution was created in whole or in part by me and I have the right to submit it under the open-source license indicated in the file; or
+1. The contribution was created in whole or in part by me and I have the right to submit it under the open-source licence indicated in the file; or
+2. The contribution is based upon previous work that, to the best of my knowledge, is covered under an appropriate open-source licence and I have the right under that licence to submit that work with modifications, whether created in whole or in part by me, under the same open-source licence (unless I am permitted to submit under a different licence), as indicated in the file; or
+3. The contribution was provided directly to me by another person who certified (1), (2), or (3), and I have not modified it; and
+4. I understand and agree that this project and the contribution are public, and that a record of the contribution, including all personal information I submit with it, is maintained indefinitely and may be redistributed consistent with this project or the open-source licence(s) involved.
 
-2. The contribution is based upon previous work that, to the best of my knowledge, is covered under an appropriate open-source license and I have the right under that license to submit that work with modifications; or
+## Sign-off
 
-3. The contribution was provided directly to me by another person who certified one of the above and I have not modified it.
-
-4. I understand and agree that this project and the contribution are public and that a record of the contribution may be maintained indefinitely.
-
----
-
-# Signing Off Commits
-
-Contributors may sign commits using:
+Create commits with:
 
 ```bash
 git commit -s
 ```
 
-This adds a line such as:
+This adds:
 
 ```text
-Signed-off-by: Your Name <your@email.com>
+Signed-off-by: Legal Name <email@example.com>
 ```
 
----
+The name must identify the contributor and the email must be controlled by them. All commits in a pull request, including web edits and commits added after review, must pass the DCO check.
 
-# Purpose of DCO
+## DCO and assignment are separate
 
-DCO helps provide:
+DCO confirms provenance and authority to contribute. It does **not** transfer copyright. Assignment of transferable economic rights in accepted contributions is governed by the applicable OpenAMRobot Contributor Agreement.
 
-- contribution legitimacy
-- legal clarity
-- contributor ownership confirmation
-- ecosystem sustainability
-
-DCO is intended to minimize contribution friction while improving governance clarity.
+A pull request cannot be accepted while its DCO or Contributor Agreement requirement is unsatisfied.

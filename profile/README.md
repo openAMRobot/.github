@@ -1,6 +1,6 @@
 # OpenAMRobot: Open Embodied AI & Mobile Manipulation Ecosystem
 
-OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem developed by the Botshare robotics team.
+OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem initiated, operated, and controlled by **Botshare LTD** (Cyprus Company ID HE479056).
 
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
@@ -451,18 +451,19 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
   
 ---
 
-## License and Rights
+## Licensing, ownership, and contributions
 
-### License
+OpenAMRobot is a project of **Botshare LTD**. Botshare LTD owns the transferable economic rights in original OpenAMRobot materials created by or validly assigned to it. Third-party materials remain subject to their respective owners, licences, and notices.
 
-Most repositories are currently licensed under the MIT License unless stated otherwise.
+Public availability under MIT or another applicable open-source or open-hardware licence grants the permissions stated in that licence; it does not transfer ownership of underlying copyright, trademarks, patents, or other intellectual property.
 
-See repository-specific LICENSE files for details.
+Accepted external contributions require:
 
-### Rights and Contributions
+1. DCO sign-off for every commit; and
+2. an accepted Individual or Corporate Contributor Agreement governing assignment of transferable economic rights to Botshare LTD.
 
-- Contributors retain copyright to their individual contributions.
-- By contributing, contributors allow the OpenAMRobot ecosystem to use, modify, and distribute contributions under the repository license.
-- The OpenAMRobot organization coordinates long-term ecosystem stewardship and infrastructure development.
+Contributor attribution and legally non-waivable authorship or moral rights remain recognized.
 
-We are not restricting you with IP — we are enabling you with our groundwork.
+See the canonical [IP Policy](https://github.com/openAMRobot/.github/blob/main/IP_POLICY.md), [Contribution Guide](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md), and [Contributor Agreement Process](https://github.com/openAMRobot/.github/blob/main/CLA.md).
+
+**Botshare LTD** · HE479056 · Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus · alex@botshare.ai · https://botshare.ai

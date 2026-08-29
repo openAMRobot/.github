@@ -1,230 +1,71 @@
 # OpenAMRobot Intellectual Property Policy
 
-## Purpose
+## 1. Project owner
 
-This policy defines how intellectual property is handled across the OpenAMRobot ecosystem.
+OpenAMRobot is a robotics project initiated, operated, and controlled by **Botshare LTD**, a Cyprus company:
 
-The goal is to keep the project open, collaborative, and useful while protecting the long-term identity, sustainability, and integrity of the organization.
+- Company ID: HE479056
+- VAT: 60197356L
+- Address: Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus
+- Email: alex@botshare.ai
+- Website: https://botshare.ai
 
-OpenAMRobot follows the principle:
+The `openAMRobot` GitHub organization is project infrastructure operated by Botshare LTD; it is not a separate legal person.
 
-> Open technology, protected identity.
+## 2. Ownership principle
 
----
+Botshare LTD owns the transferable economic rights in original OpenAMRobot materials created by it or validly assigned to it, including project software, firmware, hardware designs, documentation, architecture, branding, and related materials.
 
-# Scope
+Public distribution under MIT or another open-source, documentation, or open-hardware licence grants the permissions stated in that licence. It does not transfer ownership of underlying copyright, trademarks, patents, know-how, or other intellectual property.
 
-This policy applies to OpenAMRobot repositories, documentation, hardware designs, software, firmware, simulation assets, educational materials, branding assets, and related project resources.
+Authorship, attribution, and non-waivable moral rights remain recognized as required by applicable law.
 
----
+## 3. Third-party material
 
-# Contribution Ownership
+Botshare LTD does not claim ownership of third-party material. Upstream copyright notices, licences, patent grants, attribution requirements, and modification notices must be preserved.
 
-Contributors retain copyright ownership of their contributions unless explicitly assigned otherwise in writing.
+Every repository containing third-party material must identify it through applicable source headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, package metadata, or an equivalent provenance record.
 
-By submitting a contribution, contributors agree that their contribution may be used, modified, distributed, and maintained under the license of the repository to which it is submitted.
+No contributor may submit confidential information, trade secrets, personal data, export-controlled material, or material they are not authorized to disclose.
 
-Contributors confirm that they have the right to submit their contribution.
+## 4. Accepted contributions
 
----
+An external contribution may be accepted only when:
 
-# Software
+1. every commit satisfies the [Developer Certificate of Origin](DCO.md);
+2. the contributor is covered by the applicable [Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or [Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement;
+3. any required employer, university, client, sponsor, co-author, or institutional authorization has been obtained; and
+4. third-party and AI-assisted material has been disclosed with its source, licence, and required notices.
 
-Unless otherwise stated, OpenAMRobot software is distributed under the MIT License.
+The applicable Contributor Agreement governs assignment of transferable economic rights in accepted contributions to Botshare LTD. Submission, discussion, or review of a proposal does not itself constitute acceptance. Acceptance occurs when Botshare LTD or an authorized maintainer merges the contribution into an official OpenAMRobot repository or confirms acceptance in writing.
 
-This may include:
+Accepted project material may be distributed under the outbound licence applicable to the relevant repository or file.
 
-- source code
-- ROS packages
-- simulation tools
-- firmware examples
-- scripts
-- utilities
-- configuration files
-- APIs
-- interfaces
+## 5. Historical material
 
-Each software repository should include a `LICENSE` file.
+This policy operates prospectively and does not by itself alter rights in historical third-party or contributor material. Any necessary historical assignments will be handled separately by Botshare LTD.
 
-Source files should use SPDX identifiers where practical:
+## 6. Asset-specific licensing
 
-```text
-SPDX-License-Identifier: MIT
-```
+- **Original software:** normally MIT.
+- **Third-party or derivative software:** original applicable licence; no unauthorized relicensing.
+- **Hardware source:** the licence stated for the applicable files or repository, normally a selected CERN-OHL-2.0 variant.
+- **Documentation and educational content:** the licence stated for the applicable files or repository.
+- **Datasets and AI models:** no implied licence; each asset requires explicit terms.
+- **Logos, names, and brand assets:** not licensed by software, documentation, or hardware licences unless explicitly stated.
 
----
+Where multiple licences apply, the repository must contain a clear per-file or per-directory licence map.
 
-# Documentation
+## 7. Branding
 
-Documentation may be distributed under a Creative Commons license, preferably:
+OpenAMRobot, OpenAMR, associated logos, official visual identity, and official project names are brand assets controlled by Botshare LTD. Their use is governed by the [Trademark Policy](TRADEMARK_POLICY.md).
 
-```text
-CC BY-SA 4.0
-```
+## 8. Records and enforcement
 
-Documentation may include:
+Botshare LTD will maintain non-public records of contributor agreements, contributor identities, GitHub accounts, agreement versions, dates, and covered contributions. Public repositories must not contain identity documents or signed agreements.
 
-- guides
-- tutorials
-- architecture descriptions
-- diagrams
-- educational explanations
-- setup instructions
+Required contribution checks must not be bypassed except through a documented emergency decision by an authorized Botshare LTD representative.
 
-Repository-specific documentation licenses should be clearly stated.
+## 9. Contact
 
----
-
-# Hardware
-
-Hardware design files should use a hardware-appropriate license, preferably:
-
-```text
-CERN-OHL-S-2.0
-```
-
-Hardware files may include:
-
-- CAD models
-- PCB designs
-- schematics
-- BOMs
-- manufacturing files
-- mechanical drawings
-- enclosure designs
-
-MIT is not recommended as the primary license for hardware design files.
-
----
-
-# Branding and Trademarks
-
-The following are not automatically licensed under software, documentation, or hardware licenses:
-
-- OpenAMRobot name
-- OpenAMR name
-- logos
-- icons
-- visual identity
-- official robot names
-- project branding
-- organization branding
-
-These assets are reserved by the OpenAMRobot organization unless explicitly stated otherwise.
-
-Use of OpenAMRobot branding is governed by the Trademark Policy.
-
----
-
-# Educational Content
-
-Educational content may be distributed under:
-
-```text
-CC BY-SA 4.0
-```
-
-This may include:
-
-- course material
-- lesson plans
-- training exercises
-- workshop content
-- teaching examples
-- educational kits
-
----
-
-# Datasets and AI Assets
-
-Datasets, trained models, telemetry data, and AI-related assets must define their own license and usage terms.
-
-These assets may require additional governance because they can involve:
-
-- privacy
-- data ownership
-- model licensing
-- safety
-- ethical use
-- research reproducibility
-
-No dataset or AI model should be assumed to be open unless its license is explicitly stated.
-
----
-
-# Commercial Use
-
-OpenAMRobot software released under the MIT License may generally be used in commercial projects according to the license terms.
-
-However, commercial use of the OpenAMRobot name, logos, official branding, or claims of official affiliation requires permission from the organization.
-
-Commercial users are responsible for:
-
-- safety validation
-- regulatory compliance
-- integration testing
-- deployment suitability
-- customer support
-- liability management
-
----
-
-# Forks and Derivative Works
-
-Forks and derivative works are welcome when they respect the applicable licenses.
-
-Forks must not:
-
-- imply official endorsement
-- use confusingly similar branding
-- claim to be the official OpenAMRobot project
-- misrepresent affiliation with the organization
-
----
-
-# Contributor Confirmation
-
-By contributing, contributors confirm that:
-
-- they created the contribution or have the right to submit it
-- the contribution can be distributed under the repository license
-- the contribution does not knowingly violate third-party rights
-- they understand that contributions may be publicly visible
-
-OpenAMRobot may adopt Developer Certificate of Origin (DCO) enforcement for additional clarity.
-
----
-
-# No Warranty
-
-OpenAMRobot materials are provided:
-
-> “AS IS”, WITHOUT WARRANTY OF ANY KIND.
-
-Users are responsible for validating:
-
-- safety
-- correctness
-- legal compliance
-- operational suitability
-
----
-
-# Repository-Specific Exceptions
-
-Individual repositories may define additional or different licensing terms.
-
-When repository-specific terms exist, they must be clearly documented in:
-
-- LICENSE
-- README.md
-- NOTICE
-- repository governance documents
-
----
-
-# Policy Updates
-
-This policy may evolve as the ecosystem grows.
-
-Changes should be reviewed through the organization governance process.
+Questions about licensing, assignments, third-party material, or brand use should be sent to alex@botshare.ai.
