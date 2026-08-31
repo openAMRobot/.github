@@ -70,7 +70,7 @@ OpenAMRobot is available in multiple formats depending on your needs.
 
 ### Teach-by-Demonstration AI Platform
 
-A complete Physical AI development and deployment platform designed to enable **domain experts — not robotics engineers — to teach robots new tasks by demonstration**.
+A complete Physical AI development and deployment platform designed to enable **domain experts - not robotics engineers - to teach robots new tasks by demonstration**.
 
 The package combines the Dual-Arm Embodied AI Mobile Robot with the software and AI workflows required for:
 
