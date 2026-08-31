@@ -62,10 +62,34 @@ OpenAMRobot is available in multiple formats depending on your needs.
 
 | Offering | Starting Price |
 |----------|---------------:|
-| Mobile Robot Platform - full initial price (components and chassis production), MIT license | **€4000** |
-| DIY Development Kit Mobile Robot Platform (assembled complete hardware, electronics, documentation & software package) | **€6,000** |
+| Mobile Robot Platform — full initial package (components and chassis production), MIT license | **€4,000** |
+| DIY Development Kit — assembled complete mobile robot hardware, electronics, documentation & software package | **€6,000** |
 | Dual-Arm Embodied AI Robot | **from €11,000** |
 | Dual-Arm Embodied AI Mobile Robot | **from €16,000** |
+| **Dual-Arm Embodied AI Mobile Robot + Teach-by-Demonstration AI Platform** | **from €25,000** |
+
+### Teach-by-Demonstration AI Platform
+
+A complete Physical AI development and deployment platform designed to enable **domain experts — not robotics engineers — to teach robots new tasks by demonstration**.
+
+The package combines the Dual-Arm Embodied AI Mobile Robot with the software and AI workflows required for:
+
+- teleoperation and human task demonstration;
+- demonstration recording and dataset collection;
+- dataset management and preparation;
+- imitation learning and VLA-based training workflows;
+- simulation and evaluation;
+- deployment of trained robot policies;
+- human correction and intervention;
+- iterative task improvement and validation.
+
+The objective is to move from conventional robot programming toward a simpler workflow:
+
+**Demonstrate → Learn → Evaluate → Correct → Deploy**
+
+> **The robot is the hardware platform. The product is the ability for a domain expert to teach it a new task.**
+
+> **Note:** Advanced AI capabilities are under active development and will be introduced progressively as the OpenAMRobot Physical AI stack matures. Exact hardware, software capabilities, integration scope, and pricing depend on the application.
 
 > **Note:** Prices are indicative starting prices for standard configurations. Final pricing depends on hardware options, sensors, robotic arms, computing platform, manufacturing location, and customization requirements.
 
