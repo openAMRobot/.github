@@ -37,6 +37,7 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 
 ## Governance
 
+- [Engineering Quality Standard](ENGINEERING_QUALITY_STANDARD.md)
 - [Governance](GOVERNANCE.md)
 - [Technical Steering](TECHNICAL_STEERING.md)
 - [Maintainers](MAINTAINERS.md)
