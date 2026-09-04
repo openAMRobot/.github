@@ -10,6 +10,12 @@ OpenAMRobot welcomes technically sound contributions that support safe, reproduc
 4. Complete the contributor-agreement process described in [CLA.md](CLA.md).
 5. Sign every commit under the [DCO](DCO.md).
 
+## Engineering quality and documentation architecture
+
+Every contribution must follow the [OpenAMRobot Engineering Quality Standard](ENGINEERING_QUALITY_STANDARD.md). Before implementation, identify the repository type, affected subsystem, safety impact, required validation evidence, compatibility impact, and documentation owner.
+
+Implementation-sensitive facts remain canonical in the owning repository. Documentation contributions and corresponding GitHub Pages updates must follow the [Documentation Information Architecture](https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_INFORMATION_ARCHITECTURE.md). Automated CI/CD enforcement is being introduced separately; until then, authors and reviewers must apply these requirements explicitly in each pull request.
+
 ## Contribution workflow
 
 1. Fork the relevant repository.
