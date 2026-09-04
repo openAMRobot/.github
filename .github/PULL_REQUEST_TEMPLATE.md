@@ -2,6 +2,18 @@
 
 Describe what changed, why it is needed, and the exact repository scope.
 
+## Standards impact
+
+- **Repository type / subsystem:**
+- **Safety impact:** none / motion / power / battery / actuator / safety-I/O / other
+- **Interface or compatibility impact:**
+- **Documentation impact and canonical source:**
+- **Readiness impact:** none / evidence added / evidence invalidated
+
+- [ ] I reviewed the [Engineering Quality Standard](../ENGINEERING_QUALITY_STANDARD.md).
+- [ ] Documentation changes follow the [Documentation Information Architecture](https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_INFORMATION_ARCHITECTURE.md).
+- [ ] I have not described planned or unverified work as passing, validated, production-ready, or release-ready.
+
 ## Validation
 
 List commands, tests, simulation runs, hardware checks, documentation checks, and observable results.
