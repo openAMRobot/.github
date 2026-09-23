@@ -7,7 +7,7 @@ body:
       value: |
         Use this form for a focused work item that can be reviewed, implemented, and verified independently.
 
-        For the current Dev_cycle_2 scope, use maintained product repositories only. Do not use this form for archived repositories, the legacy `openamr` monorepo, or fleet-management work.
+        For the current Dev_cycle_2 scope, use maintained product repositories only. Do not use this form for archived repositories, the legacy `openamr` monorepo, or unrelated future-cycle topics.
 
   - type: input
     id: plan_item
