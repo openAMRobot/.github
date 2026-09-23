@@ -1,0 +1,109 @@
+name: Interface change request
+description: Propose a controlled change to a ROS, API, message, schema, or other shared interface.
+title: "[INTERFACE] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form before changing an interface consumed by another repository, node, service, tool, or operator surface.
+
+        Keep generic interfaces generic. Do not add application-specific manipulation behavior or authoritative safety behavior to a telemetry or navigation contract without an explicit owning design decision.
+
+  - type: input
+    id: plan_item
+    attributes:
+      label: Plan item
+      description: Identify the authoritative plan item, gate, or quality requirement.
+      placeholder: "Q-01 / D-03 / N3 / I8 / other"
+    validations:
+      required: true
+
+  - type: input
+    id: contract
+    attributes:
+      label: Contract or interface
+      description: Name the message, service, action, API, schema, topic, or file being changed.
+      placeholder: "repository, package, path, and interface name"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: change_class
+    attributes:
+      label: Change class
+      description: Select the closest compatibility class; explain the choice below.
+      options:
+        - Documentation-only or implementation clarification
+        - Add an enum, reason code, or constant without changing field layout
+        - Add, remove, rename, reorder, or retype a field — version bump and consumer rebuild required
+        - Change the meaning, units, defaults, or validity of an existing value — version bump and consumer review required
+        - Other — explain below
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem_proposal
+    attributes:
+      label: Problem and proposed change
+      description: Explain the current limitation and the exact proposed contract.
+      placeholder: |
+        Current problem:
+        -
+
+        Proposed change:
+        -
+    validations:
+      required: true
+
+  - type: textarea
+    id: producers_consumers
+    attributes:
+      label: Producers and consumers
+      description: List current and planned producers, consumers, tools, UI surfaces, logs, and documentation that depend on the contract.
+      placeholder: |
+        Producers:
+        -
+
+        Consumers:
+        -
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration
+      description: State whether old and new definitions can coexist, which consumers must rebuild, and how rollout or rollback works.
+      placeholder: What must change together?
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation and evidence
+      description: Specify schema checks, generated-code builds, producer/consumer tests, simulation or hardware evidence, and documentation updates.
+      placeholder: How will the change be proven compatible and correct?
+    validations:
+      required: true
+
+  - type: textarea
+    id: safety_boundary
+    attributes:
+      label: Safety and operational boundary
+      description: Describe effects on motion, power, actuators, safety I/O, readiness, operator reporting, or Use_Case_1 behavior. State which component remains authoritative.
+      placeholder: None, or describe the effect and authoritative owner.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: review_checks
+    attributes:
+      label: Interface review checks
+      options:
+        - label: I identified every known producer and consumer, including UI, logs, and documentation where applicable.
+          required: true
+        - label: I classified the compatibility impact and will update the contract version when required.
+          required: true
+        - label: I have not treated telemetry as authoritative safety evidence.
+          required: true
