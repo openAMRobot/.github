@@ -1,0 +1,110 @@
+name: Work package
+description: Propose a scoped, plan-linked engineering work item for a maintained OpenAMRobot repository.
+title: "[WP] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for a focused work item that can be reviewed, implemented, and verified independently.
+
+        For the current Dev_cycle_2 scope, use maintained product repositories only. Do not use this form for archived repositories, the legacy `openamr` monorepo, or unrelated future-cycle topics.
+
+  - type: input
+    id: plan_item
+    attributes:
+      label: Plan item
+      description: Identify the authoritative plan item, gate, or quality requirement.
+      placeholder: "D-03 / Q-01 / N3 / Gate A / other"
+    validations:
+      required: true
+
+  - type: input
+    id: target_repository
+    attributes:
+      label: Target repository
+      description: Repository that owns the implementation or canonical engineering fact.
+      placeholder: "openAMRobot/<repository>"
+    validations:
+      required: true
+
+  - type: input
+    id: workstream
+    attributes:
+      label: Workstream
+      description: Use a role or subsystem, not a person's name.
+      placeholder: "navigation / base firmware / manipulation / documentation / CI"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: State the problem and the intended engineering outcome.
+      placeholder: What needs to become true?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and exclusions
+      description: List what this work includes and explicitly state nearby work that is out of scope.
+      placeholder: |
+        In scope:
+        -
+
+        Out of scope:
+        -
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: Write observable pass/fail conditions.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+      description: Specify the commands, logs, measurements, tests, review records, or links required to close the work item.
+      placeholder: What evidence will demonstrate completion?
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and affected consumers
+      description: List upstream decisions, interfaces, repositories, hardware, CI checks, or documentation affected.
+      placeholder: None, or list each dependency and its owner/workstream.
+    validations:
+      required: true
+
+  - type: textarea
+    id: safety_compatibility
+    attributes:
+      label: Safety and compatibility impact
+      description: Describe effects on motion, power, actuators, safety I/O, interfaces, migration, or release support. Write "None" only after considering each area.
+      placeholder: None, or describe the impact and required review.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: review_checks
+    attributes:
+      label: Planning checks
+      options:
+        - label: I checked that this is not a duplicate of an existing issue or pull request.
+          required: true
+        - label: I identified the canonical repository for implementation-sensitive facts.
+          required: true
+        - label: I will not describe planned or unverified work as validated, production-ready, or release-ready.
+          required: true
