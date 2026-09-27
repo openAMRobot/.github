@@ -164,9 +164,9 @@ openAMRobot/
 ├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
 ├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
 ├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
-├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
-├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
-├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
+├── openamr-upperbody-sw      # arm+fixed mast (lift in 3.0), MoveIt, bringup
+├── openamr-upperbody-fw      # end-effector, safety I/O; lift in 3.0
+├── openamr-upperbody-hw      # fixed mast, lift in 3.0, plates, wiring, BOM
 
 ```
 
@@ -446,7 +446,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 - Hub-motor drive; suspension in 3.0
   - mechanical + control integration
 
-- Robotic arm integration and linear lift integration
+- Robotic arm integration; linear lift in 3.0
   - mounts
   - drivers
   - wiring
