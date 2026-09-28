@@ -4,7 +4,11 @@
 Fails when a required template section is missing or empty, when the
 Evidence section lacks base SHA, head SHA or a command, when test files
 change without a reported non-zero test run, or when safety paths change
-without two human reviewers including the platform lead. Writes one
+and fewer than two human reviewers (including the platform lead) are
+requested. Requesting reviewers is not approval: this check reports "safety
+path touched, two human approvals required" and counts approvals for
+information only; the approvals themselves are enforced by the repository
+ruleset (rollout/workflows/SETUP.md), not by this check. Writes one
 Markdown summary; with --post it creates or updates a single PR comment
 identified by a hidden marker. Exit status: 0 pass, 1 fail, 2 usage error.
 """
@@ -130,11 +134,17 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False):
         people = {u.get("login") for u in pr.get("requested_reviewers") or []}
         people |= {r.get("user", {}).get("login") for r in reviews}
         people = {p for p in people if human(p) and p != pr.get("user", {}).get("login")}
-        notes.append(f"Safety paths changed: {', '.join(safety[:10])}")
+        approvals = {r.get("user", {}).get("login") for r in reviews if r.get("state") == "APPROVED"}
+        approvals = {p for p in approvals if human(p) and p != pr.get("user", {}).get("login")}
+        notes.append(f"Safety path touched, two human approvals required: {', '.join(safety[:10])}. "
+                     f"Human approvals so far: {len(approvals)} (information only; the ruleset enforces approvals, "
+                     "this check does not)")
         if len(people) < 2:
-            failures.append(f"Safety paths changed: {len(people)} human reviewer(s) requested, 2 required")
+            failures.append(f"Safety path touched, two human approvals required: only {len(people)} "
+                            "human reviewer(s) requested")
         if lead and lead not in people:
-            failures.append(f"Safety paths changed: platform lead @{lead} is not among the reviewers")
+            failures.append(f"Safety path touched, two human approvals required: platform lead @{lead} "
+                            "is not requested")
         ai = find(secs, "AI disclosure") or ""
         if ai and not NONE.match(ai):
             failures.append("Safety paths changed in a PR with AI assistance; agents do not author "

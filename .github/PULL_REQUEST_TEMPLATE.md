@@ -38,7 +38,7 @@ Head SHA:
 ## Safety impact
 
 <!-- None, or: motion / power / battery / actuator / safety I/O / E-stop / brake / contactor /
-watchdog / motor-enable / charge-inhibit. Safety paths need two human reviewers including the
+watchdog / motor-enable / charge-inhibit. Safety paths need two human approvals (ruleset) including the
 platform lead. Telemetry and fixtures are not safety evidence. -->
 
 ## STATE.md

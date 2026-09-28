@@ -49,7 +49,10 @@ repositories:
   openamrobot-release: [release-owner]
   openamrobot-docs: [docs-owner]
 
-# Paths whose change needs two human reviewers including the platform lead.
+# Paths whose change needs two human approvals including the platform lead.
+# check_pr_evidence.py reports "safety path touched, two human approvals
+# required" and checks that reviewers are requested; the approvals themselves
+# are enforced by each repository's ruleset (rollout/workflows/SETUP.md).
 safety_paths:
   - "**/*estop*"
   - "**/*e_stop*"

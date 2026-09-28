@@ -146,16 +146,24 @@ class SafetyRules(unittest.TestCase):
 
     def test_safety_path_needs_two_humans_including_platform_lead(self):
         failures = evaluate(changed=self.CHANGED, reviewers=["someone"])[0]
-        self.assertIn("Safety paths changed: 1 human reviewer(s) requested, 2 required", failures)
-        self.assertIn("Safety paths changed: platform lead @BotshareAI is not among the reviewers", failures)
+        self.assertIn("Safety path touched, two human approvals required: only 1 human reviewer(s) requested", failures)
+        self.assertIn("Safety path touched, two human approvals required: platform lead @BotshareAI is not requested", failures)
 
     def test_bots_and_author_do_not_count(self):
         failures = evaluate(changed=self.CHANGED, reviewers=["BotshareAI", "claude[bot]", "contributor"])[0]
-        self.assertIn("Safety paths changed: 1 human reviewer(s) requested, 2 required", failures)
+        self.assertIn("Safety path touched, two human approvals required: only 1 human reviewer(s) requested", failures)
 
     def test_two_humans_with_lead_pass_including_submitted_reviews(self):
-        reviews = [{"user": {"login": "panthera-momagdii"}}]
-        self.assertEqual(evaluate(changed=self.CHANGED, reviewers=["BotshareAI"], reviews=reviews)[0], [])
+        reviews = [{"user": {"login": "panthera-momagdii"}, "state": "COMMENTED"}]
+        failures, _, notes = evaluate(changed=self.CHANGED, reviewers=["BotshareAI"], reviews=reviews)
+        self.assertEqual(failures, [])
+        self.assertTrue(any(n.startswith("Safety path touched, two human approvals required") for n in notes))
+
+    def test_requested_reviewers_are_not_approvals(self):
+        reviews = [{"user": {"login": "panthera-momagdii"}, "state": "APPROVED"},
+                   {"user": {"login": "claude[bot]"}, "state": "APPROVED"}]
+        notes = evaluate(changed=self.CHANGED, reviewers=["BotshareAI"], reviews=reviews)[2]
+        self.assertTrue(any("Human approvals so far: 1 (information only" in n for n in notes))
 
     def test_ai_assisted_safety_change_fails(self):
         body = BODY.replace("## AI disclosure\nNone", "## AI disclosure\nClaude Code drafted the watchdog change.")
