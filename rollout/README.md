@@ -56,7 +56,7 @@ push-from-bundle prompt, and merged by the owner.
 
 - The release builder packages what the manifest names. A release PR in
   openamrobot-release runs the same decisions check on release notes and metadata (today it
-  flags "Raspberry Pi 5" in `release-metadata/RELEASE_NOTES.md`).
+  flags the legacy compute named in `release-metadata/RELEASE_NOTES.md`, decision COMPUTE).
 - The release manifest should record the harness SHA used for each component's evidence, and
   each component's `summary.json` from its `quality/test` artifact, so release evidence points
   at a verification run instead of a claim.
