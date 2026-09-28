@@ -1,0 +1,62 @@
+# Maintainers map for automation. Handles only; no names or contact data.
+# A role with handle null has no verified GitHub handle yet. Automation that
+# needs that role reports "unassigned" instead of guessing.
+# Changes to this file need review by the platform lead (see CODEOWNERS).
+schema_version: 1
+
+roles:
+  platform-lead:
+    handle: BotshareAI
+    covers: platform, hardware, safety chain, decisions of record, final review
+  software-lead:
+    handle: panthera-momagdii
+    covers: robot software, AI, interfaces, agent rules
+  ci-owner:
+    handle: null
+    covers: CI/CD, reusable workflows, verify.sh, quality gates
+  release-owner:
+    handle: KARTHIKEYAN124
+    covers: release, installation, manifest
+  docs-owner:
+    handle: null
+    covers: documentation site, public extracts
+
+# Owner of audit findings by ID prefix, used by the weekly alignment audit.
+audit_prefixes:
+  GEO: platform-lead
+  BOM: platform-lead
+  ELE: platform-lead
+  TEAM: platform-lead
+  SW: software-lead
+  CI: ci-owner
+  PR: ci-owner
+  DOC: docs-owner
+
+# Owner role per repository, used by docs-sync and the rollout CODEOWNERS proposal.
+repositories:
+  .github: [ci-owner, platform-lead]
+  openamrobot-interfaces: [software-lead]
+  openamr-platform-sw: [software-lead]
+  openamr-platform-fw: [platform-lead]
+  openamr-platform-hw: [platform-lead]
+  openamr-upperbody-sw: [software-lead]
+  openamr-upperbody-fw: [platform-lead]
+  openamr-upperbody-hw: [platform-lead]
+  openamrobot-manipulation: [software-lead]
+  openamrobot-ui: [software-lead]
+  openamrobot-comm: [software-lead]
+  openamrobot-manifest: [release-owner]
+  openamrobot-release: [release-owner]
+  openamrobot-docs: [docs-owner]
+
+# Paths whose change needs two human reviewers including the platform lead.
+safety_paths:
+  - "**/*estop*"
+  - "**/*e_stop*"
+  - "**/*emergency*"
+  - "**/*brake*"
+  - "**/*contactor*"
+  - "**/*watchdog*"
+  - "**/*motor_enable*"
+  - "**/*charge_inhibit*"
+  - "**/*safety*"

@@ -1,0 +1,45 @@
+# Fixture decisions for tests/test_check_decisions.py. Not decisions of record.
+schema_version: 1
+sources:
+  FIX-DOC: {title: Fixture decision document, evidence: tests only}
+exclude: ["**/CHANGELOG.md"]
+decisions:
+  - id: FIX-MAST
+    title: Fixture installation height
+    status: recorded
+    value: 1350
+    unit: mm
+    date: 2026-09-28
+    source: {document: FIX-DOC, item: item 1}
+    supersedes:
+      - {value: 1400, source: FIX-DOC earlier item 1}
+    owner: platform-lead
+    applies_to: {repositories: ["*"]}
+    check:
+      - pattern: '(?P<found>mast_1400)\b[^\n]{0,40}baseline'
+        unless: 'legacy'
+        message: baseline is mast_1350
+  - id: FIX-IMU
+    title: Fixture topic ownership
+    status: recorded
+    values: [firmware publishes /imu/data_raw, host filter owns /imu/data]
+    unit: none
+    date: null
+    source: {document: FIX-DOC, item: item 2}
+    owner: software-lead
+    applies_to: {repositories: ["platform-*"]}
+    check:
+      - pattern: '"(?P<found>/?imu/data)"'
+        files: ["**/*.launch.py", "**/*.xacro"]
+        message: firmware must not publish /imu/data
+  - id: FIX-OPEN
+    title: Fixture open decision, never enforced
+    status: open
+    value: undecided
+    unit: none
+    date: null
+    source: {document: FIX-DOC, item: item 3}
+    owner: platform-lead
+    applies_to: {repositories: ["*"]}
+    check:
+      - pattern: '(?P<found>undecided-value)'
