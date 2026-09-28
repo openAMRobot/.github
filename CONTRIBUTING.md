@@ -1,82 +1,100 @@
 # Contributing to OpenAMRobot
 
-OpenAMRobot welcomes technically sound contributions that support safe, reproducible, maintainable robotics.
+OpenAMRobot is an open dual-arm mobile manipulator. Software and firmware are MIT, hardware is
+CERN-OHL-P-2.0 and documentation is CC-BY-4.0. Every contribution, written by a person or with
+an AI tool, passes the same automated checks before a maintainer reads it. This page is the
+whole path. Engineering detail lives in the
+[Engineering Quality Standard](ENGINEERING_QUALITY_STANDARD.md); the rules the checks enforce
+are in [AGENTS.md](AGENTS.md).
 
-## Before contributing
+## 1. Find a task
 
-1. Read the repository README, licence, notices, and contribution instructions.
-2. For substantial work, open an issue or discussion before implementation.
-3. Confirm that you have authority to contribute, including any employer, university, client, sponsor, or co-author authorization.
-4. Complete the contributor-agreement process described in [CLA.md](CLA.md).
-5. Sign every commit under the [DCO](DCO.md).
+- Look for issues labelled
+  [good first issue](https://github.com/search?q=org%3AopenAMRobot+label%3A%22good+first+issue%22+state%3Aopen&type=issues).
+  Each one names the files, what "done" means, the command that verifies it and the reviewer.
+- Areas and where they live:
 
-## Engineering quality and documentation architecture
+  | Area | Repository |
+  |---|---|
+  | documentation | openamrobot-docs |
+  | navigation and bring-up | openamr-platform-sw |
+  | base firmware | openamr-platform-fw |
+  | hardware (CAD, BOM, wiring) | openamr-platform-hw, openamr-upperbody-hw |
+  | interfaces (messages, schemas) | openamrobot-interfaces |
+  | manipulation | openamrobot-manipulation |
+  | operator UI | openamrobot-ui |
+  | manifest and release | openamrobot-manifest, openamrobot-release |
+  | CI and this harness | .github |
 
-Every contribution must follow the [OpenAMRobot Engineering Quality Standard](ENGINEERING_QUALITY_STANDARD.md). Before implementation, identify the repository type, affected subsystem, safety impact, required validation evidence, compatibility impact, and documentation owner.
+- For anything larger, open a **work package** issue first and wait for the area owner to
+  agree the scope. To change a message, schema, topic name, launch argument name or
+  configuration ID, open a **contract change request** instead.
+- Before you start, read the repository's STATE.md (if it has one) and check open pull
+  requests for the same work.
 
-Implementation-sensitive facts remain canonical in the owning repository. Documentation contributions and corresponding GitHub Pages updates must follow the [Documentation Information Architecture](https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_INFORMATION_ARCHITECTURE.md). Automated CI/CD enforcement is being introduced separately; until then, authors and reviewers must apply these requirements explicitly in each pull request.
+## 2. Set up
 
-## Contribution workflow
+1. Sign the contributor agreement once: see [CLA.md](CLA.md).
+2. Fork the repository and create **one branch per work package**.
+3. Sign off every commit: `git commit -s`. The sign-off certifies the [DCO](DCO.md) with your
+   own name and e-mail.
 
-1. Fork the relevant repository.
-2. Create a focused feature branch.
-3. Make and test the change.
-4. Commit with `git commit -s`.
-5. Update documentation and applicable notices.
-6. Open a pull request using the repository template.
-7. Address review, CI, DCO, CLA, safety, and provenance findings.
+## 3. Make the change
 
-Direct pushes to protected default branches are not an external contribution path.
+- Add a test that fails without your change. A test run that executes zero tests counts as a
+  failure. If you must skip a test, name the tracking issue on the same line.
+- Run the repository's verification (`tools/verify.sh`, or the command in its README).
+- Decided values (heights, parts, topic names and so on) come from
+  [decisions.yaml](decisions.yaml). If your change disagrees with it, the check will say so;
+  raise it in the work package rather than editing around it.
+- Do not add, remove or upgrade a dependency unless the task asks for it.
+- Do not change E-stop, brake, contactor, watchdog, motor-enable or charge-inhibit logic
+  unless the platform lead has agreed it in the issue; such changes need two human reviewers.
 
-## Intellectual property
+## 4. Open a draft pull request
 
-OpenAMRobot is operated by **Botshare LTD**. The applicable Contributor Agreement governs assignment of transferable economic rights in accepted external contributions to Botshare LTD. Accepted material is distributed under the applicable repository or file licence.
+Open the PR as a **draft** and fill in every section of the template: work package,
+Integration Gate (what existed, what you reused), tests, evidence (base SHA, head SHA, exact
+commands, test counts), dependencies, safety impact, STATE.md, Not verified and AI disclosure.
 
-DCO sign-off is mandatory but does not replace the Contributor Agreement.
+## 5. What the automated checks verify
 
-See:
+| Check | Fails when |
+|---|---|
+| repository-quality | governance files missing, merge markers, invalid JSON or XML |
+| decisions of record | a changed file states a value that contradicts decisions.yaml |
+| public extract | docs, assets, README or public files contain internal document links, prices, e-mail addresses, phone numbers or credential-like strings |
+| shared agent rules | AGENTS.md differs from the organization's shared block |
+| PR evidence (one comment, updated on each push) | a template section is empty, SHAs or commands are missing, tests changed without a reported run, a dependency changed without a note, safety files changed without two human reviewers |
+| quality/test | build, lint or tests fail, or zero tests ran |
+| DCO and contributor agreement | a commit lacks sign-off, or no agreement is on record |
 
-- [IP Policy](IP_POLICY.md)
-- [CLA process](CLA.md)
-- [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md)
-- [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md)
-- [DCO](DCO.md)
+## 6. From draft to ready
 
-## Third-party and AI-assisted material
+Mark the PR **ready for review** when every check is green on the current head and the
+evidence comment says PASS. A PR prepared by an AI agent stays draft until the work-package
+owner writes adopt, adapt or reject in the thread.
 
-A pull request must identify material not created independently by the contributor, including code, CAD, schematics, documentation, images, datasets, models, generated output, and copied or adapted examples.
+## 7. Who reviews what
 
-For every such item provide:
+| Change | Reviewer (role in [maintainers.yaml](maintainers.yaml)) |
+|---|---|
+| platform, hardware, firmware, decisions.yaml | platform lead |
+| robot software, AI, interfaces, agent rules | software lead |
+| workflows, verify.sh, quality gates | CI owner |
+| manifest, release, installation | release owner |
+| documentation site | documentation owner |
+| safety paths | two humans, including the platform lead, who reviews last |
 
-- source and author or owner;
-- applicable licence or written permission;
-- modifications made;
-- required copyright, patent, and attribution notices;
-- material use of generative AI and the contributor's review of the output.
+A maintainer merges; approval or a green check alone does not accept a contribution.
 
-Do not submit material with unclear or incompatible rights.
+## Legal, conduct and contact
 
-## Confidentiality and privacy
-
-Do not submit secrets, credentials, personal data, client information, unpublished inventions, export-controlled information, or confidential/proprietary material without explicit written authorization.
-
-## Pull-request quality
-
-Pull requests must:
-
-- explain the problem, solution, scope, and alternatives;
-- contain focused changes only;
-- include testing and observable results;
-- identify safety, compatibility, migration, and deployment effects;
-- update documentation and notices;
-- avoid generated/build artifacts unless the repository explicitly requires them.
-
-Robot-motion, power, battery, actuator, safety-I/O, and autonomous-behaviour changes require explicit safety analysis and appropriate simulation or hardware validation.
-
-## Acceptance
-
-Submission and review do not guarantee acceptance. A contribution is accepted only when an authorized maintainer merges it into an official repository or Botshare LTD confirms acceptance in writing.
-
-## Conduct and contact
-
-Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report security issues through [SECURITY.md](SECURITY.md). Questions about contribution rights may be sent to info@botshare.ai.
+Contributions are governed by the [IP Policy](IP_POLICY.md), the
+[Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or
+[Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement, the
+[AI contribution policy](AI_CONTRIBUTION_POLICY.md) and the
+[third-party policy](THIRD_PARTY_POLICY.md). Identify any material you did not create
+yourself with its source and licence. Do not submit secrets, personal data or confidential
+material. Follow the [Code of Conduct](CODE_OF_CONDUCT.md); report security issues through
+[SECURITY.md](SECURITY.md). Questions about contribution rights: info@botshare.ai.
