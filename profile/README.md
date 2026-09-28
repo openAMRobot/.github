@@ -157,16 +157,16 @@ openAMRobot/
 ├── openamrobot-interfaces    # shared ROS 2 msgs/services/actions + device.yaml schema
 ├── openamrobot-comm          # comm protocols, middleware, transport
 ├── openamrobot-ui            # operator UI, dashboards, Device Package panels
-├── openamrobot-manipulation  # arm framework + manipulation server + arm packages (franka, rebot)
+├── openamrobot-manipulation  # arm framework + arms (OpenArm 2.0 primary, LeRobot SO-101 fixture)
 ├── openamrobot-docs          # central docs, onboarding, compatibility
 ├── openamrobot-release       # frozen, versioned product snapshots
 │
 ├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
 ├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
 ├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
-├── openamr-upperbody-sw      # arm+lift model, lift control, MoveIt, bringup
-├── openamr-upperbody-fw      # lift controller, end-effector, safety I/O
-├── openamr-upperbody-hw      # lift mechanics, mounting plates, wiring, BOM
+├── openamr-upperbody-sw      # arm+fixed mast (lift in 3.0), MoveIt, bringup
+├── openamr-upperbody-fw      # end-effector, safety I/O; lift in 3.0
+├── openamr-upperbody-hw      # fixed mast, lift in 3.0, plates, wiring, BOM
 
 ```
 
@@ -178,10 +178,10 @@ openAMRobot/
 | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software: simulation, navigation, docking, drivers, perception, bringup |
 | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, microcontroller systems, motor interfaces, hardware communication |
 | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical, BOMs, manufacturing files, mechatronics |
-| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + lift model, lift control, MoveIt on the combined model, bringup |
-| [`openamr-upperbody-fw`](https://github.com/openAMRobot/openamr-upperbody-fw) | Lift controller, end-effector, upper-body safety I/O |
-| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Lift mechanics, mounting plates, upper-body wiring, BOM |
-| [`openamrobot-manipulation`](https://github.com/openAMRobot/openamrobot-manipulation) | Arm-integration framework: manipulation server, Device Package format, reference arm packages (Franka, ReBot) |
+| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + fixed mast (lift in 3.0), MoveIt on the combined model, bringup |
+| [`openamr-upperbody-fw`](https://github.com/openAMRobot/openamr-upperbody-fw) | End-effector, upper-body safety I/O; lift in 3.0 |
+| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Fixed mast (lift in 3.0), mounting plates, wiring, BOM |
+| [`openamrobot-manipulation`](https://github.com/openAMRobot/openamrobot-manipulation) | Arm framework: manipulation server, Device Package format, arms (OpenArm 2.0 primary, LeRobot SO-101 fixture) |
 | [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces) | Shared ROS 2 messages, services, actions, schemas, interface contracts |
 | [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm) | APIs, middleware, telemetry, transport protocols, interoperability |
 | [`openamrobot-ui`](https://github.com/openAMRobot/openamrobot-ui) | Operator interfaces, dashboards, visualization, user-facing apps |
@@ -443,10 +443,10 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 - Carrier PCB (compute + power + sensors)
   - Current discussion: https://github.com/orgs/openAMRobot/discussions/9
 
-- Hub-motor drivetrain with suspension
+- Hub-motor drive; suspension in 3.0
   - mechanical + control integration
 
-- Robotic arm integration and linear lift integration
+- Robotic arm integration; linear lift in 3.0
   - mounts
   - drivers
   - wiring
