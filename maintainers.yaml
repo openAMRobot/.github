@@ -16,7 +16,7 @@ roles:
     handle:  # filled by the organization owner
     covers: CI/CD, reusable workflows, verify.sh, quality gates
   release-owner:
-    handle:  # filled by the organization owner
+    handle: KARTHIKEYAN124
     covers: release, installation, manifest
   docs-owner:
     handle:  # filled by the organization owner
