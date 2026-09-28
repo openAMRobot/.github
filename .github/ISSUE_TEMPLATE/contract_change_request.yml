@@ -9,7 +9,12 @@ body:
         Use this form before changing a contract consumed by another repository, node, service, tool, or operator surface:
         messages, services, actions, schemas, topic names, launch argument names and configuration IDs (for example mast_1350).
         The change lands in one PR that updates the contract package and every consumer together; that PR links this issue
-        in its Work package section. Decided values also change in decisions.yaml in openAMRobot/.github.
+        in its Work package section.
+
+        To change an approved technical decision (a value, limit, exclusion or distinction in the decisions register,
+        openAMRobot/.github decisions.yaml), follow "Changing a decision" in AGENTS.md: this issue names the entry, the owner
+        updates the source document, and one reviewed PR updates the register entry, its supersedes history, its check
+        patterns with a test, and every affected consumer together. No tool rewrites the register or a source document.
 
         Keep generic interfaces generic. Do not add application-specific manipulation behavior or authoritative safety behavior to a telemetry or navigation contract without an explicit owning design decision.
 
@@ -28,6 +33,15 @@ body:
       label: Contract or interface
       description: Name the message, service, action, schema, topic name, launch argument name, configuration ID or file being changed.
       placeholder: "repository, package, path, and interface name"
+    validations:
+      required: true
+
+  - type: input
+    id: decision_entry
+    attributes:
+      label: Decisions register entry
+      description: The decisions.yaml ID this request changes, or "none" for a contract that is not a recorded decision.
+      placeholder: "MAST-INSTALL-HEIGHT / none"
     validations:
       required: true
 

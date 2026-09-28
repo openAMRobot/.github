@@ -1,20 +1,25 @@
 # Agent run log
 
-One row per agent run that produced a report, a PR or a push. The work-package owner records
-the outcome in the PR thread (adopted, adapted or rejected); this log copies it. "pending"
-means no owner decision is recorded yet. Every mistake row names the harness change that now
-catches its class; a mistake without one gets an issue labelled harness.
+One row per agent run that produced a report, a PR or a push. This is a public file: it
+records sanitized failure categories, never the underlying content (no finding text, quotes,
+personal details, internal links or supplier data). Details stay with the owner of the run.
 
-Model and template columns record what the evidence shows (commit trailers, PR text, report
-header); "not recorded" means the evidence does not say.
+The work-package owner records the outcome in the PR thread (adopted, adapted or rejected);
+this log copies it. "pending" means no owner decision is recorded; "not recorded" means the
+available evidence does not say. Every mistake category names the harness change that now
+addresses it, with its state: (a) implemented and tested in this repository, (b) supplied
+under rollout/ and not installed anywhere, (c) human gate.
 
-| Date | Task | Template version | Environment | Model | Outcome | Mistake | Harness change |
+| Date | Task | Template version | Environment | Model | Outcome | Mistake category | Harness change (state) |
 |---|---|---|---|---|---|---|---|
-| 2026-09-28 | Independent alignment audit of 13 repositories, plan set and BOM (229 findings, private audit repository) | none (pre-harness) | read-only session; GitHub API limited to openamrobot-docs; Drive links not opened; no ROS build | not recorded | pending | Initial severities too low on four findings; the lead auditor raised BOM-005, BOM-009 and DOC-021 to Blocker and PR-002 to Major | agent-prompts/evaluator-pass.md; decisions.yaml SAFETY-PROCUREMENT and DOCKING-SCOPE make those classes gate failures |
-| 2026-09-28 | Docs PRs openamrobot-docs#25 and #26: OpenAMRobot 2.0 design section, HW diagram, general arrangement, F2S page | none (pre-harness) | contributor branch, docs repository | not recorded | adapted: heads redrawn at 1350 mm and aligned with the plan of record after the audit; the design section reached main in 945d78d | Public diagram asset carried internal document links, supplier prices and owner names (DOC-011); decisions shown as recorded before the addendum recorded them (DOC-002); Teensy presented as a bench target (ELE-021) | check_public_extract.py; decisions.yaml with sources and check_decisions.py (MAST-INSTALL-HEIGHT, BASE-CONTROLLER-GATES) |
-| 2026-09-28 | Docs PR openamrobot-docs#28: P-03 rev18.2 mast geometry and height envelope | none (pre-harness) | contributor branch, docs repository | not recorded | pending | Cites P-03 revision 18.2, which no repository holds; the audit found no rev18.2 of record | decisions.yaml `sources` requires the evidence for each document; rev18.2 values flagged for owner confirmation |
-| 2026-09-28 | README pushes: openamr-upperbody-hw#6, -sw#6, -fw#6 (fixed mast, rev18.2 wording) | none (pre-harness) | contributor branches | OpenAI Codex (per commit message) | pending (open) | none recorded beyond the audit findings they fix (GEO-020, DOC-038) | check_decisions.py LIFT-REMOVED and MAST-* keep the fix from regressing |
-| 2026-09-28 | README push: .github#36, organization profile arm and mast wording | none (pre-harness) | contributor branch | Claude Code (per commit trailer) | adopted (merged d1ac6b6) | Profile still lists "adjustable linear lift systems" (GEO-022, DOC-033 partly fixed) | check_decisions.py LIFT-REMOVED reports profile/README.md line 18 |
-| 2026-09-17 | CI pushes to openamr-upperbody-hw, -sw, -fw (#4) | none (pre-harness) | contributor branches | OpenAI Codex (per sign-off) | adopted (merged) | DCO sign-off under an invented identity ("OpenAI Codex" with the maintainer's e-mail) | Shared block: sign-off only with the contributor's own identity; push-from-bundle.md identity rule |
-| not recorded | Repository-mismatch stop | none (pre-harness) | not recorded | not recorded | not recorded | Not described in the audit report or the repository history available to the session that wrote this log | Row to be completed by the platform lead; the failure rule in every agent prompt now requires the stop and the report |
-| 2026-09-29 | This harness: rules, checks, templates and rollout in openAMRobot/.github | agent-prompts v1 (created by this run) | cloud session; read-only clones of product repositories; GitHub API scoped to .github and the audit repository | Claude Code | pending | The task named a private audit repository that does not exist under that name; the session read the same dated folder from the organization's audit repository, read-only, and reported the mismatch instead of stopping. Two reviewer handles could not be resolved from organization evidence | Precondition blocks name repositories by exact full name; maintainers.yaml records unresolved handles as null instead of guessing |
+| 2026-09-28 | Read-only alignment audit across repositories and plan documents | none (pre-harness) | read-only session, limited API access | not recorded | pending | Severity under-rated in the first pass and corrected on lead review | evaluator-pass prompt (b); lead review of severities (c) |
+| 2026-09-28 | Documentation PRs for the 2.0 design section | none (pre-harness) | contributor branch | not recorded | adapted after review | Internal links, prices and owner names in a public asset | check_public_extract.py (a); ruleset install (b) |
+| 2026-09-28 | Documentation PRs for the 2.0 design section | none (pre-harness) | contributor branch | not recorded | adapted after review | Decision presented as recorded before the source recorded it | decisions register with provenance and owner confirmation (a, c) |
+| 2026-09-28 | Documentation PR citing a newer decision revision | none (pre-harness) | contributor branch | not recorded | pending | Decision cited from a source revision not held in any repository | register entries marked as needing owner confirmation (c) |
+| 2026-09-28 | README alignment pushes in upper-body repositories | none (pre-harness) | contributor branches | not recorded | pending | none recorded | decision patterns keep the change from regressing (a) |
+| 2026-09-28 | README alignment push in this repository | none (pre-harness) | contributor branch | not recorded | adopted (merged) | Superseded scope wording left in one line | check_decisions.py reports it on full scan (a) |
+| 2026-09-17 | CI pushes in upper-body repositories | none (pre-harness) | contributor branches | not recorded | adopted (merged) | DCO sign-off under an identity that is not the contributor's | shared rule on sign-off identity (c); push-from-bundle prompt (b) |
+| not recorded | Agent task against a mis-named repository | none (pre-harness) | not recorded | not recorded | not recorded | Repository mismatch stopped by precondition | failure rule in every agent prompt (b) |
+| 2026-09-29 | This harness: rules, register, checks, templates and rollout | agent-prompts v1 (created by this run) | cloud session; read-only clones; API scoped to two repositories | not recorded | pending | Repository name mismatch in the task; worked around read-only and reported instead of stopping | precondition blocks name repositories by exact full name (b) |
+| 2026-09-29 | This harness | agent-prompts v1 | same | not recorded | pending | Reviewer handles not resolvable from organization evidence | maintainers.yaml records unresolved handles as null (a); owner fills them (c) |
+| 2026-09-29 | This harness | agent-prompts v1 | same | not recorded | pending | Harness document restated a superseded value; caught by its own decisions check before push | check_decisions.py on changed files (a) |

@@ -44,9 +44,12 @@ are in [AGENTS.md](AGENTS.md).
 - Add a test that fails without your change. A test run that executes zero tests counts as a
   failure. If you must skip a test, name the tracking issue on the same line.
 - Run the repository's verification (`tools/verify.sh`, or the command in its README).
-- Decided values (heights, parts, topic names and so on) come from
-  [decisions.yaml](decisions.yaml). If your change disagrees with it, the check will say so;
-  raise it in the work package rather than editing around it.
+- Approved technical decisions (values, limits, exclusions such as "no lift in 2.0", and
+  distinctions such as "1700 mm is the assembled-height envelope, not a shoulder height") are
+  in the register [decisions.yaml](decisions.yaml). Follow it. To change one, open a
+  **contract change request** naming the entry; the process is "Changing a decision" in
+  [AGENTS.md](AGENTS.md): the owner updates the source document, then one reviewed PR
+  updates the register and every affected repository together.
 - Do not add, remove or upgrade a dependency unless the task asks for it.
 - Do not change E-stop, brake, contactor, watchdog, motor-enable or charge-inhibit logic
   unless the platform lead has agreed it in the issue; such changes need two human reviewers.
@@ -59,13 +62,18 @@ commands, test counts), dependencies, safety impact, STATE.md, Not verified and 
 
 ## 5. What the automated checks verify
 
+These checks run in a repository once it has installed them; they block a merge only where
+the repository's ruleset requires them ([rollout status](rollout/workflows/SETUP.md)). A text
+check proves that a file is consistent with the register, not that a design is mechanically,
+electrically or functionally safe; a named reviewer checks that.
+
 | Check | Fails when |
 |---|---|
 | repository-quality | governance files missing, merge markers, invalid JSON or XML |
-| decisions of record | a changed file states a value that contradicts decisions.yaml |
+| decisions register | a changed file contains a listed contradicting phrase, or cites a superseded source |
 | public extract | docs, assets, README or public files contain internal document links, prices, e-mail addresses, phone numbers or credential-like strings |
 | shared agent rules | AGENTS.md differs from the organization's shared block |
-| PR evidence (one comment, updated on each push) | a template section is empty, SHAs or commands are missing, tests changed without a reported run, a dependency changed without a note, safety files changed without two human reviewers |
+| PR evidence (one comment, updated on each push) | a template section is empty, SHAs or commands are missing, tests changed without a reported run, a dependency changed without a note, safety files changed without two human reviewers requested (the two approvals themselves come from the ruleset) |
 | quality/test | build, lint or tests fail, or zero tests ran |
 | DCO and contributor agreement | a commit lacks sign-off, or no agreement is on record |
 
@@ -84,7 +92,7 @@ owner writes adopt, adapt or reject in the thread.
 | workflows, verify.sh, quality gates | CI owner |
 | manifest, release, installation | release owner |
 | documentation site | documentation owner |
-| safety paths | two humans, including the platform lead, who reviews last |
+| safety paths | two human approvals, including the platform lead, who reviews last (ruleset) |
 
 A maintainer merges; approval or a green check alone does not accept a contribution.
 

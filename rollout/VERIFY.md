@@ -36,7 +36,7 @@ VERIFY_TEST="cd web && CI=true npm test -- --watchAll=false"
 ```
 
 With that override the UI's current `--passWithNoTests` suite fails the zero-tests rule
-(audit CI-006) until real tests exist.
+until real tests exist.
 
 ## How the reusable workflow calls it
 
