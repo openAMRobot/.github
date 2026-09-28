@@ -12,3 +12,30 @@ jobs:
   repository-quality:
     name: repository-quality
     uses: ./.github/workflows/repository-quality-reusable.yml
+    with:
+      # This repository is the harness: check each change against its own head.
+      harness_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+  harness-tests:
+    name: quality/test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Unit tests of every checker (zero-test guard)
+        shell: bash
+        run: |
+          # verify.sh runs tests without user site-packages; use the system package.
+          python3 -c 'import yaml' 2>/dev/null || { sudo apt-get update && sudo apt-get install -y python3-yaml; }
+          VERIFY_PATH="$PATH" bash rollout/verify.sh
+      - name: Validate decisions.yaml
+        run: python3 tools/check_decisions.py --decisions decisions.yaml --maintainers maintainers.yaml --validate-only
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-verification
+          path: .verification/run.*/
+          include-hidden-files: true
+          if-no-files-found: warn

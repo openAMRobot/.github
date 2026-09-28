@@ -2,6 +2,14 @@ name: Reusable repository quality
 
 on:
   workflow_call:
+    inputs:
+      harness_ref:
+        description: >-
+          Ref of openAMRobot/.github that provides decisions.yaml and the checkers.
+          Pin it to the same commit SHA as the `uses:` line of the caller.
+        type: string
+        required: false
+        default: main
 
 permissions:
   contents: read
@@ -13,6 +21,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out OpenAMRobot harness
+        uses: actions/checkout@v4
+        with:
+          repository: openAMRobot/.github
+          ref: ${{ inputs.harness_ref }}
+          path: .openamrobot-harness
 
       - name: Verify governance baseline
         shell: bash
@@ -53,3 +70,61 @@ jobs:
 
           for path in tracked("*.xml"):
               ET.parse(path)
+
+      - name: Prepare harness checks
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            git diff --name-only --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" > "$RUNNER_TEMP/changed-files.txt"
+            echo "scope=changed files ($(wc -l < "$RUNNER_TEMP/changed-files.txt"))"
+          fi
+
+      # Pull requests: changed files only, blocking. A new contradiction cannot merge.
+      # Push and schedule: full checkout, reported as warnings; the weekly
+      # alignment audit turns the backlog into issues with owners.
+      - name: Decisions of record
+        shell: bash
+        run: |
+          set -uo pipefail
+          h=.openamrobot-harness
+          scope=()
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            scope=(--changed-files "$RUNNER_TEMP/changed-files.txt")
+          fi
+          python3 "$h/tools/check_decisions.py" --decisions "$h/decisions.yaml" \
+            --maintainers "$h/maintainers.yaml" --root . \
+            --repository "${{ github.event.repository.name }}" "${scope[@]}" | tee "$RUNNER_TEMP/decisions.txt"
+          status=${PIPESTATUS[0]}
+          grep '^CONTRADICTION ' "$RUNNER_TEMP/decisions.txt" | sed -E 's/^CONTRADICTION ([^:]+):([0-9]+): /::warning file=\1,line=\2::/' || true
+          if [ "${{ github.event_name }}" = pull_request ] || [ "$status" -eq 2 ]; then exit "$status"; fi
+
+      - name: Public extract
+        shell: bash
+        run: |
+          set -uo pipefail
+          h=.openamrobot-harness
+          scope=()
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            scope=(--changed-files "$RUNNER_TEMP/changed-files.txt")
+          fi
+          python3 "$h/tools/check_public_extract.py" --root . --allowlist "$h/public-extract-allowlist.yaml" \
+            --repository "${{ github.event.repository.name }}" "${scope[@]}" | tee "$RUNNER_TEMP/extract.txt"
+          status=${PIPESTATUS[0]}
+          grep '^PUBLIC-EXTRACT ' "$RUNNER_TEMP/extract.txt" | sed -E 's/^PUBLIC-EXTRACT ([^:]+):([0-9]+): /::warning file=\1,line=\2::/' || true
+          if [ "${{ github.event_name }}" = pull_request ] || [ "$status" -eq 2 ]; then exit "$status"; fi
+
+      - name: Shared agent rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f AGENTS.md ]; then
+            python3 .openamrobot-harness/tools/check_agent_rules.py \
+              --canonical .openamrobot-harness/agent-rules/SHARED_RULES.md --file AGENTS.md
+          else
+            echo "No AGENTS.md in this repository; see rollout/README.md in openAMRobot/.github"
+          fi
