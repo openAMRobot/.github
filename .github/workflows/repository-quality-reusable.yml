@@ -10,6 +10,13 @@ on:
         type: string
         required: false
         default: main
+      harness_checks:
+        description: >-
+          Run the decisions, public-extract and shared-rules checks. Off by default so that
+          existing callers on @main are unchanged until they opt in (rollout/README.md).
+        type: boolean
+        required: false
+        default: false
       verify:
         description: Run rollout/verify.sh (or the repository's own tools/verify.sh) as job quality/test.
         type: boolean
@@ -35,6 +42,7 @@ jobs:
           fetch-depth: 0
 
       - name: Check out OpenAMRobot harness
+        if: inputs.harness_checks
         uses: actions/checkout@v4
         with:
           repository: openAMRobot/.github
@@ -82,6 +90,7 @@ jobs:
               ET.parse(path)
 
       - name: Prepare harness checks
+        if: inputs.harness_checks
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -98,6 +107,7 @@ jobs:
       # Push and schedule: full checkout, reported as warnings; the weekly
       # alignment audit turns the backlog into issues with owners.
       - name: Decisions of record
+        if: inputs.harness_checks
         shell: bash
         run: |
           set -uo pipefail
@@ -114,6 +124,7 @@ jobs:
           if [ "${{ github.event_name }}" = pull_request ] || [ "$status" -eq 2 ]; then exit "$status"; fi
 
       - name: Public extract
+        if: inputs.harness_checks
         shell: bash
         run: |
           set -uo pipefail
@@ -129,6 +140,7 @@ jobs:
           if [ "${{ github.event_name }}" = pull_request ] || [ "$status" -eq 2 ]; then exit "$status"; fi
 
       - name: Shared agent rules
+        if: inputs.harness_checks
         shell: bash
         run: |
           set -euo pipefail
