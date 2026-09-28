@@ -126,6 +126,6 @@ of the Engineering Quality Standard.
 
 ## 7. Maintainers map
 
-Fill the `null` handles in `maintainers.yaml` (ci-owner, docs-owner) once the people confirm
+Fill the empty handles in `maintainers.yaml` (ci-owner, release-owner, docs-owner) once the people confirm
 their GitHub accounts and join the organization. Until then, automation names the role and
 mentions nobody.

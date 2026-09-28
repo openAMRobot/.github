@@ -44,11 +44,12 @@ schema_version: 1
 
 sources:
   P-03-rev18.2:
-    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (seed evidence)
+    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (the addendum in force)
     evidence: >-
-      Not held in any repository. Values below that cite it were taken from its
-      citation on the documentation site (openamrobot-docs main e0f2aac,
-      docs/reference/openamrobot-2/index.md lines 30-39) and need owner confirmation.
+      Not held in any repository. Confirmed by the platform lead on 29 September 2026
+      as the addendum in force. Values that cite it were seeded from its citation on the
+      documentation site (openamrobot-docs main e0f2aac,
+      docs/reference/openamrobot-2/index.md lines 30-39) and from that confirmation.
   P-03-rev18.1:
     title: P-03 Decision Addendum, revision 18.1
     evidence: plan-set document, not held in any repository; cited by item and line
@@ -56,8 +57,8 @@ sources:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
   BOM-Issue-7:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7, 27 September 2026 (seed evidence)
-    evidence: working BOM, not held in any repository; its issue status is an open decision
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7, 27 September 2026 (canonical per P-03 rev18.2 item 7)
+    evidence: not held in any repository; provenance only, CI never reads it
   I8-WP:
     title: I8 base-controller status work package
     evidence: plan-set work package, not held in any repository
@@ -76,26 +77,28 @@ decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
     kind: value
-    status: open
-    value: Issue 6, or an explicitly approved successor
+    status: recorded
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7
     unit: none
-    date: null
-    source: {document: P-03-rev18.1, item: line 7}
+    date: 2026-09-28
+    source: {document: P-03-rev18.2, item: item 7}
     supersedes:
+      - value: Issue 6, or an explicitly approved successor
+        source: P-03-rev18.1 line 7
+        citation: '(?P<found>P-03[^\n]{0,30}(?:rev(?:ision)?\.?\s*)?18\.1[^\n]{0,30}line\s*7)'
       - {value: B-01 development BOM and evidence register rev18, source: P-03-rev18.1 line 7}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
     check:
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+        unless: 'supersed|replaced|previous|earlier'
+        message: BOM Issue 7 is the canonical hardware BOM (P-03 rev18.2 item 7)
       - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
         unless: 'supersed'
         message: B-01 is superseded
     verification:
-      machine: none while open
-      human: {reviewer: platform-lead, evidence: the P-03 item that names the BOM issue in force}
+      machine: Issue 6 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
     owner: platform-lead
-    note: >-
-      Open. The plan of record names Issue 6; the working BOM (Issue 7) and the
-      documentation use Issue 7; no recorded approval of Issue 7 as successor
-      was available. Set status to recorded once P-03 names the issue in force.
 
   - id: MAST-INSTALL-HEIGHT
     title: Shoulder-axis installation height of the fixed mast
@@ -222,7 +225,7 @@ decisions:
       machine: a different battery centre position in text
       human: {reviewer: platform-lead, evidence: general arrangement and mass model}
     owner: platform-lead
-    note: The rev18.1 plan set did not record a placement; this value rests on the rev18.2 citation.
+    note: The rev18.1 plan set did not record a placement; P-03 rev18.2 records it.
 
   - id: SPEED-CEILING
     title: 1.5 m/s is a command ceiling, not an operating speed

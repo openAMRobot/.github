@@ -15,7 +15,7 @@ OpenAMRobot combines:
 
 - autonomous mobile robotics
 - dual-arm manipulation
-- adjustable linear lift systems
+- a fixed mast for the arms (the linear lift is deferred to OpenAMRobot 3.0)
 - AI-based perception
 - wearable embodied AI data collection
 - ROS 2 software infrastructure
@@ -489,4 +489,4 @@ Contributor attribution and legally non-waivable authorship or moral rights rema
 
 See the canonical [IP Policy](https://github.com/openAMRobot/.github/blob/main/IP_POLICY.md), [Contribution Guide](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md), and [Contributor Agreement Process](https://github.com/openAMRobot/.github/blob/main/CLA.md).
 
-**Botshare LTD** · HE479056 · Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus · alex@botshare.ai · https://botshare.ai
+**Botshare LTD** · HE479056 · Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus · info@botshare.ai · https://botshare.ai

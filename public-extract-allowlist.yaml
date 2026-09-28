@@ -25,6 +25,20 @@ allow:
       Licence and copyright notices of third-party code must keep their author
       contact to preserve provenance (THIRD_PARTY_POLICY.md). Only lines that
       are such notices qualify.
+  - rule: price
+    match: '(?:from\s+)?€\d[\d,.]*(?:/mo)?'
+    paths: ["README.md"]
+    repositories: [".github"]
+    reason: >-
+      Public pricing: the sponsorship tiers on the organization governance README.
+      Approved as published pricing by the platform lead on 29 September 2026.
+  - rule: price
+    match: '€\d[\d,.]*(?:/mo)?'
+    paths: ["profile/README.md"]
+    repositories: [".github"]
+    reason: >-
+      Public pricing: the robot offerings and sponsorship tiers on the organization
+      profile. Approved as published pricing by the platform lead on 29 September 2026.
   - rule: credential
     match: '.*(?:your|example|placeholder|changeme|xxxx|<[^>]*>).*'
     reason: Placeholder values in setup instructions, not secrets.

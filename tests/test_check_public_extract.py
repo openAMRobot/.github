@@ -92,6 +92,14 @@ class Rules(unittest.TestCase):
         self.assertEqual(self.hits(f"Copyright (c) 2014 A. Writer <writer{AT}lab.org>, MIT License\n", "README.md", allow=allow), [])
         self.assertEqual(len(self.hits(f"Write to writer{AT}lab.org for a quote.\n", "README.md", allow=allow)), 1)
 
+    def test_public_pricing_is_allowed_only_where_approved(self):
+        allow = pe.load_allowlist(ROOT / "public-extract-allowlist.yaml")
+        row = "| First Mover - \u20ac5 | tier |\n"
+        self.assertEqual(self.hits(row, "README.md", allow=allow, repository=".github"), [])
+        self.assertEqual(self.hits(row, "profile/README.md", allow=allow, repository=".github"), [])
+        self.assertEqual(len(self.hits(row, "README.md", allow=allow, repository="openamrobot-ui")), 1)
+        self.assertEqual(len(self.hits(row, "docs/page.md", allow=allow, repository=".github")), 1)
+
     def test_handles_are_not_emails(self):
         self.assertEqual(self.hits("Reviewed by @BotshareAI and @panthera-momagdii.\n"), [])
 
