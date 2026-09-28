@@ -1,0 +1,74 @@
+# Monthly retro: copy to .github/workflows/monthly-retro.yml in openAMRobot/.github.
+# Reads open issues labelled harness across the organization and recent review
+# comments that describe agent mistakes, then opens one draft PR here proposing
+# changes to AGENTS.md, the checkers or the templates. Humans decide in the PR.
+# Secrets: ANTHROPIC_API_KEY; RETRO_APP_ID and RETRO_APP_PRIVATE_KEY for an App
+# with read access to issues and pull requests across the organization.
+name: Monthly harness retro
+
+on:
+  schedule:
+    - cron: "23 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  retro:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Organization read token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RETRO_APP_ID }}
+          private-key: ${{ secrets.RETRO_APP_PRIVATE_KEY }}
+          owner: openAMRobot
+
+      - name: Collect harness issues and agent-mistake review comments
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          set -euo pipefail
+          since=$(date -u -d '35 days ago' +%Y-%m-%d)
+          gh search issues --owner openAMRobot --label harness --state open --limit 200 \
+            --json repository,number,title,body,url > retro-harness-issues.json
+          gh search prs --owner openAMRobot --updated ">=$since" --limit 200 --json repository,number > retro-prs.json
+          python3 - <<'PY'
+          import json, re, subprocess
+          out = []
+          for pr in json.load(open("retro-prs.json")):
+              repo = pr["repository"]["nameWithOwner"]
+              data = subprocess.run(["gh", "api", f"repos/{repo}/pulls/{pr['number']}/comments", "--paginate"],
+                                    capture_output=True, text=True).stdout or "[]"
+              for c in json.loads(data):
+                  if re.search(r"\b(agent|claude|ai[- ]generated|harness)\b", c.get("body", ""), re.I):
+                      out.append({"repo": repo, "pr": pr["number"], "url": c["html_url"], "body": c["body"][:2000]})
+          json.dump(out, open("retro-review-comments.json", "w"), indent=2)
+          print(len(out), "review comments")
+          PY
+
+      - name: Propose rule and template changes
+        uses: anthropics/claude-code-action@8ce9314fa9a404564fa7e954cd84f25bcba2b829 # v1.0.236
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You run the monthly harness retro for openAMRobot/.github at parent SHA ${{ github.sha }}.
+            Inputs: retro-harness-issues.json and retro-review-comments.json. Group the mistakes by class.
+            For each class propose exactly one of: a machine-checked gate (change a checker under tools/ with a
+            test), a template change, or a human decision point with a named decider role from maintainers.yaml.
+            Advice that nothing checks is not a rule. Keep AGENTS.md under 120 lines and edit the shared block
+            only in agent-rules/SHARED_RULES.md and AGENTS.md together, bumping the marker version.
+            Add one row per class to agent-runs.md. Run `bash rollout/verify.sh` and
+            `python3 tools/check_agent_rules.py --canonical agent-rules/SHARED_RULES.md --file AGENTS.md`.
+            Then create branch retro/<YYYY-MM>, commit with sign-off, push, and open ONE draft PR using the
+            PR template, linking every issue it addresses. Never merge, never close issues, never push to main.
+          claude_args: |
+            --max-turns 120
+            --allowedTools "Read,Grep,Glob,Edit,Write,Bash(bash rollout/verify.sh),Bash(python3 tools/*),Bash(git switch -c retro/*),Bash(git add *),Bash(git commit -s *),Bash(git push origin retro/*),Bash(gh pr create --draft *)"

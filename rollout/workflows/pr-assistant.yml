@@ -1,0 +1,74 @@
+# PR assistant: copy to .github/workflows/pr-assistant.yml in each repository.
+#
+# Runs check_decisions.py on the changed files and check_pr_evidence.py on the
+# description, then creates or updates one summary comment. It never approves,
+# requests changes or merges, and never executes code from the pull request:
+# the PR head is checked out as data only, the checkers come from the pinned
+# harness. pull_request_target is used so fork PRs can receive the comment;
+# no secret other than GITHUB_TOKEN is available to the job.
+# Replace <HARNESS_SHA> with the openAMRobot/.github commit to run.
+name: PR assistant
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review, review_requested, review_request_removed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: pr-assistant-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    name: quality/pr-evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out harness (trusted code)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: openAMRobot/.github
+          ref: <HARNESS_SHA>
+          path: harness
+          persist-credentials: false
+
+      - name: Check out PR head (data only, never executed)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr-head
+          persist-credentials: false
+
+      - name: Collect changed files and reviews
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate --jq '.[] | select(.status != "removed") | .filename' > changed.txt
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate > reviews.json
+          wc -l < changed.txt
+
+      - name: Decisions of record on the diff
+        run: |
+          set +e
+          python3 harness/tools/check_decisions.py --decisions harness/decisions.yaml \
+            --maintainers harness/maintainers.yaml --root pr-head \
+            --repository "${{ github.event.repository.name }}" --changed-files changed.txt > decisions.txt
+          echo "check_decisions exit $?"
+          cat decisions.txt
+
+      - name: Evidence check and summary comment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 harness/tools/check_pr_evidence.py --event "$GITHUB_EVENT_PATH" \
+            --changed-files changed.txt --maintainers harness/maintainers.yaml \
+            --reviews reviews.json --root pr-head --decisions-report decisions.txt \
+            --output "$GITHUB_STEP_SUMMARY" --post

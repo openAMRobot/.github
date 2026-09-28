@@ -163,6 +163,21 @@ class SafetyRules(unittest.TestCase):
         self.assertTrue(any("agents do not author safety logic" in f for f in failures))
 
 
+class DecisionReport(unittest.TestCase):
+    def test_contradictions_become_failures(self):
+        report = ("decisions: 3 loaded\n"
+                  "CONTRADICTION docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400', decided '1350 mm' (P-03)\n"
+                  "ALLOWED docs/h.md:2: MAST-INSTALL-HEIGHT found 'mast_1400'; reason: history\n")
+        self.assertEqual(ev.decision_failures(report), [
+            "Decision contradiction: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400', decided '1350 mm' (P-03)"])
+
+    def test_long_reports_are_truncated(self):
+        report = "\n".join(f"CONTRADICTION f.md:{i}: X found 'a', decided 'b'" for i in range(25))
+        failures = ev.decision_failures(report)
+        self.assertEqual(len(failures), 21)
+        self.assertEqual(failures[-1], "... and 5 more decision contradictions")
+
+
 class Comment(unittest.TestCase):
     def test_render_has_marker_and_status(self):
         text = ev.render(["x"], [], [], pr())

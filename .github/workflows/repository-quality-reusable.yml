@@ -10,6 +10,16 @@ on:
         type: string
         required: false
         default: main
+      verify:
+        description: Run rollout/verify.sh (or the repository's own tools/verify.sh) as job quality/test.
+        type: boolean
+        required: false
+        default: false
+      verify_container:
+        description: Container image for the verify job, e.g. ros:jazzy-ros-base for ROS 2 repositories.
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -128,3 +138,37 @@ jobs:
           else
             echo "No AGENTS.md in this repository; see rollout/README.md in openAMRobot/.github"
           fi
+
+  verify:
+    name: quality/test
+    if: inputs.verify
+    runs-on: ubuntu-24.04
+    container: ${{ inputs.verify_container || null }}
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out OpenAMRobot harness
+        uses: actions/checkout@v4
+        with:
+          repository: openAMRobot/.github
+          ref: ${{ inputs.harness_ref }}
+          path: .openamrobot-harness
+
+      - name: Verify (install, build, lint, test, evidence; zero tests fail)
+        shell: bash
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          VERIFY_PATH="$PATH" bash .openamrobot-harness/rollout/verify.sh "$GITHUB_WORKSPACE"
+
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-evidence
+          path: .verification/run.*/
+          include-hidden-files: true
+          if-no-files-found: warn

@@ -142,6 +142,17 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False):
     return failures, warnings, notes
 
 
+def decision_failures(report, limit=20):
+    """Turn check_decisions.py output lines into summary failures."""
+    lines = [l[len("CONTRADICTION "):] for l in report.splitlines() if l.startswith("CONTRADICTION ")]
+    out = [f"Decision contradiction: {l}" for l in lines[:limit]]
+    if len(lines) > limit:
+        out.append(f"... and {len(lines) - limit} more decision contradictions")
+    if "INVALID decisions file" in report:
+        out.append("decisions.yaml is invalid; see the workflow log")
+    return out
+
+
 def render(failures, warnings, notes, pr):
     status = "FAIL" if failures else "PASS"
     lines = [MARKER, f"### PR evidence check: {status}", "",
@@ -189,6 +200,8 @@ def main(argv=None):
     p.add_argument("--maintainers", type=Path, required=True)
     p.add_argument("--reviews", type=Path, help="JSON list of PR reviews")
     p.add_argument("--root", type=Path, help="checkout of the PR head; enables the STATE.md rule")
+    p.add_argument("--decisions-report", type=Path,
+                   help="stdout of check_decisions.py on the diff; contradictions become failures")
     p.add_argument("--output", type=Path, help="write the Markdown summary here")
     p.add_argument("--post", action="store_true", help="create or update the PR comment")
     a = p.parse_args(argv)
@@ -204,6 +217,8 @@ def main(argv=None):
     reviews = json.loads(a.reviews.read_text(encoding="utf-8")) if a.reviews else []
     has_state = bool(a.root and (a.root / "STATE.md").is_file())
     failures, warnings, notes = evaluate(pr, changed, maintainers, reviews, has_state)
+    if a.decisions_report:
+        failures += decision_failures(a.decisions_report.read_text(encoding="utf-8"))
     summary = render(failures, warnings, notes, pr)
     print(summary)
     if a.output:
