@@ -1,7 +1,11 @@
-"""Tests for tools/check_decisions.py against the fixture repository."""
+"""Tests for tools/check_decisions.py against the fixture repository.
+
+All text in these tests is synthetic. The real-register tests use invented
+sentences that exercise each pattern; they quote no plan, audit or supplier
+document.
+"""
 import contextlib
 import io
-import shutil
 import sys
 import tempfile
 import unittest
@@ -23,24 +27,41 @@ def run(*args):
     return code, out.getvalue()
 
 
-class ScanFixtureRepository(unittest.TestCase):
+class FixtureMatrix(unittest.TestCase):
+    """Matching value, contradicting value, unlisted file type, superseded citation."""
+
     def setUp(self):
-        self.decisions = cd.load_decisions(DECISIONS)
+        self.decisions = cd.load_decisions(DECISIONS, ROOT / "maintainers.yaml")
+        self.stats = {}
+        self.findings, self.allowed = cd.scan(REPO, self.decisions, "platform-fixture", stats=self.stats)
 
-    def test_reports_file_line_found_and_decided_value(self):
-        findings, _ = cd.scan(REPO, self.decisions, "platform-fixture")
-        readme = [f for f in findings if f["file"] == "README.md"]
-        self.assertEqual(len(readme), 1)
-        self.assertEqual(readme[0]["line"], 3)
-        self.assertEqual(readme[0]["found"], "mast_1400")
-        self.assertEqual(readme[0]["decided"], "1350 mm")
-        self.assertEqual(readme[0]["source"], "FIX-DOC item 1")
+    def at(self, rel):
+        return [f for f in self.findings if f["file"] == rel]
 
-    def test_covers_markdown_launch_xacro_package_xml(self):
-        findings, _ = cd.scan(REPO, self.decisions, "platform-fixture")
-        where = sorted((f["file"], f["line"], f["id"]) for f in findings)
+    def test_matching_value_is_clean(self):
+        self.assertEqual(self.at("config/params.yaml"), [])
+
+    def test_contradicting_value_reports_file_line_found_and_decided(self):
+        (f,) = self.at("README.md")
+        self.assertEqual((f["line"], f["found"], f["decided"], f["source"]), (3, "mast_1400", "1350 mm", "FIX-DOC item 1"))
+
+    def test_unlisted_file_type_is_not_scanned_but_counted(self):
+        self.assertEqual(self.at("legacy/notes.txt"), [])
+        self.assertGreaterEqual(self.stats["unscanned"], 1)
+        only = {}
+        cd.scan(REPO, self.decisions, "platform-fixture", only=["legacy/notes.txt"], stats=only)
+        self.assertEqual(only["unscanned"], 1)
+
+    def test_superseded_decision_still_cited(self):
+        (f,) = self.at("docs/citation.md")
+        self.assertEqual((f["line"], f["found"]), (3, "FIX-DOC rev 1 item 1"))
+        self.assertIn("superseded source still cited", f["message"])
+
+    def test_all_findings(self):
+        where = sorted((f["file"], f["line"], f["id"]) for f in self.findings)
         self.assertEqual(where, [
             ("README.md", 3, "FIX-MAST"),
+            ("docs/citation.md", 3, "FIX-MAST"),
             ("launch/robot.launch.py", 2, "FIX-MAST"),
             ("launch/robot.launch.py", 3, "FIX-IMU"),
             ("package.xml", 4, "FIX-MAST"),
@@ -48,31 +69,32 @@ class ScanFixtureRepository(unittest.TestCase):
         ])
 
     def test_allow_marker_is_reported_not_silenced(self):
-        _, allowed = cd.scan(REPO, self.decisions, "platform-fixture")
-        self.assertEqual([(a["file"], a["line"]) for a in allowed], [("docs/history.md", 4)])
-        self.assertIn("superseded plan", allowed[0]["reason"])
+        self.assertEqual([(a["file"], a["line"]) for a in self.allowed], [("docs/history.md", 4)])
+        self.assertIn("superseded plan", self.allowed[0]["reason"])
 
-    def test_unless_exemption_excluded_paths_and_other_file_types(self):
-        findings, _ = cd.scan(REPO, self.decisions, "platform-fixture")
-        files = {f["file"] for f in findings}
+    def test_unless_exemption_and_excluded_paths(self):
+        files = {f["file"] for f in self.findings}
         self.assertNotIn("CHANGELOG.md", files)
-        self.assertNotIn("legacy/notes.txt", files)
-        self.assertFalse(any(f["file"] == "docs/history.md" and f["line"] == 5 for f in findings))
+        self.assertFalse(any(f["file"] == "docs/history.md" for f in self.findings))
 
     def test_repository_filter_and_per_check_files(self):
         findings, _ = cd.scan(REPO, self.decisions, "docs-fixture")
         self.assertNotIn("FIX-IMU", {f["id"] for f in findings})
-        self.assertEqual(len(findings), 4)
+        self.assertEqual(len(findings), 5)
 
-    def test_open_decisions_are_not_enforced(self):
-        findings, _ = cd.scan(REPO, self.decisions, "platform-fixture")
-        self.assertNotIn("FIX-OPEN", {f["id"] for f in findings})
+    def test_open_decisions_are_not_scanned(self):
+        self.assertNotIn("FIX-OPEN", {f["id"] for f in self.findings})
 
     def test_changed_files_scope(self):
-        findings, _ = cd.scan(REPO, self.decisions, "platform-fixture", only=["config/params.yaml"])
-        self.assertEqual(findings, [])
-        findings, _ = cd.scan(REPO, self.decisions, "platform-fixture", only=["README.md", "gone.md"])
-        self.assertEqual(len(findings), 1)
+        self.assertEqual(cd.scan(REPO, self.decisions, "x", only=["config/params.yaml"])[0], [])
+        self.assertEqual(len(cd.scan(REPO, self.decisions, "x", only=["README.md", "gone.md"])[0]), 1)
+
+    def test_checker_never_writes(self):
+        before = {p: p.stat().st_mtime_ns for p in REPO.rglob("*") if p.is_file()}
+        before[DECISIONS] = DECISIONS.stat().st_mtime_ns
+        run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
+        after = {p: p.stat().st_mtime_ns for p in before}
+        self.assertEqual(before, after)
 
 
 class CommandLine(unittest.TestCase):
@@ -80,7 +102,8 @@ class CommandLine(unittest.TestCase):
         code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
         self.assertEqual(code, 1)
         self.assertIn("CONTRADICTION README.md:3: FIX-MAST found 'mast_1400', decided '1350 mm'", out)
-        self.assertIn("result: 5 contradiction(s), 1 allowed", out)
+        self.assertIn("result: 6 contradiction(s), 1 allowed", out)
+        self.assertIn("textual consistency only", out)
 
     def test_exit_zero_when_clean(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -89,8 +112,7 @@ class CommandLine(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_exit_two_on_missing_root(self):
-        code, _ = run("--decisions", DECISIONS, "--root", "/nonexistent-root")
-        self.assertEqual(code, 2)
+        self.assertEqual(run("--decisions", DECISIONS, "--root", "/nonexistent-root")[0], 2)
 
 
 class Schema(unittest.TestCase):
@@ -106,18 +128,20 @@ sources: {D: {title: t}}
 decisions:
   - id: A
     title: t
+    kind: value
     status: recorded
     value: 1
     unit: mm
     date: null
     source: {document: D, item: i}
-    applies_to: {repositories: ["*"]}
+    applies_to: {repositories: ["*"], files: ["**/*.md"]}
     check: [{pattern: '(?P<found>x)'}]
+    verification: {machine: x in text, human: {reviewer: platform-lead, evidence: drawing}}
     owner: platform-lead
 """
 
     def test_base_is_valid(self):
-        self.assertEqual(len(cd.load_decisions(self.write(self.BASE))), 1)
+        self.assertEqual(len(cd.load_decisions(self.write(self.BASE), ROOT / "maintainers.yaml")), 1)
 
     def test_rejects_invalid_entries(self):
         cases = {
@@ -125,8 +149,11 @@ decisions:
             "pattern needs": self.BASE.replace("(?P<found>x)", "x"),
             "not listed under sources": self.BASE.replace("document: D", "document: E"),
             "status must be": self.BASE.replace("status: recorded", "status: maybe"),
+            "kind must be": self.BASE.replace("kind: value", "kind: wish"),
             "missing owner": self.BASE.replace("    owner: platform-lead\n", ""),
             "needs value": self.BASE.replace("    value: 1\n", ""),
+            "repositories and files": self.BASE.replace(', files: ["**/*.md"]', ""),
+            "verification needs": self.BASE.replace("machine: x in text, ", ""),
             "schema_version": self.BASE.replace("schema_version: 1", "schema_version: 9"),
         }
         for expected, text in cases.items():
@@ -134,58 +161,82 @@ decisions:
                 with self.assertRaisesRegex(cd.DecisionError, expected):
                     cd.load_decisions(self.write(text))
 
-    def test_owner_must_be_a_maintainers_role(self):
-        with self.assertRaisesRegex(cd.DecisionError, "not a role"):
-            cd.load_decisions(self.write(self.BASE.replace("platform-lead", "somebody")),
+    def test_owner_and_reviewer_must_be_maintainers_roles(self):
+        with self.assertRaisesRegex(cd.DecisionError, "owner 'somebody' is not a role"):
+            cd.load_decisions(self.write(self.BASE.replace("owner: platform-lead", "owner: somebody")),
+                              ROOT / "maintainers.yaml")
+        with self.assertRaisesRegex(cd.DecisionError, "reviewer 'somebody' is not a role"):
+            cd.load_decisions(self.write(self.BASE.replace("reviewer: platform-lead", "reviewer: somebody")),
                               ROOT / "maintainers.yaml")
 
 
-class RealDecisionsFile(unittest.TestCase):
-    """The organization's decisions.yaml is valid and detects audited mistakes."""
+class RealRegister(unittest.TestCase):
+    """The organization's decisions.yaml is valid and its patterns behave on synthetic text."""
 
     @classmethod
     def setUpClass(cls):
         cls.decisions = cd.load_decisions(ROOT / "decisions.yaml", ROOT / "maintainers.yaml")
 
-    def scan_text(self, name, text, repository):
+    def ids(self, name, text, repository="openamr-platform-sw"):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp, name)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
-            return cd.scan(tmp, self.decisions, repository)[0]
+            return sorted(f["id"] for f in cd.scan(tmp, self.decisions, repository)[0])
 
-    def test_every_recorded_decision_has_a_source_and_owner(self):
+    def test_every_entry_has_provenance_verification_and_owner(self):
         for d in self.decisions:
             self.assertTrue(d["source"]["item"], d["id"])
-            self.assertTrue(d["owner"], d["id"])
+            self.assertTrue(d["verification"]["human"]["evidence"], d["id"])
 
-    def test_detects_imu_topic_owned_by_firmware(self):
-        text = "        # micro-ROS agent: bridges the Teensy (/cmd_vel, /odom/unfiltered, /imu/data).\n"
-        found = self.scan_text("launch/drivers.launch.py", text, "openamr-platform-sw")
-        self.assertEqual([f["id"] for f in found], ["IMU-TOPIC-OWNERSHIP"])
+    def test_non_numeric_decisions_are_present(self):
+        kinds = {d["id"]: d["kind"] for d in self.decisions}
+        for did in ("MAX-ASSEMBLED-HEIGHT", "NO-SUSPENSION", "RS485-NOT-IN-2-0", "DOCK-NO-CONTACTS",
+                    "LIFT-REMOVED", "DOCKING-NOT-CHARGING", "TELEMETRY-NOT-SAFETY-EVIDENCE"):
+            self.assertIn(kinds[did], {"exclusion", "distinction"}, did)
 
-    def test_accepts_host_owned_imu_topic(self):
-        text = "Firmware owns raw /imu/data_raw; the host filter publishes /imu/data.\n"
-        self.assertEqual(self.scan_text("docs/imu.md", text, "openamr-platform-sw"), [])
+    def test_imu_topic_attributed_to_firmware(self):
+        self.assertEqual(self.ids("launch/a.launch.py", "# the MCU bridge publishes /imu/data and /odom\n"),
+                         ["IMU-TOPIC-OWNERSHIP"])
+        self.assertEqual(self.ids("launch/a.launch.py", "# MCU bridge: /odom/unfiltered, /imu/data\n"),
+                         ["IMU-TOPIC-OWNERSHIP"])
+        self.assertEqual(self.ids("docs/imu.md", "The MCU publishes /imu/data_raw; the host filter publishes /imu/data.\n"), [])
 
-    def test_detects_clone_estop_recommendation(self):
-        found = self.scan_text("docs/estop.md", "no certification. Fine for prototypes.\n", "openamrobot-docs")
-        self.assertEqual([f["id"] for f in found], ["SAFETY-PROCUREMENT"])
+    def test_shoulder_height_versus_envelope(self):
+        self.assertEqual(self.ids("docs/a.md", "Shoulder axis at 1700 mm.\n", "openamrobot-docs"), ["MAX-ASSEMBLED-HEIGHT"])
+        self.assertEqual(self.ids("docs/a.md", "Maximum assembled height 1700 mm, not a shoulder height.\n",
+                                  "openamrobot-docs"), [])
 
-    def test_detects_superseded_mast_values(self):
-        text = "| `mast_1300` | Plan working shoulder-axis baseline (1300 mm) |\nmast_1600 position\n"
-        found = self.scan_text("integration/inventory.md", text, "openamrobot-manipulation")
-        self.assertEqual(sorted(f["id"] for f in found), ["MAST-INSTALL-HEIGHT", "MAST-POSITIONS"])
+    def test_superseded_mast_values_and_citation(self):
+        self.assertEqual(self.ids("docs/a.md", "The mast_1400 slot is the baseline.\nUse mast_1600.\n", "x"),
+                         ["MAST-INSTALL-HEIGHT", "MAST-POSITIONS"])
+        self.assertEqual(self.ids("docs/a.md", "Height per P-03 rev18.1 item 6.\n", "x"), ["MAST-INSTALL-HEIGHT"])
 
-    def test_detects_docking_charge_contacts_but_not_negation(self):
-        found = self.scan_text("docs/dock.md", "The robot engages the charging contacts.\n", "openamrobot-docs")
-        self.assertEqual([f["id"] for f in found], ["DOCKING-SCOPE"])
-        self.assertEqual(self.scan_text("docs/dock.md", "There are no charging contacts in 2.0.\n",
-                                        "openamrobot-docs"), [])
+    def test_exclusions(self):
+        self.assertEqual(self.ids("docs/a.md", "The base uses sprung drive wheels.\n", "x"), ["NO-SUSPENSION"])
+        self.assertEqual(self.ids("docs/a.md", "No sprung drive wheels in 2.0.\n", "x"), [])
+        self.assertEqual(self.ids("docs/a.md", "The dock has two charging contacts.\n", "openamrobot-docs"), ["DOCK-NO-CONTACTS"])
+        self.assertEqual(self.ids("docs/a.md", "There are no charging contacts.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "The drive talks RS485 to the base.\n", "openamr-platform-hw"), ["RS485-NOT-IN-2-0"])
+        self.assertEqual(self.ids("docs/a.md", "The lift controller moves the arms.\n", "x"), ["LIFT-REMOVED"])
 
-    def test_legacy_label_exempts_raspberry_pi(self):
-        self.assertEqual(self.scan_text("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
-        self.assertEqual(len(self.scan_text("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw")), 1)
+    def test_docking_never_establishes_charging(self):
+        self.assertEqual(self.ids("src/dock.py", "def isCharging(self): return true\n", "openamr-platform-sw"),
+                         ["DOCKING-NOT-CHARGING"])
+        self.assertEqual(self.ids("web/a.ts", "// when docked the robot is connected to external power\n",
+                                  "openamrobot-ui"), ["DOCKING-NOT-CHARGING"])
+
+    def test_telemetry_is_not_safety_evidence(self):
+        self.assertEqual(self.ids("docs/a.md", "The watchdog is our safety layer.\n", "x"), ["TELEMETRY-NOT-SAFETY-EVIDENCE"])
+        self.assertEqual(self.ids("docs/a.md", "The watchdog is functional, not a safety layer.\n", "x"), [])
+
+    def test_estop_recommendation(self):
+        self.assertEqual(self.ids("docs/a.md", "An uncertified button is fine for prototypes.\n", "x"),
+                         ["SAFETY-PROCUREMENT"])
+
+    def test_legacy_label_exempts_compute(self):
+        self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
+        self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
 
 
 if __name__ == "__main__":

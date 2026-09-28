@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Check a repository checkout against decisions.yaml.
+"""Check a repository checkout against the decisions register (decisions.yaml).
 
-Every decision in decisions.yaml names the file globs it applies to and the
-patterns that reveal a contradicting value. This tool validates the schema,
-then scans the checkout and reports file, line, found value and decided
-value for each contradiction. Exit status: 0 clean, 1 contradiction found,
-2 invalid decisions file or usage error.
+Every decision names the file globs it applies to and the patterns that
+reveal a contradicting value; a superseded entry may also name a pattern for
+text that still cites the superseded source. This tool validates the schema,
+scans the checkout and reports file, line, found value and decided value.
+It reads only the pinned register and the checkout: it fetches nothing and
+never writes to either. A match proves a textual contradiction only, never
+mechanical, electrical or safety correctness; each entry names the human
+reviewer and evidence for that. Exit status: 0 clean, 1 contradiction found,
+2 invalid register or usage error.
 
 A line that must keep a superseded value (history, changelog, legacy
 material) carries the marker `decision-allow: <ID> <reason>` on the same line
@@ -22,8 +26,10 @@ from pathlib import Path
 import yaml
 
 SCHEMA_VERSION = 1
-STATUSES = {"recorded", "proposed", "open"}
-REQUIRED = ("id", "title", "status", "date", "source", "applies_to", "check", "owner")
+STATUSES = {"recorded", "open"}
+KINDS = {"value", "configuration", "limit", "exclusion", "distinction"}
+REQUIRED = ("id", "title", "kind", "status", "date", "source", "applies_to", "check",
+            "verification", "owner")
 DEFAULT_FILES = [
     "**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml",
     "**/*.launch", "**/*.urdf", "**/*.xacro", "**/package.xml", "**/README*",
@@ -68,6 +74,15 @@ def load_decisions(path, maintainers=None):
         seen.add(d["id"])
         if d["status"] not in STATUSES:
             errors.append(f"{where}: status must be one of {sorted(STATUSES)}")
+        if d["kind"] not in KINDS:
+            errors.append(f"{where}: kind must be one of {sorted(KINDS)}")
+        ver = d["verification"]
+        human = ver.get("human") if isinstance(ver, dict) else None
+        if not isinstance(ver, dict) or not ver.get("machine") or not isinstance(human, dict) \
+                or not human.get("reviewer") or not human.get("evidence"):
+            errors.append(f"{where}: verification needs machine and human (reviewer, evidence)")
+        elif roles is not None and human["reviewer"] not in roles:
+            errors.append(f"{where}: reviewer {human['reviewer']!r} is not a role in the maintainers map")
         if "value" not in d and "values" not in d:
             errors.append(f"{where}: needs value or values")
         src = d["source"]
@@ -80,9 +95,15 @@ def load_decisions(path, maintainers=None):
         for sup in d.get("supersedes") or []:
             if not isinstance(sup, dict) or "value" not in sup or not sup.get("source"):
                 errors.append(f"{where}: each supersedes entry needs value and source")
+            elif sup.get("citation"):
+                try:
+                    if "found" not in re.compile(sup["citation"], re.IGNORECASE).groupindex:
+                        errors.append(f"{where}: citation needs a (?P<found>...) group")
+                except re.error as exc:
+                    errors.append(f"{where}: bad citation pattern: {exc}")
         applies = d["applies_to"]
-        if not isinstance(applies, dict) or not applies.get("repositories"):
-            errors.append(f"{where}: applies_to needs repositories")
+        if not isinstance(applies, dict) or not applies.get("repositories") or not applies.get("files"):
+            errors.append(f"{where}: applies_to needs repositories and files")
         checks = d["check"]
         if not isinstance(checks, list) or not checks:
             errors.append(f"{where}: check must be a non-empty list of patterns")
@@ -101,6 +122,10 @@ def load_decisions(path, maintainers=None):
     exclude = data.get("exclude") or []
     for d in decisions:
         d["_exclude"] = list(exclude) + list(d["applies_to"].get("exclude") or [])
+        d["_checks"] = list(d["check"]) + [
+            {"pattern": sup["citation"], "unless": sup.get("citation_unless"),
+             "message": f"superseded source still cited ({sup['source']}); cite {d['source']['document']}"}
+            for sup in d.get("supersedes") or [] if isinstance(sup, dict) and sup.get("citation")]
     return decisions
 
 
@@ -146,11 +171,12 @@ def list_files(root):
     return sorted(files)
 
 
-def scan(root, decisions, repository=None, only=None):
+def scan(root, decisions, repository=None, only=None, stats=None):
     """Return (findings, allowed) for the checkout at root."""
     root = Path(root)
     files = list(only) if only is not None else list_files(root)
     findings, allowed = [], []
+    unscanned = 0
     active = [d for d in decisions if d["status"] == "recorded" and repository_matches(d, repository)]
     for rel in files:
         path = root / rel
@@ -159,6 +185,7 @@ def scan(root, decisions, repository=None, only=None):
         relevant = [d for d in active if glob_match(rel, d["applies_to"].get("files") or DEFAULT_FILES)
                     and not glob_match(rel, d["_exclude"])]
         if not relevant:
+            unscanned += 1
             continue
         try:
             lines = path.read_text(encoding="utf-8").splitlines()
@@ -167,7 +194,7 @@ def scan(root, decisions, repository=None, only=None):
         for number, line in enumerate(lines, 1):
             for d in relevant:
                 hit = False
-                for c in d["check"]:
+                for c in d["_checks"]:
                     if hit:
                         break
                     if c.get("files") and not glob_match(rel, c["files"]):
@@ -189,6 +216,8 @@ def scan(root, decisions, repository=None, only=None):
                         else:
                             findings.append(record)
                         break
+    if stats is not None:
+        stats["unscanned"] = unscanned
     return findings, allowed
 
 
@@ -216,7 +245,8 @@ def main(argv=None):
         print(f"INVALID decisions file:\n{exc}", file=sys.stderr)
         return 2
     print(f"decisions: {len(decisions)} loaded, "
-          f"{sum(d['status'] == 'recorded' for d in decisions)} recorded and enforced")
+          f"{sum(d['status'] == 'recorded' for d in decisions)} recorded and scanned, "
+          f"{sum(d['status'] == 'open' for d in decisions)} open")
     if a.validate_only:
         return 0
     if not a.root.is_dir():
@@ -225,7 +255,8 @@ def main(argv=None):
     only = None
     if a.changed_files:
         only = [line.strip() for line in a.changed_files.read_text(encoding="utf-8").splitlines() if line.strip()]
-    findings, allowed = scan(a.root, decisions, a.repository, only)
+    stats = {}
+    findings, allowed = scan(a.root, decisions, a.repository, only, stats)
     for f in allowed:
         print(f"ALLOWED {f['file']}:{f['line']}: {f['id']} found {f['found']!r}; reason: {f['reason']}")
     for f in findings:
@@ -234,7 +265,9 @@ def main(argv=None):
     if a.json:
         a.json.write_text(json.dumps({"findings": findings, "allowed": allowed}, indent=2), encoding="utf-8")
     scope = f"{len(only)} changed file(s)" if only is not None else "full checkout"
-    print(f"result: {len(findings)} contradiction(s), {len(allowed)} allowed, scope {scope}")
+    print(f"result: {len(findings)} contradiction(s), {len(allowed)} allowed, scope {scope}; "
+          f"{stats['unscanned']} file(s) not scanned (no decision covers their type or path)")
+    print("note: a clean result shows textual consistency only, not mechanical, electrical or safety correctness")
     return 1 if findings else 0
 
 
