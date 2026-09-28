@@ -1,3 +1,6 @@
+# EXAMPLE (state b): supplied under rollout/, not installed anywhere. Its two checker
+# commands ran locally in the authoring session; the workflow itself has never run.
+#
 # PR assistant: copy to .github/workflows/pr-assistant.yml in each repository.
 #
 # Runs check_decisions.py on the changed files and check_pr_evidence.py on the

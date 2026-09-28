@@ -1,3 +1,7 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Permissions, credentials, deduplication and failure handling have
+# not been exercised.
+#
 # Docs sync, receiver side: copy to .github/workflows/docs-sync.yml in
 # openamrobot-docs. On a source-changed dispatch it compares the source diff
 # with the documentation pages and, when a page became wrong, opens one draft

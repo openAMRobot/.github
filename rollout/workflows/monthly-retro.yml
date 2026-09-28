@@ -1,3 +1,7 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Permissions, credentials, deduplication and failure handling have
+# not been exercised.
+#
 # Monthly retro: copy to .github/workflows/monthly-retro.yml in openAMRobot/.github.
 # Reads open issues labelled harness across the organization and recent review
 # comments that describe agent mistakes, then opens one draft PR here proposing

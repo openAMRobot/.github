@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Plan and apply issue changes from an alignment-audit ISSUES.csv.
+"""Plan and apply issue updates from an alignment-audit ISSUES.csv.
 
 Opens one issue per Blocker or Major finding that has no issue yet, in the
 repository named in file_to_change (or the fallback repository), assigned to
-the owner role from maintainers.yaml by audit ID prefix. Closes open audit
-issues whose finding is absent from the new CSV or has status resolved.
+the owner role from maintainers.yaml by audit ID prefix. It never closes an
+issue: when an open audit issue's finding is absent from the new CSV or has
+status resolved, it comments "no longer detected" once and leaves closure to
+the issue's owner, because one run not reporting a finding is not proof that
+it is fixed.
 
 Issues in public repositories are public extracts: they carry the finding ID,
 severity, area, the repository paths to change and the owner handle, never
@@ -25,6 +28,7 @@ from pathlib import Path
 import yaml
 
 LABEL = "audit-finding"
+NOT_DETECTED = "<!-- audit-no-longer-detected -->"
 OPEN_SEVERITIES = {"Blocker", "Major"}
 REPO = re.compile(r"\b(openamr(?:obot)?-[a-z0-9-]+|\.github)\b")
 
@@ -76,7 +80,7 @@ def body_for(row, repository, fallback, maintainers, report):
 
 
 def plan(new_rows, existing, maintainers, fallback, report):
-    """Return (to_open, to_close). existing: list of {repository, number, title, state}."""
+    """Return (to_open, to_notify). existing: list of {repository, number, title, state}."""
     public_repos = set(maintainers.get("repositories", {}))
     known = {}
     for issue in existing:
@@ -92,9 +96,9 @@ def plan(new_rows, existing, maintainers, fallback, report):
         to_open.append({"repository": repository, "title": title_for(row),
                         "body": body_for(row, repository, fallback, maintainers, report),
                         "labels": [LABEL, row["severity"].lower()]})
-    to_close = [dict(issue, id=fid) for fid, issues in known.items() if fid not in active
-                for issue in issues if issue.get("state") == "open"]
-    return to_open, to_close
+    to_notify = [dict(issue, id=fid) for fid, issues in known.items() if fid not in active
+                 for issue in issues if issue.get("state") == "open"]
+    return to_open, to_notify
 
 
 def api(method, url, token, data=None):
@@ -118,16 +122,20 @@ def fetch_existing(org, token, call=api):
         page += 1
 
 
-def apply(org, to_open, to_close, token, sha, call=api):
+def apply(org, to_open, to_notify, token, report, call=api):
+    """Create issues; comment once on issues no longer detected. Never closes."""
     base = f"https://api.github.com/repos/{org}"
     for issue in to_open:
         call("POST", f"{base}/{issue['repository']}/issues", token,
              {"title": issue["title"], "body": issue["body"], "labels": issue["labels"]})
-    for issue in to_close:
-        url = f"{base}/{issue['repository']}/issues/{issue['number']}"
-        call("POST", f"{url}/comments", token,
-             {"body": f"Resolved according to the alignment audit at {sha}. Reopen if this is wrong."})
-        call("PATCH", url, token, {"state": "closed", "state_reason": "completed"})
+    for issue in to_notify:
+        url = f"{base}/{issue['repository']}/issues/{issue['number']}/comments"
+        comments = call("GET", f"{url}?per_page=100", token) or []
+        if any(NOT_DETECTED in (c.get("body") or "") for c in comments):
+            continue
+        call("POST", url, token, {"body": (
+            f"{NOT_DETECTED}\nNo longer detected by the alignment audit {report}. "
+            "The owner closes this issue after checking the fix; the audit does not close it.")})
 
 
 def main(argv=None):
@@ -152,16 +160,17 @@ def main(argv=None):
         return 2
     existing = json.loads(a.existing.read_text(encoding="utf-8")) if a.existing else (
         fetch_existing(a.org, token) if a.apply else [])
-    to_open, to_close = plan(rows, existing, maintainers, a.fallback_repository, a.report)
+    to_open, to_notify = plan(rows, existing, maintainers, a.fallback_repository, a.report)
     for issue in to_open:
-        print(f"OPEN  {issue['repository']}: {issue['title']}")
-    for issue in to_close:
-        print(f"CLOSE {issue['repository']}#{issue['number']}: {issue['id']}")
-    print(f"plan: {len(to_open)} to open, {len(to_close)} to close")
+        print(f"OPEN    {issue['repository']}: {issue['title']}")
+    for issue in to_notify:
+        print(f"COMMENT {issue['repository']}#{issue['number']}: {issue['id']} no longer detected (not closed)")
+    print(f"plan: {len(to_open)} to open, {len(to_notify)} to comment 'no longer detected', 0 closed")
     if a.plan_output:
-        a.plan_output.write_text(json.dumps({"open": to_open, "close": to_close}, indent=2), encoding="utf-8")
+        a.plan_output.write_text(json.dumps({"open": to_open, "no_longer_detected": to_notify}, indent=2),
+                                 encoding="utf-8")
     if a.apply:
-        apply(a.org, to_open, to_close, token, a.report)
+        apply(a.org, to_open, to_notify, token, a.report)
     return 0
 
 

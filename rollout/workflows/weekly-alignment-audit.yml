@@ -1,3 +1,7 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Its permissions, credentials, deduplication, failure handling and
+# issue lifecycle have not been exercised.
+#
 # Weekly alignment audit: copy to .github/workflows/ in the private audit
 # repository (openAMRobot/audits). Read-only towards every product repository.
 #
@@ -5,7 +9,9 @@
 # 2. Runs Claude Code with agent-prompts/read-only-audit.md, starting from the
 #    newest previous ISSUES.csv, and writes a new dated report folder here.
 # 3. sync_audit_issues.py opens issues for new Blocker and Major findings with
-#    the owner from maintainers.yaml, and closes issues for resolved findings.
+#    the owner from maintainers.yaml. It never closes an issue: for a finding
+#    the run no longer reports, it comments "no longer detected" once and the
+#    issue's owner decides whether to close it.
 # Replace <HARNESS_SHA>. Secrets: ANTHROPIC_API_KEY; AUDIT_APP_ID and
 # AUDIT_APP_PRIVATE_KEY for the issue-writing GitHub App (see SETUP.md).
 name: Weekly alignment audit
@@ -85,7 +91,7 @@ jobs:
           private-key: ${{ secrets.AUDIT_APP_PRIVATE_KEY }}
           owner: openAMRobot
 
-      - name: Open and close finding issues
+      - name: Open finding issues; comment on findings no longer detected (never closes)
         env:
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
         run: |

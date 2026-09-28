@@ -1,3 +1,7 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Permissions, credentials, deduplication and failure handling have
+# not been exercised.
+#
 # Docs sync, sender side: copy to .github/workflows/docs-sync.yml in every
 # repository except openamrobot-docs. On push to main it sends one
 # repository_dispatch event to openamrobot-docs with the repository and the
