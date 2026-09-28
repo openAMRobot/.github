@@ -114,7 +114,8 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False):
         else:
             notes.append(f"Test files changed: {len(tests_changed)}; reported run counts: {counts}")
 
-    deps = sorted(p for p in changed if any(fnmatch.fnmatch(p.rsplit("/", 1)[-1], g) for g in DEPENDENCY_FILES))
+    deps = sorted(p for p in changed if any(fnmatch.fnmatch(p.rsplit("/", 1)[-1], g) for g in DEPENDENCY_FILES)
+                  and not re.search(r"(^|/)(fixtures|testdata)/", p))
     if deps:
         section = find(secs, "Dependencies") or ""
         if not section or NONE.match(section):

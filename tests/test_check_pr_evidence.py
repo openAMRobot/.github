@@ -133,6 +133,9 @@ class DependencyAndStateRules(unittest.TestCase):
         body = BODY.replace("## Dependencies\nNone", "## Dependencies\nAdded imu_filter_madgwick (BSD-3-Clause, ROS index)")
         self.assertEqual(evaluate(body, changed=["ros2/pkg/package.xml"])[0], [])
 
+    def test_fixture_manifests_are_not_dependencies(self):
+        self.assertEqual(evaluate(changed=["tests/fixtures/repo/package.xml", "pkg/testdata/package.json"])[0], [])
+
     def test_state_md_must_be_updated_or_explained(self):
         self.assertIn("STATE.md exists but is not updated; update it or write 'no change' with a reason",
                       evaluate(has_state=True)[0])
