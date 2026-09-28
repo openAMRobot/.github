@@ -119,7 +119,7 @@ decisions:
       - pattern: '(?P<found>nine\s+(?:indexed\s+)?(?:mechanical\s+)?(?:mounting\s+)?positions)'
         unless: 'supersed'
         message: four indexed positions
-      - pattern: '(?P<found>\b1300\s*(?:mm\s*)?(?:to|through|\.\.|–|-)\s*1700\s*mm)'
+      - pattern: '(?P<found>\b1300\s*(?:mm\s*)?(?:to|through|\.\.|\u2013|-)\s*1700\s*mm)'
         unless: 'supersed|height envelope|assembled'
         message: positions span 1300 to 1450 mm
     owner: platform-lead

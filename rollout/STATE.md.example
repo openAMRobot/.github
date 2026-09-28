@@ -1,0 +1,30 @@
+# STATE
+
+Read this file before any work in this repository and update it in the same PR as the work.
+The PR evidence check fails when STATE.md exists and a PR neither updates it nor says
+"no change" with a reason. Keep it under 60 lines; facts only, each with a date or SHA.
+
+## Repository
+
+- Type and lifecycle: <software | firmware | hardware | interface | ui | documentation | manifest | release | governance>, <incubating | active | maintenance | deprecated>
+- Readiness: <R0 | R1 | R2> (evidence: <link to CI run or verification artifact>)
+- Owner role: <role in maintainers.yaml>
+- Verification: `<command>`; last PASS on main at <SHA> (<date>)
+
+## Current work
+
+| Work package | Branch or PR | Status | Next step |
+|---|---|---|---|
+| #<issue> | #<pr> | draft / in review / blocked | <one line> |
+
+## Decisions this repository implements
+
+List decisions.yaml IDs whose values appear in this repository, for example MAST-INSTALL-HEIGHT.
+
+## Known gaps
+
+- <gap>, tracked in #<issue>
+
+## Not verified
+
+- <what has not been exercised, for example real hardware>, since <date or SHA>

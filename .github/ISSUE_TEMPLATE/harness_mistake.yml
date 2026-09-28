@@ -1,0 +1,61 @@
+name: Harness mistake
+description: Record an agent or process mistake so the monthly retro can turn it into a rule, check or template change
+title: "[Harness]: "
+labels: ["harness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One mistake per issue. The monthly retro reads every open issue with the label harness and
+        proposes one PR against AGENTS.md, the checkers or the templates in openAMRobot/.github.
+        Describe the mistake, not the person. No names, internal links or credentials.
+  - type: input
+    id: where
+    attributes:
+      label: Where it happened
+      description: Repository and PR or issue link.
+      placeholder: "openAMRobot/<repository>#<number>"
+    validations:
+      required: true
+  - type: dropdown
+    id: actor
+    attributes:
+      label: Who made the mistake
+      options:
+        - Agent (AI-assisted or automated)
+        - Contributor process
+        - Review process
+        - Automation or workflow
+    validations:
+      required: true
+  - type: input
+    id: template
+    attributes:
+      label: Prompt template and version
+      description: For agent runs, the agent-prompts/ file and the harness commit SHA it came from.
+      placeholder: "agent-prompts/docs-fix.md @ <sha>"
+  - type: textarea
+    id: mistake
+    attributes:
+      label: What went wrong
+      description: The observable result and the evidence (diff line, log line, comment link).
+    validations:
+      required: true
+  - type: dropdown
+    id: caught
+    attributes:
+      label: What caught it
+      options:
+        - A gate (check or CI)
+        - Human review
+        - Found after merge
+        - Not caught yet
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed harness change
+      description: A rule, a check, or a template change that would make this class of mistake unmergeable. Name who decides if it cannot be checked.
+    validations:
+      required: true
