@@ -1,25 +1,30 @@
-# Allowlist for tools/check_public_extract.py.
-# Each entry: rule, match (regular expression for the whole matched text),
-# optional paths and repositories (globs), and a reason. Adding an entry is a
-# review decision: the docs owner decides, the platform lead decides entries
-# about commercial or company information.
+# Allowlist for tools/check_public_extract.py. Kept narrow on purpose: it admits
+# published contact and licensing information, not e-mail addresses in general.
+#
+# Entry fields: rule, match (regular expression for the whole matched text),
+# optional paths and repositories (globs), optional line (regular expression
+# the whole source line must contain), and reason. GitHub handles such as
+# @BotshareAI are not e-mail addresses and need no entry.
+#
+# Adding an entry is a review decision: the docs owner decides entries about
+# published pages, the platform lead decides entries about company or
+# commercial information. Each entry below states why it is legitimate.
 allow:
   - rule: email
     match: 'info@botshare\.ai'
-    reason: published organization contact for licensing and maintainers (DOCUMENTATION_STANDARD.md)
+    reason: >-
+      Published organization contact for licensing and maintainers, named in
+      DOCUMENTATION_STANDARD.md and CONTRIBUTING.md.
   - rule: email
     match: '[^@\s]+@(?:example\.(?:com|org|net)|users\.noreply\.github\.com)'
-    reason: documentation placeholders and GitHub no-reply identities
+    reason: Documentation placeholders and GitHub no-reply identities, which identify no person.
   - rule: email
     match: '[^@\s]+@[^@\s]+'
-    paths: ["web/public/ros/*.js"]
-    repositories: ["openamrobot-ui"]
-    reason: third-party author attribution inside vendored roslib/ros2d bundles; provenance must be preserved
-  - rule: email
-    match: 'paroga@paroga\.com'
-    paths: ["README.md"]
-    repositories: ["openamrobot-ui"]
-    reason: copyright notice of the bundled cbor-js library; provenance must be preserved
+    line: '@author\b|\b(?:copyright|licen[cs]e[ds]?|spdx-license-identifier|authors?:|maintainers?:)|\(c\)'
+    reason: >-
+      Licence and copyright notices of third-party code must keep their author
+      contact to preserve provenance (THIRD_PARTY_POLICY.md). Only lines that
+      are such notices qualify.
   - rule: credential
     match: '.*(?:your|example|placeholder|changeme|xxxx|<[^>]*>).*'
-    reason: placeholder values in setup instructions, not secrets
+    reason: Placeholder values in setup instructions, not secrets.

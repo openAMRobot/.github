@@ -5,7 +5,9 @@ prices or credential-like strings.
 Scope: files under docs/ or assets/, every README.md, and every path that
 contains "public". Rules: google-drive-link, email, phone, price, credential.
 An allowlist file (YAML) can exempt a match; every entry needs a rule, a
-regular expression for the matched text, optional path globs and a reason.
+regular expression for the matched text, optional path, repository and line
+conditions, and a reason. GitHub handles (@name) are not e-mail addresses and
+are never reported.
 Exit status: 0 clean, 1 findings, 2 usage or configuration error.
 """
 import argparse
@@ -67,13 +69,16 @@ def load_allowlist(path):
         out.append({
             "rule": e["rule"], "match": re.compile(e["match"], re.I),
             "paths": e.get("paths") or ["*"], "repositories": e.get("repositories") or ["*"],
+            "line": re.compile(e["line"], re.I) if e.get("line") else None,
         })
     return out
 
 
-def allowed(entries, rule, text, rel, repository):
+def allowed(entries, rule, text, rel, repository, line=""):
     for e in entries:
         if e["rule"] != rule or not e["match"].fullmatch(text):
+            continue
+        if e["line"] and not e["line"].search(line):
             continue
         if not any(fnmatch.fnmatch(rel, p) for p in e["paths"]):
             continue
@@ -111,7 +116,7 @@ def scan(root, allow, repository=None, only=None):
             for rule, rx in RULES.items():
                 for m in rx.finditer(line):
                     text = m.group(0).strip()
-                    if not allowed(allow, rule, text, rel, repository):
+                    if not allowed(allow, rule, text, rel, repository, line):
                         findings.append({"file": rel, "line": number, "rule": rule, "found": text[:120]})
     return findings
 

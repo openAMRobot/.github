@@ -15,8 +15,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 import check_public_extract as pe  # noqa: E402
 
 AT = "@"
-DRIVE = "https://" + "drive.google.com/file/d/abc123/view"
-DOCS = "https://" + "docs.google.com/document/d/xyz/edit"
+DRIVE = "https://" + "drive" + ".google.com/file/d/abc123/view"
+DOCS = "https://" + "docs" + ".google.com/document/d/xyz/edit"
 TOKEN = "gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0"
 KEY = "AK" + "IA" + "ABCDEFGHIJKLMNOP"
 
@@ -85,6 +85,15 @@ class Rules(unittest.TestCase):
         self.assertEqual(self.hits('API_KEY="sk-ant-your-key-here"\n', allow=allow), [])
         self.assertEqual(self.hits(f"info{AT}botshare.ai\n", allow=allow), [])
         self.assertEqual(len(self.hits(f"someone{AT}botshare.ai\n", allow=allow)), 1)
+
+    def test_organization_allowlist_admits_only_notice_lines(self):
+        allow = pe.load_allowlist(ROOT / "public-extract-allowlist.yaml")
+        self.assertEqual(self.hits(f" * @author A. Writer - writer{AT}uni.example-lab.org\n", "web/public/lib.js", allow=allow), [])
+        self.assertEqual(self.hits(f"Copyright (c) 2014 A. Writer <writer{AT}lab.org>, MIT License\n", "README.md", allow=allow), [])
+        self.assertEqual(len(self.hits(f"Write to writer{AT}lab.org for a quote.\n", "README.md", allow=allow)), 1)
+
+    def test_handles_are_not_emails(self):
+        self.assertEqual(self.hits("Reviewed by @BotshareAI and @panthera-momagdii.\n"), [])
 
     def write_allow(self, text):
         tmp = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False)
