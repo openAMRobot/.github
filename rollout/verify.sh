@@ -135,6 +135,10 @@ pass
 
 stage="test"
 log="$run/test.log"
+# Run the suite without aborting on its exit status: the zero-tests rule is
+# checked first (Python 3.12+ unittest exits 5 on "NO TESTS RAN"), then any
+# non-zero status fails the stage.
+set +e
 if [ -n "${VERIFY_TEST:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_TEST" 2>&1 | tee "$log"
 elif $ros; then
   clean_bash -c "source /opt/ros/$distro/setup.bash && cd '$run/ws' && colcon test --event-handlers console_direct+ && colcon test-result --verbose" 2>&1 | tee "$log"
@@ -144,6 +148,8 @@ elif [ -f "$root/pyproject.toml" ] && python3 -c 'import pytest' 2>/dev/null; th
 else
   clean_bash -c "cd '$root' && python3 -m unittest discover -s tests -v" 2>&1 | tee "$log"
 fi
+test_status=${PIPESTATUS[0]}
+set -e
 read -r tests_total tests_skipped < <(python3 - "$log" <<'PY'
 import re, sys
 text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
@@ -169,6 +175,10 @@ echo "Tests executed: $((tests_total - tests_skipped)) of $tests_total (skipped 
 if [ "$((tests_total - tests_skipped))" -le 0 ]; then
   echo "FAIL: zero tests executed; an empty or fully skipped suite is not evidence"
   exit 1
+fi
+if [ "$test_status" -ne 0 ]; then
+  echo "FAIL: test command exited with status $test_status"
+  exit "$test_status"
 fi
 pass
 

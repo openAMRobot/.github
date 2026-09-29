@@ -47,6 +47,13 @@ class VerifyScript(unittest.TestCase):
         self.assertIn("zero tests executed", out)
         self.assertEqual(summary["failed_stage"], "test")
 
+    def test_failing_test_fails(self):
+        body = PASSING.replace("self.assertTrue(True)", "self.fail('deliberate')")
+        code, out, summary = self.check({"tests/test_a.py": body})
+        self.assertNotEqual(code, 0)
+        self.assertIn("test command exited with status", out)
+        self.assertEqual(summary["failed_stage"], "test")
+
     def test_fully_skipped_suite_fails(self):
         body = PASSING.replace("    def test_one", "    @unittest.skip('flaky, see #12')\n    def test_one")
         code, out, _ = self.check({"tests/test_a.py": body})
