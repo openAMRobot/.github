@@ -23,7 +23,7 @@ is a rollout step (rollout/README.md), not a present fact.
 | `tools/check_agent_rules.py` (drift) | (a) | Unit tests; run on this repository and on local clones |
 | `tools/sync_audit_issues.py` | (a) | Unit tests with a fake API; nothing created or commented |
 | `rollout/verify.sh` | (a) | Unit tests; run on this repository and on a local clone of openamrobot-manifest; not on ROS 2 or Node repositories |
-| `repository-quality-reusable.yml`, harness steps (`harness_checks: true`) | (a) for this repository's own caller; (b) for every other repository | `run:` steps dry run locally with checkouts simulated; never run on GitHub. Off by default, so existing `@main` callers are unchanged until they opt in |
+| `repository-quality-reusable.yml`, harness steps (`harness_warn: true` warn-only, `harness_checks: true` enforcing) | (a) for this repository's own caller; (b) for every other repository | `run:` steps dry run locally with checkouts simulated; never run on GitHub. Off by default, so existing `@main` callers are unchanged until they opt in |
 | `repository-quality-reusable.yml`, `quality/test` job (`verify: true`) | (b) | Never run on GitHub |
 | `repository-quality.yml` in this repository (`quality/test`, harness checks) | (a) once merged; never run on GitHub yet | Its commands ran locally |
 | `pr-assistant.yml` | (b) | Its two checker commands ran locally; the workflow never ran |
@@ -36,10 +36,17 @@ is a rollout step (rollout/README.md), not a present fact.
 
 ## 1. Pin the harness
 
+Pinning is done per repository, in the order of rollout/README.md, not organization-wide:
+
 1. After the harness PR merges, take its merge commit SHA as `<HARNESS_SHA>`.
-2. In each caller of the reusable workflow, replace `@main` with `@<HARNESS_SHA>` and add
-   `with: harness_ref: <HARNESS_SHA>` and `harness_checks: true`.
-3. Replace `<HARNESS_SHA>` in each workflow copied from `rollout/workflows/`.
+2. Step (b): in the repository's caller, replace `@main` with `@<HARNESS_SHA>` and add
+   `with: harness_ref: <HARNESS_SHA>`. Do not set `harness_checks` here.
+3. Step (c): add `harness_warn: true` (warn-only) until a run on main is green.
+4. Step (d): replace it with `harness_checks: true`. Step (e) then adds the ruleset (section 6).
+5. Replace `<HARNESS_SHA>` in each workflow copied from `rollout/workflows/`.
+
+openamrobot-interfaces is the pilot and completes all five steps before any other repository
+starts step (c).
 
 ## 2. Secrets
 

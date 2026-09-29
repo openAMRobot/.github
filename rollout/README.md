@@ -14,7 +14,7 @@ machine-blocked. The organization-owner steps and the state of every check are i
 | STATE.md | Copy `STATE.md.example`, fill it, keep it current | `check_pr_evidence.py` STATE.md rule |
 | PR template | Delete the local `.github/PULL_REQUEST_TEMPLATE.md` so the organization template applies, or replace it with a copy that keeps every heading | `check_pr_evidence.py` sections |
 | verify.sh | Keep an existing `tools/verify.sh`; otherwise enable `verify: true` in the caller (the harness `rollout/verify.sh` runs), with `.openamrobot/verify.env` if the layout needs it | `quality/test` job |
-| Reusable workflow caller | Pin `uses:` and `harness_ref` to one harness SHA and set `harness_checks: true` | reviewer of the caller PR |
+| Reusable workflow caller | Pin `uses:` and `harness_ref` to one harness SHA; then `harness_warn: true`; then `harness_checks: true` (steps b to d below) | reviewer of the caller PR |
 | PR assistant | Copy `workflows/pr-assistant.yml` | `quality/pr-evidence` required check |
 | Docs sync sender | Copy `workflows/docs-sync-caller.yml` (not in openamrobot-docs) | none; failure shows in Actions |
 | decisions register | Nothing to copy; CI reads the pinned register from the harness. Fix flagged lines or mark kept history with `decision-allow: <ID> <reason>` | `check_decisions.py` (text only; the entry's reviewer checks the substance) |
@@ -26,38 +26,67 @@ template overrides the organization one, so "inherited" requires deleting it.
 
 ## Order
 
-Each step is one PR per repository, opened as a draft by the repository owner or with the
-push-from-bundle prompt, and merged by the owner.
+**Before any repository starts:** this PR merges, and the organization owner completes
+SETUP.md sections 2 to 5 (secrets, Apps, Actions settings, labels). SETUP.md section 1
+(pinning) is not done organization-wide; each repository pins in its own step (b).
 
-1. **This PR merges; the owner completes SETUP.md sections 1 to 4.**
-2. **Shared block v2** in the three repositories that already carry v1
-   (openamrobot-manifest, openamrobot-manipulation, openamrobot-ui), before they set
-   `harness_checks: true`; otherwise the drift step fails their pull requests with
-   "shared block is v1, canonical is v2". Existing `@main` callers without the input are
-   unaffected by this PR.
-3. **Pin callers and opt in** in all repositories: pinned SHA, `harness_ref`,
-   `harness_checks: true`.
-4. **Pilots, in this order**, each with STATE.md, the organization PR template, the PR
-   assistant and `verify: true`:
-   1. openamrobot-interfaces: already has `tools/verify.sh`; the job delegates to it.
-   2. openamr-platform-sw: first colcon build and test gate; container
-      `ros:jazzy-ros-base`.
-   3. openamrobot-ui: `.openamrobot/verify.env` as in VERIFY.md; the zero-tests rule fails
-      until real tests replace `--passWithNoTests`. Merge the verify.env PR together
-      with the first real tests.
-   4. openamrobot-docs: keep `scripts/check_docs.sh` and the strict MkDocs build via
-      `VERIFY_TEST`; add the docs-sync receiver.
-5. **openamrobot-manifest and openamrobot-release** (release owner). See the release
-   interaction below.
-6. **openamr-platform-fw, openamr-platform-hw, openamr-upperbody-*, openamrobot-comm**: shared
-   block, STATE.md, PR assistant. `verify: true` only once a build or test exists; a
-   repository with nothing to test declares that in STATE.md instead of passing an empty suite.
-7. **Rulesets** per SETUP.md section 6, repository by repository, after its checks have
-   passed on main once. Only from this step on does a failing check block a merge in that
-   repository; safety-path approvals come from the ruleset and CODEOWNERS, not from a check.
-8. **Weekly audit** in audits, then **monthly retro** in .github. Both are designs until a
-   first supervised run exercises permissions, credentials, deduplication, failure handling
-   and the issue lifecycle; the audit never closes an issue, it comments "no longer detected".
+**Per repository, strictly in this order.** Each step is one PR in that repository, opened as a
+draft by the repository owner (or with the push-from-bundle prompt) and merged by the owner.
+A step starts only after the previous one is merged.
+
+| Step | Change in the repository | Done when |
+|---|---|---|
+| (a) Shared rules v2 | AGENTS.md carries the shared block v2 verbatim; CLAUDE.md is `@AGENTS.md`; STATE.md added; local PR template removed or aligned | the drift checker passes on the repository's AGENTS.md |
+| (b) Pin the harness | caller `uses: openAMRobot/.github/...@<HARNESS_SHA>` and `harness_ref: <HARNESS_SHA>`; `harness_checks` stays unset (false) | the caller runs the baseline steps at the pinned SHA |
+| (c) Warn-only | add `harness_warn: true`; the decisions, public-extract and drift steps run and report findings as warnings, never failing | one push run on main is green with every remaining warning either fixed, tracked in an issue, or marked `decision-allow` |
+| (d) Enforce | replace `harness_warn: true` with `harness_checks: true` | one enforced run on main is green and one PR passes with the checks enforced |
+| (e) Require | the ruleset requires `repository-quality / repository-quality` (and `quality/pr-evidence`, `quality/test` once installed), per SETUP.md section 6 | a PR merges through the ruleset |
+
+Only from step (e) does a failing check block a merge in that repository. Safety-path
+approvals come from the ruleset and CODEOWNERS, not from a check.
+
+### Pilot: openamrobot-interfaces first
+
+openamrobot-interfaces completes steps (a) to (e) before any other repository sets
+`harness_warn` or `harness_checks`. It also installs the PR assistant and `verify: true`
+(the job delegates to its existing `tools/verify.sh`). The pilot is complete when all of the
+following are recorded in its STATE.md and in one comment on the harness rollout issue, and the
+CI owner and the release owner have both written "pilot accepted" there:
+
+1. The five step PRs, linked in order.
+2. The run URLs of a green warn-only run on main and a green enforced run on main.
+3. An enforced PR run that blocked a deliberate contradiction on a throwaway branch (never
+   merged) and a clean PR that passed.
+4. A `quality/test` artifact produced through delegation, whose `summary.json` records the
+   delegated exit status, duration and test counts.
+5. One PR-assistant summary comment updated in place across two pushes, with no CHECKER ERROR
+   on a normal PR.
+6. A PR merged through the ruleset that requires the checks.
+7. No check or register pattern weakened to get green; any false positive fixed in the harness
+   with a test.
+8. A rollback shown: reverting the caller to the previous pin restores the previous behaviour.
+
+If a criterion fails, the rollout stops, the finding becomes an issue labelled harness, and the
+pilot repeats the failed step after the harness fix.
+
+### After the pilot
+
+The remaining repositories follow steps (a) to (e), one repository at a time:
+
+1. openamrobot-manifest, openamrobot-manipulation, openamrobot-ui (they already carry the v1
+   block, so step (a) is an update). openamrobot-ui adds `.openamrobot/verify.env` as in
+   VERIFY.md; its zero-tests rule fails until real tests replace `--passWithNoTests`, so the
+   verify.env PR merges together with the first real tests.
+2. openamr-platform-sw: first colcon build and test gate; container `ros:jazzy-ros-base`.
+3. openamrobot-docs: keeps `scripts/check_docs.sh` and the strict MkDocs build via
+   `VERIFY_TEST`; adds the docs-sync receiver.
+4. openamrobot-release (release owner). See the release interaction below.
+5. openamr-platform-fw, openamr-platform-hw, openamr-upperbody-*, openamrobot-comm.
+   `verify: true` only once a build or test exists; a repository with nothing to test declares
+   that in STATE.md instead of passing an empty suite.
+6. Weekly audit in audits, then monthly retro in .github. Both are designs until a first
+   supervised run exercises permissions, credentials, deduplication, failure handling and the
+   issue lifecycle; the audit never closes an issue, it comments "no longer detected".
 
 ## Release-manifest interaction
 
