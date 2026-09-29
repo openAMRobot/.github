@@ -29,6 +29,8 @@ jobs:
         run: |
           # verify.sh runs tests without user site-packages; use the system package.
           python3 -c 'import yaml' 2>/dev/null || { sudo apt-get update && sudo apt-get install -y python3-yaml; }
+          # The lint stage runs shellcheck when present; install it so the result does not depend on the image.
+          command -v shellcheck >/dev/null || { sudo apt-get update && sudo apt-get install -y shellcheck; }
           VERIFY_PATH="$PATH" bash rollout/verify.sh
       - name: Validate decisions.yaml
         run: python3 tools/check_decisions.py --decisions decisions.yaml --maintainers maintainers.yaml --validate-only

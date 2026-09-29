@@ -133,7 +133,7 @@ if [ -n "$unmarked" ]; then
 fi
 pass
 
-stage=test
+stage="test"
 log="$run/test.log"
 if [ -n "${VERIFY_TEST:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_TEST" 2>&1 | tee "$log"
 elif $ros; then
