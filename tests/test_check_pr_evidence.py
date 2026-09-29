@@ -2,6 +2,8 @@
 import contextlib
 import io
 import json
+import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -187,6 +189,48 @@ class DecisionReport(unittest.TestCase):
         failures = ev.decision_failures(report)
         self.assertEqual(len(failures), 21)
         self.assertEqual(failures[-1], "... and 5 more decision contradictions")
+
+
+class DeletedFiles(unittest.TestCase):
+    """A PR that only deletes files must still reach the evidence rules."""
+
+    def test_deleting_a_safety_path_file_is_flagged(self):
+        failures, _, notes = evaluate(changed=["firmware/src/estop_monitor.cpp"])
+        self.assertIn("Safety path touched, two human approvals required: only 0 human reviewer(s) requested",
+                      failures)
+        self.assertTrue(any(n.startswith("Safety path touched") for n in notes))
+
+    def test_deleting_a_dependency_manifest_is_flagged(self):
+        failures = evaluate(changed=["ros2/pkg/package.xml"])[0]
+        self.assertTrue(any(f.startswith("Dependency manifests changed (ros2/pkg/package.xml)") for f in failures))
+
+    def test_pr_assistant_passes_deleted_files_to_the_evidence_checker(self):
+        workflow = yaml.safe_load((ROOT / "rollout" / "workflows" / "pr-assistant.yml").read_text(encoding="utf-8"))
+        steps = {s.get("name"): s.get("run", "") for s in workflow["jobs"]["evidence"]["steps"]}
+        collect = steps["Collect changed files and reviews"]
+        jq_all = re.search(r"jq -r '([^']+)' files.json \| sort -u > changed_all.txt", collect).group(1)
+        jq_existing = re.search(r"jq -r '([^']+)' files.json \| sort -u > changed_existing.txt", collect).group(1)
+        files = [
+            {"filename": "firmware/src/estop_monitor.cpp", "status": "removed"},
+            {"filename": "ros2/pkg/package.xml", "status": "removed"},
+            {"filename": "fw/brake_ctrl_v2.c", "previous_filename": "fw/brake_ctrl.c", "status": "renamed"},
+            {"filename": "README.md", "status": "modified"},
+        ]
+
+        def run_jq(expr):
+            out = subprocess.run(["jq", "-r", expr], input=json.dumps(files), capture_output=True,
+                                 text=True, check=True).stdout
+            return sorted(set(out.split()))
+
+        changed_all, existing = run_jq(jq_all), run_jq(jq_existing)
+        self.assertEqual(changed_all, ["README.md", "firmware/src/estop_monitor.cpp", "fw/brake_ctrl.c",
+                                       "fw/brake_ctrl_v2.c", "ros2/pkg/package.xml"])
+        self.assertEqual(existing, ["README.md", "fw/brake_ctrl_v2.c"])
+        self.assertIn("--changed-files changed_all.txt", steps["Evidence check and summary comment"])
+        self.assertIn("--changed-files changed_existing.txt", steps["Decisions of record on the diff"])
+        failures = evaluate(changed=changed_all)[0]
+        self.assertTrue(any(f.startswith("Safety path touched") for f in failures))
+        self.assertTrue(any(f.startswith("Dependency manifests changed") for f in failures))
 
 
 class Comment(unittest.TestCase):

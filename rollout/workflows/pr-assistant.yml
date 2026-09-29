@@ -54,16 +54,21 @@ jobs:
         run: |
           set -euo pipefail
           python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
-          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate --jq '.[] | select(.status != "removed") | .filename' > changed.txt
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate > files.json
+          # Every path the PR touches, including removed files and the old name of a
+          # rename: the evidence, safety-path and dependency rules must see deletions.
+          jq -r '.[] | .filename, (.previous_filename // empty)' files.json | sort -u > changed_all.txt
+          # Only files present at the PR head: the decisions scan reads their content.
+          jq -r '.[] | select(.status != "removed") | .filename' files.json | sort -u > changed_existing.txt
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate > reviews.json
-          wc -l < changed.txt
+          echo "changed (all): $(wc -l < changed_all.txt); present at head: $(wc -l < changed_existing.txt)"
 
       - name: Decisions of record on the diff
         run: |
           set +e
           python3 harness/tools/check_decisions.py --decisions harness/decisions.yaml \
             --maintainers harness/maintainers.yaml --root pr-head \
-            --repository "${{ github.event.repository.name }}" --changed-files changed.txt > decisions.txt
+            --repository "${{ github.event.repository.name }}" --changed-files changed_existing.txt > decisions.txt
           echo "check_decisions exit $?"
           cat decisions.txt
 
@@ -72,6 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 harness/tools/check_pr_evidence.py --event "$GITHUB_EVENT_PATH" \
-            --changed-files changed.txt --maintainers harness/maintainers.yaml \
+            --changed-files changed_all.txt --maintainers harness/maintainers.yaml \
             --reviews reviews.json --root pr-head --decisions-report decisions.txt \
             --output "$GITHUB_STEP_SUMMARY" --post
