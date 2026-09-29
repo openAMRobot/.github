@@ -141,7 +141,39 @@ review. Proposal, in every repository's `.github/CODEOWNERS`:
 /maintainers.yaml @BotshareAI
 /agent-rules/ @BotshareAI @panthera-momagdii
 /tools/ @BotshareAI <ci-owner handle>
+
+# Release owner (maintainers.yaml release-owner: KARTHIKEYAN124). Replace the handle with
+# @openAMRobot/release-ci once that team exists. Added only after write access is confirmed.
+# openamrobot-manifest and openamrobot-release: whole repository.
+* @BotshareAI @KARTHIKEYAN124
+# openamrobot-release: release workflow (after the lines above, so it wins for this path).
+/.github/workflows/build-release.yml @BotshareAI @KARTHIKEYAN124
+# openamrobot-manifest: manifest validation workflow.
+/.github/workflows/manifest-validation.yml @BotshareAI @KARTHIKEYAN124
+# openamrobot-docs: installation documentation, placed after the docs-owner line.
+/docs/build/software/ @BotshareAI <docs-owner handle> @KARTHIKEYAN124
+/docs/reference/openamrobot-manifest/ @BotshareAI <docs-owner handle> @KARTHIKEYAN124
+/docs/reference/openamrobot-release/ @BotshareAI <docs-owner handle> @KARTHIKEYAN124
 ```
 
-A CODEOWNERS line with an account that is not a collaborator is ignored by GitHub, so the
-pending handles must join the organization before their lines are added.
+The release workflow lines matter because the "every repository" CI owner line for
+`/.github/workflows/` would otherwise route those files away from the release owner; they
+must appear after it. The installation paths are the pages in openamrobot-docs today that
+tell a user how to build, flash and verify an installation (`docs/build/software/`) and the
+setup pages of the two release repositories; the docs owner confirms the list when the file
+is written.
+
+How GitHub applies these lines (documented GitHub behaviour, not something this harness
+checks):
+
+- A code owner must have write access to the repository for the ownership to take effect.
+  A line whose account or team lacks write access, or is not a collaborator, is ignored for
+  review requests and required approvals, so the release owner's access is confirmed first.
+  The same holds for the pending ci-owner and docs-owner handles.
+- The last matching pattern in the file takes precedence. A later line replaces the owners of
+  an earlier line for the paths it matches; owners are not merged across lines. Specific paths
+  therefore go after the broad `*` and `/.github/workflows/` lines, and each specific line
+  repeats every owner it still needs.
+- When a line lists several owners, an approval from any one of them satisfies the code owner
+  requirement; approval from all of them is not required. A ruleset can add further
+  requirements (a minimum approval count, a required team review), and only the ruleset does.
