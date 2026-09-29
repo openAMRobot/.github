@@ -93,11 +93,29 @@ The remaining repositories follow steps (a) to (e), one repository at a time:
 - The release builder packages what the manifest names. A release PR in
   openamrobot-release runs the same decisions check on release notes and metadata (today it
   flags the legacy compute named in `release-metadata/RELEASE_NOTES.md`, decision COMPUTE).
-- The release manifest should record the harness SHA used for each component's evidence, and
-  each component's `summary.json` from its `quality/test` artifact, so release evidence points
-  at a verification run instead of a claim.
-- A change to the decisions register can turn a component red without a code change. The release
-  owner treats that as a release blocker for the affected component, not as a CI fault.
+- **Evidence record per component.** For every component in a release, the release manifest
+  records:
+
+  | Field | Source |
+  |---|---|
+  | component commit SHA | the manifest pin; must equal `head_sha` in the component's `summary.json` |
+  | package or contract version | `package.xml` / `package.json` version, or the interface contract version, where one exists; otherwise "none" |
+  | harness SHA | `harness_sha` in `summary.json`; must equal the component's `harness_ref` pin |
+  | workflow run URL | the `quality/test` run that produced the artifact |
+  | artifact identifier or digest | the Actions artifact ID and its SHA-256 digest (the upload step prints both) |
+
+  The `summary.json` schema is in VERIFY.md. It is written for delegated runs too, so
+  openamrobot-interfaces (which keeps its own `tools/verify.sh`) produces the same record.
+- **Decision-register updates and pinned consumers.** A component is checked against the
+  register at its harness pin. A register update affects a pinned consumer only when that
+  consumer moves its harness pin, or when the release owner explicitly revalidates it against
+  the new register (a new `quality/test` run recorded as new evidence). Until then its recorded
+  evidence stands for the pin it names.
+- **Historical evidence is preserved as recorded.** Release evidence is never regenerated or
+  edited after a release; a later register change or harness update produces new evidence for
+  a later release, and the earlier record keeps its original SHAs, run URL and digest.
+- A register update that makes a revalidated component fail is a release blocker for that
+  component in the next release, not a CI fault and not a change to past releases.
 
 ## CODEOWNERS proposal
 

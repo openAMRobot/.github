@@ -10,27 +10,108 @@
 #   - the zero-tests rule: a test stage that executes zero tests fails;
 #   - the skip rule: skip, xfail and importorskip must name a tracking issue
 #     (#123 or an issues/123 URL) on the same line;
-#   - summary.json with base/head SHA, stage results and test counts.
+#   - summary.json (schema in rollout/VERIFY.md) with result, exit code, duration,
+#     test counts, head/base SHA and the harness SHA.
 # A repository that already has tools/verify.sh keeps it; this script delegates
-# to it (openamrobot-interfaces is the reference implementation).
+# to it (openamrobot-interfaces is the reference implementation) and still writes
+# summary.json around the delegated run: exit status, duration and test counts
+# parsed from the delegated output.
 # Per-repository overrides live in .openamrobot/verify.env (VERIFY_INSTALL,
 # VERIFY_BUILD, VERIFY_LINT, VERIFY_TEST, VERIFY_ROS_DISTRO); each is a shell command.
 set -eo pipefail
 
 root=$(cd -- "${1:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}" && pwd)
 self=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/$(basename -- "${BASH_SOURCE[0]}")
-if [ -f "$root/tools/verify.sh" ] && [ "$root/tools/verify.sh" != "$self" ] && [ -z "${VERIFY_NO_DELEGATE:-}" ]; then
-  echo "Delegating to the repository's own tools/verify.sh"
-  exec bash "$root/tools/verify.sh"
-fi
+started=$(date +%s)
+
+# Print "total skipped parsed" for a test log (parsed is 1 when any known runner summary matched).
+count_tests() {
+  python3 - "$1" <<'PY'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+total = skipped = 0
+parsed = False
+for pattern, t, s in [
+    (r"Summary: (\d+) tests?, \d+ errors?, \d+ failures?, (\d+) skipped", 1, 2),  # colcon test-result
+    (r"^Ran (\d+) tests? in", 1, None),                                              # unittest
+    (r"^Tests:\s+(?:.*?(\d+) skipped, )?.*?(\d+) total", 2, 1),                     # jest
+    (r"^\s+Tests\s+(?:.*?(\d+) skipped.*?)?\((\d+)\)", 2, 1),                        # vitest
+]:
+    for m in re.finditer(pattern, text, re.M):
+        parsed = True
+        total += int(m.group(t) or 0)
+        skipped += int(m.group(s) or 0) if s else 0
+m = re.findall(r"=+ (?:(\d+) passed)?(?:, )?(?:(\d+) skipped)?.* in [\d.]+s", text)  # pytest
+for passed, skip in m:
+    parsed = True
+    total += int(passed or 0) + int(skip or 0)
+    skipped += int(skip or 0)
+skipped += sum(int(n) for n in re.findall(r"skipped=(\d+)", text))  # unittest
+print(total, skipped, 1 if parsed else 0)
+PY
+}
+
+# Write summary.json (minimum evidence schema, rollout/VERIFY.md). Arguments:
+# run mode exit_code failed_stage tests_total tests_skipped counts_parsed delegated_script delegated_evidence stages...
+write_summary() {
+  python3 - "$root" "$self" "$started" "$@" <<'PY' || true
+import json, subprocess, sys, time
+root, self_path, started, run, mode, code, failed, total, skipped, parsed, dscript, devidence, *done = sys.argv[1:]
+def git(where, *a):
+    try:
+        return subprocess.run(["git", "-C", where, *a], capture_output=True, text=True, check=True).stdout.strip()
+    except Exception:
+        return None
+import os
+json.dump({
+    "schema_version": 1,
+    "mode": mode,
+    "result": "PASS" if code == "0" else "FAIL",
+    "exit_code": int(code),
+    "failed_stage": None if code == "0" else (failed or None),
+    "stages_passed": done,
+    "tests_total": int(total) if parsed == "1" else None,
+    "tests_skipped": int(skipped) if parsed == "1" else None,
+    "counts_parsed": parsed == "1",
+    "duration_seconds": int(time.time()) - int(started),
+    "head_sha": git(root, "rev-parse", "HEAD"),
+    "base_sha": git(root, "merge-base", "HEAD", "origin/main"),
+    "harness_sha": git(os.path.dirname(self_path), "rev-parse", "HEAD"),
+    "delegated_script": dscript or None,
+    "delegated_evidence": devidence or None,
+}, open(f"{run}/summary.json", "w"), indent=2)
+PY
+}
 
 mkdir -p "$root/.verification"
 run=$(mktemp -d "$root/.verification/run.XXXXXX")
+
+if [ -f "$root/tools/verify.sh" ] && [ "$root/tools/verify.sh" != "$self" ] && [ -z "${VERIFY_NO_DELEGATE:-}" ]; then
+  # Delegate, but keep the evidence: capture output, exit status, duration and counts.
+  echo "Delegating to the repository's own tools/verify.sh"
+  set +e
+  bash "$root/tools/verify.sh" 2>&1 | tee "$run/verification.log"
+  status=${PIPESTATUS[0]}
+  set -e
+  read -r d_total d_skipped d_parsed < <(count_tests "$run/verification.log")
+  d_evidence=$(sed -n 's/^Evidence: //p' "$run/verification.log" | tail -1)
+  write_summary "$run" delegated "$status" "tools/verify.sh" "$d_total" "$d_skipped" "$d_parsed" \
+    "tools/verify.sh" "$d_evidence"
+  if [ "$status" -eq 0 ]; then
+    echo "PASS: delegated tools/verify.sh" | tee "$run/result.txt"
+  else
+    echo "FAIL: delegated tools/verify.sh (exit $status)" | tee "$run/result.txt"
+  fi
+  echo "Evidence: $run"
+  exit "$status"
+fi
+
 exec > >(tee "$run/verification.log") 2>&1
 stage=prerequisites
 stages=()
 tests_total=0
 tests_skipped=0
+counts_parsed=0
 
 finish() {
   result=$?
@@ -39,23 +120,7 @@ finish() {
   else
     echo "FAIL: $stage (exit $result)" | tee "$run/result.txt"
   fi
-  python3 - "$run" "$root" "$result" "$stage" "$tests_total" "$tests_skipped" "${stages[@]}" <<'PY' || true
-import json, subprocess, sys
-run, root, result, stage, total, skipped, *done = sys.argv[1:]
-def git(*a):
-    try:
-        return subprocess.run(["git", "-C", root, *a], capture_output=True, text=True, check=True).stdout.strip()
-    except Exception:
-        return None
-json.dump({
-    "result": "PASS" if result == "0" else "FAIL",
-    "failed_stage": None if result == "0" else stage,
-    "stages_passed": done,
-    "tests_total": int(total), "tests_skipped": int(skipped),
-    "head_sha": git("rev-parse", "HEAD"),
-    "base_sha": git("merge-base", "HEAD", "origin/main"),
-}, open(f"{run}/summary.json", "w"), indent=2)
-PY
+  write_summary "$run" harness "$result" "$stage" "$tests_total" "$tests_skipped" "$counts_parsed" "" "" "${stages[@]}"
   echo "Evidence: $run"
   exit "$result"
 }
@@ -150,27 +215,7 @@ else
 fi
 test_status=${PIPESTATUS[0]}
 set -e
-read -r tests_total tests_skipped < <(python3 - "$log" <<'PY'
-import re, sys
-text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
-total = skipped = 0
-for pattern, t, s in [
-    (r"Summary: (\d+) tests?, \d+ errors?, \d+ failures?, (\d+) skipped", 1, 2),  # colcon test-result
-    (r"^Ran (\d+) tests? in", 1, None),                                              # unittest
-    (r"^Tests:\s+(?:.*?(\d+) skipped, )?.*?(\d+) total", 2, 1),                     # jest
-    (r"^\s+Tests\s+(?:.*?(\d+) skipped.*?)?\((\d+)\)", 2, 1),                        # vitest
-]:
-    for m in re.finditer(pattern, text, re.M):
-        total += int(m.group(t) or 0)
-        skipped += int(m.group(s) or 0) if s else 0
-m = re.findall(r"=+ (?:(\d+) passed)?(?:, )?(?:(\d+) skipped)?.* in [\d.]+s", text)  # pytest
-for passed, skip in m:
-    total += int(passed or 0) + int(skip or 0)
-    skipped += int(skip or 0)
-skipped += sum(int(n) for n in re.findall(r"skipped=(\d+)", text))  # unittest
-print(total, skipped)
-PY
-)
+read -r tests_total tests_skipped counts_parsed < <(count_tests "$log")
 echo "Tests executed: $((tests_total - tests_skipped)) of $tests_total (skipped $tests_skipped)"
 if [ "$((tests_total - tests_skipped))" -le 0 ]; then
   echo "FAIL: zero tests executed; an empty or fully skipped suite is not evidence"

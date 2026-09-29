@@ -82,6 +82,30 @@ class VerifyScript(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("repository-own-verify", out)
 
+    def test_delegation_writes_summary_with_delegated_status_and_counts(self):
+        script = ("echo 'Ran 3 tests in 0.010s'\n"
+                  "echo 'Evidence: /work/.verification/run.native'\n"
+                  "exit 0\n")
+        code, out, summary = self.check({"tools/verify.sh": script})
+        self.assertEqual(code, 0, out)
+        self.assertEqual(summary["mode"], "delegated")
+        self.assertEqual((summary["result"], summary["exit_code"]), ("PASS", 0))
+        self.assertEqual((summary["tests_total"], summary["tests_skipped"], summary["counts_parsed"]), (3, 0, True))
+        self.assertEqual(summary["delegated_evidence"], "/work/.verification/run.native")
+        self.assertIsInstance(summary["duration_seconds"], int)
+        for key in ("schema_version", "head_sha", "base_sha", "harness_sha", "delegated_script"):
+            self.assertIn(key, summary)
+
+    def test_delegated_failure_is_recorded_and_propagated(self):
+        code, out, summary = self.check({"tools/verify.sh": "echo 'Ran 2 tests in 0.1s'\necho boom\nexit 7\n"})
+        self.assertEqual(code, 7, out)
+        self.assertEqual((summary["result"], summary["exit_code"]), ("FAIL", 7))
+        self.assertIn("FAIL: delegated tools/verify.sh (exit 7)", out)
+
+    def test_delegation_without_recognisable_counts_says_so(self):
+        _, _, summary = self.check({"tools/verify.sh": "echo done\nexit 0\n"})
+        self.assertEqual((summary["tests_total"], summary["counts_parsed"]), (None, False))
+
 
 if __name__ == "__main__":
     unittest.main()
