@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -233,7 +234,121 @@ class DeletedFiles(unittest.TestCase):
         self.assertTrue(any(f.startswith("Dependency manifests changed") for f in failures))
 
 
+CLEAN = "decisions: 23 loaded\nresult: 0 contradiction(s), 0 allowed, scope 3 changed file(s)\n"
+TWO = ("decisions: 23 loaded\n"
+       "CONTRADICTION docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400', decided '1350 mm' (P-03)\n"
+       "CONTRADICTION docs/b.md:9: COMPUTE found 'Raspberry Pi 5', decided 'Jetson' (P-00)\n"
+       "result: 2 contradiction(s), 0 allowed, scope 2 changed file(s)\n")
+
+
+class DecisionCheckerFailsClosed(unittest.TestCase):
+    """Any decisions-check outcome other than the two documented ones is a checker error."""
+
+    def test_documented_outcomes(self):
+        self.assertEqual(ev.decision_verdict(CLEAN, {"exit_code": 0}), ([], []))
+        failures, errors = ev.decision_verdict(TWO, {"exit_code": 1})
+        self.assertEqual((len(failures), errors), (2, []))
+
+    def test_real_checker_exception_is_a_checker_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            # --changed-files pointing at a directory makes check_decisions.py raise.
+            proc = subprocess.run([sys.executable, str(ROOT / "tools" / "check_decisions.py"),
+                                   "--decisions", str(ROOT / "decisions.yaml"), "--root", tmp,
+                                   "--changed-files", tmp], capture_output=True, text=True)
+        report = proc.stdout + proc.stderr
+        self.assertIn("Traceback (most recent call last)", report)
+        failures, errors = ev.decision_verdict(report, {"exit_code": proc.returncode})
+        self.assertEqual(failures, [])
+        self.assertEqual(len(errors), 1)
+        self.assertTrue(errors[0].startswith("checker error: check_decisions.py crashed"))
+
+    def test_nonzero_exit_with_empty_output_is_a_checker_error(self):
+        for code in (1, 137):
+            with self.subTest(exit_code=code):
+                failures, errors = ev.decision_verdict("", {"exit_code": code})
+                self.assertEqual(failures, [])
+                self.assertTrue(errors and errors[0].startswith("checker error"))
+
+    def test_exit_zero_without_a_result_line_is_a_checker_error(self):
+        self.assertTrue(ev.decision_verdict("", {"exit_code": 0})[1])
+
+    def test_invalid_register_and_mismatched_counts_are_checker_errors(self):
+        self.assertTrue(ev.decision_verdict("INVALID decisions file:\nA: bad", {"exit_code": 2})[1][0]
+                        .startswith("checker error: check_decisions.py exit 2"))
+        mismatched = TWO.replace("result: 2", "result: 3")
+        self.assertTrue(ev.decision_verdict(mismatched, {"exit_code": 1})[1])
+        self.assertTrue(ev.decision_verdict(CLEAN, {"exit_code": 1})[1])
+
+    def test_missing_or_unreadable_status_is_a_checker_error(self):
+        for status in (None, {}, {"exit_code": "1"}, {"exit_code": True}):
+            with self.subTest(status=status):
+                self.assertTrue(ev.decision_verdict(CLEAN, status)[1][0].startswith(
+                    "checker error: decisions status file missing"))
+
+    def run_main(self, tmp, report=None, status=None, status_path=None):
+        event, changed = Path(tmp, "event.json"), Path(tmp, "changed.txt")
+        event.write_text(json.dumps({"pull_request": pr()}), encoding="utf-8")
+        changed.write_text("src/node.py\n", encoding="utf-8")
+        args = ["--event", str(event), "--changed-files", str(changed),
+                "--maintainers", str(ROOT / "maintainers.yaml"), "--output", str(Path(tmp, "s.md")),
+                "--decisions-report", str(Path(tmp, "decisions.txt"))]
+        if report is not None:
+            Path(tmp, "decisions.txt").write_text(report, encoding="utf-8")
+        if status is not None:
+            Path(tmp, "status.json").write_text(json.dumps(status), encoding="utf-8")
+        args += ["--decisions-status", str(status_path or Path(tmp, "status.json"))]
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = ev.main(args)
+        return code, Path(tmp, "s.md").read_text(encoding="utf-8")
+
+    def test_missing_status_file_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code, summary = self.run_main(tmp, report=CLEAN, status_path=Path(tmp, "absent.json"))
+        self.assertEqual(code, 1)
+        self.assertIn("PR evidence check: CHECKER ERROR", summary)
+        self.assertIn("decisions status file missing", summary)
+
+    def test_missing_report_file_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code, summary = self.run_main(tmp, status={"exit_code": 0})
+        self.assertEqual(code, 1)
+        self.assertIn("PR evidence check: CHECKER ERROR", summary)
+
+    def test_clean_run_through_main_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code, summary = self.run_main(tmp, report=CLEAN, status={"exit_code": 0})
+        self.assertEqual(code, 0, summary)
+        self.assertIn("PR evidence check: PASS", summary)
+
+    def test_pr_assistant_step_records_status_of_a_crashing_checker(self):
+        workflow = yaml.safe_load((ROOT / "rollout" / "workflows" / "pr-assistant.yml").read_text(encoding="utf-8"))
+        steps = {s.get("name"): s for s in workflow["jobs"]["evidence"]["steps"]}
+        self.assertIn("--decisions-status decisions-status.json", steps["Evidence check and summary comment"]["run"])
+        script = steps["Decisions of record on the diff"]["run"]
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Path(tmp, "harness", "tools")
+            tools.mkdir(parents=True)
+            (tools / "check_decisions.py").write_text("raise RuntimeError('simulated checker crash')\n",
+                                                      encoding="utf-8")
+            Path(tmp, "pr-head").mkdir()
+            Path(tmp, "changed_existing.txt").write_text("README.md\n", encoding="utf-8")
+            proc = subprocess.run(["bash", "-eo", "pipefail", "-c", script], cwd=tmp, capture_output=True,
+                                  text=True, env={"PATH": os.environ["PATH"], "REPOSITORY": "x"})
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            status = json.loads(Path(tmp, "decisions-status.json").read_text(encoding="utf-8"))
+            report = Path(tmp, "decisions.txt").read_text(encoding="utf-8")
+        self.assertEqual(status, {"exit_code": 1})
+        failures, errors = ev.decision_verdict(report, status)
+        self.assertEqual(failures, [])
+        self.assertTrue(errors[0].startswith("checker error: check_decisions.py crashed"))
+
+
 class Comment(unittest.TestCase):
+    def test_render_checker_error_verdict(self):
+        text = ev.render([], [], [], pr(), ["checker error: x"])
+        self.assertIn("PR evidence check: CHECKER ERROR", text)
+        self.assertIn("Checker errors (fails closed", text)
+
     def test_render_has_marker_and_status(self):
         text = ev.render(["x"], [], [], pr())
         self.assertTrue(text.startswith(ev.MARKER))

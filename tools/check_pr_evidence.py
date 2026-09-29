@@ -9,7 +9,9 @@ requested. Requesting reviewers is not approval: this check reports "safety
 path touched, two human approvals required" and counts approvals for
 information only; the approvals themselves are enforced by the repository
 ruleset (rollout/workflows/SETUP.md), not by this check. Writes one
-Markdown summary; with --post it creates or updates a single PR comment
+Markdown summary; a decisions-check run that ends in anything other than
+its two documented outcomes (exit 0 clean, exit 1 with contradictions) is a
+"checker error" and fails closed. With --post it creates or updates a single PR comment
 identified by a hidden marker. Exit status: 0 pass, 1 fail, 2 usage error.
 """
 import argparse
@@ -164,17 +166,57 @@ def decision_failures(report, limit=20):
     return out
 
 
-def render(failures, warnings, notes, pr):
-    status = "FAIL" if failures else "PASS"
+RESULT_LINE = re.compile(r"^result: (\d+) contradiction\(s\)", re.M)
+
+
+def decision_verdict(report, status):
+    """Classify a check_decisions.py run; return (failures, checker_errors).
+
+    report is the checker's combined output (None if the file is missing);
+    status is the parsed status file, e.g. {"exit_code": 1} (None if missing).
+    Only the two documented policy outcomes are accepted:
+      exit 0 with "result: 0 contradiction(s)" and no CONTRADICTION lines (clean);
+      exit 1 with CONTRADICTION lines whose count matches the result line.
+    Everything else fails closed as a checker error: a crash, exit 2 (invalid
+    register or usage), any other exit code, empty output, or a missing file.
+    """
+    if report is None:
+        return [], ["checker error: decisions report missing; the decisions check did not produce output"]
+    code = status.get("exit_code") if isinstance(status, dict) else None
+    if not isinstance(code, int) or isinstance(code, bool):
+        return [], ["checker error: decisions status file missing or unreadable; exit status of "
+                    "check_decisions.py unknown"]
+    head = " | ".join(l for l in report.strip().splitlines()[-3:]) or "no output"
+    if "Traceback (most recent call last)" in report:
+        return [], [f"checker error: check_decisions.py crashed (exit {code}): {head}"]
+    listed = decision_failures(report)
+    contradictions = [l for l in report.splitlines() if l.startswith("CONTRADICTION ")]
+    m = RESULT_LINE.search(report)
+    reported = int(m.group(1)) if m else None
+    if code == 0 and reported == 0 and not contradictions:
+        return [], []
+    if code == 1 and reported is not None and reported == len(contradictions) > 0:
+        return listed, []
+    if code == 2:
+        return [], [f"checker error: check_decisions.py exit 2 (invalid register or usage error): {head}"]
+    return [], [f"checker error: unexpected check_decisions.py outcome (exit {code}, "
+                f"{len(contradictions)} contradiction line(s), result line "
+                f"{'missing' if reported is None else reported}): {head}"]
+
+
+def render(failures, warnings, notes, pr, checker_errors=()):
+    status = "CHECKER ERROR" if checker_errors else ("FAIL" if failures else "PASS")
     lines = [MARKER, f"### PR evidence check: {status}", "",
              f"Head checked: `{pr.get('head', {}).get('sha', 'unknown')[:12]}`. "
              "This comment is updated in place on every push. It never approves or merges.", ""]
-    for title, items in (("Failures", failures), ("Warnings", warnings), ("Notes", notes)):
+    for title, items in (("Checker errors (fails closed; the result of the check is unknown)",
+                          list(checker_errors)),
+                         ("Failures", failures), ("Warnings", warnings), ("Notes", notes)):
         if items:
             lines.append(f"**{title}**")
             lines += [f"- {i}" for i in items]
             lines.append("")
-    if not (failures or warnings or notes):
+    if not (failures or warnings or notes or checker_errors):
         lines.append("All required sections and evidence are present.")
     lines.append("Rules: AGENTS.md in openAMRobot/.github; template: .github/PULL_REQUEST_TEMPLATE.md.")
     return "\n".join(lines) + "\n"
@@ -212,7 +254,9 @@ def main(argv=None):
     p.add_argument("--reviews", type=Path, help="JSON list of PR reviews")
     p.add_argument("--root", type=Path, help="checkout of the PR head; enables the STATE.md rule")
     p.add_argument("--decisions-report", type=Path,
-                   help="stdout of check_decisions.py on the diff; contradictions become failures")
+                   help="combined output of check_decisions.py on the diff")
+    p.add_argument("--decisions-status", type=Path,
+                   help='JSON status file written by the workflow, e.g. {"exit_code": 1}; required with --decisions-report')
     p.add_argument("--output", type=Path, help="write the Markdown summary here")
     p.add_argument("--post", action="store_true", help="create or update the PR comment")
     a = p.parse_args(argv)
@@ -228,9 +272,20 @@ def main(argv=None):
     reviews = json.loads(a.reviews.read_text(encoding="utf-8")) if a.reviews else []
     has_state = bool(a.root and (a.root / "STATE.md").is_file())
     failures, warnings, notes = evaluate(pr, changed, maintainers, reviews, has_state)
-    if a.decisions_report:
-        failures += decision_failures(a.decisions_report.read_text(encoding="utf-8"))
-    summary = render(failures, warnings, notes, pr)
+    checker_errors = []
+    if a.decisions_report or a.decisions_status:
+        report = status = None
+        try:
+            report = a.decisions_report.read_text(encoding="utf-8") if a.decisions_report else None
+        except OSError:
+            report = None
+        try:
+            status = json.loads(a.decisions_status.read_text(encoding="utf-8")) if a.decisions_status else None
+        except (OSError, ValueError):
+            status = None
+        decision_fails, checker_errors = decision_verdict(report, status)
+        failures += decision_fails
+    summary = render(failures, warnings, notes, pr, checker_errors)
     print(summary)
     if a.output:
         a.output.write_text(summary, encoding="utf-8")
@@ -240,7 +295,7 @@ def main(argv=None):
             print("--post needs GITHUB_TOKEN and GITHUB_REPOSITORY", file=sys.stderr)
             return 2
         print(f"comment {upsert_comment(repo, pr['number'], summary, token)}")
-    return 1 if failures else 0
+    return 1 if failures or checker_errors else 0
 
 
 if __name__ == "__main__":

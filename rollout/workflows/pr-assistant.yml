@@ -64,12 +64,19 @@ jobs:
           echo "changed (all): $(wc -l < changed_all.txt); present at head: $(wc -l < changed_existing.txt)"
 
       - name: Decisions of record on the diff
+        env:
+          REPOSITORY: ${{ github.event.repository.name }}
         run: |
+          # Record the exit status explicitly; the evidence step fails closed on
+          # any outcome other than 0 (clean) or 1 (contradictions reported).
           set +e
           python3 harness/tools/check_decisions.py --decisions harness/decisions.yaml \
             --maintainers harness/maintainers.yaml --root pr-head \
-            --repository "${{ github.event.repository.name }}" --changed-files changed_existing.txt > decisions.txt
-          echo "check_decisions exit $?"
+            --repository "$REPOSITORY" --changed-files changed_existing.txt > decisions.txt 2>&1
+          status=$?
+          set -e
+          printf '{"exit_code": %d}\n' "$status" > decisions-status.json
+          echo "check_decisions exit $status"
           cat decisions.txt
 
       - name: Evidence check and summary comment
@@ -79,4 +86,5 @@ jobs:
           python3 harness/tools/check_pr_evidence.py --event "$GITHUB_EVENT_PATH" \
             --changed-files changed_all.txt --maintainers harness/maintainers.yaml \
             --reviews reviews.json --root pr-head --decisions-report decisions.txt \
+            --decisions-status decisions-status.json \
             --output "$GITHUB_STEP_SUMMARY" --post
