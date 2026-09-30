@@ -53,8 +53,9 @@ PY
 
 # Write summary.json (minimum evidence schema, rollout/VERIFY.md). Arguments:
 # run mode exit_code failed_stage tests_total tests_skipped counts_parsed delegated_script delegated_evidence stages...
+# Returns non-zero when summary.json cannot be written; callers fail the run on that.
 write_summary() {
-  python3 - "$root" "$self" "$started" "$@" <<'PY' || true
+  python3 - "$root" "$self" "$started" "$@" <<'PY'
 import json, subprocess, sys, time
 root, self_path, started, run, mode, code, failed, total, skipped, parsed, dscript, devidence, *done = sys.argv[1:]
 def git(where, *a):
@@ -95,8 +96,15 @@ if [ -f "$root/tools/verify.sh" ] && [ "$root/tools/verify.sh" != "$self" ] && [
   set -e
   read -r d_total d_skipped d_parsed < <(count_tests "$run/verification.log")
   d_evidence=$(sed -n 's/^Evidence: //p' "$run/verification.log" | tail -1)
-  write_summary "$run" delegated "$status" "tools/verify.sh" "$d_total" "$d_skipped" "$d_parsed" \
-    "tools/verify.sh" "$d_evidence"
+  if ! write_summary "$run" delegated "$status" "tools/verify.sh" "$d_total" "$d_skipped" "$d_parsed" \
+      "tools/verify.sh" "$d_evidence"; then
+    echo "FAIL: could not write $run/summary.json"
+    # Keep a delegated failure status; turn a delegated success into a failure.
+    if [ "$status" -eq 0 ]; then status=1; fi
+    echo "FAIL: delegated tools/verify.sh (exit $status; summary.json not written)" | tee "$run/result.txt"
+    echo "Evidence: $run"
+    exit "$status"
+  fi
   if [ "$status" -eq 0 ]; then
     echo "PASS: delegated tools/verify.sh" | tee "$run/result.txt"
   else
@@ -115,12 +123,17 @@ counts_parsed=0
 
 finish() {
   result=$?
+  if ! write_summary "$run" harness "$result" "$stage" "$tests_total" "$tests_skipped" "$counts_parsed" "" "" \
+      "${stages[@]}"; then
+    echo "FAIL: could not write $run/summary.json"
+    # A run without its evidence summary never passes; an earlier failure keeps its status.
+    if [ "$result" -eq 0 ]; then result=1; stage=evidence-summary; fi
+  fi
   if [ "$result" -eq 0 ]; then
     echo "PASS: all detected verification stages" | tee "$run/result.txt"
   else
     echo "FAIL: $stage (exit $result)" | tee "$run/result.txt"
   fi
-  write_summary "$run" harness "$result" "$stage" "$tests_total" "$tests_skipped" "$counts_parsed" "" "" "${stages[@]}"
   echo "Evidence: $run"
   exit "$result"
 }

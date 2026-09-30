@@ -107,5 +107,43 @@ class VerifyScript(unittest.TestCase):
         self.assertEqual((summary["tests_total"], summary["counts_parsed"]), (None, False))
 
 
+# A directory named summary.json inside the run directory makes the summary write fail (also as root).
+BLOCK_SUMMARY_SH = 'for d in "$(dirname "$0")"/../.verification/run.*; do mkdir -p "$d/summary.json"; done\n'
+BLOCK_SUMMARY_PY = ("import glob, os, unittest\n\nclass T(unittest.TestCase):\n    def test_one(self):\n"
+                    "        for d in glob.glob('.verification/run.*'):\n"
+                    "            os.makedirs(os.path.join(d, 'summary.json'), exist_ok=True)\n")
+
+
+class SummaryWriteFailure(unittest.TestCase):
+    """A run whose summary.json cannot be written never reports success (release-owner review)."""
+
+    def run_blocked(self, files):
+        tmp, root = make_repo(files)
+        self.addCleanup(tmp.cleanup)
+        proc = subprocess.run(["bash", str(VERIFY), str(root)], capture_output=True, text=True, timeout=120,
+                              env={"PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": str(root)})
+        run = sorted((root / ".verification").glob("run.*"))[-1]
+        self.assertTrue((run / "summary.json").is_dir(), "the test did not block the summary write")
+        return proc.returncode, proc.stdout + proc.stderr, (run / "result.txt").read_text()
+
+    def test_harness_run_fails_when_summary_cannot_be_written(self):
+        code, out, result = self.run_blocked({"tests/test_a.py": BLOCK_SUMMARY_PY})
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("could not write", out)
+        self.assertNotIn("PASS: all detected verification stages", out)
+        self.assertTrue(result.startswith("FAIL: evidence-summary"), result)
+
+    def test_delegated_success_fails_when_summary_cannot_be_written(self):
+        code, out, result = self.run_blocked({"tools/verify.sh": BLOCK_SUMMARY_SH + "echo 'Ran 3 tests in 0.1s'\nexit 0\n"})
+        self.assertNotEqual(code, 0, out)
+        self.assertNotIn("PASS: delegated", out)
+        self.assertTrue(result.startswith("FAIL: delegated tools/verify.sh (exit 1; summary.json not written)"), result)
+
+    def test_delegated_failure_status_is_kept_when_summary_cannot_be_written(self):
+        code, out, result = self.run_blocked({"tools/verify.sh": BLOCK_SUMMARY_SH + "exit 7\n"})
+        self.assertEqual(code, 7, out)
+        self.assertIn("exit 7; summary.json not written", result)
+
+
 if __name__ == "__main__":
     unittest.main()

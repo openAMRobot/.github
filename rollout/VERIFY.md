@@ -34,7 +34,9 @@ Python path or user package leaks in. Output goes to `.verification/run.*/`:
 
 Every run, delegated or not, writes `.verification/run.*/summary.json` with at least these
 fields. A repository-native verifier that writes its own evidence adds these fields or is
-wrapped by verify.sh; a release consumes only this schema.
+wrapped by verify.sh; a release consumes only this schema. If `summary.json` cannot be
+written, the run fails: an otherwise passing run exits 1 with `FAIL: evidence-summary`, and a
+failing run (delegated or not) keeps its own exit status.
 
 | Field | Meaning |
 |---|---|
