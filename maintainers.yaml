@@ -2,7 +2,8 @@
 # An empty handle means no GitHub handle is recorded yet; the organization owner
 # fills it once the person has confirmed their account and joined the
 # organization. Automation that needs that role names the role and mentions nobody.
-# Changes to this file need review by the platform lead (see CODEOWNERS).
+# Changes to this file need a code-owner review: the platform lead or another member of the
+# leads team, never the author alone (see .github/CODEOWNERS).
 schema_version: 1
 
 roles:

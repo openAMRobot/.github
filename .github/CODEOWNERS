@@ -1,19 +1,19 @@
 # OpenAMRobot Organization CODEOWNERS
 
 # Default reviewers for all repositories
-* @BotshareAI
+* @BotshareAI @openAMRobot/openamrobot2-0_leads
 
 # Governance and organization-level files
-*.md @BotshareAI
+*.md @BotshareAI @openAMRobot/openamrobot2-0_leads
 
 # GitHub workflow and templates
-.github/ @BotshareAI
+.github/ @BotshareAI @openAMRobot/openamrobot2-0_leads
 
 # Documentation
-docs/ @BotshareAI
+docs/ @BotshareAI @openAMRobot/openamrobot2-0_leads
 
 # Hardware repositories (future)
-hardware/ @BotshareAI
+hardware/ @BotshareAI @openAMRobot/openamrobot2-0_leads
 
 # Software repositories (future)
-src/ @BotshareAI
+src/ @BotshareAI @openAMRobot/openamrobot2-0_leads

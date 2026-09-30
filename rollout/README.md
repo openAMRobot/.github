@@ -177,3 +177,8 @@ checks):
 - When a line lists several owners, an approval from any one of them satisfies the code owner
   requirement; approval from all of them is not required. A ruleset can add further
   requirements (a minimum approval count, a required team review), and only the ruleset does.
+- A team listed as owner works the same way: any member of `@openAMRobot/openamrobot2-0_leads`
+  can give the code-owner approval. GitHub never counts the author's own approval, so a PR
+  authored by a lead, or by @BotshareAI, still needs the approval of a second lead. This
+  repository's own `.github/CODEOWNERS` lists the leads team next to @BotshareAI on every line
+  for that reason; the team needs write access to this repository for the entry to count.
