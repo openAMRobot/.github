@@ -387,7 +387,7 @@ Maintainer roles are earned through contribution and trust.
 ## Maintainer
 
 - **[@BotshareAI](https://github.com/BotshareAI)**: Alex Reznichenko, project lead
-- **[@panthera-momagdii](https://github.com/panthera-momagdii)**: Mohamed Sayed, CTO
+- **[@panthera-momagdii](https://github.com/panthera-momagdii)**: Mohamed Sayed, Tech lead
 
 ## Contributors
 
