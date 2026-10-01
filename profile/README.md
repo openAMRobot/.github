@@ -174,7 +174,6 @@ openAMRobot/
 
 | Repository | Purpose |
 |---|---|
-| [`openamr`](https://github.com/openAMRobot/openamr) | Main platform repo & community entry point (being transferred into `openamr-platform-hw`) |
 | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software: simulation, navigation, docking, drivers, perception, bringup |
 | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, microcontroller systems, motor interfaces, hardware communication |
 | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical, BOMs, manufacturing files, mechatronics |
@@ -194,6 +193,7 @@ These repositories are preserved for historical context, migration support, fork
 - [`OpenAMR_UI_dev`](https://github.com/openAMRobot/OpenAMR_UI_dev) — archived; superseded by `openamrobot-ui`
 - [`OpenAMR_UI_package`](https://github.com/openAMRobot/OpenAMR_UI_package) — archived; superseded by `openamrobot-ui`
 - [`Botshare_docs`](https://github.com/openAMRobot/Botshare_docs) — legacy documentation source; superseded by `openamrobot-docs`
+- [`openamr`](https://github.com/openAMRobot/openamr) — legacy monorepo retained for historical reference
 - [`EOD-robot`](https://github.com/openAMRobot/EOD-robot) — archived legacy EOD variant
 >
 > Active development should target the modular ecosystem repositories listed above.
@@ -386,7 +386,8 @@ Maintainer roles are earned through contribution and trust.
 
 ## Maintainer
 
-- **[@rajindulkar22](https://github.com/rajindulkar22)** — Project Maintainer
+- **[@BotshareAI](https://github.com/BotshareAI)** — Alex Reznichenko, project lead
+- **[@panthera-momagdii](https://github.com/panthera-momagdii)** — Mohamed Sayed, CTO
 
 ## Contributors
 
@@ -394,6 +395,7 @@ A sincere thank you to our contributors for their valuable time, effort, and con
 
 - **[@Nahush11](https://github.com/Nahush11)**
 - **[@SHuttooo](https://github.com/SHuttooo)**
+- **[@rajindulkar22](https://github.com/rajindulkar22)** — former maintainer, UI and ROS 2 packaging
 
 ---
 
