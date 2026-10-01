@@ -143,7 +143,7 @@ review. Proposal, in every repository's `.github/CODEOWNERS`:
 /tools/ @BotshareAI <ci-owner handle>
 
 # Release owner (maintainers.yaml release-owner: KARTHIKEYAN124). Replace the handle with
-# @openAMRobot/release-ci once that team exists. Added only after write access is confirmed.
+# @KARTHIKEYAN124 @wikki26 once that team exists. Added only after write access is confirmed.
 # openamrobot-manifest and openamrobot-release: whole repository.
 * @BotshareAI @KARTHIKEYAN124
 # openamrobot-release: release workflow (after the lines above, so it wins for this path).
