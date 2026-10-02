@@ -22,6 +22,11 @@ Organization maintainers are responsible for:
 
 Organization maintainers may manage multiple repositories.
 
+## Organization maintainers
+
+- **[@BotshareAI](https://github.com/BotshareAI)**: Alex Reznichenko, project lead
+- **[@panthera-momagdii](https://github.com/panthera-momagdii)**: Mohamed Sayed, Tech lead
+
 ---
 
 # Repository Maintainers
