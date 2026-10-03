@@ -1,0 +1,41 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Permissions, credentials, deduplication and failure handling have
+# not been exercised.
+#
+# Docs sync, sender side: copy to .github/workflows/docs-sync.yml in every
+# repository except openamrobot-docs. On push to main it sends one
+# repository_dispatch event to openamrobot-docs with the repository and the
+# before/after SHAs. The Claude Code action does not run on push events, so the
+# work happens in openamrobot-docs (docs-sync.yml). Secrets: DOCS_SYNC_APP_ID,
+# DOCS_SYNC_APP_PRIVATE_KEY (see SETUP.md).
+name: Docs sync (notify)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Token for openamrobot-docs
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.DOCS_SYNC_APP_ID }}
+          private-key: ${{ secrets.DOCS_SYNC_APP_PRIVATE_KEY }}
+          owner: openAMRobot
+          repositories: openamrobot-docs
+
+      - name: Dispatch
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          gh api repos/openAMRobot/openamrobot-docs/dispatches -f event_type=source-changed \
+            -f "client_payload[repository]=${{ github.event.repository.name }}" \
+            -f "client_payload[before]=${{ github.event.before }}" \
+            -f "client_payload[after]=${{ github.sha }}"

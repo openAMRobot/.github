@@ -2,6 +2,39 @@ name: Reusable repository quality
 
 on:
   workflow_call:
+    inputs:
+      harness_ref:
+        description: >-
+          Ref of openAMRobot/.github that provides decisions.yaml and the checkers.
+          Pin it to the same commit SHA as the `uses:` line of the caller.
+        type: string
+        required: false
+        default: main
+      harness_checks:
+        description: >-
+          Run the decisions, public-extract and shared-rules checks. Off by default so that
+          existing callers on @main are unchanged until they opt in (rollout/README.md).
+        type: boolean
+        required: false
+        default: false
+      harness_warn:
+        description: >-
+          Warn-only mode for rollout step (c): run the same checks and report every finding as a
+          warning, never failing the job. Use it on main until one run is green, then switch to
+          harness_checks: true. If both are true, harness_checks (enforcing) wins.
+        type: boolean
+        required: false
+        default: false
+      verify:
+        description: Run rollout/verify.sh (or the repository's own tools/verify.sh) as job quality/test.
+        type: boolean
+        required: false
+        default: false
+      verify_container:
+        description: Container image for the verify job, e.g. ros:jazzy-ros-base for ROS 2 repositories.
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -13,6 +46,16 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out OpenAMRobot harness
+        if: inputs.harness_checks || inputs.harness_warn
+        uses: actions/checkout@v4
+        with:
+          repository: openAMRobot/.github
+          ref: ${{ inputs.harness_ref }}
+          path: .openamrobot-harness
 
       - name: Verify governance baseline
         shell: bash
@@ -53,3 +96,128 @@ jobs:
 
           for path in tracked("*.xml"):
               ET.parse(path)
+
+      - name: Prepare harness checks
+        if: inputs.harness_checks || inputs.harness_warn
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          if [ "$EVENT_NAME" = pull_request ]; then
+            git diff --name-only --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" > "$RUNNER_TEMP/changed-files.txt"
+            echo "scope=changed files ($(wc -l < "$RUNNER_TEMP/changed-files.txt"))"
+          fi
+
+      # harness_checks: true (enforcing): pull requests scan changed files and block;
+      # push and schedule scan the full checkout and report warnings; an invalid
+      # register or usage error (exit 2) always fails.
+      # harness_warn: true only (rollout step c): same scans, every finding is a warning.
+      - name: Decisions of record
+        if: inputs.harness_checks || inputs.harness_warn
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.event.repository.name }}
+          ENFORCE: ${{ inputs.harness_checks }}
+        run: |
+          set -uo pipefail
+          h=.openamrobot-harness
+          scope=()
+          if [ "$EVENT_NAME" = pull_request ]; then
+            scope=(--changed-files "$RUNNER_TEMP/changed-files.txt")
+          fi
+          python3 "$h/tools/check_decisions.py" --decisions "$h/decisions.yaml" \
+            --maintainers "$h/maintainers.yaml" --root . \
+            --repository "$REPOSITORY" "${scope[@]}" | tee "$RUNNER_TEMP/decisions.txt"
+          status=${PIPESTATUS[0]}
+          grep '^CONTRADICTION ' "$RUNNER_TEMP/decisions.txt" | sed -E 's/^CONTRADICTION ([^:]+):([0-9]+): /::warning file=\1,line=\2::/' || true
+          if [ "$ENFORCE" = true ] && { [ "$EVENT_NAME" = pull_request ] || [ "$status" -eq 2 ]; }; then
+            exit "$status"
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::exit $status reported, not enforced (warn-only mode or push scan)"
+          fi
+
+      - name: Public extract
+        if: inputs.harness_checks || inputs.harness_warn
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.event.repository.name }}
+          ENFORCE: ${{ inputs.harness_checks }}
+        run: |
+          set -uo pipefail
+          h=.openamrobot-harness
+          scope=()
+          if [ "$EVENT_NAME" = pull_request ]; then
+            scope=(--changed-files "$RUNNER_TEMP/changed-files.txt")
+          fi
+          python3 "$h/tools/check_public_extract.py" --root . --allowlist "$h/public-extract-allowlist.yaml" \
+            --repository "$REPOSITORY" "${scope[@]}" | tee "$RUNNER_TEMP/extract.txt"
+          status=${PIPESTATUS[0]}
+          grep '^PUBLIC-EXTRACT ' "$RUNNER_TEMP/extract.txt" | sed -E 's/^PUBLIC-EXTRACT ([^:]+):([0-9]+): /::warning file=\1,line=\2::/' || true
+          if [ "$ENFORCE" = true ] && { [ "$EVENT_NAME" = pull_request ] || [ "$status" -eq 2 ]; }; then
+            exit "$status"
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::exit $status reported, not enforced (warn-only mode or push scan)"
+          fi
+
+      - name: Shared agent rules
+        if: inputs.harness_checks || inputs.harness_warn
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.event.repository.name }}
+          ENFORCE: ${{ inputs.harness_checks }}
+        run: |
+          set -uo pipefail
+          if [ -f AGENTS.md ]; then
+            python3 .openamrobot-harness/tools/check_agent_rules.py \
+              --canonical .openamrobot-harness/agent-rules/SHARED_RULES.md --file AGENTS.md
+            status=$?
+            if [ "$status" -ne 0 ] && [ "$ENFORCE" = true ]; then exit "$status"; fi
+            if [ "$status" -ne 0 ]; then
+              echo "::warning::shared rules drift (exit $status), not enforced in warn-only mode"
+            fi
+          else
+            echo "No AGENTS.md in this repository; see rollout/README.md in openAMRobot/.github"
+          fi
+
+  verify:
+    name: quality/test
+    if: inputs.verify
+    runs-on: ubuntu-24.04
+    container: ${{ inputs.verify_container || null }}
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check out OpenAMRobot harness
+        uses: actions/checkout@v4
+        with:
+          repository: openAMRobot/.github
+          ref: ${{ inputs.harness_ref }}
+          path: .openamrobot-harness
+
+      - name: Verify (install, build, lint, test, evidence; zero tests fail)
+        shell: bash
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          VERIFY_PATH="$PATH" bash .openamrobot-harness/rollout/verify.sh "$GITHUB_WORKSPACE"
+
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-evidence
+          path: .verification/run.*/
+          include-hidden-files: true
+          if-no-files-found: warn

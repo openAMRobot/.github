@@ -1,0 +1,100 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Its permissions, credentials, deduplication, failure handling and
+# issue lifecycle have not been exercised.
+#
+# Weekly alignment audit: copy to .github/workflows/ in the private audit
+# repository (openAMRobot/audits). Read-only towards every product repository.
+#
+# 1. Clones the product repositories anonymously (read-only) and the harness.
+# 2. Runs Claude Code with agent-prompts/read-only-audit.md, starting from the
+#    newest previous ISSUES.csv, and writes a new dated report folder here.
+# 3. sync_audit_issues.py opens issues for new Blocker and Major findings with
+#    the owner from maintainers.yaml. It never closes an issue: for a finding
+#    the run no longer reports, it comments "no longer detected" once and the
+#    issue's owner decides whether to close it.
+# Replace <HARNESS_SHA>. Secrets: ANTHROPIC_API_KEY; AUDIT_APP_ID and
+# AUDIT_APP_PRIVATE_KEY for the issue-writing GitHub App (see SETUP.md).
+name: Weekly alignment audit
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: weekly-alignment-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out audit repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check out harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: openAMRobot/.github
+          ref: <HARNESS_SHA>
+          path: .harness
+          persist-credentials: false
+
+      - name: Clone product repositories read-only
+        run: |
+          set -euo pipefail
+          mkdir -p .repos
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          for r in $(python3 -c "import yaml;print(' '.join(k for k in yaml.safe_load(open('.harness/maintainers.yaml'))['repositories'] if k != '.github'))") .github; do
+            git clone --quiet --depth 50 "https://github.com/openAMRobot/$r" ".repos/$r"
+            echo "$r $(git -C ".repos/$r" rev-parse HEAD)" >> .repos/SHAS.txt
+          done
+          echo "PREVIOUS=$(ls -d 20*-alignment-audit 2>/dev/null | sort | tail -1)" >> "$GITHUB_ENV"
+          echo "FOLDER=$(date -u +%Y-%m-%d)-alignment-audit" >> "$GITHUB_ENV"
+          git switch -c "audit/$(date -u +%Y-%m-%d)"
+
+      - name: Run read-only audit agent
+        uses: anthropics/claude-code-action@8ce9314fa9a404564fa7e954cd84f25bcba2b829 # v1.0.236
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Follow .harness/agent-prompts/read-only-audit.md exactly.
+            Precondition block values: report repository ${{ github.repository }}, branch audit/ (current),
+            parent SHA ${{ github.sha }}, audited checkouts and SHAs in .repos/SHAS.txt,
+            previous report ${{ env.PREVIOUS }}/ISSUES.csv, decisions .harness/decisions.yaml at <HARNESS_SHA>.
+            Write the new report to ${{ env.FOLDER }}/REPORT.md and ${{ env.FOLDER }}/ISSUES.csv.
+            Add a status column to ISSUES.csv with open or resolved for every finding of the previous report.
+            Do not write outside ${{ env.FOLDER }}. Do not run git push, gh or any network command.
+          claude_args: |
+            --max-turns 200
+            --allowedTools "Read,Grep,Glob,Write,Edit,Bash(python3 .harness/tools/check_decisions.py:*),Bash(python3 .harness/tools/check_public_extract.py:*),Bash(git -C .repos/*:*)"
+
+      - name: Commit report
+        run: |
+          set -euo pipefail
+          test -s "$FOLDER/ISSUES.csv" && test -s "$FOLDER/REPORT.md"
+          git add "$FOLDER"
+          git -c user.name="openamrobot-audit[bot]" -c user.email="audit@users.noreply.github.com" \
+            commit -m "audit: $FOLDER"
+          git push origin HEAD
+
+      - name: Issue-writing token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.AUDIT_APP_ID }}
+          private-key: ${{ secrets.AUDIT_APP_PRIVATE_KEY }}
+          owner: openAMRobot
+
+      - name: Open finding issues; comment on findings no longer detected (never closes)
+        env:
+          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          python3 .harness/tools/sync_audit_issues.py --issues "$FOLDER/ISSUES.csv" \
+            --maintainers .harness/maintainers.yaml --fallback-repository audits \
+            --report "$FOLDER@$(git rev-parse --short HEAD)" --apply

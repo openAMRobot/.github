@@ -1,0 +1,90 @@
+# EXAMPLE (state b): supplied under rollout/, not installed anywhere. Its two checker
+# commands ran locally in the authoring session; the workflow itself has never run.
+#
+# PR assistant: copy to .github/workflows/pr-assistant.yml in each repository.
+#
+# Runs check_decisions.py on the changed files and check_pr_evidence.py on the
+# description, then creates or updates one summary comment. It never approves,
+# requests changes or merges, and never executes code from the pull request:
+# the PR head is checked out as data only, the checkers come from the pinned
+# harness. pull_request_target is used so fork PRs can receive the comment;
+# no secret other than GITHUB_TOKEN is available to the job.
+# Replace <HARNESS_SHA> with the openAMRobot/.github commit to run.
+name: PR assistant
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review, review_requested, review_request_removed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: pr-assistant-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    name: quality/pr-evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out harness (trusted code)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: openAMRobot/.github
+          ref: <HARNESS_SHA>
+          path: harness
+          persist-credentials: false
+
+      - name: Check out PR head (data only, never executed)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr-head
+          persist-credentials: false
+
+      - name: Collect changed files and reviews
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate > files.json
+          # Every path the PR touches, including removed files and the old name of a
+          # rename: the evidence, safety-path and dependency rules must see deletions.
+          jq -r '.[] | .filename, (.previous_filename // empty)' files.json | sort -u > changed_all.txt
+          # Only files present at the PR head: the decisions scan reads their content.
+          jq -r '.[] | select(.status != "removed") | .filename' files.json | sort -u > changed_existing.txt
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate > reviews.json
+          echo "changed (all): $(wc -l < changed_all.txt); present at head: $(wc -l < changed_existing.txt)"
+
+      - name: Decisions of record on the diff
+        env:
+          REPOSITORY: ${{ github.event.repository.name }}
+        run: |
+          # Record the exit status explicitly; the evidence step fails closed on
+          # any outcome other than 0 (clean) or 1 (contradictions reported).
+          set +e
+          python3 harness/tools/check_decisions.py --decisions harness/decisions.yaml \
+            --maintainers harness/maintainers.yaml --root pr-head \
+            --repository "$REPOSITORY" --changed-files changed_existing.txt > decisions.txt 2>&1
+          status=$?
+          set -e
+          printf '{"exit_code": %d}\n' "$status" > decisions-status.json
+          echo "check_decisions exit $status"
+          cat decisions.txt
+
+      - name: Evidence check and summary comment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 harness/tools/check_pr_evidence.py --event "$GITHUB_EVENT_PATH" \
+            --changed-files changed_all.txt --maintainers harness/maintainers.yaml \
+            --reviews reviews.json --root pr-head --decisions-report decisions.txt \
+            --decisions-status decisions-status.json \
+            --output "$GITHUB_STEP_SUMMARY" --post
