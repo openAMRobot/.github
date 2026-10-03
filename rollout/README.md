@@ -130,17 +130,17 @@ review. Proposal, in every repository's `.github/CODEOWNERS`:
 # openamrobot-manipulation, openamrobot-ui, openamrobot-comm): add the software lead.
 * @BotshareAI @panthera-momagdii
 
-# Every repository: CI owner for workflows. Handle to be confirmed (maintainers.yaml ci-owner).
-/.github/workflows/ @BotshareAI <ci-owner handle>
+# Every repository: CI owner for workflows. maintainers.yaml ci-owner: wikki26.
+/.github/workflows/ @BotshareAI @wikki26
 
-# openamrobot-docs only: documentation owner. Handle to be confirmed (maintainers.yaml docs-owner).
-* @BotshareAI <docs-owner handle>
+# openamrobot-docs only: documentation owner. maintainers.yaml docs-owner: anandgawai123456-glitch.
+* @BotshareAI @anandgawai123456-glitch
 
 # openAMRobot/.github only: policy and harness files.
 /decisions.yaml @BotshareAI
 /maintainers.yaml @BotshareAI
 /agent-rules/ @BotshareAI @panthera-momagdii
-/tools/ @BotshareAI <ci-owner handle>
+/tools/ @BotshareAI @wikki26
 
 # Release owner (maintainers.yaml release-owner: KARTHIKEYAN124). Replace the handle with
 # @KARTHIKEYAN124 @wikki26 once that team exists. Added only after write access is confirmed.
@@ -151,9 +151,9 @@ review. Proposal, in every repository's `.github/CODEOWNERS`:
 # openamrobot-manifest: manifest validation workflow.
 /.github/workflows/manifest-validation.yml @BotshareAI @KARTHIKEYAN124
 # openamrobot-docs: installation documentation, placed after the docs-owner line.
-/docs/build/software/ @BotshareAI <docs-owner handle> @KARTHIKEYAN124
-/docs/reference/openamrobot-manifest/ @BotshareAI <docs-owner handle> @KARTHIKEYAN124
-/docs/reference/openamrobot-release/ @BotshareAI <docs-owner handle> @KARTHIKEYAN124
+/docs/build/software/ @BotshareAI @anandgawai123456-glitch @KARTHIKEYAN124
+/docs/reference/openamrobot-manifest/ @BotshareAI @anandgawai123456-glitch @KARTHIKEYAN124
+/docs/reference/openamrobot-release/ @BotshareAI @anandgawai123456-glitch @KARTHIKEYAN124
 ```
 
 The release workflow lines matter because the "every repository" CI owner line for
@@ -169,7 +169,7 @@ checks):
 - A code owner must have write access to the repository for the ownership to take effect.
   A line whose account or team lacks write access, or is not a collaborator, is ignored for
   review requests and required approvals, so the release owner's access is confirmed first.
-  The same holds for the pending ci-owner and docs-owner handles.
+  The same holds for the ci-owner and docs-owner handles.
 - The last matching pattern in the file takes precedence. A later line replaces the owners of
   an earlier line for the paths it matches; owners are not merged across lines. Specific paths
   therefore go after the broad `*` and `/.github/workflows/` lines, and each specific line
