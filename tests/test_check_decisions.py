@@ -239,6 +239,20 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "Issue 7 is canonical; Issue 6 is superseded.\n", "x"), [])
 
+    def test_nav_lidar(self):
+        repo = "openamr-platform-sw"
+        self.assertEqual(self.ids("docs/a.md", "Navigation LiDAR: Hokuyo UST-10LX.\n", repo), ["NAV-LIDAR"])
+        self.assertEqual(self.ids("docs/a.md", "The UST-10LX was dropped on cost.\n", repo), [])
+        self.assertEqual(self.ids("docs/a.md", "Mount the RPLIDAR A1M8 on the base.\n", repo), ["NAV-LIDAR"])
+        self.assertEqual(self.ids("docs/a.md", "RPLIDAR A1 on the existing robot (Gate A).\n", repo), [])
+        self.assertEqual(self.ids("docs/a.md", "RPLIDAR S3 (S3M1-R2) via sllidar_ros2; the RPLIDAR is on USB.\n",
+                                  repo), [])
+
+    def test_release_milestones(self):
+        self.assertEqual(self.ids("docs/a.md", "OpenAMRobot 2.0 final release: 18 December 2026.\n", "x"), [])
+        self.assertEqual(self.ids("docs/a.md", "OpenAMRobot 2.0 final release: 30 November 2026.\n", "x"),
+                         ["RELEASE-MILESTONES"])
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])

@@ -50,6 +50,12 @@ sources:
       as the addendum in force. Values that cite it were seeded from its citation on the
       documentation site (openamrobot-docs main e0f2aac,
       docs/reference/openamrobot-2/index.md lines 30-39) and from that confirmation.
+  P-03-rev18.4:
+    title: P-03 Decision Addendum, revision 18.4
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.3:
+    title: P-03 Decision Addendum, revision 18.3
+    evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.1:
     title: P-03 Decision Addendum, revision 18.1
     evidence: plan-set document, not held in any repository; cited by item and line
@@ -398,12 +404,12 @@ decisions:
     status: recorded
     values:
       - main battery bus 25.6 V nominal (not a regulated 24 V rail)
-      - regulated 24 V branch (safety relay, brake coils, peripherals, separately fused LiDAR branch)
-      - regulated 5 V
+      - regulated 24 V branch (safety relay, brake coils, peripherals)
+      - regulated 5 V (includes the navigation LiDAR)
       - no 12 V rail
     unit: V
     date: null
-    source: {document: P-03-rev18.1, item: item 2 line 10}
+    source: {document: P-03-rev18.1, item: "item 2 line 10; P-03-rev18.4 item 13"}
     applies_to:
       repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
@@ -521,7 +527,7 @@ decisions:
     value: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe; Raspberry Pi removed from active support
     unit: none
     date: null
-    source: {document: P-00-rev18.1, item: txt 14, 90, 278}
+    source: {document: P-00-rev18.1, item: "txt 14, 90 and 278"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>Raspberry Pi 5)'
@@ -536,21 +542,50 @@ decisions:
     title: Navigation LiDAR
     kind: value
     status: recorded
-    value: Hokuyo UST-10LX (functional sensing, not a safety device)
+    value: SLAMTEC RPLIDAR S3 (S3M1-R2), connected over USB, powered from the regulated 5 V rail (functional sensing, not a safety device)
     unit: none
-    date: null
-    source: {document: P-03-rev18.1, item: item 2}
+    backup: RPLIDAR S2E, only if the S3 is unavailable
+    date: 2026-10-03
+    source: {document: P-03-rev18.4, item: item 13}
+    supersedes:
+      - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
+      - {value: RPLIDAR A1, source: existing robot (Gate A)}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-release"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/package.xml", "**/*.html"]
     check:
-      - pattern: '(?P<found>rplidar_ros|RPLIDAR(?: A1)?)'
-        unless: 'legacy|Gate A|historical'
-        message: the 2.0 navigation LiDAR is the Hokuyo UST-10LX
+      - pattern: '(?P<found>\bHokuyo\b|\bUST-10LX\b)'
+        unless: 'supersed|dropped|legacy|historical'
+        message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); the Hokuyo UST-10LX was dropped
+      - pattern: '(?P<found>\bRPLIDAR A1(?:M8)?\b|\bA1M8\b)'
+        unless: 'legacy|Gate A|existing robot|historical|replaced'
+        message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); label RPLIDAR A1 material as legacy (Gate A)
     verification:
-      machine: RPLIDAR references without a legacy label
-      human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the UST-10LX driver}
+      machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label
+      human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the sllidar_ros2 driver with the RPLIDAR S3}
     owner: software-lead
+
+  - id: RELEASE-MILESTONES
+    title: OpenAMRobot 2.0 release milestones
+    kind: value
+    status: recorded
+    values:
+      - "20 November 2026: OpenAMRobot 2.0 pre-release (full readiness, frozen platform baseline, end of development cycle 2)"
+      - "23 November to 18 December 2026: physical integration, testing and acceptance"
+      - "18 December 2026: OpenAMRobot 2.0 final release"
+    unit: none
+    date: 2026-10-01
+    source: {document: P-03-rev18.3, item: item 12}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
+    check:
+      # The schema requires at least one check: a 2.0 final release given another date.
+      - pattern: '(?P<found>2\.0 final release[^\n]{0,20}?\b(?!18 December 2026)\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})'
+        unless: 'supersed|previous|earlier|historical'
+        message: the OpenAMRobot 2.0 final release is 18 December 2026
+    verification:
+      machine: text giving the 2.0 final release a date other than 18 December 2026
+      human: {reviewer: platform-lead, evidence: the release plan in P-03 rev18.3 item 12}
+    owner: platform-lead
 
   - id: LIFT-REMOVED
     title: Release 2.0 has no lift; the upper body is a fixed mast

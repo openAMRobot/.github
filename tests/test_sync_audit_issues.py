@@ -43,8 +43,14 @@ class Plan(unittest.TestCase):
     def test_owner_from_maintainers_map_not_from_csv(self):
         to_open, _ = self.run_plan([row("SW-901"), row("DOC-901", target="openamrobot-docs docs/a.md")])
         self.assertIn("Owner: @panthera-momagdii (software-lead)", to_open[0]["body"])
-        self.assertIn("Owner: docs-owner, no handle recorded", to_open[1]["body"])
+        self.assertIn("Owner: @anandgawai123456-glitch (docs-owner)", to_open[1]["body"])
         self.assertNotIn("Synthetic Person", to_open[0]["body"] + to_open[1]["body"])
+
+    def test_role_without_handle_mentions_nobody(self):
+        maintainers = {**MAINTAINERS, "roles": {**MAINTAINERS["roles"], "docs-owner": {"handle": None}}}
+        to_open, _ = sai.plan([row("DOC-901", target="openamrobot-docs docs/a.md")], [], maintainers,
+                              "audits", "2099-01-01-alignment-audit@abc1234")
+        self.assertIn("Owner: docs-owner, no handle recorded", to_open[0]["body"])
 
     def test_public_issue_is_an_extract(self):
         body = self.run_plan([row("SW-901")])[0][0]["body"]

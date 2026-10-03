@@ -14,13 +14,13 @@ roles:
     handle: panthera-momagdii
     covers: robot software, AI, interfaces, agent rules
   ci-owner:
-    handle:  # filled by the organization owner
+    handle: wikki26
     covers: CI/CD, reusable workflows, verify.sh, quality gates
   release-owner:
     handle: KARTHIKEYAN124
     covers: release, installation, manifest
   docs-owner:
-    handle:  # filled by the organization owner
+    handle: anandgawai123456-glitch
     covers: documentation site, public extracts
 
 # Owner of audit findings by ID prefix, used by the weekly alignment audit.
