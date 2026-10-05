@@ -44,17 +44,17 @@ schema_version: 1
 
 sources:
   P-03-rev18.2:
-    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.4 as the addendum in force)
+    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.5 as the addendum in force)
     evidence: >-
       Not held in any repository. Confirmed by the platform lead on 29 September 2026
       as the addendum in force at that date. Values that cite it were seeded from its citation on the
       documentation site (openamrobot-docs main e0f2aac,
       docs/reference/openamrobot-2/index.md lines 30-39) and from that confirmation.
   P-03-rev18.4:
-    title: P-03 Decision Addendum, revision 18.4 (the addendum in force)
+    title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.5:
-    title: P-03 Decision Addendum, revision 18.5, 6 October 2026
+    title: P-03 Decision Addendum, revision 18.5, 6 October 2026 (the addendum in force)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.3:
     title: P-03 Decision Addendum, revision 18.3 (earlier revision)

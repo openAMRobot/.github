@@ -253,6 +253,17 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "OpenAMRobot 2.0 final release: 30 November 2026.\n", "x"),
                          ["RELEASE-MILESTONES"])
 
+    def test_base_controller_io(self):
+        repo = "openamrobot-docs"
+        self.assertEqual(self.ids("docs/a.md", "Gate B: STM32H743 bench controller.\n", repo), ["BASE-CONTROLLER-IO"])
+        self.assertEqual(self.ids("docs/a.md", "Bench board: NUCLEO-H743ZI2.\n", repo), ["BASE-CONTROLLER-IO"])
+        for line in ("The STM32H743 is superseded by the STM32H723ZG.\n",
+                     "Legacy bench board: NUCLEO-H743ZI2.\n",
+                     "Historical note: the STM32H743 bench build.\n",
+                     "The NUCLEO-H743ZI2 was replaced by the NUCLEO-H723ZG.\n",
+                     "Base controller: STM32H723ZG on a NUCLEO-H723ZG bench board.\n"):
+            self.assertEqual(self.ids("docs/a.md", line, repo), [], line)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
