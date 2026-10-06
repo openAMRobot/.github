@@ -44,7 +44,7 @@ schema_version: 1
 
 sources:
   P-03-rev18.2:
-    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.5 as the addendum in force)
+    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.6 as the addendum in force)
     evidence: >-
       Not held in any repository. Confirmed by the platform lead on 29 September 2026
       as the addendum in force at that date. Values that cite it were seeded from its citation on the
@@ -53,8 +53,11 @@ sources:
   P-03-rev18.4:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.6:
+    title: P-03 Decision Addendum, revision 18.6 (the addendum in force)
+    evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.5:
-    title: P-03 Decision Addendum, revision 18.5, 6 October 2026 (the addendum in force)
+    title: P-03 Decision Addendum, revision 18.5, 6 October 2026 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.3:
     title: P-03 Decision Addendum, revision 18.3 (earlier revision)
@@ -599,12 +602,12 @@ decisions:
     kind: value
     status: recorded
     values:
-      - "20 November 2026: OpenAMRobot 2.0 pre-release (full readiness, frozen platform baseline, end of development cycle 2)"
+      - "20 November 2026: OpenAMRobot 2.0 pre-release, version v2.0.0-rc.1 (GitHub pre-release; full readiness, frozen platform baseline, end of development cycle 2)"
       - "23 November to 18 December 2026: physical integration, testing and acceptance"
-      - "18 December 2026: OpenAMRobot 2.0 final release"
+      - "18 December 2026: OpenAMRobot 2.0 final release, version v2.0.0"
     unit: none
     date: 2026-10-01
-    source: {document: P-03-rev18.3, item: item 12}
+    source: {document: P-03-rev18.6, item: item 12}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
     check:
       # The schema requires at least one check: a 2.0 final release given another date.
@@ -613,7 +616,7 @@ decisions:
         message: the OpenAMRobot 2.0 final release is 18 December 2026
     verification:
       machine: text giving the 2.0 final release a date other than 18 December 2026
-      human: {reviewer: platform-lead, evidence: the release plan in P-03 rev18.3 item 12}
+      human: {reviewer: platform-lead, evidence: the release plan and versions in P-03 rev18.6 item 12}
     owner: platform-lead
 
   - id: LIFT-REMOVED
