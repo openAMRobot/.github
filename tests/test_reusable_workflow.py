@@ -14,8 +14,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "repository-quality-reusable.yml"
-HARNESS_STEPS = ["Check out OpenAMRobot harness", "Prepare harness checks", "Decisions of record",
-                 "Public extract", "Shared agent rules"]
+HARNESS_STEPS = ["Check out OpenAMRobot harness", "Prepare harness checks", "Workflow policy",
+                 "Decisions of record", "Public extract", "Shared agent rules"]
 
 
 def load():
@@ -36,17 +36,22 @@ class HarnessModes(unittest.TestCase):
     def setUp(self):
         self.inputs, self.steps = load()
 
-    def run_step(self, name, code, enforce, event="pull_request", tool="check_decisions.py"):
+    def run_step(self, name, code, enforce, event="pull_request", tool="check_decisions.py",
+                 agents=True, exception=""):
         with tempfile.TemporaryDirectory() as tmp:
             tools = Path(tmp, ".openamrobot-harness", "tools")
             tools.mkdir(parents=True)
-            for t in ("check_decisions.py", "check_public_extract.py", "check_agent_rules.py"):
-                line = "CONTRADICTION a.md:1: X found 'a'" if t == "check_decisions.py" else "PUBLIC-EXTRACT a.md:1: price: 5"
+            for t in ("check_decisions.py", "check_public_extract.py", "check_agent_rules.py",
+                       "check_workflow_policy.py"):
+                line = ("CONTRADICTION a.md:1: X found 'a'" if t == "check_decisions.py"
+                        else "PUBLIC-EXTRACT a.md:1: price: 5")
                 (tools / t).write_text(FAKE.format(line=line, code=code if t == tool else 0), encoding="utf-8")
-            Path(tmp, "AGENTS.md").write_text("x\n", encoding="utf-8")
+            if agents:
+                Path(tmp, "AGENTS.md").write_text("x\n", encoding="utf-8")
             Path(tmp, "changed-files.txt").write_text("a.md\n", encoding="utf-8")
-            env = dict(os.environ, EVENT_NAME=event, REPOSITORY="demo", ENFORCE="true" if enforce else "false",
-                       RUNNER_TEMP=tmp)
+            env = dict(os.environ, EVENT_NAME=event, REPOSITORY="demo",
+                       ENFORCE="true" if enforce else "false",
+                       AGENTS_MD_EXCEPTION=exception, RUNNER_TEMP=tmp)
             proc = subprocess.run(["bash", "-c", self.steps[name]["run"]], cwd=tmp, env=env,
                                   capture_output=True, text=True)
             return proc.returncode, proc.stdout + proc.stderr
@@ -94,6 +99,15 @@ class HarnessModes(unittest.TestCase):
 
     def test_enforce_fails_on_shared_rules_drift(self):
         self.assertEqual(self.run_step("Shared agent rules", 1, enforce=True, tool="check_agent_rules.py")[0], 1)
+
+    def test_enforce_requires_agents_file_or_exception(self):
+        code, out = self.run_step("Shared agent rules", 0, enforce=True, agents=False)
+        self.assertEqual(code, 1, out)
+        self.assertIn("AGENTS.md is required", out)
+        code, out = self.run_step("Shared agent rules", 0, enforce=True, agents=False,
+                                   exception="legacy repository; migration tracked in #43")
+        self.assertEqual(code, 0, out)
+        self.assertIn("AGENTS.md exception", out)
 
     def test_clean_run_passes_in_both_modes(self):
         for enforce in (True, False):
