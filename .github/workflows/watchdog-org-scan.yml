@@ -14,7 +14,8 @@ name: Watchdog organization scan
 
 on:
   schedule:
-    - cron: "17 6 * * 4"
+    - cron: "0 14 * * 4"
+      timezone: "Europe/Berlin"
   workflow_dispatch:
 
 permissions:
