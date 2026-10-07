@@ -330,7 +330,8 @@ def apply(repository, plan_data, reports, blocked, token, run_url, run_date, cal
     dashboard_text = dashboard_body(reports, blocked, plan_data, run_url, run_date, links)
     dashboard = plan_data.get("dashboard")
     dashboard_payload = {"title": "[watchdog] Organization dashboard", "body": dashboard_text, "labels": ["watchdog-report"], "assignees": ["BotshareAI"]}
-    dashboard_hash = digest(dashboard_text)
+    dashboard_match = OBSERVATION_RE.search(dashboard_text)
+    dashboard_hash = dashboard_match.group(1) if dashboard_match else digest(dashboard_text)
     if not dashboard:
         create_issue(repository, dashboard_payload, token, call)
     elif last_observation(dashboard) != dashboard_hash:

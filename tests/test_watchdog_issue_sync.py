@@ -71,6 +71,11 @@ class PurePlan(unittest.TestCase):
         self.assertNotIn("user@example.com", body)
         self.assertNotIn("sk-ant-", body)
 
+    def test_dashboard_observation_is_stable_marker(self):
+        data = wis.plan([report()], [], {"COMPUTE": {"owner": "platform-lead"}}, MAINTAINERS, [], "run", "2026-10-08")
+        body = wis.dashboard_body([report()], [], data, "run", "2026-10-08", [])
+        self.assertIsNotNone(wis.OBSERVATION_RE.search(body))
+
 
 if __name__ == "__main__":
     unittest.main()
