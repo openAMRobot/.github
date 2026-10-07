@@ -1,6 +1,14 @@
 # Allowlist for tools/check_public_extract.py. Kept narrow on purpose: it admits
 # published contact and licensing information, not e-mail addresses in general.
 #
+# Policy: the canonical documentation policy is openamrobot-docs/docs/DOCUMENTATION_STANDARD.md
+# (https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_STANDARD.md).
+# This allowlist is an implementation detail of the public-extract check, not policy. It
+# separates intentional public content (organization contact, licensing information,
+# documentation) from accidental leakage (internal document links, private contact data,
+# prices, credentials). If this file and the standard disagree, the standard wins and this
+# file is corrected; a new kind of allowed content starts as a change to the standard.
+#
 # Entry fields: rule, match (regular expression for the whole matched text),
 # optional paths and repositories (globs), optional line (regular expression
 # the whole source line must contain), and reason. GitHub handles such as

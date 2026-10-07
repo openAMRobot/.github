@@ -34,6 +34,14 @@ is a rollout step (rollout/README.md), not a present fact.
 | Decision-register changes | (c) the entry's owner | The register's own schema validation is (a) |
 | Every `[human: ...]` rule in AGENTS.md | (c) | Not machine-checked |
 
+**Documentation policy.** The canonical documentation policy is
+[`openamrobot-docs/docs/DOCUMENTATION_STANDARD.md`](https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_STANDARD.md),
+owned by the documentation owner. `tools/check_public_extract.py` and
+`public-extract-allowlist.yaml` implement one part of it: they separate intentional public
+content (organization contact, licensing information, documentation) from accidental leakage
+(internal document links, private contact data, prices, credentials). The allowlist is an
+implementation detail, not policy; when it and the standard disagree, the standard wins.
+
 ## 1. Pin the harness
 
 Pinning is done per repository, in the order of rollout/README.md, not organization-wide:
