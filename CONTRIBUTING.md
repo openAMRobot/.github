@@ -44,7 +44,7 @@ are in [AGENTS.md](AGENTS.md).
 - Add a test that fails without your change. A test run that executes zero tests counts as a
   failure. If you must skip a test, name the tracking issue on the same line.
 - Run the repository's verification (`tools/verify.sh`, or the command in its README).
-- Approved technical decisions (values, limits, exclusions such as "no lift in 2.0", and
+- Approved technical decisions (values, limits, exclusions such as "no RS485 in 2.0", and
   distinctions such as "1700 mm is the assembled-height envelope, not a shoulder height") are
   in the register [decisions.yaml](decisions.yaml). Follow it. To change one, open a
   **contract change request** naming the entry; the process is "Changing a decision" in
