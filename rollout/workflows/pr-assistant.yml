@@ -61,6 +61,8 @@ jobs:
           # Only files present at the PR head: the decisions scan reads their content.
           jq -r '.[] | select(.status != "removed") | .filename' files.json | sort -u > changed_existing.txt
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/reviews" --paginate > reviews.json
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/commits" --paginate |
+            jq -r '.[].commit.message' > commit-messages.txt
           echo "changed (all): $(wc -l < changed_all.txt); present at head: $(wc -l < changed_existing.txt)"
 
       - name: Decisions of record on the diff
@@ -85,6 +87,6 @@ jobs:
         run: |
           python3 harness/tools/check_pr_evidence.py --event "$GITHUB_EVENT_PATH" \
             --changed-files changed_all.txt --maintainers harness/maintainers.yaml \
-            --reviews reviews.json --root pr-head --decisions-report decisions.txt \
+            --reviews reviews.json --commit-messages commit-messages.txt --root pr-head --decisions-report decisions.txt \
             --decisions-status decisions-status.json \
             --output "$GITHUB_STEP_SUMMARY" --post
