@@ -145,5 +145,85 @@ class SummaryWriteFailure(unittest.TestCase):
         self.assertIn("exit 7; summary.json not written", result)
 
 
+# A fake ROS install: setup.bash puts a fake rosdep on PATH. The fake needs an initialised
+# rosdep cache under $HOME/.ros/rosdep (as the real one does) and fails on any package.xml
+# that names an unresolvable key; it logs every path it is asked to scan.
+FAKE_ROSDEP = r"""#!/usr/bin/env bash
+log="$(dirname "$0")/../calls.log"
+[ "$1" = check ] || exit 2
+shift
+if [ ! -f "$HOME/.ros/rosdep/sources.cache" ]; then
+  echo "ERROR: your rosdep installation has not been initialized yet"; exit 1
+fi
+paths=()
+while [ $# -gt 0 ]; do
+  if [ "$1" = --from-paths ]; then
+    shift
+    while [ $# -gt 0 ] && [ "${1#--}" = "$1" ]; do paths+=("$1"); shift; done
+  else shift; fi
+done
+for p in "${paths[@]}"; do
+  echo "scan $p" >> "$log"
+  if grep -rl --include=package.xml unresolvable_generated_key "$p" >/dev/null 2>&1; then
+    echo "ERROR: Cannot locate rosdep definition for [unresolvable_generated_key]"; exit 1
+  fi
+done
+echo "All system dependencies have been satisfied"
+"""
+PACKAGE_XML = ('<?xml version="1.0"?>\n<package format="3"><name>{name}</name><version>0.0.0</version>'
+               '<description>d</description><maintainer email="m@example.invalid">m</maintainer>'
+               '<license>MIT</license>{deps}</package>\n')
+ROS_ENV = 'VERIFY_BUILD="true"\nVERIFY_TEST="python3 -m unittest discover -s tests -v"\n'
+
+
+class RosdepState(unittest.TestCase):
+    """CI owner review (6 October): rosdep state in the clean HOME; generated folders not scanned."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.base = Path(tmp.name)
+        ros = self.base / "ros"
+        (ros / "bin").mkdir(parents=True)
+        (ros / "bin" / "rosdep").write_text(FAKE_ROSDEP, encoding="utf-8")
+        (ros / "bin" / "rosdep").chmod(0o755)
+        (ros / "setup.bash").write_text(f'export PATH="{ros}/bin:$PATH"\n', encoding="utf-8")
+        self.ros = ros
+        self.home = self.base / "home"
+        self.home.mkdir()
+
+    def init_caller_rosdep(self):
+        cache = self.home / ".ros" / "rosdep"
+        cache.mkdir(parents=True)
+        (cache / "sources.cache").write_text("prepared by the environment\n", encoding="utf-8")
+
+    def run_verify(self, files):
+        files = {"tests/test_a.py": PASSING, ".openamrobot/verify.env": ROS_ENV,
+                 "ros2/src/pkg_a/package.xml": PACKAGE_XML.format(name="pkg_a", deps="<depend>rclpy</depend>"),
+                 **files}
+        tmp, root = make_repo(files)
+        self.addCleanup(tmp.cleanup)
+        proc = subprocess.run(["bash", str(VERIFY), str(root)], capture_output=True, text=True, timeout=120,
+                              env={"PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": str(self.home),
+                                   "VERIFY_ROS_SETUP": str(self.ros / "setup.bash")})
+        calls = self.ros / "calls.log"
+        scanned = calls.read_text().split("\n") if calls.exists() else []
+        return proc.returncode, proc.stdout + proc.stderr, root, scanned
+
+    def test_caller_rosdep_cache_is_available_in_clean_home(self):
+        self.init_caller_rosdep()
+        code, out, _, _ = self.run_verify({})
+        self.assertEqual(code, 0, out)
+        self.assertIn("All system dependencies have been satisfied", out)
+        self.assertIn("PASS: install", out)
+        self.assertTrue((self.home / ".ros" / "rosdep" / "sources.cache").is_file())
+
+    def test_without_rosdep_state_the_install_stage_fails(self):
+        code, out, _, _ = self.run_verify({})
+        self.assertNotEqual(code, 0, out)
+        self.assertIn("not been initialized", out)
+        self.assertIn("FAIL: install", out)
+
+
 if __name__ == "__main__":
     unittest.main()

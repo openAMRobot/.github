@@ -18,6 +18,7 @@
 # parsed from the delegated output.
 # Per-repository overrides live in .openamrobot/verify.env (VERIFY_INSTALL,
 # VERIFY_BUILD, VERIFY_LINT, VERIFY_TEST, VERIFY_ROS_DISTRO); each is a shell command.
+# VERIFY_ROS_SETUP overrides the ROS setup file (default /opt/ros/$VERIFY_ROS_DISTRO/setup.bash).
 set -eo pipefail
 
 root=$(cd -- "${1:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}" && pwd)
@@ -141,19 +142,30 @@ trap finish EXIT
 
 pass() { stages+=("$stage"); echo "PASS: $stage"; }
 
-# Never inherit overlays, Python paths or prefixes from the caller.
+# Never inherit overlays, Python paths or prefixes from the caller. The only caller
+# state passed in is rosdep's: ROSDEP_SOURCE_PATH when set, and a copy of the caller's
+# rosdep sources list and cache (below).
 clean_bash() {
   env -i HOME="$run/home" PATH="${VERIFY_PATH:-/usr/local/bin:/usr/bin:/bin}" LANG=C.UTF-8 \
     PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1 CI="${CI:-}" \
+    ${ROSDEP_SOURCE_PATH:+"ROSDEP_SOURCE_PATH=$ROSDEP_SOURCE_PATH"} \
     bash --noprofile --norc -eo pipefail "$@"
 }
 mkdir -p "$run/home"
+# rosdep keeps its user sources list and cache under ${ROS_HOME:-$HOME/.ros}/rosdep. The
+# clean HOME would hide the state the environment prepared ("rosdep not initialized"), so
+# copy it in; a copy keeps the caller's cache unchanged by the run.
+caller_rosdep="${ROS_HOME:-${HOME:-/nonexistent}/.ros}/rosdep"
+if [ -d "$caller_rosdep" ]; then
+  mkdir -p "$run/home/.ros" && cp -a "$caller_rosdep" "$run/home/.ros/rosdep"
+fi
 
 if [ -f "$root/.openamrobot/verify.env" ]; then
   # shellcheck disable=SC1091
   source "$root/.openamrobot/verify.env"
 fi
 distro=${VERIFY_ROS_DISTRO:-jazzy}
+ros_setup=${VERIFY_ROS_SETUP:-/opt/ros/$distro/setup.bash}
 
 ros=false; node=false; python=false
 if find "$root" -name package.xml -not -path '*/node_modules/*' -not -path '*/.verification/*' \
@@ -162,7 +174,7 @@ if find "$root" -name package.xml -not -path '*/node_modules/*' -not -path '*/.v
 if [ -f "$root/pyproject.toml" ] || [ -f "$root/setup.py" ] || [ -d "$root/tests" ]; then python=true; fi
 echo "Detected: ros=$ros node=$node python=$python"
 command -v git python3 >/dev/null
-if $ros; then test -f "/opt/ros/$distro/setup.bash"; fi
+if $ros; then test -f "$ros_setup"; fi
 if $node; then command -v npm >/dev/null; fi
 if ! $ros && ! $node && ! $python && [ -z "${VERIFY_TEST:-}" ]; then
   echo "FAIL: no buildable or testable project detected; set VERIFY_TEST in .openamrobot/verify.env"
@@ -174,7 +186,7 @@ stage=install
 if [ -n "${VERIFY_INSTALL:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_INSTALL"
 elif $node; then clean_bash -c "cd '$root' && npm ci"
 elif $ros; then
-  clean_bash -c "source /opt/ros/$distro/setup.bash && rosdep check --from-paths '$root' --ignore-src --rosdistro $distro"
+  clean_bash -c "source '$ros_setup' && rosdep check --from-paths '$root' --ignore-src --rosdistro $distro"
 fi
 pass
 
@@ -182,7 +194,7 @@ stage=build
 if [ -n "${VERIFY_BUILD:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_BUILD"
 elif $ros; then
   mkdir -p "$run/ws/src" && cp -a "$root/." "$run/ws/src/repo" && rm -rf "$run/ws/src/repo/.verification"
-  clean_bash -c "source /opt/ros/$distro/setup.bash && cd '$run/ws' && colcon build --event-handlers console_direct+"
+  clean_bash -c "source '$ros_setup' && cd '$run/ws' && colcon build --event-handlers console_direct+"
 elif $node; then clean_bash -c "cd '$root' && npm run build --if-present"
 fi
 pass
@@ -219,7 +231,7 @@ log="$run/test.log"
 set +e
 if [ -n "${VERIFY_TEST:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_TEST" 2>&1 | tee "$log"
 elif $ros; then
-  clean_bash -c "source /opt/ros/$distro/setup.bash && cd '$run/ws' && colcon test --event-handlers console_direct+ && colcon test-result --verbose" 2>&1 | tee "$log"
+  clean_bash -c "source '$ros_setup' && cd '$run/ws' && colcon test --event-handlers console_direct+ && colcon test-result --verbose" 2>&1 | tee "$log"
 elif $node; then clean_bash -c "cd '$root' && npm test" 2>&1 | tee "$log"
 elif [ -f "$root/pyproject.toml" ] && python3 -c 'import pytest' 2>/dev/null; then
   clean_bash -c "cd '$root' && python3 -m pytest -rs" 2>&1 | tee "$log"

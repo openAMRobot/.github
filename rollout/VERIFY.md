@@ -26,7 +26,10 @@ skip rules to a delegated run; those remain the delegated script's responsibilit
 `counts_parsed: false` shows when no count could be read.
 
 Every stage runs under `env -i` with a fresh `HOME`, as in the interfaces script, so no overlay,
-Python path or user package leaks in. Output goes to `.verification/run.*/`:
+Python path or user package leaks in. The one exception is rosdep's prepared state: the caller's
+`${ROS_HOME:-$HOME/.ros}/rosdep` (user sources list and cache) is copied into the fresh `HOME`, and
+`ROSDEP_SOURCE_PATH` is passed through when set, so `rosdep check` does not report an
+uninitialised rosdep. Output goes to `.verification/run.*/`:
 `verification.log`, `test.log`, `result.txt` (PASS, or FAIL with the stage) and `summary.json`
 (result, failed stage, stages passed, test totals, head and base SHA).
 
@@ -57,7 +60,8 @@ record adds them (rollout/README.md, release section).
 ## Overrides
 
 `.openamrobot/verify.env` in the repository may set shell commands `VERIFY_INSTALL`,
-`VERIFY_BUILD`, `VERIFY_LINT`, `VERIFY_TEST`, and `VERIFY_ROS_DISTRO` (default `jazzy`).
+`VERIFY_BUILD`, `VERIFY_LINT`, `VERIFY_TEST`, and `VERIFY_ROS_DISTRO` (default `jazzy`);
+`VERIFY_ROS_SETUP` replaces the ROS setup file (default `/opt/ros/$VERIFY_ROS_DISTRO/setup.bash`).
 Overrides replace a stage's command; they do not switch off the zero-tests or skip rules.
 Example for openamrobot-ui, whose web app lives in `web/`:
 
