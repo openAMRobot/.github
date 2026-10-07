@@ -697,8 +697,14 @@ decisions:
       - pattern: '(?P<found>2\.0 final release[^\n]{0,20}?\b(?!18 December 2026)\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})'
         unless: 'supersed|previous|earlier|historical'
         message: the OpenAMRobot 2.0 final release is 18 December 2026
+      - pattern: '(?P<found>\bv0\.2\b[^\n]{0,40}\brelease\b|\brelease\b[^\n]{0,20}\bv0\.2\b|\breadiness declaration for v0\.2\b)'
+        unless: 'supersed|historical|earlier|previous'
+        message: there is no v0.2 release; development cycle 2 ends 20 November 2026 with v2.0.0-rc.1, and v2.0.0 follows on 18 December 2026
+      - pattern: '(?P<found>\bcycle\b[^\n]{0,60}\b13 November(?: 2026)?\b|\b13 November(?: 2026)?\b[^\n]{0,60}\bcycle\b)'
+        unless: 'supersed|historical|earlier|previous'
+        message: development cycle 2 ends 20 November 2026 with v2.0.0-rc.1, not 13 November
     verification:
-      machine: text giving the 2.0 final release a date other than 18 December 2026
+      machine: text giving the 2.0 final release a date other than 18 December 2026; a v0.2 release or a development cycle ending 13 November 2026 without a superseded label
       human: {reviewer: platform-lead, evidence: the release plan and versions in P-03 rev18.6 item 12}
     owner: platform-lead
 

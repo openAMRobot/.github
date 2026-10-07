@@ -365,6 +365,17 @@ class RealRegister(unittest.TestCase):
                      "Gemini 336L about 243 mm above the floor, tilted 10 degrees up (positions 5, 10, 15).\n"):
             self.assertEqual(self.ids("docs/a.md", text, "openamrobot-docs"), [], text)
 
+    def test_release_milestones_no_v0_2_or_13_november(self):
+        for text in ("v0.2 is the first release built from the harness.\n",
+                     "Readiness declaration for v0.2.\n",
+                     "Development cycle 2 ends 13 November 2026.\n",
+                     "The 14 September to 13 November cycle.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["RELEASE-MILESTONES"], text)
+        for text in ("Development cycle 2 ends 20 November 2026 with v2.0.0-rc.1.\n",
+                     "The v0.2 release plan is superseded by v2.0.0-rc.1.\n",
+                     "The cycle originally ended 13 November (superseded by RELEASE-MILESTONES).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
