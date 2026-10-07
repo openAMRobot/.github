@@ -348,6 +348,14 @@ class RealRegister(unittest.TestCase):
                      "The battery was centred at 25 percent (superseded by P-03 rev18.7 item 9).\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_base_controller_io_rev18_7(self):
+        for text in ("Two MB7040 sensors, one per I2C bus.\n", "micro-ROS over USB to the Jetson.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["BASE-CONTROLLER-IO"], text)
+        for text in ("Two MaxBotix MB7060 sensors, each on a dedicated STM32 UART at 9600 8N1.\n",
+                     "MCU to Jetson over Ethernet, micro-ROS over UDP; micro-ROS over USB on the bench only.\n",
+                     "MB7040 on I2C is superseded.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])

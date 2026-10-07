@@ -406,23 +406,30 @@ decisions:
     values:
       - Base controller STM32H723ZG on NUCLEO-H723ZG
       - TF-Luna on UART, one per UART
-      - MB7040 one per I2C bus
+      - two MaxBotix MB7060 serial sensors, each on one dedicated STM32 UART, 9600 8N1; no sensor I2C off the controller board
       - IMU on a dedicated SPI, Mode 0
-      - CAN1 traction only, CAN2 BMS, CAN3 upper-body actuators
-      - micro-ROS over Ethernet
+      - CAN1 traction only, CAN2 BMS, CAN3 reserved for upper-body auxiliary actuators (CANopen, no safety function)
+      - MCU to Jetson over Ethernet, micro-ROS over UDP; USB for the bench only
     unit: none
     date: 2026-10-06
-    source: {document: P-03-rev18.5, item: item 14}
+    source: {document: P-03-rev18.7, item: item 14}
     supersedes:
       - {value: STM32H743 on NUCLEO-H743ZI2, source: P-00-rev18.1 (Gate B bench board)}
+      - {value: MB7040 one per I2C bus, source: P-03-rev18.5 item 14}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>NUCLEO-H743ZI2|STM32H743)'
         unless: 'supersed|legacy|historical|replaced'
         message: the base controller is the STM32H723ZG on the NUCLEO-H723ZG; label STM32H743 / NUCLEO-H743ZI2 material as superseded
+      - pattern: '(?P<found>\bMB7040\b)'
+        unless: 'supersed|legacy|historical|replaced'
+        message: the ultrasonic sensors are two MaxBotix MB7060 on dedicated STM32 UARTs at 9600 8N1; no sensor I2C (P-03 rev18.7 item 14)
+      - pattern: '(?P<found>\bmicro-?ROS\b[^\n]{0,30}\bover (?:USB|serial)\b)'
+        unless: 'bench|legacy|Gate A|Teensy|supersed|historical'
+        message: micro-ROS runs over UDP on Ethernet between MCU and Jetson; USB is for the bench only (P-03 rev18.7 item 14)
     verification:
-      machine: NUCLEO-H743ZI2 or STM32H743 without a superseded, legacy, historical or replaced label
-      human: {reviewer: platform-lead, evidence: P-03 rev18.5 item 14 and the MCU I/O allocation in openamr-platform-hw}
+      machine: NUCLEO-H743ZI2 or STM32H743 without a superseded, legacy, historical or replaced label; MB7040 without such a label; micro-ROS over USB or serial outside the bench or Gate A
+      human: {reviewer: platform-lead, evidence: P-03 rev18.7 item 14 and the MCU I/O allocation in openamr-platform-hw}
     owner: platform-lead
 
   - id: IMU-TOPIC-OWNERSHIP
