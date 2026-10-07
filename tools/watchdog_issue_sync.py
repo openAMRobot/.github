@@ -38,6 +38,14 @@ FINDING_SEVERITY = {
     "shared-rules": "major",
     "workflow-policy": "major",
 }
+LABEL_METADATA = {
+    "watchdog-finding": ("1f6feb", "A deterministic Watchdog finding"),
+    "watchdog-review": ("8250df", "A decision-register review reminder"),
+    "watchdog-report": ("5319e7", "The organization Watchdog dashboard"),
+    "blocker": ("b60205", "Blocks a complete or safe result"),
+    "major": ("d93f0b", "Requires owner action"),
+    "review": ("fbca04", "Requires human review"),
+}
 OWNER_BY_CHECK = {
     "public-extract": "docs-owner",
     "shared-rules": "software-lead",
@@ -318,8 +326,24 @@ def create_issue(repository, payload, token, call=api):
             return call("POST", url, token, fallback)
 
 
+def ensure_labels(repository, labels, token, call=api):
+    """Create the small controlled label vocabulary if an owner has not created it yet."""
+    for name in sorted(set(labels)):
+        color, description = LABEL_METADATA.get(name, ("6e7781", "OpenAMRobot Watchdog label"))
+        try:
+            call("POST", f"https://api.github.com/repos/{repository}/labels", token,
+                 {"name": name, "color": color, "description": description})
+        except urllib.error.HTTPError as exc:
+            if exc.code != 422:  # GitHub returns 422 when the label already exists.
+                raise
+
+
 def apply(repository, plan_data, reports, blocked, token, run_url, run_date, call=api):
     links = []
+    labels = ["watchdog-report"]
+    for item in plan_data["open"]:
+        labels.extend(item["payload"]["labels"])
+    ensure_labels(repository, labels, token, call)
     for item in plan_data["open"]:
         created = create_issue(repository, item["payload"], token, call)
         links.append((item["payload"]["title"], created.get("html_url", "")))

@@ -115,7 +115,7 @@ Authentication mode must be chosen before activation. The examples use `ANTHROPI
 | `harness` | harness mistake form, monthly retro |
 | `good first issue` | good first issue form, CONTRIBUTING.md |
 | `contract-change` | contract change request form |
-| `audit-finding`, `blocker`, `major` | weekly audit issue sync |
+| `watchdog-finding`, `watchdog-review`, `watchdog-report`, `blocker`, `major`, `review` | deterministic Watchdog issue sync; the Action creates missing labels in the harness repository |\n| `audit-finding`, `blocker`, `major` | legacy weekly audit issue sync |
 | `triage`, `bug` | existing forms |
 | `area:docs`, `area:navigation`, `area:interfaces`, `area:manipulation`, `area:ui`, `area:release`, `area:ci` | good first issue triage |
 
