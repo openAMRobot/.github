@@ -68,7 +68,7 @@ starts step (c).
 The three App secret pairs may point to one GitHub App. The PR assistant uses only
 `GITHUB_TOKEN`. AI workflow activation is tracked separately in [issue #43](https://github.com/openAMRobot/.github/issues/43) and remains disabled until every checklist item is evidenced.
 
-Authentication mode must be chosen before activation. The examples use `ANTHROPIC_API_KEY`, so they do not request `id-token: write`. If the organization chooses Anthropic OIDC federation instead, remove the API-key secret and add `id-token: write` only to the approved workflow after the Anthropic trust configuration and a manual disposable-branch test are recorded in issue #43. Do not configure both modes by accident.
+Authentication mode must be chosen before activation. The examples use `ANTHROPIC_API_KEY` for Anthropic API authentication and retain `id-token: write` because the official Claude GitHub App path uses GitHub OIDC for the action's default GitHub token. If the organization chooses Anthropic Workload Identity Federation instead, remove the API-key secret, add the federation identifiers required by Anthropic, and keep `id-token: write`; do not configure both Anthropic credential modes by accident. Record the selected mode and the manual disposable-branch test in issue #43.
 
 ## 3. GitHub Apps
 
