@@ -98,9 +98,11 @@ sources:
     title: 2.0 docking work package
     evidence: plan-set work package, not held in any repository
 
-# Never scanned: this register, checker fixtures and change logs.
+# Never scanned: this register, checker fixtures, change logs and the Watchdog guide
+# (WATCHDOG.md quotes findings and its accepted-words table is generated from this register).
 exclude:
   - decisions.yaml
+  - WATCHDOG.md
   - tests/fixtures/**
   - "**/CHANGELOG.md"
   - agent-runs.md

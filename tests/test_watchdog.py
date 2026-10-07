@@ -109,5 +109,46 @@ class Watchdog(unittest.TestCase):
             self.assertEqual(watchdog.total(report), 0)
 
 
+class Guide(unittest.TestCase):
+    """WATCHDOG.md stays in step with the register and the checks."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = (ROOT / "WATCHDOG.md").read_text(encoding="utf-8")
+
+    def test_accepted_words_table_matches_register(self):
+        code, out = run("--accepted-words")
+        self.assertEqual(code, 0)
+        section = self.text.split("<!-- BEGIN ACCEPTED WORDS -->\n", 1)[1].split("<!-- END ACCEPTED WORDS -->", 1)[0]
+        self.assertEqual(section, out, "regenerate with: python3 tools/watchdog.py --accepted-words")
+
+    def test_every_decision_is_listed(self):
+        for d in watchdog.cd.load_decisions(ROOT / "decisions.yaml"):
+            self.assertIn(f"| {d['id']} | {d['status']} |", self.text)
+
+    def test_link_anchors_used_by_findings_exist(self):
+        for anchor in ("decisions-of-record", "public-extract", "shared-agent-rules", "workflow-policy",
+                       "pr-evidence", "verify", "decision-freshness"):
+            self.assertIn(f'<a id="{anchor}"></a>', self.text)
+
+    def test_plain_words(self):
+        self.assertEqual(watchdog.plain_words(r"supersed|\bnot\b|rev ?18\.[1-6]\b|3\.0"),
+                         ["supersed (superseded, supersedes)", "not", "rev 18.1 to rev 18.6", "3.0"])
+        self.assertEqual(watchdog.split_alternatives(r"a(?:b|c)|[|]|d"), ["a(?:b|c)", "[|]", "d"])
+
+    def test_guide_is_excluded_only_at_the_repository_root(self):
+        decisions = watchdog.cd.load_decisions(ROOT / "decisions.yaml")
+        with tempfile.TemporaryDirectory() as tmp:
+            for name in ("WATCHDOG.md", "docs/WATCHDOG.md"):
+                Path(tmp, name).parent.mkdir(parents=True, exist_ok=True)
+                Path(tmp, name).write_text("Compute is a Raspberry Pi 5.\n", encoding="utf-8")
+            found = watchdog.cd.scan(tmp, decisions, ".github")[0]
+            self.assertEqual(sorted(f["file"] for f in found), ["docs/WATCHDOG.md"])
+
+    def test_guide_is_linked(self):
+        for name in ("README.md", "CONTRIBUTING.md"):
+            self.assertIn("WATCHDOG.md", (ROOT / name).read_text(encoding="utf-8"), name)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -47,6 +47,7 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 ## Contribution
 
 - [Contributing](CONTRIBUTING.md)
+- [The OpenAMRobot Watchdog](WATCHDOG.md): what the automatic checks look at and how to fix a finding
 - [Developer Certificate of Origin](DCO.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributors](CONTRIBUTORS.md)

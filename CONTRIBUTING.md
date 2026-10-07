@@ -67,6 +67,9 @@ the repository's ruleset requires them ([rollout status](rollout/workflows/SETUP
 check proves that a file is consistent with the register, not that a design is mechanically,
 electrically or functionally safe; a named reviewer checks that.
 
+The [Watchdog guide](WATCHDOG.md) explains every check, how to read a finding, how to fix it
+and how to run all checks locally with one command.
+
 | Check | Fails when |
 |---|---|
 | repository-quality | governance files missing, merge markers, invalid JSON or XML |

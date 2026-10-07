@@ -17,6 +17,7 @@ With --report-only, findings never change the exit status (0); usage errors stil
 """
 import argparse
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -88,6 +89,72 @@ def run(root, repository, harness=HARNESS, today=None):
     }
     return {"repository": repository, "results": results, "allowed": allowed,
             "freshness": freshness(register, today), "unscanned": stats.get("unscanned", 0)}
+
+
+SPECIAL_WORDS = {
+    r"rev ?18\.[1-6]": "rev 18.1 to rev 18.6",
+    r"RS-?485": "RS485 or RS-485",
+    r"no RS-?485": "no RS485",
+    r"not (?:the )?shoulder": "not shoulder, not the shoulder",
+    r"(?<!un)filter": "filter (not unfiltered)",
+    r"older revisions?": "older revision(s)",
+    "supersed": "supersed (superseded, supersedes)",
+    "replace": "replace (replaced, replacement)",
+}
+
+
+def split_alternatives(pattern):
+    """Split a regular expression on its top-level '|' (outside groups and classes)."""
+    parts, depth, cls, start, i = [], 0, False, 0, 0
+    while i < len(pattern):
+        ch = pattern[i]
+        if ch == "\\":
+            i += 2
+            continue
+        if cls:
+            cls = ch != "]"
+        elif ch == "[":
+            cls = True
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "|" and depth == 0:
+            parts.append(pattern[start:i])
+            start = i + 1
+        i += 1
+    parts.append(pattern[start:])
+    return parts
+
+
+def plain_words(pattern):
+    """The words an `unless` pattern accepts, in plain text (case does not matter)."""
+    words = []
+    for alt in split_alternatives(pattern):
+        raw = alt.replace("\\b", "")
+        text = SPECIAL_WORDS.get(raw, raw.replace("\\.", ".")).strip()
+        if text and text not in words:
+            words.append(text)
+    return words
+
+
+def accepted_words_table(decisions):
+    """Markdown table: per decision, the labels each check accepts on the same line."""
+    rows = ["| Decision | Status | Accepted on the same line (any one; case does not matter) |", "|---|---|---|"]
+    for d in decisions:
+        if d["status"] == "open":
+            rows.append(f"| {d['id']} | open | not scanned until the decision is taken |")
+            continue
+        cells = []
+        for check in d["_checks"]:
+            words = plain_words(check["unless"]) if check.get("unless") else []
+            # The finding's Why line carries the same message, so a reader can find the row.
+            why = re.sub(r"\s*\([^)]*\)$", "", check.get("message") or "").strip()
+            label = f"*{why}*: " if len(d["_checks"]) > 1 and why else ""
+            cells.append(label + (", ".join(f"`{w}`" for w in words) if words
+                                  else "no label; correct the line or add a decision-allow marker"))
+        rows.append(f"| {d['id']} | {d['status']} | " + "<br>".join(cells).replace("|", "\\|") + " |")
+    return rows
 
 
 def total(report):
@@ -164,7 +231,17 @@ def main(argv=None):
     p.add_argument("--report-only", action="store_true", help="never fail on findings")
     p.add_argument("--json", type=Path, help="write the full result as JSON")
     p.add_argument("--markdown", type=Path, help="append a per-repository Markdown summary to this file")
+    p.add_argument("--accepted-words", action="store_true",
+                   help="print the labels each decision accepts (the table in WATCHDOG.md) and exit")
     a = p.parse_args(argv)
+    if a.accepted_words:
+        try:
+            decisions = cd.load_decisions(Path(a.harness, "decisions.yaml"), Path(a.harness, "maintainers.yaml"))
+        except cd.DecisionError as exc:
+            print(f"INVALID configuration: {exc}", file=sys.stderr)
+            return 2
+        print("\n".join(accepted_words_table(decisions)))
+        return 0
     if not a.root.is_dir():
         print(f"root is not a directory: {a.root}", file=sys.stderr)
         return 2
