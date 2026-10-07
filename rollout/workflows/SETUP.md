@@ -66,7 +66,7 @@ starts step (c).
 | `RETRO_APP_ID`, `RETRO_APP_PRIVATE_KEY` | .github | monthly retro |
 
 The three App secret pairs may point to one GitHub App. The PR assistant uses only
-`GITHUB_TOKEN`.
+`GITHUB_TOKEN`. AI workflow activation is tracked separately in [issue #43](https://github.com/openAMRobot/.github/issues/43) and remains disabled until every checklist item is evidenced.
 
 ## 3. GitHub Apps
 
@@ -93,7 +93,7 @@ The three App secret pairs may point to one GitHub App. The PR assistant uses on
   - `actions/create-github-app-token` v3.2.0
   - `anthropics/claude-code-action` v1.0.236
 
-  The live reusable workflow still uses `actions/checkout@v4` and `actions/upload-artifact@v4`.
+  The live workflows in this repository are pinned to full commit SHAs; the workflow-policy check fails on any unpinned external action or unresolved `<HARNESS_SHA>` in `.github/workflows/`. Examples under `rollout/` are exempt until copied.
 - Require approval for workflows from first-time fork contributors.
 
 ## 5. Labels (every repository)
@@ -138,6 +138,15 @@ approval. The second approval stays a human gate (c) that `check_pr_evidence.py`
 
 Single-maintainer repositories keep required checks. The CODEOWNERS waiver follows section 8
 of the Engineering Quality Standard.
+
+
+**Shared rules and exceptions.** With `harness_checks: true`, a repository must contain
+`AGENTS.md`. A repository without it may pass only by supplying the reusable-workflow input
+`agents_md_exception` with a non-empty human-readable reason; the reason is written to the
+job summary. Warn-only mode reports the missing file but never turns it into a silent pass.
+For platform-lead-authored PRs, apply the approval policy in `GOVERNANCE.md` and
+`maintainers.yaml`: software-lead approval plus every scoped-owner approval; the author's
+reconciliation comment is not an approval.
 
 ## 7. Maintainers map
 
