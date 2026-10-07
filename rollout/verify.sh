@@ -206,7 +206,20 @@ pass
 stage=build
 if [ -n "${VERIFY_BUILD:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_BUILD"
 elif $ros; then
-  mkdir -p "$run/ws/src" && cp -a "$root/." "$run/ws/src/repo" && rm -rf "$run/ws/src/repo/.verification"
+  # The run directory lives under root; archive selected source so the copy cannot
+  # recurse into .verification/run.* or carry generated workspaces into colcon.
+  mkdir -p "$run/ws/src/repo"
+  tar -C "$root" \
+    --exclude=.git \
+    --exclude=.verification \
+    --exclude=node_modules \
+    --exclude=build \
+    --exclude=install \
+    --exclude=log \
+    --exclude='*/build' \
+    --exclude='*/install' \
+    --exclude='*/log' \
+    -cf - . | tar -C "$run/ws/src/repo" -xf -
   clean_bash -c "source '$ros_setup' && cd '$run/ws' && colcon build --event-handlers console_direct+"
 elif $node; then clean_bash -c "cd '$root' && npm run build --if-present"
 fi
