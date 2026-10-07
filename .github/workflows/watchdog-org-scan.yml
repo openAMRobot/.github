@@ -3,6 +3,14 @@ name: Watchdog organization scan
 # Deterministic organization scan. Product repositories are cloned read-only. The only write
 # is a central, deduplicated issue control surface in openAMRobot/.github. The workflow never
 # edits decisions.yaml, pushes a branch, opens a PR, or runs an AI agent. See WATCHDOG.md.
+#
+# Issue mode: the repository variable WATCHDOG_ISSUE_MODE (Settings > Secrets and variables >
+# Actions > Variables) selects what the sync step writes.
+#   unset or "dashboard"  only the single "[watchdog] Organization dashboard" issue, updated in
+#                         place; it lists every active group and every scan-blocked repository.
+#   "groups"              also one deduplicated issue per active group (finding, decision review,
+#                         blocked scan), as described in WATCHDOG.md.
+# The platform lead decides when to switch to "groups" (WATCHDOG.md, "Watchdog issue mode").
 
 on:
   schedule:
@@ -116,6 +124,8 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Empty when the variable is unset; the tool then uses dashboard mode.
+          WATCHDOG_ISSUE_MODE: ${{ vars.WATCHDOG_ISSUE_MODE }}
           HARNESS: harness
           WORK: ${{ runner.temp }}/watchdog
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

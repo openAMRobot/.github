@@ -6,6 +6,14 @@ the harness repository: it creates or updates deduplicated issues, assigns the p
 when possible, and keeps a small dashboard issue. It never edits decisions.yaml, pushes a
 branch, opens a pull request, or closes a human-owned issue.
 
+Issue mode (repository variable WATCHDOG_ISSUE_MODE, or --mode):
+  dashboard  (default when unset) create or update only the single
+             "[watchdog] Organization dashboard" issue, which lists every active group with
+             repository, check, group, finding count, owner and file links;
+  groups     additionally open and maintain one deduplicated issue per active group.
+Scan-blocked repositories always appear on the dashboard in both modes. The platform lead
+decides when to switch to groups (WATCHDOG.md, "Watchdog issue mode").
+
 The register remains human-approved. A decision-review issue tells the platform lead when an
 entry is due; the owner then updates the source document first and uses a normal reviewed PR
 to update decisions.yaml and affected repositories.
@@ -52,6 +60,20 @@ OWNER_BY_CHECK = {
     "shared-rules": "software-lead",
     "workflow-policy": "ci-owner",
 }
+MODES = ("dashboard", "groups")
+DEFAULT_MODE = "dashboard"
+DASHBOARD_TITLE = "[watchdog] Organization dashboard"
+DASHBOARD_FILE_LINKS = 5
+
+
+def resolve_mode(value):
+    """WATCHDOG_ISSUE_MODE: empty or unset means dashboard; anything else must be a known mode."""
+    mode = (value or "").strip().lower() or DEFAULT_MODE
+    if mode not in MODES:
+        raise ValueError(f"WATCHDOG_ISSUE_MODE must be one of {', '.join(MODES)}, not {value!r}")
+    return mode
+
+
 REDACT_URL = re.compile(r"https?://[^\s`|]+", re.IGNORECASE)
 REDACT_EMAIL = re.compile(r"\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b")
 REDACT_SECRET = re.compile(r"\b(?:ghp_|github_pat_|sk-ant-|AKIA)[A-Za-z0-9_./+-]{8,}\b")
@@ -244,7 +266,7 @@ def has_no_longer(issue):
     return any(NO_LONGER_MARKER in (c.get("body") or "") for c in issue.get("comments", []))
 
 
-def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
+def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date, mode=DEFAULT_MODE):
     active = grouped_items(reports, decisions, maintainers) + review_items(reports, decisions, maintainers) + blocked_items(blocked, maintainers)
     active_by_marker = {item["marker"]: item for item in active}
     existing_by_marker = {}
@@ -257,6 +279,11 @@ def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
             dashboard = issue
     opens = []
     updates = []
+    if mode == "dashboard":
+        # Dashboard mode writes nothing but the dashboard issue: no group issue is opened,
+        # commented on or reopened. Existing group issues are left exactly as they are.
+        return {"active": active, "open": opens, "updates": updates, "dashboard": dashboard,
+                "run_date": run_date, "run_url": run_url, "mode": mode}
     for item in active:
         current = digest(json.dumps(observation_payload(item), sort_keys=True, default=str))
         issue = existing_by_marker.get(item["marker"])
@@ -271,12 +298,38 @@ def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
     for item_marker, issue in existing_by_marker.items():
         if item_marker not in active_by_marker and issue.get("state") == "open" and not has_no_longer(issue):
             updates.append({"issue": issue, "body": no_longer_comment({"key": item_marker}, run_url, run_date)})
-    return {"active": active, "open": opens, "updates": updates, "dashboard": dashboard, "run_date": run_date, "run_url": run_url}
+    return {"active": active, "open": opens, "updates": updates, "dashboard": dashboard, "run_date": run_date, "run_url": run_url, "mode": mode}
+
+
+def group_rows(active):
+    """One dashboard row per active group: repository, check, group, count, owner, file links."""
+    rows = []
+    for item in active:
+        owner = item.get("owner_role", "unassigned")
+        if item.get("owner_handle"):
+            owner = f"{owner} ({item['owner_handle']})"
+        if item["kind"] == "finding":
+            links = [file_link(item["repository"], item["commit"], f.get("file", "?"), f.get("line", 1))
+                     for f in item["findings"][:DASHBOARD_FILE_LINKS]]
+            more = len(item["findings"]) - DASHBOARD_FILE_LINKS
+            if more > 0:
+                links.append(f"and {more} more")
+            rows.append((item["repository"], item["check"], item["group"], str(len(item["findings"])), owner, ", ".join(links)))
+        elif item["kind"] == "review":
+            rows.append(("decisions.yaml", "decision-review", item["decision_id"], "1", owner, scrub(item["warning"])))
+        else:
+            rows.append((item["repository"], "scan", "**BLOCKED**", "-", owner, scrub(item["reason"])))
+    return rows
 
 
 def dashboard_body(reports, blocked, plan_data, run_url, run_date, links):
-    summary = {"date": run_date, "repositories": [(r.get("repository"), r.get("commit"), sum(len(v or []) for v in (r.get("results") or {}).values()), len(r.get("freshness") or [])) for r in reports], "blocked": [(b.get("repository"), b.get("reason")) for b in blocked]}
-    lines = [DASHBOARD_MARKER, observation(summary), "", "## OpenAMRobot Watchdog dashboard", "", "@BotshareAI", f"Run: {run_date} ([GitHub Actions run]({run_url}))", "", "The deterministic Watchdog scans the repositories listed in `rollout/repositories.yaml`. It reads product repositories and writes only this control surface. It does not use AI and never edits `decisions.yaml` automatically.", "", "| Repository | Commit | Findings | Review warnings | Shared rules | Status |", "|---|---|---:|---:|---|---|"]
+    mode = plan_data.get("mode", DEFAULT_MODE)
+    rows = group_rows(plan_data["active"])
+    summary = {"date": run_date, "mode": mode,
+               "repositories": [(r.get("repository"), r.get("commit"), sum(len(v or []) for v in (r.get("results") or {}).values()), len(r.get("freshness") or [])) for r in reports],
+               "blocked": [(b.get("repository"), b.get("reason")) for b in blocked],
+               "groups": [row[:4] for row in rows]}
+    lines = [DASHBOARD_MARKER, observation(summary), "", "## OpenAMRobot Watchdog dashboard", "", "@BotshareAI", f"Run: {run_date} ([GitHub Actions run]({run_url}))", f"Issue mode: `{mode}`" + (" (only this dashboard is written; see WATCHDOG.md, Watchdog issue mode)" if mode == "dashboard" else " (one issue per active group as well)"), "", "The deterministic Watchdog scans the repositories listed in `rollout/repositories.yaml`. It reads product repositories and writes only this control surface. It does not use AI and never edits `decisions.yaml` automatically.", "", "| Repository | Commit | Findings | Review warnings | Shared rules | Status |", "|---|---|---:|---:|---|---|"]
     for report in reports:
         findings = sum(len(value or []) for value in (report.get("results") or {}).values())
         warnings = len(report.get("freshness") or [])
@@ -285,10 +338,16 @@ def dashboard_body(reports, blocked, plan_data, run_url, run_date, links):
         status = "findings" if findings or warnings else "clean"
         lines.append(f"| {scrub(report.get('repository'))} | `{scrub(report.get('commit', 'unknown'))}` | {findings} | {warnings} | {adoption} | {status} |")
     for item in blocked:
-        lines.append(f"| {scrub(item.get('repository'))} | unavailable | - | - | **BLOCKED** |")
-    lines += ["", f"Grouped issue actions in this run: {len(plan_data['open'])} new, {len(plan_data['updates'])} comments, {len(plan_data['active'])} active groups.", "", "| Action | Issue |", "|---|---|"]
-    for title, url in links:
-        lines.append(f"| {scrub(title)} | [open](<{url}>) |")
+        lines.append(f"| {scrub(item.get('repository'))} | unavailable | - | - | - | **BLOCKED** |")
+    lines += ["", f"### Active groups ({len(rows)})", "", "| Repository | Check | Group | Findings | Owner | Files |", "|---|---|---|---:|---|---|"]
+    for repo, check, group, count, owner, files in rows:
+        lines.append(f"| {scrub(repo)} | {check} | {group if group == '**BLOCKED**' else scrub(group)} | {count} | {scrub(owner)} | {files or '-'} |")
+    if not rows:
+        lines.append("| - | - | no active group | 0 | - | - |")
+    if mode == "groups":
+        lines += ["", f"Grouped issue actions in this run: {len(plan_data['open'])} new, {len(plan_data['updates'])} comments, {len(plan_data['active'])} active groups.", "", "| Action | Issue |", "|---|---|"]
+        for title, url in links:
+            lines.append(f"| {scrub(title)} | [open](<{url}>) |")
     lines += ["", "A clean result proves textual consistency only, not mechanical, electrical, safety or release correctness. Owners close finding issues after checking the fixing PR. A decision change follows the source-first, reviewed-PR process."]
     return "\n".join(lines)
 
@@ -345,6 +404,7 @@ def ensure_labels(repository, labels, token, call=api):
 
 
 def apply(repository, plan_data, reports, blocked, token, run_url, run_date, call=api):
+    mode = plan_data.get("mode", DEFAULT_MODE)
     links = []
     labels = ["watchdog-report"]
     for item in plan_data["open"]:
@@ -361,14 +421,20 @@ def apply(repository, plan_data, reports, blocked, token, run_url, run_date, cal
         links.append((issue.get("title", "watchdog issue"), issue.get("url", "")))
     dashboard_text = dashboard_body(reports, blocked, plan_data, run_url, run_date, links)
     dashboard = plan_data.get("dashboard")
-    dashboard_payload = {"title": "[watchdog] Organization dashboard", "body": dashboard_text, "labels": ["watchdog-report"], "assignees": ["BotshareAI"]}
+    dashboard_payload = {"title": DASHBOARD_TITLE, "body": dashboard_text, "labels": ["watchdog-report"], "assignees": ["BotshareAI"]}
     dashboard_match = OBSERVATION_RE.search(dashboard_text)
     dashboard_hash = dashboard_match.group(1) if dashboard_match else digest(dashboard_text)
     if not dashboard:
         create_issue(repository, dashboard_payload, token, call)
+    elif mode == "dashboard":
+        # Update the one dashboard in place, and only when its content changed.
+        current = OBSERVATION_RE.search(dashboard.get("body") or "")
+        if not current or current.group(1) != dashboard_hash:
+            call("PATCH", f"https://api.github.com/repos/{repository}/issues/{dashboard['number']}", token,
+                 {"title": DASHBOARD_TITLE, "body": dashboard_text})
     elif last_observation(dashboard) != dashboard_hash:
         call("POST", f"https://api.github.com/repos/{repository}/issues/{dashboard['number']}/comments", token, {"body": f"{OBSERVATION_PREFIX}{dashboard_hash}{OBSERVATION_SUFFIX}\n{dashboard_text}"})
-    print(f"Watchdog issue sync: {len(plan_data['open'])} opened, {len(plan_data['updates'])} comments, dashboard updated={not bool(dashboard)}")
+    print(f"Watchdog issue sync (mode {mode}): {len(plan_data['open'])} opened, {len(plan_data['updates'])} comments, dashboard updated={not bool(dashboard)}")
     for title, url in links:
         print(f"- {title}: {url}")
 
@@ -383,7 +449,13 @@ def main(argv=None):
     parser.add_argument("--run-url", required=True)
     parser.add_argument("--run-date", default=date.today().isoformat())
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--mode", help="dashboard or groups; default: WATCHDOG_ISSUE_MODE, else dashboard")
     args = parser.parse_args(argv)
+    try:
+        mode = resolve_mode(args.mode if args.mode is not None else os.environ.get("WATCHDOG_ISSUE_MODE"))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     maintainers = yaml.safe_load(args.maintainers.read_text(encoding="utf-8")) or {}
     raw = yaml.safe_load(args.decisions.read_text(encoding="utf-8")) or {}
     decisions = {entry.get("id"): entry for entry in raw.get("decisions", []) if isinstance(entry, dict) and entry.get("id")}
@@ -394,8 +466,8 @@ def main(argv=None):
     if args.apply and not token:
         print("--apply requires GITHUB_TOKEN", file=sys.stderr)
         return 2
-    data = plan(reports, blocked, decisions, maintainers, existing, args.run_url, args.run_date)
-    print(f"Watchdog issue plan: {len(data['open'])} new, {len(data['updates'])} comments, {len(data['active'])} active groups")
+    data = plan(reports, blocked, decisions, maintainers, existing, args.run_url, args.run_date, mode)
+    print(f"Watchdog issue plan (mode {mode}): {len(data['open'])} new, {len(data['updates'])} comments, {len(data['active'])} active groups")
     if args.apply:
         apply(args.repository, data, reports, blocked, token, args.run_url, args.run_date)
     return 0

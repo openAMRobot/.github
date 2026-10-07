@@ -207,8 +207,11 @@ PR evidence and verify.sh run on their own: `python3 tools/check_pr_evidence.py 
   [rollout/repositories.yaml](rollout/repositories.yaml) on its default branch and writes one
   summary plus JSON/Markdown artifacts. Findings do not fail the scan, but a clone or checker
   failure is reported as **BLOCKED** and fails the job after the report is written.
-- **GitHub issue control surface:** the scan synchronizes one central dashboard issue and one
-  deduplicated issue per grouped finding in `openAMRobot/.github`. Issues are assigned to
+- **GitHub issue control surface:** by default the scan keeps one central issue,
+  "[watchdog] Organization dashboard", in `openAMRobot/.github`. It lists every active group
+  (repository, check, group, finding count, owner and file links) and every repository whose
+  scan was blocked. With per-group issues turned on (see [Watchdog issue mode](#watchdog-issue-mode)),
+  it also keeps one deduplicated issue per group. Issues are assigned to
   `BotshareAI` when GitHub permits assignment and always mention `@BotshareAI`; public issue
   text redacts URLs, email addresses and credential-shaped values. Repeated evidence is not
   posted repeatedly. When a finding disappears, the Watchdog comments that it is no longer
@@ -223,11 +226,13 @@ PR evidence and verify.sh run on their own: `python3 tools/check_pr_evidence.py 
 The weekly loop is deliberately split at the ground-truth boundary:
 
 1. The Thursday Action scans all repositories listed in `rollout/repositories.yaml`.
-2. The Action writes or updates the central dashboard and grouped finding issues in
-   `openAMRobot/.github`.
-3. A finding issue identifies the repository commit, exact location, owner role, reason and
-   fix. It is a textual signal, not a safety or release acceptance.
-4. A due decision creates a `decision-review` issue. The platform lead confirms the controlling
+2. The Action updates the central dashboard in `openAMRobot/.github`. In `groups` mode it also
+   writes or updates one issue per active group.
+3. Each dashboard row, and each group issue in `groups` mode, identifies the repository commit,
+   exact location, owner role, reason and fix. It is a textual signal, not a safety or release
+   acceptance.
+4. A due decision appears on the dashboard as a `decision-review` row (and as its own
+   `decision-review` issue in `groups` mode). The platform lead confirms the controlling
    source and either extends the review window or starts a source-first change.
 5. The platform lead updates `decisions.yaml` in a normal reviewed PR. The Watchdog never
    guesses a new value and never edits the register itself.
@@ -236,6 +241,28 @@ The weekly loop is deliberately split at the ground-truth boundary:
 The dashboard is the durable weekly record. Its `Shared rules` column distinguishes `pass`,
 `drift` and `not enrolled`; `not enrolled` is rollout status, not a contradiction. The uploaded
 JSON artifacts preserve the exact repository SHAs and evidence used by the run.
+
+### Watchdog issue mode
+
+The repository variable `WATCHDOG_ISSUE_MODE` in `openAMRobot/.github` decides which issues the
+organization scan writes:
+
+| Value | What the scan writes |
+|---|---|
+| not set (default), or `dashboard` | Only the single "[watchdog] Organization dashboard" issue, edited in place when its content changes. It lists every active group and every scan-blocked repository. No other issue is opened, commented on or reopened. |
+| `groups` | The dashboard, plus one deduplicated issue per active group (finding group, decision review, blocked scan), with the comment, reopen and "no longer detected" behaviour described above. |
+
+Any other value stops the sync step with an error instead of guessing. Scan-blocked
+repositories appear on the dashboard in both modes.
+
+**To turn on per-group issues:** in `openAMRobot/.github`, open Settings, then Secrets and
+variables, then Actions, then Variables, and add the repository variable `WATCHDOG_ISSUE_MODE`
+with the value `groups`. The next Thursday run (or a manual run of the workflow) uses it. To go
+back, delete the variable or set it to `dashboard`; issues that already exist stay as they are.
+
+**Who decides:** the platform lead decides when to switch to `groups`, for example once the
+first repositories have finished rollout and their owners are ready to work from one issue per
+group. Until then the dashboard alone keeps the organization view in one place.
 
 ## Adopting it in a repository
 

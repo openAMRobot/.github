@@ -171,6 +171,13 @@ class Guide(unittest.TestCase):
                      "docs owner", "platform lead"):
             self.assertIn(kind, section)
 
+    def test_issue_mode_section(self):
+        section = self.text.split("### Watchdog issue mode", 1)[1].split("\n## ", 1)[0]
+        for text in ("`WATCHDOG_ISSUE_MODE`", "not set (default), or `dashboard`", "`groups`",
+                     "**To turn on per-group issues:**", "the platform lead decides when",
+                     "Scan-blocked\nrepositories appear on the dashboard in both modes"):
+            self.assertIn(text, section)
+
     def test_guide_is_linked(self):
         for name in ("README.md", "CONTRIBUTING.md"):
             self.assertIn("WATCHDOG.md", (ROOT / name).read_text(encoding="utf-8"), name)

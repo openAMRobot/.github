@@ -86,6 +86,15 @@ class Workflow(unittest.TestCase):
         self.assertIn("GITHUB_TOKEN", text)
         self.assertIn("WATCHDOG.md", text)
 
+    def test_issue_mode_comes_from_the_repository_variable(self):
+        data, _ = workflow()
+        step = next(s for s in data["jobs"]["scan"]["steps"] if s["name"] == "Synchronize Watchdog issues")
+        self.assertEqual(step["env"]["WATCHDOG_ISSUE_MODE"], "${{ vars.WATCHDOG_ISSUE_MODE }}")
+        self.assertNotIn("--mode", step["run"])  # the tool reads the variable; unset means dashboard
+        text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn('unset or "dashboard"', text)
+        self.assertIn('"groups"', text)
+
     def test_actions_pinned_to_full_sha(self):
         data, _ = workflow()
         for job in data["jobs"].values():
