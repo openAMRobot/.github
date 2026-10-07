@@ -25,6 +25,14 @@ roles:
     handle: anandgawai123456-glitch
     covers: documentation site, public extracts
 
+review_policy:
+  platform-lead-authored:
+    required_roles: [software-lead]
+    scoped_owners_required: true
+    author_statement_counts_as_approval: false
+    safety_paths_still_require_platform_lead: true
+    unavailable_owner_requires_org_owner_exception: true
+
 # Owner of audit findings by ID prefix, used by the weekly alignment audit.
 audit_prefixes:
   GEO: platform-lead
