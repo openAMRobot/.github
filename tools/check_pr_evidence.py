@@ -81,9 +81,9 @@ def human(login):
     return bool(login) and not login.endswith("[bot]")
 
 
-AI_TOOL = re.compile(r"\\b(?:Claude(?:\\s+Code)?|Anthropic|ChatGPT|OpenAI|Codex|Copilot|Gemini|Cursor|Devin)\\b", re.I)
-AI_MARKER = re.compile(r"(?:AI[-\\s]+assisted|generated with|co-authored-by:.*(?:bot|claude|copilot|chatgpt|openai|anthropic|codex))", re.I)
-AI_SCOPE = re.compile(r"\\b(?:scope|assisted|drafted|generated|reviewed|changed|implemented|tested|research|documentation|workflow|code|text|analysis|reconciliation)\\b", re.I)
+AI_TOOL = re.compile(r"\b(?:Claude(?:\s+Code)?|Anthropic|ChatGPT|OpenAI|Codex|Copilot|Gemini|Cursor|Devin)\b", re.I)
+AI_MARKER = re.compile(r"(?:AI[-\s]+assisted|generated with|co-authored-by:.*(?:bot|claude|copilot|chatgpt|openai|anthropic|codex))", re.I)
+AI_SCOPE = re.compile(r"\b(?:scope|assisted|drafted|generated|reviewed|changed|implemented|tested|research|documentation|workflow|code|text|analysis|reconciliation)\b", re.I)
 
 
 def ai_assistance_detected(pr, commit_messages=()):
