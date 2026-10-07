@@ -727,13 +727,13 @@ decisions:
       - {value: "Lift removed from OpenAMRobot 2.0; fixed mast; lift on the 3.0 roadmap (former entry LIFT-REMOVED)", source: P-00-rev18.1 txt 18}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/package.xml", "**/*.xacro", "**/*.urdf"]}
     check:
-      - pattern: '(?P<found>\bno (?:linear )?lift\b(?!\s+(?:motion|move|movement|while|unless|during)))'
+      - pattern: '(?P<found>\bno (?:linear |actuated )?lift\b(?=\s*(?:[.,;:)]|$|(?:in|for|on)\b)))'
         unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
         message: the lift is approved in principle for 2.0 (P-03 rev18.7 item 8)
       - pattern: '(?P<found>\bfixed[- ]mast\b)'
         unless: 'supersed|historical|earlier|previous|legacy|replace|instead of|no longer|rev ?18\.[1-6]\b'
         message: the fixed mast is no longer the baseline; the lift is approved in principle (P-03 rev18.7 item 8)
-      - pattern: '(?P<found>\blift\b[^\n]{0,40}\b(?:deferred|moved|postponed)\b[^\n]{0,25}\b3\.0\b|\blift\b[^\n]{0,15}\bin (?:OpenAMRobot )?3\.0\b|\blift (?:is |was )?removed\b)'
+      - pattern: '(?P<found>\blift\b[^\n]{0,40}\b(?:deferred|moved|postponed)\b[^\n]{0,25}\b3\.0\b|\blift\b[^\n]{0,15}\bin (?:OpenAMRobot )?3\.0\b|\blift (?:is |was )?removed\b|\blift\b[^\n]{0,40}\b(?:OpenAMRobot )?3\.0 scope\b|\b3\.0 lift\b)'
         unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
         message: the lift is not deferred to 3.0; it is approved in principle for 2.0 (P-03 rev18.7 item 8)
     verification:

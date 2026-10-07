@@ -376,6 +376,16 @@ class RealRegister(unittest.TestCase):
                      "The cycle originally ended 13 November (superseded by RELEASE-MILESTONES).\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_lift_check_after_cross_repository_dry_run(self):
+        for text in ("- **Lift module:** separate OpenAMRobot 3.0 scope.\n",
+                     "Scope: the future OpenAMRobot 3.0 lift controller.\n",
+                     "There is no lift in 2.0.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["LIFT"], text)
+        for text in ("No lift firmware is implemented yet; the CAN3 lift interface is a release gate.\n",
+                     "No lift controller exists yet.\n",
+                     "Planning groups: arm, arm+lift.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
