@@ -71,7 +71,8 @@ class Workflow(unittest.TestCase):
         data, on = workflow()
         self.assertEqual(data["permissions"], {"contents": "read", "issues": "write"})
         self.assertEqual(set(on), {"schedule", "workflow_dispatch"})
-        self.assertEqual(on["schedule"][0]["cron"], "17 6 * * 4")
+        self.assertEqual(on["schedule"][0]["cron"], "0 14 * * 4")
+        self.assertEqual(on["schedule"][0]["timezone"], "Europe/Berlin")
         for job in data["jobs"].values():
             self.assertNotIn("permissions", job)
 
