@@ -341,6 +341,13 @@ class RealRegister(unittest.TestCase):
                      "imu_link on the centreline, away from the motor magnetic fields.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_battery_placement_rear_edge(self):
+        self.assertEqual(self.ids("docs/a.md", "The battery is centred at 25 percent of the length from the rear.\n", "x"),
+                         ["BATTERY-PLACEMENT"])
+        for text in ("The battery sits as close to the rear edge as practical, keeping service clearances.\n",
+                     "The battery was centred at 25 percent (superseded by P-03 rev18.7 item 9).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])

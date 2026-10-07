@@ -286,21 +286,23 @@ decisions:
     title: Battery pack and placement
     kind: value
     status: recorded
-    value: One 8S1P EVE LF105 LiFePO4 pack, 25.6 V, 105 Ah, centred at 25 percent of the robot length from the rear
+    value: One 8S1P EVE LF105 LiFePO4 pack, 25.6 V, 105 Ah, placed as close to the rear edge as practical while preserving enclosure, service and safety clearances
     unit: none
-    date: 2026-09-28
-    source: {document: P-03-rev18.2, item: battery}
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: item 9}
     supersedes:
       - {value: fit the existing battery bay first, source: P-00-rev18.1 txt 77}
+      - {value: centred at 25 percent of the robot length from the rear, source: P-03-rev18.2 battery}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
-      - pattern: 'battery[^\n]{0,40}\bcent(?:red|ered) at (?P<found>(?!25\b)\d+\s*(?:%|percent))'
-        message: battery is centred at 25 percent of the length from the rear
+      - pattern: '(?P<found>battery[^\n]{0,40}\bcent(?:red|ered) at \d+\s*(?:%|percent)|\b25\s*(?:%|percent) of the (?:robot )?length from the rear)'
+        unless: 'supersed|historical|previous|earlier|rev ?18\.[1-6]\b'
+        message: the battery sits as close to the rear edge as practical while preserving enclosure, service and safety clearances (P-03 rev18.7 item 9)
     verification:
-      machine: a different battery centre position in text
+      machine: a battery centred at a fixed percentage of the length, including the superseded 25 percent position
       human: {reviewer: platform-lead, evidence: general arrangement and mass model}
     owner: platform-lead
-    note: The rev18.1 plan set did not record a placement; P-03 rev18.2 records it.
+    note: The rev18.1 plan set did not record a placement; P-03 rev18.2 recorded 25 percent; rev18.7 item 9 replaces it.
 
   - id: SPEED-CEILING
     title: 1.5 m/s is a command ceiling, not an operating speed
