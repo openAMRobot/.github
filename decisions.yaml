@@ -222,6 +222,32 @@ decisions:
       human: {reviewer: platform-lead, evidence: assembled-height measurement on the general arrangement}
     owner: platform-lead
 
+  - id: DATUM-HEIGHT-STACK
+    title: Height datum and base height stack
+    kind: configuration
+    status: recorded
+    values:
+      - floor Z = 0
+      - steel chassis deck top 294 mm (MMP STEP)
+      - top cover 2 mm plastic, or optional 0.5 to 0.8 mm sheet metal
+      - 10 mm aluminium lift base plate bears on the steel deck; the cover is cut out around it
+      - base-plate top face 304 mm is the reference for lift and shoulder heights
+    unit: mm
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: item 15}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
+    check:
+      - pattern: '(?P<found>\bdeck top\b[^\n]{0,25}?\b(?!294\b)\d{3}\s*mm)'
+        unless: 'supersed|historical|legacy|earlier|previous'
+        message: the steel chassis deck top is 294 mm above the floor (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\bbase[- ]plate top(?: face)?\b[^\n]{0,25}?\b(?!304\b)\d{3}\s*mm)'
+        unless: 'supersed|historical|legacy|earlier|previous'
+        message: the lift base-plate top face is 304 mm above the floor, the reference for lift and shoulder heights (P-03 rev18.7 item 15)
+    verification:
+      machine: a deck-top height other than 294 mm or a base-plate top face other than 304 mm
+      human: {reviewer: platform-lead, evidence: MMP STEP deck height and the lift base-plate drawing}
+    owner: platform-lead
+
   - id: BATTERY-PLACEMENT
     title: Battery pack and placement
     kind: value

@@ -319,6 +319,13 @@ class RealRegister(unittest.TestCase):
                      "The lift column moves the shoulder axis from 1000 to 1350 mm.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_datum_height_stack(self):
+        for text in ("The steel chassis deck top is at 300 mm.\n", "Base-plate top face 310 mm above the floor.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["DATUM-HEIGHT-STACK"], text)
+        for text in ("Steel chassis deck top 294 mm (MMP STEP); floor Z = 0.\n",
+                     "Base-plate top face 304 mm, the reference for lift and shoulder heights.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
