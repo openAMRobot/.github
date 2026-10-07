@@ -44,7 +44,7 @@ schema_version: 1
 
 sources:
   P-03-rev18.2:
-    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.6 as the addendum in force)
+    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.7 as the addendum in force)
     evidence: >-
       Not held in any repository. Confirmed by the platform lead on 29 September 2026
       as the addendum in force at that date. Values that cite it were seeded from its citation on the
@@ -53,8 +53,11 @@ sources:
   P-03-rev18.4:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.7:
+    title: P-03 Decision Addendum, revision 18.7, 6 October 2026 (the addendum in force)
+    evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.6:
-    title: P-03 Decision Addendum, revision 18.6 (the addendum in force)
+    title: P-03 Decision Addendum, revision 18.6 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.5:
     title: P-03 Decision Addendum, revision 18.5, 6 October 2026 (earlier revision)
@@ -619,22 +622,37 @@ decisions:
       human: {reviewer: platform-lead, evidence: the release plan and versions in P-03 rev18.6 item 12}
     owner: platform-lead
 
-  - id: LIFT-REMOVED
-    title: Release 2.0 has no lift; the upper body is a fixed mast
-    kind: exclusion
+  - id: LIFT
+    title: Lift approved in principle for OpenAMRobot 2.0
+    kind: configuration
     status: recorded
-    value: Lift removed from OpenAMRobot 2.0; 3.0 roadmap
+    values:
+      - lift approved in principle
+      - DOLD Hexalift V1 350 mm primary; TiMOTION TL3 400 mm fallback
+      - shoulder axis 1000 to 1350 mm
+      - base plate fore-aft positions centre, +50, +100, +150 and +200 mm
+      - lift motion only in the stowed or carry safe pose with the base stopped
+      - hold-and-move limits 0.05 m/s (drawer reversal) and 0.3 m/s (carrying)
+      - "release gates: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface (items 6, 8, 14, 15)"
     unit: none
-    date: null
-    source: {document: P-00-rev18.1, item: txt 18}
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: "item 8; release gates items 6, 8, 14, 15"}
+    supersedes:
+      - {value: "Lift removed from OpenAMRobot 2.0; fixed mast; lift on the 3.0 roadmap (former entry LIFT-REMOVED)", source: P-00-rev18.1 txt 18}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/package.xml", "**/*.xacro", "**/*.urdf"]}
     check:
-      - pattern: '(?P<found>(?:linear |actuated )?lift (?:module|controller|joint|axis|system|column|motor)s?)'
-        unless: '3\.0|removed|later release|v3|roadmap|not part|replace'
-        message: 2.0 has a fixed mast; the lift is 3.0
+      - pattern: '(?P<found>\bno (?:linear )?lift\b(?!\s+(?:motion|move|movement|while|unless|during)))'
+        unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
+        message: the lift is approved in principle for 2.0 (P-03 rev18.7 item 8)
+      - pattern: '(?P<found>\bfixed[- ]mast\b)'
+        unless: 'supersed|historical|earlier|previous|legacy|replace|instead of|no longer|rev ?18\.[1-6]\b'
+        message: the fixed mast is no longer the baseline; the lift is approved in principle (P-03 rev18.7 item 8)
+      - pattern: '(?P<found>\blift\b[^\n]{0,40}\b(?:deferred|moved|postponed)\b[^\n]{0,25}\b3\.0\b|\blift\b[^\n]{0,15}\bin (?:OpenAMRobot )?3\.0\b|\blift (?:is |was )?removed\b)'
+        unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
+        message: the lift is not deferred to 3.0; it is approved in principle for 2.0 (P-03 rev18.7 item 8)
     verification:
-      machine: lift hardware or software described without a 3.0 or removed label
-      human: {reviewer: platform-lead, evidence: upper-body package list without lift controllers}
+      machine: text saying 2.0 has no lift, presenting a fixed mast as the current baseline, or deferring the lift to 3.0
+      human: {reviewer: platform-lead, evidence: "P-03 rev18.7 item 8 and the release-gate records: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface"}
     owner: platform-lead
 
   - id: NO-SUSPENSION

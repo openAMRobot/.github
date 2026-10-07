@@ -192,7 +192,7 @@ class RealRegister(unittest.TestCase):
     def test_non_numeric_decisions_are_present(self):
         kinds = {d["id"]: d["kind"] for d in self.decisions}
         for did in ("MAX-ASSEMBLED-HEIGHT", "NO-SUSPENSION", "RS485-NOT-IN-2-0", "DOCK-NO-CONTACTS",
-                    "LIFT-REMOVED", "DOCKING-NOT-CHARGING", "TELEMETRY-NOT-SAFETY-EVIDENCE"):
+                    "DOCKING-NOT-CHARGING", "TELEMETRY-NOT-SAFETY-EVIDENCE"):
             self.assertIn(kinds[did], {"exclusion", "distinction"}, did)
 
     def test_imu_topic_attributed_to_firmware(self):
@@ -218,7 +218,7 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "The dock has two charging contacts.\n", "openamrobot-docs"), ["DOCK-NO-CONTACTS"])
         self.assertEqual(self.ids("docs/a.md", "There are no charging contacts.\n", "openamrobot-docs"), [])
         self.assertEqual(self.ids("docs/a.md", "The drive talks RS485 to the base.\n", "openamr-platform-hw"), ["RS485-NOT-IN-2-0"])
-        self.assertEqual(self.ids("docs/a.md", "The lift controller moves the arms.\n", "x"), ["LIFT-REMOVED"])
+        self.assertEqual(self.ids("docs/a.md", "The lift controller moves the arms.\n", "x"), [])
 
     def test_docking_never_establishes_charging(self):
         self.assertEqual(self.ids("src/dock.py", "def isCharging(self): return true\n", "openamr-platform-sw"),
@@ -263,6 +263,19 @@ class RealRegister(unittest.TestCase):
                      "The NUCLEO-H743ZI2 was replaced by the NUCLEO-H723ZG.\n",
                      "Base controller: STM32H723ZG on a NUCLEO-H723ZG bench board.\n"):
             self.assertEqual(self.ids("docs/a.md", line, repo), [], line)
+
+    def test_lift_approved_in_principle(self):
+        for text in ("OpenAMRobot 2.0 has no lift.\n",
+                     "- a fixed mast for the arms\n",
+                     "The linear lift is deferred to OpenAMRobot 3.0.\n",
+                     "Fixed mast (lift in 3.0), mounting plates.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["LIFT"], text)
+        for text in ("Lift approved in principle: DOLD Hexalift V1 350 mm primary, TiMOTION TL3 400 mm fallback.\n",
+                     "Lift motion only in the stowed or carry safe pose with the base stopped.\n",
+                     "No lift motion while the base moves.\n",
+                     "The fixed mast is superseded by the lift (P-03 rev18.7 item 8).\n",
+                     "The lift column moves the shoulder axis from 1000 to 1350 mm.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
