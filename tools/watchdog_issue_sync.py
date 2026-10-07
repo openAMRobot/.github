@@ -275,12 +275,14 @@ def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
 
 def dashboard_body(reports, blocked, plan_data, run_url, run_date, links):
     summary = {"date": run_date, "repositories": [(r.get("repository"), r.get("commit"), sum(len(v or []) for v in (r.get("results") or {}).values()), len(r.get("freshness") or [])) for r in reports], "blocked": [(b.get("repository"), b.get("reason")) for b in blocked]}
-    lines = [DASHBOARD_MARKER, observation(summary), "", "## OpenAMRobot Watchdog dashboard", "", "@BotshareAI", f"Run: {run_date} ([GitHub Actions run]({run_url}))", "", "The deterministic Watchdog scans the repositories listed in `rollout/repositories.yaml`. It reads product repositories and writes only this control surface. It does not use AI and never edits `decisions.yaml` automatically.", "", "| Repository | Commit | Findings | Review warnings | Status |", "|---|---|---:|---:|---|"]
+    lines = [DASHBOARD_MARKER, observation(summary), "", "## OpenAMRobot Watchdog dashboard", "", "@BotshareAI", f"Run: {run_date} ([GitHub Actions run]({run_url}))", "", "The deterministic Watchdog scans the repositories listed in `rollout/repositories.yaml`. It reads product repositories and writes only this control surface. It does not use AI and never edits `decisions.yaml` automatically.", "", "| Repository | Commit | Findings | Review warnings | Shared rules | Status |", "|---|---|---:|---:|---|---|"]
     for report in reports:
         findings = sum(len(value or []) for value in (report.get("results") or {}).values())
         warnings = len(report.get("freshness") or [])
+        shared = report.get("results", {}).get("shared-rules")
+        adoption = "not enrolled" if shared is None else ("drift" if shared else "pass")
         status = "findings" if findings or warnings else "clean"
-        lines.append(f"| {scrub(report.get('repository'))} | `{scrub(report.get('commit', 'unknown'))}` | {findings} | {warnings} | {status} |")
+        lines.append(f"| {scrub(report.get('repository'))} | `{scrub(report.get('commit', 'unknown'))}` | {findings} | {warnings} | {adoption} | {status} |")
     for item in blocked:
         lines.append(f"| {scrub(item.get('repository'))} | unavailable | - | - | **BLOCKED** |")
     lines += ["", f"Grouped issue actions in this run: {len(plan_data['open'])} new, {len(plan_data['updates'])} comments, {len(plan_data['active'])} active groups.", "", "| Action | Issue |", "|---|---|"]

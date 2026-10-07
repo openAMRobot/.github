@@ -85,6 +85,7 @@ class PurePlan(unittest.TestCase):
         data = wis.plan([report()], [], {"COMPUTE": {"owner": "platform-lead"}}, MAINTAINERS, [], "run", "2026-10-08")
         body = wis.dashboard_body([report()], [], data, "run", "2026-10-08", [])
         self.assertIsNotNone(wis.OBSERVATION_RE.search(body))
+        self.assertIn("Shared rules", body)
 
 
 if __name__ == "__main__":
