@@ -84,5 +84,5 @@ jobs:
               test -d /work/interfaces/ros2/build
               test -d /work/interfaces/ros2/install
               test -d /work/interfaces/ros2/log
-              VERIFY_NO_DELEGATE=1 bash /work/harness/rollout/verify.sh /work/interfaces
+              VERIFY_NO_DELEGATE=1 VERIFY_TEST='bash tools/verify.sh' bash /work/harness/rollout/verify.sh /work/interfaces
             '
