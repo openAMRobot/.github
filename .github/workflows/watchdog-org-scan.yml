@@ -4,6 +4,9 @@ name: Watchdog organization scan
 # is a central, deduplicated issue control surface in openAMRobot/.github. The workflow never
 # edits decisions.yaml, pushes a branch, opens a PR, or runs an AI agent. See WATCHDOG.md.
 #
+# Schedule: every Thursday at 14:00 Berlin time (timezone Europe/Berlin, so the run follows
+# daylight saving time), plus manual dispatch.
+#
 # Issue mode: the repository variable WATCHDOG_ISSUE_MODE (Settings > Secrets and variables >
 # Actions > Variables) selects what the sync step writes.
 #   unset or "dashboard"  only the single "[watchdog] Organization dashboard" issue, updated in

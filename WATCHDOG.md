@@ -203,7 +203,8 @@ PR evidence and verify.sh run on their own: `python3 tools/check_pr_evidence.py 
   appear inline in the pull request diff, and the job summary shows a table grouped by
   decision.
 - **Across the organization**, [watchdog-org-scan.yml](.github/workflows/watchdog-org-scan.yml)
-  runs every Thursday and on demand. It clones every repository in
+  runs every Thursday at 14:00 Berlin time (`Europe/Berlin`, so it follows daylight saving
+  time) and on demand. It clones every repository in
   [rollout/repositories.yaml](rollout/repositories.yaml) on its default branch and writes one
   summary plus JSON/Markdown artifacts. Findings do not fail the scan, but a clone or checker
   failure is reported as **BLOCKED** and fails the job after the report is written.

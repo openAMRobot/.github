@@ -27,7 +27,7 @@ is a rollout step (rollout/README.md), not a present fact.
 | `repository-quality-reusable.yml`, `quality/test` job (`verify: true`) | (b) | Never run on GitHub |
 | `repository-quality.yml` in this repository (`quality/test`, harness checks) | (a) once merged; never run on GitHub yet | Its commands ran locally |
 | `pr-assistant.yml` | (b) | Its two checker commands ran locally; the workflow never ran |
-| `.github/workflows/watchdog-org-scan.yml` + `tools/watchdog_issue_sync.py` | (a) in the harness repository | Thursday organization scan, central dashboard, stable grouped issue deduplication, redaction, no-longer-detected comments, re-opening of reappearing findings and blocked-scan behavior are covered by tests; it never edits `decisions.yaml` or product repositories |
+| `.github/workflows/watchdog-org-scan.yml` + `tools/watchdog_issue_sync.py` | (a) in the harness repository | Thursday 14:00 Europe/Berlin organization scan, central dashboard (the only issue written while `WATCHDOG_ISSUE_MODE` is unset), stable grouped issue deduplication in `groups` mode, redaction, no-longer-detected comments, re-opening of reappearing findings and blocked-scan behavior are covered by tests; it never edits `decisions.yaml` or product repositories |
 | `docs-sync-caller.yml`, `docs-sync.yml` | (b), design only | Never run |
 | `monthly-retro.yml` | (b), design only | Never run |
 | Two human approvals on safety paths | (c) enforced by a ruleset, section 6 | `check_pr_evidence.py` only reports "safety path touched, two human approvals required" and whether reviewers are requested; it does not count approvals as a gate |
