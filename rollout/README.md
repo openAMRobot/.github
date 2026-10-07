@@ -163,6 +163,14 @@ tell a user how to build, flash and verify an installation (`docs/build/software
 setup pages of the two release repositories; the docs owner confirms the list when the file
 is written.
 
+Platform-lead-authored PRs
+
+The platform lead may author a PR, but cannot approve it through the reconciliation comment.
+The merge gate is an approval from the software lead plus an approval from every owner whose
+scope the PR touches. The author is excluded from that set. Safety-path changes retain the
+separate two-human-approval ruleset requirement, including platform-lead CODEOWNERS review.
+Record any unavailable-owner exception with the organization owner before making the PR ready.
+
 How GitHub applies these lines (documented GitHub behaviour, not something this harness
 checks):
 
