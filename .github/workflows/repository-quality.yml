@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,7 +22,7 @@ jobs:
     name: quality/test
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - name: Unit tests of every checker (zero-test guard)
@@ -36,9 +37,51 @@ jobs:
         run: python3 tools/check_decisions.py --decisions decisions.yaml --maintainers maintainers.yaml --validate-only
       - name: Upload evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: harness-verification
           path: .verification/run.*/
           include-hidden-files: true
           if-no-files-found: warn
+
+  ros-verifier-smoke:
+    name: ros-verifier-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check out pinned interfaces fixture
+        env:
+          INTERFACES_SHA: fa7c438e33bd807c174fa0747119d7d627faa3bf
+        run: |
+          set -euo pipefail
+          interfaces="$RUNNER_TEMP/openamrobot-interfaces"
+          git clone --quiet https://github.com/openAMRobot/openamrobot-interfaces.git "$interfaces"
+          git -C "$interfaces" checkout --quiet --detach "$INTERFACES_SHA"
+          # Exercise the source-only scan with normal generated workspace directories present.
+          mkdir -p "$interfaces/ros2/build" "$interfaces/ros2/install" "$interfaces/ros2/log"
+          test -d "$interfaces/ros2/build"
+          test -d "$interfaces/ros2/install"
+          test -d "$interfaces/ros2/log"
+
+      - name: Run generic verifier in ROS 2 Jazzy
+        run: |
+          set -euo pipefail
+          interfaces="$RUNNER_TEMP/openamrobot-interfaces"
+          docker run --rm --init \
+            -v "$GITHUB_WORKSPACE:/work/harness:ro" \
+            -v "$interfaces:/work/interfaces" \
+            -w /work \
+            ros:jazzy-ros-base bash -ceu '
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y git python3-pip shellcheck
+              rosdep update
+              test -d /work/interfaces/ros2/build
+              test -d /work/interfaces/ros2/install
+              test -d /work/interfaces/ros2/log
+              VERIFY_NO_DELEGATE=1 bash /work/harness/rollout/verify.sh /work/interfaces
+            '
