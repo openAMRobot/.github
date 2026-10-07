@@ -22,7 +22,8 @@
 #   id            unique, upper case, stable
 #   title         one line
 #   kind          value | configuration | limit | exclusion | distinction
-#   status        recorded (scanned and reported) | open (not decided; not scanned)
+#   status        recorded (scanned and reported) | open (not decided; not scanned) |
+#                 superseded (replaced by a later decision; only its citation is scanned)
 #   value/values  exactly as the source states it; nothing invented
 #   unit          SI unit or none
 #   date          date the decision was taken (null when the source gives none)
@@ -36,6 +37,11 @@
 #   verification  machine: what the scan detects; human: reviewer role and
 #                 the evidence they need
 #   owner         role in maintainers.yaml who approves changes to this entry
+#   superseded_by for status superseded: document (a key under sources), item,
+#                 optional decision (the replacing entry), citation (a pattern
+#                 with a (?P<found>...) group for text still presenting the
+#                 superseded value as current) and optional unless; `check`
+#                 is then not used
 #
 # Changing an entry follows "Changing a decision" in AGENTS.md: change request
 # issue, source document first, then one reviewed PR that updates this file and
@@ -116,9 +122,9 @@ decisions:
     owner: platform-lead
 
   - id: MAST-INSTALL-HEIGHT
-    title: Shoulder-axis installation height of the fixed mast
+    title: Shoulder-axis installation height of the fixed mast (superseded by LIFT)
     kind: configuration
-    status: recorded
+    status: superseded
     value: 1350
     unit: mm
     configuration_id: mast_1350
@@ -133,25 +139,21 @@ decisions:
     applies_to:
       repositories: ["*"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf", "**/*.launch.py", "**/package.xml", "**/*.html"]
-    check:
-      - pattern: '(?P<found>mast_1[34]00)\b[^\n]{0,60}\bbaseline'
-        unless: 'supersed|rev ?18\.1|release-candidate position'
-        message: installation baseline is mast_1350
-      - pattern: '\bbaseline\b[^\n]{0,40}(?P<found>mast_1[34]00|\b1[34]00\s*mm)'
-        unless: 'supersed|rev ?18\.1'
-        message: installation baseline is mast_1350
-      - pattern: '(?P<found>(?:shoulder[- ]axis|shoulder height|installation height)\s*(?:at|of|is|:)?\s*1[34]00\s*mm)'
-        unless: 'supersed|rev ?18\.1|position'
-        message: installation height is 1350 mm
+    superseded_by:
+      document: P-03-rev18.7
+      item: item 8
+      decision: LIFT
+      citation: '(?P<found>\bmast_1350\b[^\n]{0,60}\b(?:baseline|installation)|(?:shoulder[- ]axis|installation) height\s*(?:at|of|is|:)?\s*1350\s*mm)'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
     verification:
-      machine: text naming mast_1300 or mast_1400 (or 1300/1400 mm) as the baseline or installation height, and citations of P-03 rev18.1 item 6
+      machine: text still presenting the superseded fixed-mast value as current (citation pattern)
       human: {reviewer: platform-lead, evidence: URDF/Xacro mast configuration and the general arrangement drawing at 1350 mm}
     owner: platform-lead
 
   - id: MAST-POSITIONS
-    title: Indexed mast mounting positions
+    title: Indexed mast mounting positions (superseded by LIFT)
     kind: configuration
-    status: recorded
+    status: superseded
     values: [1300, 1350, 1400, 1450]
     unit: mm
     step_mm: 50
@@ -162,25 +164,21 @@ decisions:
     applies_to:
       repositories: ["*"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf", "**/*.launch.py", "**/*.html"]
-    check:
-      - pattern: '\b(?P<found>mast_1(?:5[05]0|6[05]0|700))\b'
-        unless: 'supersed|not available|cannot'
-        message: only mast_1300, mast_1350, mast_1400 and mast_1450 exist
-      - pattern: '(?P<found>nine\s+(?:indexed\s+)?(?:mechanical\s+)?(?:mounting\s+)?positions)'
-        unless: 'supersed'
-        message: four indexed positions
-      - pattern: '(?P<found>\b1300\s*(?:mm\s*)?(?:to|through|\.\.|\u2013|-)\s*1700\s*mm)'
-        unless: 'supersed|height envelope|assembled'
-        message: positions span 1300 to 1450 mm
+    superseded_by:
+      document: P-03-rev18.7
+      item: item 8
+      decision: LIFT
+      citation: '(?P<found>\bmast_1(?:300|400|450)\b|\b(?:four|4) indexed (?:mast )?(?:mounting )?positions|\bindexed mast (?:mounting )?positions)'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
     verification:
-      machine: configuration IDs mast_1500 to mast_1700, "nine positions", a 1300 to 1700 mm position range
+      machine: text still presenting the superseded fixed-mast value as current (citation pattern)
       human: {reviewer: platform-lead, evidence: mast drawing with index holes}
     owner: platform-lead
 
   - id: MAST-TOP-HEIGHT
-    title: Mast top height above the floor (own COTS mast, one MISUMI HFS6-60120 profile)
+    title: Mast top height above the floor (own COTS mast, one MISUMI HFS6-60120 profile; superseded by LIFT)
     kind: value
-    status: recorded
+    status: superseded
     value: 1500
     unit: mm
     date: 2026-09-28
@@ -190,12 +188,14 @@ decisions:
     applies_to:
       repositories: ["*"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]
-    check:
-      - pattern: '(?P<found>top at 1554(?:\s*mm)?|mast top[^\n]{0,20}\b1554\s*mm)'
-        unless: 'supersed'
-        message: mast top is 1500 mm
+    superseded_by:
+      document: P-03-rev18.7
+      item: item 8
+      decision: LIFT
+      citation: '(?P<found>\bmast top[^\n]{0,20}\b1500\s*mm|\bHFS6-60120\b)'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
     verification:
-      machine: the superseded 1554 mm mast top
+      machine: text still presenting the superseded fixed-mast value as current (citation pattern)
       human: {reviewer: platform-lead, evidence: mast drawing and CAD}
     owner: platform-lead
 
@@ -206,8 +206,8 @@ decisions:
     value: 1700
     unit: mm
     date: null
-    source: {document: P-03-rev18.1, item: item 6 line 15}
-    note: Repeated unchanged in P-03-rev18.2 as cited by the documentation site. The robot may be lower, never higher.
+    source: {document: P-03-rev18.7, item: item 8}
+    note: First recorded in P-03-rev18.1 item 6 line 15 and repeated in rev18.2; kept unchanged by rev18.7 item 8 with the lift. The robot may be lower, never higher.
     applies_to:
       repositories: ["*"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]

@@ -161,6 +161,32 @@ decisions:
                 with self.assertRaisesRegex(cd.DecisionError, expected):
                     cd.load_decisions(self.write(text))
 
+    SUPERSEDED = BASE.replace("status: recorded", "status: superseded").replace(
+        "    check: [{pattern: '(?P<found>x)'}]\n",
+        "    superseded_by: {document: D, item: j, decision: B, citation: '(?P<found>old)', unless: 'history'}\n")
+
+    def test_superseded_entry_scans_only_its_citation(self):
+        (d,) = cd.load_decisions(self.write(self.SUPERSEDED), ROOT / "maintainers.yaml")
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "a.md").write_text("x here\nold value\nold value in history\n", encoding="utf-8")
+            findings, _ = cd.scan(tmp, [d], "r")
+        self.assertEqual([(f["line"], f["found"]) for f in findings], [(2, "old")])
+        self.assertIn("superseded by D j (B)", findings[0]["message"])
+        self.assertEqual(findings[0]["decided"], "superseded by B")
+
+    def test_superseded_entry_needs_superseded_by(self):
+        cases = {
+            "superseded needs superseded_by": self.SUPERSEDED.replace(
+                "    superseded_by: {document: D, item: j, decision: B, citation: '(?P<found>old)', unless: 'history'}\n", ""),
+            "superseded_by document 'E' not listed": self.SUPERSEDED.replace("superseded_by: {document: D", "superseded_by: {document: E"),
+            "superseded_by citation needs": self.SUPERSEDED.replace("'(?P<found>old)'", "'old'"),
+            "missing check": self.BASE.replace("    check: [{pattern: '(?P<found>x)'}]\n", ""),
+        }
+        for expected, text in cases.items():
+            with self.subTest(expected=expected):
+                with self.assertRaisesRegex(cd.DecisionError, expected):
+                    cd.load_decisions(self.write(text))
+
     def test_owner_and_reviewer_must_be_maintainers_roles(self):
         with self.assertRaisesRegex(cd.DecisionError, "owner 'somebody' is not a role"):
             cd.load_decisions(self.write(self.BASE.replace("owner: platform-lead", "owner: somebody")),
@@ -207,10 +233,26 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "Maximum assembled height 1700 mm, not a shoulder height.\n",
                                   "openamrobot-docs"), [])
 
-    def test_superseded_mast_values_and_citation(self):
-        self.assertEqual(self.ids("docs/a.md", "The mast_1400 slot is the baseline.\nUse mast_1600.\n", "x"),
-                         ["MAST-INSTALL-HEIGHT", "MAST-POSITIONS"])
-        self.assertEqual(self.ids("docs/a.md", "Height per P-03 rev18.1 item 6.\n", "x"), ["MAST-INSTALL-HEIGHT"])
+    def test_superseded_mast_entries(self):
+        cases = {
+            "Shoulder-axis installation height 1350 mm.\n": ["MAST-INSTALL-HEIGHT"],
+            "The mast_1350 slot is the installation baseline.\n": ["MAST-INSTALL-HEIGHT"],
+            "Four indexed mast positions, mast_1300 to mast_1450.\n": ["MAST-POSITIONS"],
+            "Mast top at 1500 mm on one MISUMI HFS6-60120 profile.\n": ["MAST-TOP-HEIGHT"],
+            "Maximum assembled height 1600 mm.\n": ["MAX-ASSEMBLED-HEIGHT"],
+        }
+        for text, expected in cases.items():
+            self.assertEqual(self.ids("docs/a.md", text, "x"), expected, text)
+        for text in ("Shoulder axis 1000 to 1350 mm on the lift.\n",
+                     "The superseded mast_1350 installation baseline (P-03 rev18.2).\n",
+                     "Maximum assembled height 1700 mm, not a shoulder height.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        for did in ("MAST-INSTALL-HEIGHT", "MAST-POSITIONS", "MAST-TOP-HEIGHT"):
+            self.assertEqual(by_id[did]["status"], "superseded", did)
+            self.assertEqual((by_id[did]["superseded_by"]["document"], by_id[did]["superseded_by"]["item"]),
+                             ("P-03-rev18.7", "item 8"), did)
+        self.assertEqual(by_id["MAX-ASSEMBLED-HEIGHT"]["source"]["document"], "P-03-rev18.7")
 
     def test_exclusions(self):
         self.assertEqual(self.ids("docs/a.md", "The base uses sprung drive wheels.\n", "x"), ["NO-SUSPENSION"])

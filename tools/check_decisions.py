@@ -11,6 +11,11 @@ mechanical, electrical or safety correctness; each entry names the human
 reviewer and evidence for that. Exit status: 0 clean, 1 contradiction found,
 2 invalid register or usage error.
 
+An entry with status `superseded` names the decision that replaced it in
+`superseded_by` (document, item, optional decision id) and a `citation`
+pattern; only that pattern is scanned, for text still presenting the
+superseded value as current.
+
 A line that must keep a superseded value (history, changelog, legacy
 material) carries the marker `decision-allow: <ID> <reason>` on the same line
 or the line directly above it. The marker is reported, never silently ignored.
@@ -26,9 +31,9 @@ from pathlib import Path
 import yaml
 
 SCHEMA_VERSION = 1
-STATUSES = {"recorded", "open"}
+STATUSES = {"recorded", "open", "superseded"}
 KINDS = {"value", "configuration", "limit", "exclusion", "distinction"}
-REQUIRED = ("id", "title", "kind", "status", "date", "source", "applies_to", "check",
+REQUIRED = ("id", "title", "kind", "status", "date", "source", "applies_to",
             "verification", "owner")
 DEFAULT_FILES = [
     "**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml",
@@ -65,6 +70,8 @@ def load_decisions(path, maintainers=None):
             errors.append(f"{where}: not a mapping")
             continue
         missing = [key for key in REQUIRED if key not in d]
+        if d.get("status") != "superseded" and "check" not in d:
+            missing.append("check")
         if missing:
             errors.append(f"{where}: missing {', '.join(missing)}")
             continue
@@ -104,6 +111,19 @@ def load_decisions(path, maintainers=None):
         applies = d["applies_to"]
         if not isinstance(applies, dict) or not applies.get("repositories") or not applies.get("files"):
             errors.append(f"{where}: applies_to needs repositories and files")
+        if d["status"] == "superseded":
+            by = d.get("superseded_by")
+            if not isinstance(by, dict) or not by.get("document") or not by.get("item") or not by.get("citation"):
+                errors.append(f"{where}: superseded needs superseded_by with document, item and citation")
+            else:
+                if by["document"] not in sources:
+                    errors.append(f"{where}: superseded_by document {by['document']!r} not listed under sources")
+                try:
+                    if "found" not in re.compile(by["citation"], re.IGNORECASE).groupindex:
+                        errors.append(f"{where}: superseded_by citation needs a (?P<found>...) group")
+                except re.error as exc:
+                    errors.append(f"{where}: bad superseded_by citation pattern: {exc}")
+            continue
         checks = d["check"]
         if not isinstance(checks, list) or not checks:
             errors.append(f"{where}: check must be a non-empty list of patterns")
@@ -122,6 +142,14 @@ def load_decisions(path, maintainers=None):
     exclude = data.get("exclude") or []
     for d in decisions:
         d["_exclude"] = list(exclude) + list(d["applies_to"].get("exclude") or [])
+        if d["status"] == "superseded":
+            by = d["superseded_by"]
+            # A superseded entry is scanned only for text that still presents it as current.
+            d["_checks"] = [{"pattern": by["citation"], "unless": by.get("unless"),
+                             "message": f"superseded decision presented as current; superseded by "
+                                        f"{by['document']} {by['item']}"
+                                        + (f" ({by['decision']})" if by.get("decision") else "")}]
+            continue
         d["_checks"] = list(d["check"]) + [
             {"pattern": sup["citation"], "unless": sup.get("citation_unless"),
              "message": f"superseded source still cited ({sup['source']}); cite {d['source']['document']}"}
@@ -130,6 +158,9 @@ def load_decisions(path, maintainers=None):
 
 
 def decided_text(d):
+    if d["status"] == "superseded":
+        by = d["superseded_by"]
+        return f"superseded by {by.get('decision') or by['document'] + ' ' + by['item']}"
     value = d["values"] if "values" in d else d["value"]
     if isinstance(value, list):
         value = ", ".join(str(v) for v in value)
@@ -177,7 +208,7 @@ def scan(root, decisions, repository=None, only=None, stats=None):
     files = list(only) if only is not None else list_files(root)
     findings, allowed = [], []
     unscanned = 0
-    active = [d for d in decisions if d["status"] == "recorded" and repository_matches(d, repository)]
+    active = [d for d in decisions if d["status"] in ("recorded", "superseded") and repository_matches(d, repository)]
     for rel in files:
         path = root / rel
         if not path.is_file():
@@ -246,7 +277,8 @@ def main(argv=None):
         return 2
     print(f"decisions: {len(decisions)} loaded, "
           f"{sum(d['status'] == 'recorded' for d in decisions)} recorded and scanned, "
-          f"{sum(d['status'] == 'open' for d in decisions)} open")
+          f"{sum(d['status'] == 'open' for d in decisions)} open, "
+          f"{sum(d['status'] == 'superseded' for d in decisions)} superseded (citations scanned)")
     if a.validate_only:
         return 0
     if not a.root.is_dir():
