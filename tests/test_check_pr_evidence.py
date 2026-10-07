@@ -54,6 +54,10 @@ Hardware run on the robot.
 
 ## AI disclosure
 None
+
+## Contribution terms
+
+- [x] No partner, customer or private person is named; the application is Use_Case_1.
 """
 
 
@@ -90,6 +94,14 @@ class Sections(unittest.TestCase):
         self.assertIn("Evidence: no base SHA (write `Base SHA: <sha>`)", failures)
         self.assertIn("Evidence: no exact command (use a code block or `$ command` lines)", failures)
         self.assertTrue(any(f.startswith("Empty section") for f in failures))
+
+    def test_public_use_checkbox_is_required_when_terms_are_present(self):
+        body = BODY.replace(
+            "- [x] No partner, customer or private person is named; the application is Use_Case_1.",
+            "- [ ] No partner, customer or private person is named; the application is Use_Case_1."
+        )
+        self.assertIn("Contribution terms: check the Use_Case_1/no-private-person checkbox",
+                      evaluate(body)[0])
 
     def test_template_contains_every_required_section(self):
         template = (ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md").read_text(encoding="utf-8")
