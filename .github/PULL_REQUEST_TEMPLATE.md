@@ -59,3 +59,4 @@ platform lead. Telemetry and fixtures are not safety evidence. -->
 - [ ] I am covered by an accepted [Contributor Agreement](https://github.com/openAMRobot/.github/blob/main/CLA.md).
 - [ ] Third-party material is identified with source and licence.
 - [ ] No confidential, personal, credential or export-controlled information is included.
+- [ ] No partner, customer or private person is named; the application is Use_Case_1.
