@@ -110,6 +110,22 @@ class Api(unittest.TestCase):
 
 
 class CommandLine(unittest.TestCase):
+    def test_review_warnings_are_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp, "decisions.yaml")
+            path.write_text(
+                "decisions:\n"
+                "  - id: OLD\n"
+                "    review_by: 2026-10-06\n"
+                "  - id: CURRENT\n"
+                "    review_by: 2026-10-08\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                sai.review_warnings(path, sai.date(2026, 10, 7)),
+                ["OLD review_by 2026-10-06 is past due"],
+            )
+
     def test_dry_run_from_csv(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp, "ISSUES.csv")
