@@ -35,6 +35,16 @@ class IssueForms(unittest.TestCase):
         self.assertIn("harness", self.load("harness_mistake.yml")["labels"])
         self.assertIn("good first issue", self.load("good_first_issue.yml")["labels"])
         self.assertIn("contract-change", self.load("contract_change_request.yml")["labels"])
+        self.assertIn("decision-review", self.load("decision_review.yml")["labels"])
+        self.assertIn("watchdog-review", self.load("decision_review.yml")["labels"])
+
+    def test_decision_review_requires_source_and_ground_truth(self):
+        form = self.load("decision_review.yml")
+        ids = {item.get("id") for item in form["body"]}
+        self.assertTrue({"decision_id", "outcome", "source_key", "evidence", "requested_action", "ground_truth"} <= ids)
+        text = (FORMS / "decision_review.yml").read_text(encoding="utf-8")
+        self.assertIn("never changes the", text)
+        self.assertIn("private Drive links", text)
 
     def test_bug_report_asks_for_sha_and_commands(self):
         ids = {item.get("id") for item in self.load("bug_report.yml")["body"]}

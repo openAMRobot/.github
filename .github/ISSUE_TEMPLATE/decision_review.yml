@@ -1,0 +1,63 @@
+name: Decision register review
+description: Confirm or change one approved decision after the Watchdog review reminder.
+title: "[decision-review] "
+labels:
+  - decision-review
+  - watchdog-review
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for one `decisions.yaml` entry. Do not paste private Drive links, prices,
+        credentials or customer information into a public issue. The Watchdog never changes the
+        register automatically; the final update is a reviewed pull request.
+  - type: input
+    id: decision_id
+    attributes:
+      label: Decision ID
+      description: The exact entry ID, for example COMPUTE or NAV-LIDAR.
+      placeholder: COMPUTE
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Review outcome
+      options:
+        - Confirm current decision
+        - Propose a decision change
+        - Insufficient evidence
+    validations:
+      required: true
+  - type: input
+    id: source_key
+    attributes:
+      label: Controlling source key and item
+      description: Use a traceable key and item/date, not a private URL.
+      placeholder: P-03-rev18.7 item 14, 6 October 2026
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence summary
+      description: Summarize what was checked and include public repository paths or commit SHAs where useful.
+      placeholder: The controlling source still says ...; implementation checked at ...
+    validations:
+      required: true
+  - type: textarea
+    id: requested_action
+    attributes:
+      label: Requested action
+      description: State whether the owner should extend review_by, open a source change, or update consumers.
+    validations:
+      required: true
+  - type: checkboxes
+    id: ground_truth
+    attributes:
+      label: Ground-truth confirmation
+      options:
+        - label: I am responsible for, or have obtained, the controlling-source confirmation.
+          required: true
+        - label: I have not included private links, credentials, customer information or unverified values.
+          required: true

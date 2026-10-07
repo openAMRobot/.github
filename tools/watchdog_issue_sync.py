@@ -42,6 +42,7 @@ LABEL_METADATA = {
     "watchdog-finding": ("1f6feb", "A deterministic Watchdog finding"),
     "watchdog-review": ("8250df", "A decision-register review reminder"),
     "watchdog-report": ("5319e7", "The organization Watchdog dashboard"),
+    "decision-review": ("fbca04", "A human review of one decisions.yaml entry"),
     "blocker": ("b60205", "Blocks a complete or safe result"),
     "major": ("d93f0b", "Requires owner action"),
     "review": ("fbca04", "Requires human review"),
