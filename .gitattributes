@@ -1,0 +1,5 @@
+# Shell scripts run under Linux bash, so they keep LF line endings even when a
+# contributor's Git uses core.autocrlf=true (CI owner review, 6 October 2026).
+# A shell script without one of these extensions gets its own line below.
+*.sh   text eol=lf
+*.bash text eol=lf
