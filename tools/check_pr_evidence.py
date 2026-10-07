@@ -155,6 +155,13 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False, commit_messa
     ai_disclosure = find(secs, "AI disclosure") or ""
     failures.extend(check_ai_disclosure(pr, commit_messages, ai_disclosure))
 
+    contribution_terms = find(secs, "Contribution terms")
+    if contribution_terms is not None and not re.search(
+        r"\[x\]\s+No partner, customer or private person is named; the application is Use_Case_1\.",
+        contribution_terms, re.I
+    ):
+        failures.append("Contribution terms: check the Use_Case_1/no-private-person checkbox")
+
     roles = (maintainers or {}).get("roles", {})
     lead = (roles.get("platform-lead") or {}).get("handle")
     safety = [p for p in changed if any(fnmatch.fnmatch(p, g) or fnmatch.fnmatch(p, g.replace("**/", ""))
