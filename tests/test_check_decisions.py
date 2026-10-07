@@ -124,6 +124,7 @@ class Schema(unittest.TestCase):
         return tmp.name
 
     BASE = """schema_version: 1
+in_force: {source: D, date: 2026-10-07}
 sources: {D: {title: t}}
 decisions:
   - id: A
@@ -133,6 +134,7 @@ decisions:
     value: 1
     unit: mm
     date: null
+    review_by: 2026-11-18
     source: {document: D, item: i}
     applies_to: {repositories: ["*"], files: ["**/*.md"]}
     check: [{pattern: '(?P<found>x)'}]
@@ -142,6 +144,18 @@ decisions:
 
     def test_base_is_valid(self):
         self.assertEqual(len(cd.load_decisions(self.write(self.BASE), ROOT / "maintainers.yaml")), 1)
+
+    def test_requires_in_force_and_review_by(self):
+        with self.assertRaisesRegex(cd.DecisionError, "in_force"):
+            cd.load_decisions(self.write(self.BASE.replace("in_force: {source: D, date: 2026-10-07}\n", "")))
+        with self.assertRaisesRegex(cd.DecisionError, "review_by"):
+            cd.load_decisions(self.write(self.BASE.replace("    review_by: 2026-11-18\n", "")))
+
+    def test_review_warnings_are_non_blocking_and_deterministic(self):
+        data = {"decisions": [{"id": "A", "review_by": "2026-10-06"},
+                              {"id": "B", "review_by": "2026-10-08"}]}
+        self.assertEqual(cd.review_warnings(data, cd.date(2026, 10, 7)),
+                         ["A review_by 2026-10-06 is past due"])
 
     def test_rejects_invalid_entries(self):
         cases = {
