@@ -21,6 +21,9 @@
 # Schema (schema_version 1), one entry per decision:
 #   id            unique, upper case, stable
 #   title         one line
+#   summary       optional; the decision in one line of at most 120 characters,
+#                 printed with each finding (the long value stays here)
+#   fix_hint      optional; how to fix a finding, one line of at most 120 characters
 #   kind          value | configuration | limit | exclusion | distinction
 #   status        recorded (scanned and reported) | open (not decided; not scanned) |
 #                 superseded (replaced by a later decision; only its citation is scanned)
@@ -105,6 +108,8 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
+    summary: "BOM Issue 7.3 is the canonical OpenAMRobot 2.0 hardware BOM."
+    fix_hint: "Name Issue 7.3 as canonical, or label older issues (Issue 6, Issue 7, B-01) as superseded."
     kind: value
     status: recorded
     value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3
@@ -136,6 +141,8 @@ decisions:
 
   - id: MAST-INSTALL-HEIGHT
     title: Shoulder-axis installation height of the fixed mast (superseded by LIFT)
+    summary: "Superseded: the fixed-mast 1350 mm installation height was replaced by LIFT."
+    fix_hint: "Describe the lift (shoulder axis 1000 to 1350 mm), or label the fixed-mast text as superseded or historical."
     kind: configuration
     status: superseded
     value: 1350
@@ -166,6 +173,8 @@ decisions:
 
   - id: MAST-POSITIONS
     title: Indexed mast mounting positions (superseded by LIFT)
+    summary: "Superseded: the indexed fixed-mast positions were replaced by LIFT."
+    fix_hint: "Describe the lift positions, or label mast_1300/1400/1450 text as superseded or historical."
     kind: configuration
     status: superseded
     values: [1300, 1350, 1400, 1450]
@@ -192,6 +201,8 @@ decisions:
 
   - id: MAST-TOP-HEIGHT
     title: Mast top height above the floor (own COTS mast, one MISUMI HFS6-60120 profile; superseded by LIFT)
+    summary: "Superseded: the 1500 mm mast top on an HFS6-60120 profile was replaced by LIFT."
+    fix_hint: "Describe the lift, or label the mast-top or HFS6-60120 text as superseded or historical."
     kind: value
     status: superseded
     value: 1500
@@ -217,6 +228,8 @@ decisions:
 
   - id: MAX-ASSEMBLED-HEIGHT
     title: 1700 mm is the maximum assembled-height envelope, not a shoulder-axis height
+    summary: "1700 mm is the maximum assembled-height envelope, not a shoulder height."
+    fix_hint: "Use 1700 mm only as the assembled-height envelope; give shoulder heights from the LIFT entry."
     kind: distinction
     status: recorded
     value: 1700
@@ -241,6 +254,8 @@ decisions:
 
   - id: DATUM-HEIGHT-STACK
     title: Height datum and base height stack
+    summary: "Floor Z = 0; steel deck top 294 mm; lift base-plate top face 304 mm is the height reference."
+    fix_hint: "Use 294 mm for the deck top and 304 mm for the base-plate top face, or label old values as historical."
     kind: configuration
     status: recorded
     values:
@@ -268,6 +283,8 @@ decisions:
 
   - id: FRAMES-REP105
     title: Base frames follow REP 105
+    summary: "REP 105: base_footprint on the floor, base_link at the axle midpoint, imu_link away from motors."
+    fix_hint: "Place base_footprint on the floor, base_link at axle height, and imu_link on the centreline away from motors."
     kind: configuration
     status: recorded
     values:
@@ -296,6 +313,8 @@ decisions:
 
   - id: BATTERY-PLACEMENT
     title: Battery pack and placement
+    summary: "One 8S1P LF105 pack, 25.6 V, 105 Ah, as close to the rear edge as practical."
+    fix_hint: "Describe the pack as close to the rear edge as practical; label the 25 percent position as superseded."
     kind: value
     status: recorded
     value: One 8S1P EVE LF105 LiFePO4 pack, 25.6 V, 105 Ah, placed as close to the rear edge as practical while preserving enclosure, service and safety clearances
@@ -319,6 +338,8 @@ decisions:
 
   - id: SPEED-CEILING
     title: 1.5 m/s is a command ceiling, not an operating speed
+    summary: "1.5 m/s is a command ceiling (analytical limit), not an accepted operating speed."
+    fix_hint: "Call 1.5 m/s a command ceiling; take operating speed from the stability model and stopping tests."
     kind: limit
     status: recorded
     value: 1.5 m/s command ceiling, treated as an analytical limit; the accepted operating speed follows from the stability model and stopping tests
@@ -343,6 +364,8 @@ decisions:
 
   - id: DRIVETRAIN
     title: Drivetrain
+    summary: "Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D driver on CAN1."
+    fix_hint: "Name the ZLLG80ASM250-L-B as selected; mark brake ratings as pending supplier evidence."
     kind: value
     status: recorded
     value: Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D V4.2 driver on CAN1 (CANopen), 200 mm wheels
@@ -368,6 +391,8 @@ decisions:
 
   - id: RS485-NOT-IN-2-0
     title: Release 2.0 has no RS485 hardware, fallback, adapter or commissioning path
+    summary: "Release 2.0 has no RS485 hardware, fallback, adapter or commissioning path."
+    fix_hint: "Remove RS485 from 2.0 text, or label it as legacy, Gate A or not in 2.0."
     kind: exclusion
     status: recorded
     value: none
@@ -391,6 +416,8 @@ decisions:
 
   - id: BASE-CONTROLLER-GATES
     title: Base-controller gates and IMU gating stay distinct
+    summary: "Gate A (Teensy, MPU6500) and Gate B (STM32H723ZG) stay distinct; ICM-42688-P is gated."
+    fix_hint: "Call the Teensy the Gate A controller, the IMU MPU6500, and the ICM-42688-P conditional (Gate B)."
     kind: distinction
     status: recorded
     values:
@@ -418,6 +445,8 @@ decisions:
 
   - id: BASE-CONTROLLER-IO
     title: Base-controller MCU, sensor and IMU buses, CAN mapping and micro-ROS transport
+    summary: "STM32H723ZG; MB7060 on dedicated UARTs; CAN1/2/3 split; micro-ROS over UDP on Ethernet."
+    fix_hint: "Use the STM32H723ZG and MB7060 on UART; label STM32H743 or MB7040 text as superseded; USB is bench only."
     kind: configuration
     status: recorded
     values:
@@ -452,6 +481,8 @@ decisions:
 
   - id: IMU-TOPIC-OWNERSHIP
     title: IMU topic ownership
+    summary: "Firmware publishes /imu/data_raw; the host filter and EKF own /imu/data."
+    fix_hint: "Make firmware publish /imu/data_raw and leave /imu/data to the host filter."
     kind: distinction
     status: recorded
     values:
@@ -478,6 +509,8 @@ decisions:
 
   - id: CAMERAS
     title: Cameras
+    summary: "Base camera Orbbec Gemini 336L, about 243 mm up, tilted 5, 10 or 15 degrees up (baseline 10)."
+    fix_hint: "Name the Gemini 336L with an up-tilt of 5, 10 or 15 degrees, or label other cameras as legacy."
     kind: value
     status: recorded
     values:
@@ -512,6 +545,8 @@ decisions:
 
   - id: HEAD-CAMERA-IDENTITY
     title: Head camera commercial identity and mounting
+    summary: "Head camera: Stereolabs ZED Mini, SKU ZED-121210, on the lift carriage."
+    fix_hint: "Name the ZED Mini (ZED-121210), or label other ZED models as superseded or legacy."
     kind: value
     status: recorded
     values:
@@ -536,6 +571,8 @@ decisions:
 
   - id: POWER-RAILS
     title: Power rails; no 12 V rail
+    summary: "25.6 V battery bus, regulated 24 V and 5 V branches; there is no 12 V rail."
+    fix_hint: "Remove the 12 V rail from 2.0 text, or label it as legacy."
     kind: exclusion
     status: recorded
     values:
@@ -564,6 +601,8 @@ decisions:
 
   - id: DOCK-NO-CONTACTS
     title: Release 2.0 docking has no dock contacts or dock pilot; wireless charging is 3.0
+    summary: "2.0 docking is positioning only: no dock contacts or pilot; wireless charging is 3.0."
+    fix_hint: "Say the dock has no contacts and charging is manual and wired; put wireless charging in 3.0."
     kind: exclusion
     status: recorded
     value: Positioning only; manual wired charging via PWR-019 with independent charge-plug-presence inhibition; no dock contacts or dock pilot; wireless charging belongs to 3.0
@@ -591,6 +630,8 @@ decisions:
 
   - id: DOCKING-NOT-CHARGING
     title: Docking success never establishes charging
+    summary: "Docked means an accepted pose; docking never establishes charging or external power."
+    fix_hint: "Report docking as a pose result only; never infer charging from it."
     kind: distinction
     status: recorded
     value: Docked means an accepted pose within tolerance; pose success never establishes charging or external power
@@ -617,6 +658,8 @@ decisions:
 
   - id: TELEMETRY-NOT-SAFETY-EVIDENCE
     title: Functional telemetry is never safety evidence
+    summary: "Telemetry, watchdogs and BMS data are functional, never safety evidence."
+    fix_hint: "Describe telemetry and watchdogs as functional, not as a safety layer."
     kind: distinction
     status: recorded
     value: Firmware status, watchdogs, collision monitoring and BMS telemetry are functional; E-stop, brake and actuator power removal are hardwired and independent of software
@@ -636,6 +679,8 @@ decisions:
 
   - id: SAFETY-PROCUREMENT
     title: Safety-chain procurement boundary (record only; this register implements no safety function)
+    summary: "Two dual-channel latching E-stops into a monitored safety relay; EDM contactor unselected."
+    fix_hint: "Do not recommend single-channel or uncertified E-stops; keep the EDM variant open and CTL-004 bench-only."
     kind: limit
     status: recorded
     values:
@@ -663,6 +708,8 @@ decisions:
 
   - id: COMPUTE
     title: Reference compute
+    summary: "Reference compute: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401; Pi is legacy."
+    fix_hint: "Name the Jetson Orin NX, or label Raspberry Pi material as legacy or Gate A."
     kind: value
     status: recorded
     value: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe; Raspberry Pi removed from active support
@@ -682,6 +729,8 @@ decisions:
 
   - id: NAV-LIDAR
     title: Navigation LiDAR
+    summary: "Navigation LiDAR: SLAMTEC RPLIDAR S3 (S3M1-R2) on USB, regulated 5 V rail."
+    fix_hint: "Name the RPLIDAR S3; label Hokuyo as dropped or superseded and the A1 as legacy (existing robot)."
     kind: value
     status: recorded
     value: SLAMTEC RPLIDAR S3 (S3M1-R2), connected over USB, powered from the regulated 5 V rail (functional sensing, not a safety device)
@@ -710,6 +759,8 @@ decisions:
 
   - id: RELEASE-MILESTONES
     title: OpenAMRobot 2.0 release milestones
+    summary: "v2.0.0-rc.1 on 20 November 2026; v2.0.0 final release on 18 December 2026."
+    fix_hint: "Use 20 November (v2.0.0-rc.1) and 18 December 2026 (v2.0.0); label v0.2 or 13 November as superseded."
     kind: value
     status: recorded
     values:
@@ -739,6 +790,8 @@ decisions:
 
   - id: LIFT
     title: Lift approved in principle for OpenAMRobot 2.0
+    summary: "The lift is approved in principle for 2.0; shoulder axis 1000 to 1350 mm; release gates open."
+    fix_hint: "Describe the lift as approved in principle, or label fixed-mast and 3.0 lift text as superseded."
     kind: configuration
     status: recorded
     values:
@@ -773,6 +826,8 @@ decisions:
 
   - id: NO-SUSPENSION
     title: Release 2.0 has no suspension
+    summary: "Release 2.0 has no suspension; sprung drive wheels are a 3.0 item."
+    fix_hint: "Say there is no suspension in 2.0, or put sprung drive wheels in 3.0."
     kind: exclusion
     status: recorded
     value: No suspension is fitted in 2.0; sprung drive wheels are a 3.0 item
@@ -792,6 +847,8 @@ decisions:
 
   - id: DRIVE-TRACK
     title: Drive track
+    summary: "Open: 400 mm in the general arrangement; the final drive track is still an open input."
+    fix_hint: "Not scanned while open; give the track as 400 mm (general arrangement) until the value is decided."
     kind: value
     status: open
     value: 400 mm in the general arrangement; the final track is an open input

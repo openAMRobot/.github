@@ -188,9 +188,27 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False, commit_messa
     return failures, warnings, notes
 
 
+# First line of each check_decisions.py finding (tools/watchdog_report.py format).
+DECISION_FINDING = "Mismatch with approved decision: "
+
+
+def decision_findings(report):
+    """Finding headers, each with its one-line Decision when the report gives one."""
+    lines = report.splitlines()
+    out = []
+    for i, line in enumerate(lines):
+        if line.startswith(DECISION_FINDING):
+            text = line[len(DECISION_FINDING):]
+            following = lines[i + 1].strip() if i + 1 < len(lines) else ""
+            if following.startswith("Decision:"):
+                text += f"; decision: {following[len('Decision:'):].strip()}"
+            out.append(text)
+    return out
+
+
 def decision_failures(report, limit=20):
-    """Turn check_decisions.py output lines into summary failures."""
-    lines = [l[len("CONTRADICTION "):] for l in report.splitlines() if l.startswith("CONTRADICTION ")]
+    """Turn check_decisions.py findings into summary failures."""
+    lines = decision_findings(report)
     out = [f"Decision contradiction: {l}" for l in lines[:limit]]
     if len(lines) > limit:
         out.append(f"... and {len(lines) - limit} more decision contradictions")
@@ -208,8 +226,8 @@ def decision_verdict(report, status):
     report is the checker's combined output (None if the file is missing);
     status is the parsed status file, e.g. {"exit_code": 1} (None if missing).
     Only the two documented policy outcomes are accepted:
-      exit 0 with "result: 0 contradiction(s)" and no CONTRADICTION lines (clean);
-      exit 1 with CONTRADICTION lines whose count matches the result line.
+      exit 0 with "result: 0 contradiction(s)" and no finding lines (clean);
+      exit 1 with "Mismatch with approved decision:" finding lines whose count matches the result line.
     Everything else fails closed as a checker error: a crash, exit 2 (invalid
     register or usage), any other exit code, empty output, or a missing file.
     """
@@ -223,7 +241,7 @@ def decision_verdict(report, status):
     if "Traceback (most recent call last)" in report:
         return [], [f"checker error: check_decisions.py crashed (exit {code}): {head}"]
     listed = decision_failures(report)
-    contradictions = [l for l in report.splitlines() if l.startswith("CONTRADICTION ")]
+    contradictions = decision_findings(report)
     m = RESULT_LINE.search(report)
     reported = int(m.group(1)) if m else None
     if code == 0 and reported == 0 and not contradictions:

@@ -132,6 +132,8 @@ jobs:
         run: |
           set -uo pipefail
           h=.openamrobot-harness
+          export WATCHDOG_ANNOTATION=warning
+          if [ "$ENFORCE" = true ] && [ "$EVENT_NAME" = pull_request ]; then export WATCHDOG_ANNOTATION=error; fi
           python3 "$h/tools/check_workflow_policy.py" --root . | tee "$RUNNER_TEMP/workflow-policy.txt"
           status=${PIPESTATUS[0]}
           if [ "$ENFORCE" = true ] && { [ "$EVENT_NAME" = pull_request ] || [ "$status" -eq 2 ]; }; then
@@ -159,11 +161,13 @@ jobs:
           if [ "$EVENT_NAME" = pull_request ]; then
             scope=(--changed-files "$RUNNER_TEMP/changed-files.txt")
           fi
+          # Findings become inline annotations (tools/watchdog_report.py): errors when they block.
+          export WATCHDOG_ANNOTATION=warning
+          if [ "$ENFORCE" = true ] && [ "$EVENT_NAME" = pull_request ]; then export WATCHDOG_ANNOTATION=error; fi
           python3 "$h/tools/check_decisions.py" --decisions "$h/decisions.yaml" \
             --maintainers "$h/maintainers.yaml" --root . \
             --repository "$REPOSITORY" "${scope[@]}" | tee "$RUNNER_TEMP/decisions.txt"
           status=${PIPESTATUS[0]}
-          grep '^CONTRADICTION ' "$RUNNER_TEMP/decisions.txt" | sed -E 's/^CONTRADICTION ([^:]+):([0-9]+): /::warning file=\1,line=\2::/' || true
           if [ "$ENFORCE" = true ] && { [ "$EVENT_NAME" = pull_request ] || [ "$status" -eq 2 ]; }; then
             exit "$status"
           fi
@@ -185,10 +189,11 @@ jobs:
           if [ "$EVENT_NAME" = pull_request ]; then
             scope=(--changed-files "$RUNNER_TEMP/changed-files.txt")
           fi
+          export WATCHDOG_ANNOTATION=warning
+          if [ "$ENFORCE" = true ] && [ "$EVENT_NAME" = pull_request ]; then export WATCHDOG_ANNOTATION=error; fi
           python3 "$h/tools/check_public_extract.py" --root . --allowlist "$h/public-extract-allowlist.yaml" \
             --repository "$REPOSITORY" "${scope[@]}" | tee "$RUNNER_TEMP/extract.txt"
           status=${PIPESTATUS[0]}
-          grep '^PUBLIC-EXTRACT ' "$RUNNER_TEMP/extract.txt" | sed -E 's/^PUBLIC-EXTRACT ([^:]+):([0-9]+): /::warning file=\1,line=\2::/' || true
           if [ "$ENFORCE" = true ] && { [ "$EVENT_NAME" = pull_request ] || [ "$status" -eq 2 ]; }; then
             exit "$status"
           fi
@@ -207,6 +212,8 @@ jobs:
         run: |
           set -uo pipefail
           if [ -f AGENTS.md ]; then
+            export WATCHDOG_ANNOTATION=warning
+            if [ "$ENFORCE" = true ]; then export WATCHDOG_ANNOTATION=error; fi
             python3 .openamrobot-harness/tools/check_agent_rules.py \
               --canonical .openamrobot-harness/agent-rules/SHARED_RULES.md --file AGENTS.md
             status=$?
@@ -265,3 +272,4 @@ jobs:
           path: .verification/run.*/
           include-hidden-files: true
           if-no-files-found: warn
+

@@ -211,13 +211,13 @@ class SafetyRules(unittest.TestCase):
 class DecisionReport(unittest.TestCase):
     def test_contradictions_become_failures(self):
         report = ("decisions: 3 loaded\n"
-                  "CONTRADICTION docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400', decided '1350 mm' (P-03)\n"
+                  "Mismatch with approved decision: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400'\n  Decision: x\n"
                   "ALLOWED docs/h.md:2: MAST-INSTALL-HEIGHT found 'mast_1400'; reason: history\n")
         self.assertEqual(ev.decision_failures(report), [
-            "Decision contradiction: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400', decided '1350 mm' (P-03)"])
+            "Decision contradiction: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400'; decision: x"])
 
     def test_long_reports_are_truncated(self):
-        report = "\n".join(f"CONTRADICTION f.md:{i}: X found 'a', decided 'b'" for i in range(25))
+        report = "\n".join(f"Mismatch with approved decision: f.md:{i}: X found 'a'" for i in range(25))
         failures = ev.decision_failures(report)
         self.assertEqual(len(failures), 21)
         self.assertEqual(failures[-1], "... and 5 more decision contradictions")
@@ -279,8 +279,8 @@ class JqMissing(unittest.TestCase):
 
 CLEAN = "decisions: 23 loaded\nresult: 0 contradiction(s), 0 allowed, scope 3 changed file(s)\n"
 TWO = ("decisions: 23 loaded\n"
-       "CONTRADICTION docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400', decided '1350 mm' (P-03)\n"
-       "CONTRADICTION docs/b.md:9: COMPUTE found 'Raspberry Pi 5', decided 'Jetson' (P-00)\n"
+       "Mismatch with approved decision: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400'\n  Decision: x\n"
+       "Mismatch with approved decision: docs/b.md:9: COMPUTE found 'Raspberry Pi 5'\n  Decision: Jetson\n"
        "result: 2 contradiction(s), 0 allowed, scope 2 changed file(s)\n")
 
 

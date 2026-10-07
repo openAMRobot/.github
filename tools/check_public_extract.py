@@ -20,6 +20,40 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import watchdog_report as wr  # noqa: E402
+
+LABEL = "Should not be public"
+NEXT_STEP = ("remove each value from the public file or move it to an internal place; if it is "
+             "intentionally public (organization contact, licensing), the docs owner decides an allowlist entry.")
+# Per rule: the rule in one line, why it matters, how to fix.
+GUIDE = {
+    "google-drive-link": ("Public files do not link to internal Google Drive or Docs documents.",
+                          "Internal documents are private; a public link leaks their existence or breaks for readers.",
+                          "Remove the link, or publish the content in the repository or documentation site and link there."),
+    "email": ("Public files carry no personal e-mail addresses.",
+              "Personal contact data must not be published; the organization contact is the only listed address.",
+              "Use the organization contact address or a GitHub handle instead."),
+    "phone": ("Public files carry no phone numbers.",
+              "Personal contact data must not be published.",
+              "Remove the number; point readers to the organization contact or a GitHub issue."),
+    "price": ("Public files carry no prices outside the documented public pricing.",
+              "Prices change and are commercial information; stale or internal prices mislead readers.",
+              "Remove the price, or link to the one canonical public pricing page."),
+    "credential": ("Public files never contain credentials or secrets.",
+                   "A published secret can be abused at once and must be treated as compromised.",
+                   "Remove it, rotate the secret now, and load it from a secret store instead."),
+}
+
+
+def to_watchdog(findings):
+    out = []
+    for f in findings:
+        rule, why, fix = GUIDE[f["rule"]]
+        out.append(wr.finding(LABEL, f["rule"], f["file"], f["line"], f["found"], rule, why, fix,
+                              [("WATCHDOG.md", f"{wr.DOCS}#public-extract")]))
+    return out
+
 RULES = {
     "google-drive-link": re.compile(r"https?://(?:drive|docs)\.google\.com/[^\s\"'<>)\]]*[^\s\"'<>)\].,;:]", re.I),
     "email": re.compile(r"(?<![\w.+-])[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)+[a-z]{2,24}(?![\w-]|\.[A-Za-z])"),
@@ -141,8 +175,10 @@ def main(argv=None):
     if a.changed_files:
         only = [l.strip() for l in a.changed_files.read_text(encoding="utf-8").splitlines() if l.strip()]
     findings = scan(a.root, allow, a.repository, only)
-    for f in findings:
-        print(f"PUBLIC-EXTRACT {f['file']}:{f['line']}: {f['rule']}: {f['found']}")
+    friendly = to_watchdog(findings)
+    for line in wr.render(friendly, "Public extract", NEXT_STEP, decision_word="Rule"):
+        print(line)
+    wr.emit_github(friendly, "Public extract", NEXT_STEP)
     if a.json:
         a.json.write_text(json.dumps({"findings": findings}, indent=2), encoding="utf-8")
     print(f"result: {len(findings)} finding(s)")

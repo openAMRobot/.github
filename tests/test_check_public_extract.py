@@ -124,10 +124,18 @@ class CommandLine(unittest.TestCase):
             Path(tmp, "docs/b.md").write_text("clean\n", encoding="utf-8")
             code, out = self.run_main("--root", tmp)
             self.assertEqual(code, 1)
-            self.assertIn("PUBLIC-EXTRACT docs/a.md:1: google-drive-link", out)
+            self.assertIn("Should not be public: docs/a.md:1: google-drive-link found", out)
+            self.assertIn("\n  Rule:     Public files do not link to internal Google Drive", out)
+            self.assertIn("\n  Fix:      Remove the link", out)
+            self.assertIn("WATCHDOG.md#public-extract", out)
+            self.assertIn("Public extract summary: 1 finding(s) (google-drive-link 1)", out)
+            self.assertIn("result: 1 finding(s)", out)
             changed = Path(tmp, "changed.txt")
             changed.write_text("docs/b.md\n", encoding="utf-8")
             self.assertEqual(self.run_main("--root", tmp, "--changed-files", changed)[0], 0)
+
+    def test_every_rule_has_guidance(self):
+        self.assertEqual(set(pe.GUIDE), set(pe.RULES))
 
     def test_invalid_allowlist_is_usage_error(self):
         with tempfile.TemporaryDirectory() as tmp:

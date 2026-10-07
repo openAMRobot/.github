@@ -9,6 +9,23 @@ import re
 from pathlib import Path
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import watchdog_report as wr  # noqa: E402
+
+LABEL = 'Shared agent rules out of date'
+NEXT_STEP = ('copy the shared block from agent-rules/SHARED_RULES.md in openAMRobot/.github unchanged, '
+             'keep repository-specific rules below it, and keep CLAUDE.md as the single line @AGENTS.md.')
+WHY = 'Every repository gives contributors and agents the same rules; a drifted copy quietly changes them.'
+
+
+def fix_for(message):
+    if 'lines' in message:
+        return 'Shorten the repository-specific part so AGENTS.md stays under 120 lines.'
+    if 'CLAUDE.md' in message:
+        return 'Make CLAUDE.md contain only the line @AGENTS.md.'
+    return 'Copy the block between the BEGIN and END markers from agent-rules/SHARED_RULES.md unchanged.'
+
+
 MARKER = re.compile(r'<!-- (BEGIN|END) OPENAMROBOT SHARED RULES (v\d+) -->')
 MAX_LINES = 120
 
@@ -48,7 +65,7 @@ def main(argv=None):
     files = sorted(set(files))
     if not files:
         p.error('no AGENTS.md files selected; refusing empty success')
-    failed = False
+    problems = []
     for path in files:
         try:
             text = path.read_text(encoding='utf-8')
@@ -60,9 +77,15 @@ def main(argv=None):
                 raise ValueError('CLAUDE.md must import @AGENTS.md without duplicate rules')
             print(f'PASS {path} ({version})')
         except (OSError, ValueError) as e:
-            failed = True
-            print(f'FAIL {path}: {e}', file=sys.stderr)
-    return 1 if failed else 0
+            problems.append(wr.finding(
+                LABEL, 'shared-rules', str(path), 1, str(e),
+                f'AGENTS.md carries the canonical shared block {version} from openAMRobot/.github.',
+                WHY, fix_for(str(e)), [('WATCHDOG.md', f'{wr.DOCS}#shared-agent-rules')]))
+    if problems:
+        for line in wr.render(problems, 'Shared agent rules', NEXT_STEP, decision_word='Rule'):
+            print(line)
+        wr.emit_github(problems, 'Shared agent rules', NEXT_STEP)
+    return 1 if problems else 0
 
 
 if __name__ == '__main__':

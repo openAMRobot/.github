@@ -9,6 +9,7 @@ import io
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,9 +102,41 @@ class CommandLine(unittest.TestCase):
     def test_exit_one_on_contradiction(self):
         code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
         self.assertEqual(code, 1)
-        self.assertIn("CONTRADICTION README.md:3: FIX-MAST found 'mast_1400', decided '1350 mm'", out)
+        self.assertIn("Mismatch with approved decision: README.md:3: FIX-MAST found 'mast_1400'", out)
         self.assertIn("result: 6 contradiction(s), 1 allowed", out)
         self.assertIn("textual consistency only", out)
+
+    def test_finding_explains_decision_why_fix_and_links(self):
+        code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
+        block = out.split("Mismatch with approved decision: README.md:3:", 1)[1].split("\nMismatch", 1)[0]
+        self.assertIn("\n  Decision: 1350 mm\n", block)
+        self.assertIn("\n  Why:      baseline is mast_1350.\n", block)
+        self.assertIn("\n  Fix:      ", block)
+        self.assertIn("FIX-MAST in decisions.yaml: https://github.com/openAMRobot/.github/blob/main/decisions.yaml#L", block)
+        self.assertIn("WATCHDOG.md#decisions-of-record", block)
+        self.assertIn("== FIX-MAST: 5 finding(s) ==", out)
+        self.assertIn("Decisions of record summary: 6 finding(s) (FIX-MAST 5, FIX-IMU 1)", out)
+        self.assertIn("Next step: ", out)
+        self.assertNotIn("CONTRADICTION ", out)
+
+    def test_github_actions_annotations_and_job_summary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            summary = Path(tmp, "summary.md")
+            env = {"GITHUB_ACTIONS": "true", "WATCHDOG_ANNOTATION": "error", "GITHUB_STEP_SUMMARY": str(summary)}
+            with unittest.mock.patch.dict("os.environ", env):
+                code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
+            self.assertEqual(code, 1)
+            self.assertIn("::error file=README.md,line=3,title=Mismatch with approved decision (FIX-MAST)::", out)
+            self.assertEqual(out.count("::error file="), 6)
+            text = summary.read_text(encoding="utf-8")
+            self.assertIn("| FIX-MAST | 5 |", text)
+            self.assertIn("<details><summary>FIX-MAST: 5 finding(s)</summary>", text)
+
+    def test_no_annotations_outside_github_actions(self):
+        with unittest.mock.patch.dict("os.environ", {"GITHUB_ACTIONS": ""}):
+            code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
+        self.assertNotIn("::warning", out)
+        self.assertNotIn("::error", out)
 
     def test_exit_zero_when_clean(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -175,6 +208,17 @@ decisions:
                 with self.assertRaisesRegex(cd.DecisionError, expected):
                     cd.load_decisions(self.write(text))
 
+    def test_summary_and_fix_hint_are_optional_short_single_lines(self):
+        ok = self.BASE.replace("    title: t\n", "    title: t\n    summary: Mast is 1 mm.\n    fix_hint: Use 1 mm.\n")
+        decision = cd.load_decisions(self.write(ok))[0]
+        self.assertEqual((decision["summary"], decision["fix_hint"]), ("Mast is 1 mm.", "Use 1 mm."))
+        for field in ("summary", "fix_hint"):
+            for bad in ("'" + "x" * 121 + "'", "''", "|\n      two\n      lines", "[a]"):
+                with self.subTest(field=field, value=bad):
+                    text = self.BASE.replace("    title: t\n", f"    title: t\n    {field}: {bad}\n")
+                    with self.assertRaisesRegex(cd.DecisionError, f"{field} must be one non-empty line"):
+                        cd.load_decisions(self.write(text))
+
     SUPERSEDED = BASE.replace("status: recorded", "status: superseded").replace(
         "    check: [{pattern: '(?P<found>x)'}]\n",
         "    superseded_by: {document: D, item: j, decision: B, citation: '(?P<found>old)', unless: 'history'}\n")
@@ -228,6 +272,21 @@ class RealRegister(unittest.TestCase):
         for d in self.decisions:
             self.assertTrue(d["source"]["item"], d["id"])
             self.assertTrue(d["verification"]["human"]["evidence"], d["id"])
+
+    def test_every_entry_has_summary_and_fix_hint(self):
+        for d in self.decisions:
+            with self.subTest(id=d["id"]):
+                self.assertTrue(d.get("summary"))
+                self.assertTrue(d.get("fix_hint"))
+                self.assertTrue(d.get("_line"))
+
+    def test_finding_prints_summary_not_long_value(self):
+        records = [{"file": "a.md", "line": 1, "id": d["id"], "found": "x", "message": "m"} for d in self.decisions]
+        for record, d in zip(cd.to_watchdog(records, self.decisions), self.decisions):
+            with self.subTest(id=d["id"]):
+                self.assertEqual(record["decision"], d["summary"])
+                self.assertEqual(record["fix"], d["fix_hint"])
+                self.assertLessEqual(len(record["decision"]), 120)
 
     def test_non_numeric_decisions_are_present(self):
         kinds = {d["id"]: d["kind"] for d in self.decisions}

@@ -31,6 +31,15 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import watchdog_report as wr  # noqa: E402
+
+LABEL = "Mismatch with approved decision"
+NEXT_STEP = ("correct each line to the current decision, label historical material with the words the "
+             "decision accepts (WATCHDOG.md, How to fix), or open a contract change request if the "
+             "decision itself is wrong.")
+HINT_MAX = 120
+
 SCHEMA_VERSION = 1
 STATUSES = {"recorded", "open", "superseded"}
 KINDS = {"value", "configuration", "limit", "exclusion", "distinction"}
@@ -127,6 +136,11 @@ def load_decisions(path, maintainers=None):
             errors.append(f"{where}: reviewer {human['reviewer']!r} is not a role in the maintainers map")
         if "value" not in d and "values" not in d:
             errors.append(f"{where}: needs value or values")
+        for field in ("summary", "fix_hint"):
+            text = d.get(field)
+            if text is not None and (not isinstance(text, str) or not text.strip() or "\n" in text
+                                     or len(text) > HINT_MAX):
+                errors.append(f"{where}: {field} must be one non-empty line of at most {HINT_MAX} characters")
         src = d["source"]
         if not isinstance(src, dict) or not src.get("document") or not src.get("item"):
             errors.append(f"{where}: source needs document and item")
@@ -175,7 +189,13 @@ def load_decisions(path, maintainers=None):
     if errors:
         raise DecisionError("\n".join(errors))
     exclude = data.get("exclude") or []
+    entry_lines = {}
+    for number, text in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
+        m = re.match(r"\s*-\s+id:\s*(\S+)", text)
+        if m:
+            entry_lines.setdefault(m.group(1), number)
     for d in decisions:
+        d["_line"] = entry_lines.get(d["id"])
         d["_exclude"] = list(exclude) + list(d["applies_to"].get("exclude") or [])
         if d["status"] == "superseded":
             by = d["superseded_by"]
@@ -201,6 +221,29 @@ def decided_text(d):
         value = ", ".join(str(v) for v in value)
     unit = d.get("unit")
     return f"{value} {unit}".strip() if unit and unit != "none" else str(value)
+
+
+def short_decision(d, limit=HINT_MAX):
+    """One short line for a finding: the entry's summary, else its value cut to size."""
+    text = d.get("summary") or decided_text(d)
+    return text if len(text) <= limit else text[:limit - 3].rstrip() + "..."
+
+
+def to_watchdog(records, decisions):
+    """Turn scan() records into Watchdog findings with decision, why, fix and links."""
+    by_id = {d["id"]: d for d in decisions}
+    out = []
+    for r in records:
+        d = by_id[r["id"]]
+        anchor = f"#L{d['_line']}" if d.get("_line") else ""
+        out.append(wr.finding(
+            LABEL, r["id"], r["file"], r["line"], r["found"],
+            short_decision(d),
+            (r.get("message") or "this line disagrees with the approved decision").rstrip(".") + ".",
+            d.get("fix_hint") or "Correct the line to the current decision, or label historical material.",
+            [(f"{d['id']} in decisions.yaml", f"{wr.REGISTER}{anchor}"),
+             ("WATCHDOG.md", f"{wr.DOCS}#decisions-of-record")]))
+    return out
 
 
 def repository_matches(d, repository):
@@ -331,10 +374,12 @@ def main(argv=None):
     stats = {}
     findings, allowed = scan(a.root, decisions, a.repository, only, stats)
     for f in allowed:
-        print(f"ALLOWED {f['file']}:{f['line']}: {f['id']} found {f['found']!r}; reason: {f['reason']}")
-    for f in findings:
-        print(f"CONTRADICTION {f['file']}:{f['line']}: {f['id']} found {f['found']!r}, "
-              f"decided {f['decided']!r} ({f['source']}) {f['message']}".rstrip())
+        print(f"Allowed by decision-allow marker: {f['file']}:{f['line']}: {f['id']} found {f['found']!r}; "
+              f"reason: {f['reason']}")
+    friendly = to_watchdog(findings, decisions)
+    for line in wr.render(friendly, "Decisions of record", NEXT_STEP):
+        print(line)
+    wr.emit_github(friendly, "Decisions of record", NEXT_STEP)
     if a.json:
         a.json.write_text(json.dumps({"findings": findings, "allowed": allowed}, indent=2), encoding="utf-8")
     scope = f"{len(only)} changed file(s)" if only is not None else "full checkout"

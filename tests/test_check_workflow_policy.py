@@ -1,4 +1,6 @@
 """Tests for tools/check_workflow_policy.py."""
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -44,6 +46,20 @@ jobs:
             self.assertTrue(any("full commit SHA" in e for e in errors))
             self.assertTrue(any("no immutable" in e for e in errors))
             self.assertTrue(any("<HARNESS_SHA>" in e for e in errors))
+
+    def test_command_line_explains_each_finding(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.write(tmp, ".github/workflows/bad.yml", "jobs:\n  b:\n    steps:\n      - uses: actions/checkout@v4\n")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = policy.main(["--root", tmp])
+            text = out.getvalue()
+            self.assertEqual(code, 1)
+            self.assertIn("Workflow not pinned: .github/workflows/bad.yml:4: unpinned-action found", text)
+            self.assertIn("\n  Rule:     ", text)
+            self.assertIn("\n  Fix:      ", text)
+            self.assertIn("Workflow policy summary: 1 finding(s) (unpinned-action 1)", text)
+            self.assertIn("result: 1 workflow policy finding(s)", text)
 
     def test_rollout_examples_are_outside_scope(self):
         with tempfile.TemporaryDirectory() as tmp:

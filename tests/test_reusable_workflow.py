@@ -25,8 +25,10 @@ def load():
     return inputs, steps
 
 
-FAKE = """import sys
+FAKE = """import os, sys
 print("{line}")
+# Stand-in for tools/watchdog_report.emit_github: annotate at the level the step chose.
+print("::" + os.environ.get("WATCHDOG_ANNOTATION", "unset") + " file=a.md,line=1::finding")
 print("result: 1 contradiction(s), 0 allowed, scope full checkout")
 sys.exit({code})
 """
@@ -43,8 +45,8 @@ class HarnessModes(unittest.TestCase):
             tools.mkdir(parents=True)
             for t in ("check_decisions.py", "check_public_extract.py", "check_agent_rules.py",
                        "check_workflow_policy.py"):
-                line = ("CONTRADICTION a.md:1: X found 'a'" if t == "check_decisions.py"
-                        else "PUBLIC-EXTRACT a.md:1: price: 5")
+                line = ("Mismatch with approved decision: a.md:1: X found 'a'" if t == "check_decisions.py"
+                        else "Should not be public: a.md:1: price found '5'")
                 (tools / t).write_text(FAKE.format(line=line, code=code if t == tool else 0), encoding="utf-8")
             if agents:
                 Path(tmp, "AGENTS.md").write_text("x\n", encoding="utf-8")
@@ -96,6 +98,19 @@ class HarnessModes(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("::warning file=a.md,line=1::", out)
         self.assertEqual(self.run_step("Decisions of record", 2, enforce=True, event="push")[0], 2)
+
+    def test_annotation_level_follows_enforcement(self):
+        for name, tool in (("Decisions of record", "check_decisions.py"), ("Public extract", "check_public_extract.py"),
+                           ("Workflow policy", "check_workflow_policy.py")):
+            with self.subTest(step=name):
+                self.assertIn("::error file=a.md,line=1::", self.run_step(name, 1, enforce=True, tool=tool)[1])
+                self.assertIn("::warning file=a.md,line=1::",
+                              self.run_step(name, 1, enforce=True, event="push", tool=tool)[1])
+                self.assertIn("::warning file=a.md,line=1::", self.run_step(name, 1, enforce=False, tool=tool)[1])
+        self.assertIn("::error file=a.md,line=1::",
+                      self.run_step("Shared agent rules", 1, enforce=True, tool="check_agent_rules.py")[1])
+        self.assertIn("::warning file=a.md,line=1::",
+                      self.run_step("Shared agent rules", 1, enforce=False, tool="check_agent_rules.py")[1])
 
     def test_enforce_fails_on_shared_rules_drift(self):
         self.assertEqual(self.run_step("Shared agent rules", 1, enforce=True, tool="check_agent_rules.py")[0], 1)

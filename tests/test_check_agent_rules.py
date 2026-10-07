@@ -28,7 +28,7 @@ class Drift(unittest.TestCase):
 
     def run_main(self, *args):
         err = io.StringIO()
-        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+        with contextlib.redirect_stdout(err), contextlib.redirect_stderr(err):
             try:
                 code = car.main(["--canonical", str(CANONICAL), *map(str, args)])
             except SystemExit as exc:
@@ -47,6 +47,9 @@ class Drift(unittest.TestCase):
         code, err = self.run_main("--root", self.tmp.name)
         self.assertEqual(code, 1)
         self.assertIn("shared block differs from canonical", err)
+        self.assertIn("Shared agent rules out of date: ", err)
+        self.assertIn("Fix:      Copy the block between the BEGIN and END markers", err)
+        self.assertIn("Shared agent rules summary: 1 finding(s) (shared-rules 1)", err)
 
     def test_older_version_fails_with_version_message(self):
         old = self.shared.replace("SHARED RULES v2", "SHARED RULES v1")
