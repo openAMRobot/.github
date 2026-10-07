@@ -248,6 +248,33 @@ decisions:
       human: {reviewer: platform-lead, evidence: MMP STEP deck height and the lift base-plate drawing}
     owner: platform-lead
 
+  - id: FRAMES-REP105
+    title: Base frames follow REP 105
+    kind: configuration
+    status: recorded
+    values:
+      - base_footprint on the floor under the drive-axle midpoint
+      - base_link at the drive-axle midpoint and axle height; x forward, z up
+      - imu_link on the centreline, away from motor magnetic fields
+    unit: none
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: item 15}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
+    check:
+      - pattern: '(?P<found>\bbase_link\b[^\n]{0,30}\b(?:on|at) the floor\b)'
+        unless: 'base_footprint|\bnot\b|never|supersed|historical|legacy'
+        message: base_link is at the drive-axle midpoint and axle height; base_footprint is on the floor (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\bbase_footprint\b[^\n]{0,30}\bat (?:the )?axle height\b)'
+        unless: '\bnot\b|never|supersed|historical|legacy'
+        message: base_footprint is on the floor under the drive-axle midpoint (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\bimu_link\b[^\n]{0,40}\b(?:next to|beside|on|near|above) the (?:drive |hub |wheel )?motors?\b)'
+        unless: '\baway\b|\bnot\b|never|supersed|historical|legacy'
+        message: imu_link sits on the centreline away from motor magnetic fields (P-03 rev18.7 item 15)
+    verification:
+      machine: base_link placed on the floor, base_footprint at axle height, or imu_link next to a motor
+      human: {reviewer: software-lead, evidence: URDF frame tree and real TF on the robot matching REP 105}
+    owner: platform-lead
+
   - id: BATTERY-PLACEMENT
     title: Battery pack and placement
     kind: value

@@ -326,6 +326,15 @@ class RealRegister(unittest.TestCase):
                      "Base-plate top face 304 mm, the reference for lift and shoulder heights.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_frames_rep105(self):
+        for text in ("base_link sits on the floor under the robot.\n",
+                     "base_footprint is at axle height.\n",
+                     "imu_link is mounted next to the drive motor.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["FRAMES-REP105"], text)
+        for text in ("base_footprint on the floor under the drive-axle midpoint; base_link at axle height, x forward, z up.\n",
+                     "imu_link on the centreline, away from the motor magnetic fields.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
