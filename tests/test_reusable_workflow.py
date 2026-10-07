@@ -55,8 +55,8 @@ class HarnessModes(unittest.TestCase):
             tools.mkdir(parents=True)
             for t in ("check_decisions.py", "check_public_extract.py", "check_agent_rules.py",
                        "check_workflow_policy.py"):
-                line = ("Mismatch with approved decision: a.md:1: X found 'a'" if t == "check_decisions.py"
-                        else "Should not be public: a.md:1: price found '5'")
+                line = ("Mismatch with approved decision: X (1 finding(s))" if t == "check_decisions.py"
+                        else "Should not be public: price (1 finding(s))")
                 (tools / t).write_text(FAKE.format(line=line, code=code if t == tool else 0), encoding="utf-8")
             if agents:
                 Path(tmp, "AGENTS.md").write_text("x\n", encoding="utf-8")

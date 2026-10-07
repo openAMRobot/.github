@@ -112,19 +112,24 @@ class CommandLine(unittest.TestCase):
     def test_exit_one_on_contradiction(self):
         code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
         self.assertEqual(code, 1)
-        self.assertIn("Mismatch with approved decision: README.md:3: FIX-MAST found 'mast_1400'", out)
+        self.assertIn("Mismatch with approved decision: FIX-MAST (5 finding(s))", out)
+        self.assertIn("\n    README.md:3: found 'mast_1400'\n", out)
         self.assertIn("result: 6 contradiction(s), 1 allowed", out)
         self.assertIn("textual consistency only", out)
 
     def test_finding_explains_decision_why_fix_and_links(self):
         code, out = run("--decisions", DECISIONS, "--root", REPO, "--repository", "platform-x")
-        block = out.split("Mismatch with approved decision: README.md:3:", 1)[1].split("\nMismatch", 1)[0]
+        block = out.split("Mismatch with approved decision: FIX-MAST (5 finding(s))", 1)[1].split("\nMismatch", 1)[0]
         self.assertIn("\n  Decision: 1350 mm\n", block)
-        self.assertIn("\n  Why:      baseline is mast_1350.\n", block)
+        # Decision, Why, Fix and More once per group; one Why line per distinct reason.
+        self.assertEqual(block.count("  Decision:"), 1)
+        self.assertEqual(block.count("  Fix:"), 1)
+        self.assertIn("\n  Why:      baseline is mast_1350.\n            superseded source still cited", block)
         self.assertIn("\n  Fix:      ", block)
         self.assertIn("FIX-MAST in decisions.yaml: https://github.com/openAMRobot/.github/blob/main/decisions.yaml#L", block)
         self.assertIn("WATCHDOG.md#decisions-of-record", block)
-        self.assertIn("== FIX-MAST: 5 finding(s) ==", out)
+        self.assertIn("\n  Found:\n    README.md:3: found 'mast_1400'\n    docs/citation.md:3: found 'FIX-DOC rev 1 item 1'\n", block)
+        self.assertEqual(block.count(": found "), 5)
         self.assertIn("Decisions of record summary: 6 finding(s) (FIX-MAST 5, FIX-IMU 1)", out)
         self.assertIn("Next step: ", out)
         self.assertNotIn("CONTRADICTION ", out)

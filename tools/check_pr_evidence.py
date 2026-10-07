@@ -190,19 +190,31 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False, commit_messa
 
 # First line of each check_decisions.py finding (tools/watchdog_report.py format).
 DECISION_FINDING = "Mismatch with approved decision: "
+DECISION_GROUP = re.compile(r"^Mismatch with approved decision: (?P<id>\S+) \(\d+ finding\(s\)\)$")
+DECISION_ITEM = re.compile(r"^    (?P<place>\S.*?:\d+): found (?P<found>.*)$")
 
 
 def decision_findings(report):
-    """Finding headers, each with its one-line Decision when the report gives one."""
-    lines = report.splitlines()
+    """One line per finding from the grouped Watchdog report: place, ID, found text and the
+    group's one-line Decision ("docs/a.md:4: ID found 'x'; decision: ...")."""
     out = []
-    for i, line in enumerate(lines):
-        if line.startswith(DECISION_FINDING):
-            text = line[len(DECISION_FINDING):]
-            following = lines[i + 1].strip() if i + 1 < len(lines) else ""
-            if following.startswith("Decision:"):
-                text += f"; decision: {following[len('Decision:'):].strip()}"
-            out.append(text)
+    group = decision = None
+    for line in report.splitlines():
+        m = DECISION_GROUP.match(line)
+        if m:
+            group, decision = m.group("id"), None
+            continue
+        if group is None:
+            continue
+        if line.startswith("  Decision:"):
+            decision = line[len("  Decision:"):].strip()
+            continue
+        item = DECISION_ITEM.match(line)
+        if item:
+            text = f"{item.group('place')}: {group} found {item.group('found')}"
+            out.append(text + (f"; decision: {decision}" if decision else ""))
+        elif not line.startswith("  "):
+            group = None
     return out
 
 

@@ -54,10 +54,14 @@ class Watchdog(unittest.TestCase):
             code, out = run("--root", repo)
             self.assertEqual(code, 1)
             self.assertIn("OpenAMRobot Watchdog: openamr-platform-sw", out)
-            self.assertIn("Mismatch with approved decision: docs/a.md:1: COMPUTE found 'Raspberry Pi 5'", out)
-            self.assertIn("Should not be public: README.md:1: google-drive-link found", out)
-            self.assertIn("Shared agent rules out of date: AGENTS.md:1:", out)
-            self.assertIn("Workflow not pinned: .github/workflows/ci.yml:4:", out)
+            self.assertIn("Mismatch with approved decision: COMPUTE (1 finding(s))", out)
+            self.assertIn("\n    docs/a.md:1: found 'Raspberry Pi 5'\n", out)
+            self.assertIn("Should not be public: google-drive-link (1 finding(s))", out)
+            self.assertIn("\n    README.md:1: found 'https://drive.google.com", out)
+            self.assertIn("Shared agent rules out of date: shared-rules (1 finding(s))", out)
+            self.assertIn("\n    AGENTS.md:1: found ", out)
+            self.assertIn("Workflow not pinned: unpinned-action (1 finding(s))", out)
+            self.assertIn("\n    .github/workflows/ci.yml:4: found ", out)
             self.assertIn("Total: 4 finding(s) (COMPUTE 1, google-drive-link 1, shared-rules 1, unpinned-action 1)", out)
             self.assertIn("WATCHDOG.md", out)
 
@@ -107,6 +111,10 @@ class Watchdog(unittest.TestCase):
             data = json.loads(js.read_text(encoding="utf-8"))
             self.assertEqual(data["repository"], "x")
             self.assertEqual(len(data["results"]["decisions"]), 1)
+            finding = data["results"]["decisions"][0]
+            # JSON keeps full detail per finding, unlike the compact text report.
+            self.assertEqual((finding["file"], finding["line"], finding["found"]), ("docs/a.md", 1, "Raspberry Pi 5"))
+            self.assertTrue(finding["decision"] and finding["why"] and finding["fix"] and finding["links"])
 
     def test_freshness_reports_past_review_dates(self):
         self.assertEqual(watchdog.freshness(ROOT / "decisions.yaml", date(2000, 1, 1)), [])

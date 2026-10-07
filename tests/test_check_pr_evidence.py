@@ -211,13 +211,26 @@ class SafetyRules(unittest.TestCase):
 class DecisionReport(unittest.TestCase):
     def test_contradictions_become_failures(self):
         report = ("decisions: 3 loaded\n"
-                  "Mismatch with approved decision: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400'\n  Decision: x\n"
+                  "Mismatch with approved decision: MAST-INSTALL-HEIGHT (1 finding(s))\n  Decision: x\n"
+                  "  Why:      y\n  Found:\n    docs/a.md:4: found 'mast_1400'\n\n"
                   "ALLOWED docs/h.md:2: MAST-INSTALL-HEIGHT found 'mast_1400'; reason: history\n")
         self.assertEqual(ev.decision_failures(report), [
             "Decision contradiction: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400'; decision: x"])
 
+    def test_reads_the_real_grouped_checker_output(self):
+        fixtures = ROOT / "tests" / "fixtures"
+        proc = subprocess.run([sys.executable, str(ROOT / "tools" / "check_decisions.py"),
+                               "--decisions", str(fixtures / "decisions.yaml"),
+                               "--root", str(fixtures / "decisions_repo"), "--repository", "platform-x"],
+                              capture_output=True, text=True, env={**os.environ, "GITHUB_ACTIONS": ""})
+        failures = ev.decision_failures(proc.stdout)
+        self.assertEqual(len(failures), 6)
+        self.assertIn("Decision contradiction: README.md:3: FIX-MAST found 'mast_1400'; decision: 1350 mm", failures)
+        self.assertEqual(ev.decision_verdict(proc.stdout, {"exit_code": proc.returncode}), (failures, []))
+
     def test_long_reports_are_truncated(self):
-        report = "\n".join(f"Mismatch with approved decision: f.md:{i}: X found 'a'" for i in range(25))
+        report = "Mismatch with approved decision: X (25 finding(s))\n  Found:\n" + "\n".join(
+            f"    f.md:{i}: found 'a'" for i in range(25))
         failures = ev.decision_failures(report)
         self.assertEqual(len(failures), 21)
         self.assertEqual(failures[-1], "... and 5 more decision contradictions")
@@ -279,8 +292,10 @@ class JqMissing(unittest.TestCase):
 
 CLEAN = "decisions: 23 loaded\nresult: 0 contradiction(s), 0 allowed, scope 3 changed file(s)\n"
 TWO = ("decisions: 23 loaded\n"
-       "Mismatch with approved decision: docs/a.md:4: MAST-INSTALL-HEIGHT found 'mast_1400'\n  Decision: x\n"
-       "Mismatch with approved decision: docs/b.md:9: COMPUTE found 'Raspberry Pi 5'\n  Decision: Jetson\n"
+       "Mismatch with approved decision: MAST-INSTALL-HEIGHT (1 finding(s))\n  Decision: x\n  Found:\n"
+       "    docs/a.md:4: found 'mast_1400'\n\n"
+       "Mismatch with approved decision: COMPUTE (1 finding(s))\n  Decision: Jetson\n  Found:\n"
+       "    docs/b.md:9: found 'Raspberry Pi 5'\n\n"
        "result: 2 contradiction(s), 0 allowed, scope 2 changed file(s)\n")
 
 

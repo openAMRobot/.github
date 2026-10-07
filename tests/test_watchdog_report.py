@@ -36,12 +36,28 @@ class Render(unittest.TestCase):
     def test_grouped_blocks_and_closing_summary(self):
         lines = wr.render(sample(), "Decisions of record", "fix it.")
         text = "\n".join(lines)
-        self.assertLess(text.index("== A: 2 finding(s) =="), text.index("== B: 1 finding(s) =="))
-        self.assertIn("Mismatch with approved decision: docs/x.md:4: A found 'old'\n"
+        self.assertLess(text.index("Mismatch with approved decision: A (2 finding(s))"),
+                        text.index("Mismatch with approved decision: B (1 finding(s))"))
+        self.assertIn("Mismatch with approved decision: A (2 finding(s))\n"
                       "  Decision: A is new.\n  Why:      Why A.\n  Fix:      Use new.\n"
-                      f"  More:     WATCHDOG.md: {wr.DOCS}", text)
+                      f"  More:     WATCHDOG.md: {wr.DOCS}\n"
+                      "  Found:\n    docs/x.md:4: found 'old'\n    docs/y.md:9: found 'old'\n", text)
+        # The group's guidance is printed once, not per finding.
+        self.assertEqual(text.count("  Decision: A is new."), 1)
         self.assertEqual(lines[-2], "Decisions of record summary: 3 finding(s) (A 2, B 1)")
         self.assertEqual(lines[-1], "Next step: fix it.")
+
+    def test_distinct_reasons_in_one_group_are_each_printed_once(self):
+        items = sample()[:1] + [dict(sample()[2], why="Other reason."), dict(sample()[2], file="z.md", why="Why A.")]
+        text = "\n".join(wr.render(items, "T", "n"))
+        self.assertIn("  Why:      Why A.\n            Other reason.\n  Fix:", text)
+        self.assertEqual(text.count("Why A."), 1)
+
+    def test_annotations_keep_full_detail_per_finding(self):
+        notes = wr.annotations(sample())
+        self.assertEqual(len(notes), 3)
+        self.assertTrue(all("Fix: " in n and wr.DOCS in n for n in notes))
+        self.assertIn("file=docs/y.md,line=9,", notes[2])
 
     def test_clean_run_says_nothing_to_fix(self):
         self.assertEqual(wr.render([], "Public extract", "x"),
