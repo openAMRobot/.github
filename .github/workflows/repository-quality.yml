@@ -80,7 +80,7 @@ jobs:
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y git python3-pip python3-jsonschema shellcheck
               rosdep update
-              python3 -c 'import jsonschema' 2>/dev/null || python3 -m pip install --break-system-packages --quiet jsonschema
+              python3 -c "import jsonschema" 2>/dev/null || python3 -m pip install --break-system-packages --quiet jsonschema
               git config --global --add safe.directory /work/interfaces
               test -d /work/interfaces/ros2/build
               test -d /work/interfaces/ros2/install
