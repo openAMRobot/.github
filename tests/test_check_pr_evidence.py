@@ -65,7 +65,8 @@ def pr(body=BODY, draft=False, reviewers=(), author="contributor"):
 def evaluate(body=BODY, changed=("src/node.py",), **kw):
     reviews = kw.pop("reviews", ())
     has_state = kw.pop("has_state", False)
-    return ev.evaluate(pr(body, **kw), list(changed), MAINTAINERS, reviews, has_state)
+    commit_messages = kw.pop("commit_messages", ())
+    return ev.evaluate(pr(body, **kw), list(changed), MAINTAINERS, reviews, has_state, commit_messages)
 
 
 class Sections(unittest.TestCase):
@@ -176,6 +177,23 @@ class SafetyRules(unittest.TestCase):
         body = BODY.replace("## AI disclosure\nNone", "## AI disclosure\nClaude Code drafted the watchdog change.")
         failures = evaluate(body, changed=["fw/watchdog.c"], reviewers=["BotshareAI", "panthera-momagdii"])[0]
         self.assertTrue(any("agents do not author safety logic" in f for f in failures))
+
+    def test_ai_disclosure_names_tool_and_scope(self):
+        body = BODY.replace("## AI disclosure\nNone", "## AI disclosure\nAI-assisted.")
+        failures = evaluate(body, commit_messages=["Generated with Claude Code"])[0]
+        self.assertTrue(any("must name the AI tool" in f for f in failures))
+        self.assertTrue(any("must state the scope" in f for f in failures))
+
+    def test_ai_disclosure_can_pass_with_tool_and_scope(self):
+        body = BODY.replace(
+            "## AI disclosure\nNone",
+            "## AI disclosure\nClaude Code drafted the documentation and tests; a human reviewed the diff."
+        )
+        self.assertEqual(evaluate(body, commit_messages=["Generated with Claude Code"])[0], [])
+
+    def test_ai_markers_in_commit_messages_are_checked(self):
+        failures = evaluate(commit_messages=["Implement feature\n\nCo-Authored-By: Claude <noreply@example.com>"])[0]
+        self.assertTrue(any("AI assistance is visible" in f for f in failures))
 
 
 class DecisionReport(unittest.TestCase):
