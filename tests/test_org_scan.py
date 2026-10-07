@@ -67,19 +67,23 @@ class RepositoryList(unittest.TestCase):
 
 
 class Workflow(unittest.TestCase):
-    def test_read_only_scheduled_and_manual(self):
+    def test_scans_on_thursday_and_writes_only_control_surface_issues(self):
         data, on = workflow()
-        self.assertEqual(data["permissions"], {"contents": "read"})
+        self.assertEqual(data["permissions"], {"contents": "read", "issues": "write"})
         self.assertEqual(set(on), {"schedule", "workflow_dispatch"})
+        self.assertEqual(on["schedule"][0]["cron"], "17 6 * * 4")
         for job in data["jobs"].values():
             self.assertNotIn("permissions", job)
 
-    def test_never_pushes_comments_or_opens_issues(self):
+    def test_never_pushes_code_or_runs_ai(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        for forbidden in ("git push", "gh issue", "gh pr", "secrets.", "issues: write", "pull-requests: write",
+        for forbidden in ("git push", "git commit", "gh issue", "gh pr", "pull-requests: write",
                           "contents: write", "anthropic", "claude-code-action"):
             self.assertNotIn(forbidden, text)
         self.assertIn("--report-only", text)
+        self.assertIn("watchdog_issue_sync.py", text)
+        self.assertIn("--apply", text)
+        self.assertIn("GITHUB_TOKEN", text)
         self.assertIn("WATCHDOG.md", text)
 
     def test_actions_pinned_to_full_sha(self):
