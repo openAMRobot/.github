@@ -4,6 +4,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -205,6 +206,7 @@ class DeletedFiles(unittest.TestCase):
         failures = evaluate(changed=["ros2/pkg/package.xml"])[0]
         self.assertTrue(any(f.startswith("Dependency manifests changed (ros2/pkg/package.xml)") for f in failures))
 
+    @unittest.skipIf(shutil.which("jq") is None, "jq is not installed; tracking issue openAMRobot/.github#42")
     def test_pr_assistant_passes_deleted_files_to_the_evidence_checker(self):
         workflow = yaml.safe_load((ROOT / "rollout" / "workflows" / "pr-assistant.yml").read_text(encoding="utf-8"))
         steps = {s.get("name"): s.get("run", "") for s in workflow["jobs"]["evidence"]["steps"]}
@@ -232,6 +234,17 @@ class DeletedFiles(unittest.TestCase):
         failures = evaluate(changed=changed_all)[0]
         self.assertTrue(any(f.startswith("Safety path touched") for f in failures))
         self.assertTrue(any(f.startswith("Dependency manifests changed") for f in failures))
+
+
+class JqMissing(unittest.TestCase):
+    def test_wiring_test_names_its_tracking_issue_when_jq_is_missing(self):
+        with tempfile.TemporaryDirectory() as empty_path:
+            proc = subprocess.run(
+                [sys.executable, "-m", "unittest", "-v",
+                 "test_check_pr_evidence.DeletedFiles.test_pr_assistant_passes_deleted_files_to_the_evidence_checker"],
+                cwd=ROOT / "tests", env=dict(os.environ, PATH=empty_path), capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("skipped 'jq is not installed; tracking issue openAMRobot/.github#42'", proc.stderr)
 
 
 CLEAN = "decisions: 23 loaded\nresult: 0 contradiction(s), 0 allowed, scope 3 changed file(s)\n"
