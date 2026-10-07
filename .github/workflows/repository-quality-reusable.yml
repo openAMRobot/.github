@@ -25,6 +25,14 @@ on:
         type: boolean
         required: false
         default: false
+      agents_md_exception:
+        description: >-
+          Non-empty, human-readable reason to allow a repository without AGENTS.md when
+          harness_checks is true. The reason is printed in the job summary.
+        type: string
+        required: false
+        default: ""
+
       verify:
         description: Run rollout/verify.sh (or the repository's own tools/verify.sh) as job quality/test.
         type: boolean
@@ -45,7 +53,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history only when the harness checks run (they diff against the base);
           # default callers keep the shallow checkout. The string '0' keeps the
@@ -54,7 +62,7 @@ jobs:
 
       - name: Check out OpenAMRobot harness
         if: inputs.harness_checks || inputs.harness_warn
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: openAMRobot/.github
           ref: ${{ inputs.harness_ref }}
@@ -113,6 +121,24 @@ jobs:
           if [ "$EVENT_NAME" = pull_request ]; then
             git diff --name-only --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" > "$RUNNER_TEMP/changed-files.txt"
             echo "scope=changed files ($(wc -l < "$RUNNER_TEMP/changed-files.txt"))"
+          fi
+
+      - name: Workflow policy
+        if: inputs.harness_checks || inputs.harness_warn
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          ENFORCE: ${{ inputs.harness_checks }}
+        run: |
+          set -uo pipefail
+          h=.openamrobot-harness
+          python3 "$h/tools/check_workflow_policy.py" --root . | tee "$RUNNER_TEMP/workflow-policy.txt"
+          status=${PIPESTATUS[0]}
+          if [ "$ENFORCE" = true ] && { [ "$EVENT_NAME" = pull_request ] || [ "$status" -eq 2 ]; }; then
+            exit "$status"
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::workflow policy exit $status reported, not enforced (warn-only mode or push scan)"
           fi
 
       # harness_checks: true (enforcing): pull requests scan changed files and block;
@@ -177,6 +203,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           REPOSITORY: ${{ github.event.repository.name }}
           ENFORCE: ${{ inputs.harness_checks }}
+          AGENTS_MD_EXCEPTION: ${{ inputs.agents_md_exception }}
         run: |
           set -uo pipefail
           if [ -f AGENTS.md ]; then
@@ -188,7 +215,19 @@ jobs:
               echo "::warning::shared rules drift (exit $status), not enforced in warn-only mode"
             fi
           else
-            echo "No AGENTS.md in this repository; see rollout/README.md in openAMRobot/.github"
+            if [ -n "$AGENTS_MD_EXCEPTION" ]; then
+              echo "AGENTS.md exception: $AGENTS_MD_EXCEPTION"
+              {
+                echo "### AGENTS.md exception"
+                echo
+                echo "$AGENTS_MD_EXCEPTION"
+              } >> "$GITHUB_STEP_SUMMARY"
+            elif [ "$ENFORCE" = true ]; then
+              echo "::error::AGENTS.md is required when harness_checks is true; pass agents_md_exception with a human-readable reason"
+              exit 1
+            else
+              echo "::warning::No AGENTS.md; pass agents_md_exception with a human-readable reason before enforcing"
+            fi
           fi
 
   verify:
@@ -199,12 +238,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Check out OpenAMRobot harness
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: openAMRobot/.github
           ref: ${{ inputs.harness_ref }}
@@ -218,7 +257,7 @@ jobs:
 
       - name: Upload verification evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: verification-evidence
           path: .verification/run.*/
