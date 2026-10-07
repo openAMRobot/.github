@@ -81,7 +81,30 @@ def human(login):
     return bool(login) and not login.endswith("[bot]")
 
 
-def evaluate(pr, changed, maintainers, reviews=(), has_state=False):
+AI_TOOL = re.compile(r"\\b(?:Claude(?:\\s+Code)?|Anthropic|ChatGPT|OpenAI|Codex|Copilot|Gemini|Cursor|Devin)\\b", re.I)
+AI_MARKER = re.compile(r"(?:AI[-\\s]+assisted|generated with|co-authored-by:.*(?:bot|claude|copilot|chatgpt|openai|anthropic|codex))", re.I)
+AI_SCOPE = re.compile(r"\\b(?:scope|assisted|drafted|generated|reviewed|changed|implemented|tested|research|documentation|workflow|code|text|analysis|reconciliation)\\b", re.I)
+
+
+def ai_assistance_detected(pr, commit_messages=()):
+    text = (pr.get("body") or "") + "\n" + "\n".join(commit_messages or ())
+    return bool(AI_TOOL.search(text) or AI_MARKER.search(text))
+
+
+def check_ai_disclosure(pr, commit_messages, disclosure):
+    if not ai_assistance_detected(pr, commit_messages):
+        return []
+    if not disclosure or NONE.match(disclosure):
+        return ["AI assistance is visible in the PR or commit messages, but AI disclosure is empty; name the tool and scope"]
+    failures = []
+    if not AI_TOOL.search(disclosure):
+        failures.append("AI disclosure must name the AI tool used (for example Claude Code, ChatGPT or Codex)")
+    if not AI_SCOPE.search(disclosure):
+        failures.append("AI disclosure must state the scope of assistance (what it drafted, changed, tested or reviewed)")
+    return failures
+
+
+def evaluate(pr, changed, maintainers, reviews=(), has_state=False, commit_messages=()):
     """Return (failures, warnings, notes) for a pull_request payload."""
     failures, warnings, notes = [], [], []
     secs = sections(pr.get("body") or "")
@@ -128,6 +151,9 @@ def evaluate(pr, changed, maintainers, reviews=(), has_state=False):
         section = find(secs, "STATE.md") or ""
         if not re.search(r"no change\W+\w", section, re.I):
             failures.append("STATE.md exists but is not updated; update it or write 'no change' with a reason")
+
+    ai_disclosure = find(secs, "AI disclosure") or ""
+    failures.extend(check_ai_disclosure(pr, commit_messages, ai_disclosure))
 
     roles = (maintainers or {}).get("roles", {})
     lead = (roles.get("platform-lead") or {}).get("handle")
@@ -252,6 +278,7 @@ def main(argv=None):
     p.add_argument("--changed-files", type=Path, required=True)
     p.add_argument("--maintainers", type=Path, required=True)
     p.add_argument("--reviews", type=Path, help="JSON list of PR reviews")
+    p.add_argument("--commit-messages", type=Path, help="one or more PR commit messages, one per line or JSON text")
     p.add_argument("--root", type=Path, help="checkout of the PR head; enables the STATE.md rule")
     p.add_argument("--decisions-report", type=Path,
                    help="combined output of check_decisions.py on the diff")
@@ -270,8 +297,9 @@ def main(argv=None):
     changed = [l.strip() for l in a.changed_files.read_text(encoding="utf-8").splitlines() if l.strip()]
     maintainers = yaml.safe_load(a.maintainers.read_text(encoding="utf-8"))
     reviews = json.loads(a.reviews.read_text(encoding="utf-8")) if a.reviews else []
+    commit_messages = a.commit_messages.read_text(encoding="utf-8").splitlines() if a.commit_messages else []
     has_state = bool(a.root and (a.root / "STATE.md").is_file())
-    failures, warnings, notes = evaluate(pr, changed, maintainers, reviews, has_state)
+    failures, warnings, notes = evaluate(pr, changed, maintainers, reviews, has_state, commit_messages)
     checker_errors = []
     if a.decisions_report or a.decisions_status:
         report = status = None
