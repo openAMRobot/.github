@@ -5,9 +5,11 @@ contains nothing a secret scanner would report.
 """
 import contextlib
 import io
+import os
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,6 +21,15 @@ DRIVE = "https://" + "drive" + ".google.com/file/d/abc123/view"
 DOCS = "https://" + "docs" + ".google.com/document/d/xyz/edit"
 TOKEN = "gh" + "p_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8S9t0"
 KEY = "AK" + "IA" + "ABCDEFGHIJKLMNOP"
+
+
+def setUpModule():
+    # Tests never write to the real GitHub Actions log or job summary of the CI run.
+    patcher = unittest.mock.patch.dict(os.environ)
+    patcher.start()
+    unittest.addModuleCleanup(patcher.stop)
+    for key in ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY", "WATCHDOG_ANNOTATION", "WATCHDOG_ANNOTATIONS"):
+        os.environ.pop(key, None)
 
 
 class Rules(unittest.TestCase):

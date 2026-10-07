@@ -2,10 +2,12 @@
 import contextlib
 import io
 import json
+import os
 import shutil
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from datetime import date
 from pathlib import Path
 
@@ -21,6 +23,15 @@ def run(*args):
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
         code = watchdog.main([str(a) for a in args])
     return code, out.getvalue()
+
+
+def setUpModule():
+    # Tests never write to the real GitHub Actions log or job summary of the CI run.
+    patcher = unittest.mock.patch.dict(os.environ)
+    patcher.start()
+    unittest.addModuleCleanup(patcher.stop)
+    for key in ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY", "WATCHDOG_ANNOTATION", "WATCHDOG_ANNOTATIONS"):
+        os.environ.pop(key, None)
 
 
 class Watchdog(unittest.TestCase):

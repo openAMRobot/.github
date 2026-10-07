@@ -10,6 +10,7 @@ import stat
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import yaml
@@ -39,6 +40,15 @@ exec "$REAL_GIT" "$@"
 def workflow():
     data = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
     return data, data.get(True, data.get("on"))
+
+
+def setUpModule():
+    # Tests never write to the real GitHub Actions log or job summary of the CI run.
+    patcher = unittest.mock.patch.dict(os.environ)
+    patcher.start()
+    unittest.addModuleCleanup(patcher.stop)
+    for key in ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY", "WATCHDOG_ANNOTATION", "WATCHDOG_ANNOTATIONS"):
+        os.environ.pop(key, None)
 
 
 class RepositoryList(unittest.TestCase):

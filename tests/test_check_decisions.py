@@ -6,6 +6,7 @@ document.
 """
 import contextlib
 import io
+import os
 import sys
 import tempfile
 import unittest
@@ -26,6 +27,15 @@ def run(*args):
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
         code = cd.main([str(a) for a in args])
     return code, out.getvalue()
+
+
+def setUpModule():
+    # Tests never write to the real GitHub Actions log or job summary of the CI run.
+    patcher = unittest.mock.patch.dict(os.environ)
+    patcher.start()
+    unittest.addModuleCleanup(patcher.stop)
+    for key in ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY", "WATCHDOG_ANNOTATION", "WATCHDOG_ANNOTATIONS"):
+        os.environ.pop(key, None)
 
 
 class FixtureMatrix(unittest.TestCase):

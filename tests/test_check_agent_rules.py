@@ -1,9 +1,11 @@
 """Tests for tools/check_agent_rules.py (shared-block drift check)."""
 import contextlib
 import io
+import os
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +13,15 @@ sys.path.insert(0, str(ROOT / "tools"))
 import check_agent_rules as car  # noqa: E402
 
 CANONICAL = ROOT / "agent-rules" / "SHARED_RULES.md"
+
+
+def setUpModule():
+    # Tests never write to the real GitHub Actions log or job summary of the CI run.
+    patcher = unittest.mock.patch.dict(os.environ)
+    patcher.start()
+    unittest.addModuleCleanup(patcher.stop)
+    for key in ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY", "WATCHDOG_ANNOTATION", "WATCHDOG_ANNOTATIONS"):
+        os.environ.pop(key, None)
 
 
 class Drift(unittest.TestCase):
