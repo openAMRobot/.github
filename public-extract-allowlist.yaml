@@ -33,6 +33,32 @@ allow:
       Licence and copyright notices of third-party code must keep their author
       contact to preserve provenance (THIRD_PARTY_POLICY.md). Only lines that
       are such notices qualify.
+  - rule: email
+    match: '[^@\s]+@(?:[a-z0-9-]+\.)*botshare\.ai'
+    reason: >-
+      Organisation contacts: any address on the botshare.ai domain (or its subdomains) is an
+      organisation address. Approved by the platform lead on 7 October 2026. Lookalike domains
+      such as botshare-ai.com or botshare.ai.example.org do not match.
+  - rule: email
+    match: '[^@\s]+@[^@\s]+'
+    line: '\b(?:signed-off-by|co-authored-by):'
+    reason: >-
+      Contributors and maintainers: an address on a Signed-off-by or Co-authored-by line.
+      Publication is agreed through the DCO, the CLA and the contributor privacy notice.
+  - rule: email
+    match: '[^@\s]+@[^@\s]+'
+    paths: ["CONTRIBUTORS.md", "MAINTAINERS.md", "maintainers.yaml"]
+    reason: >-
+      Contributors and maintainers: an address listed in CONTRIBUTORS.md, MAINTAINERS.md or
+      maintainers.yaml. Publication is agreed through the DCO, the CLA and the contributor
+      privacy notice.
+  - rule: email
+    match: '(?:sales|info|support|service|contact|export|trade|office|marketing)\d*@[^@\s]+'
+    paths: ["datasheets/**"]
+    reason: >-
+      Supplier role addresses in re-hosted supplier datasheet notes (datasheets/ only): the local
+      part names a role, not a person. An address that names a person stays flagged. Prices are
+      never allowlisted here.
   - rule: price
     match: '(?:from\s+)?€\d[\d,.]*(?:/mo)?'
     paths: ["README.md"]

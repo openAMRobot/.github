@@ -95,7 +95,7 @@ class Rules(unittest.TestCase):
         allow = pe.load_allowlist(ROOT / "public-extract-allowlist.yaml")
         self.assertEqual(self.hits('API_KEY="sk-ant-your-key-here"\n', allow=allow), [])
         self.assertEqual(self.hits(f"info{AT}botshare.ai\n", allow=allow), [])
-        self.assertEqual(len(self.hits(f"someone{AT}botshare.ai\n", allow=allow)), 1)
+        self.assertEqual(self.hits(f"someone{AT}botshare.ai\n", allow=allow), [])
 
     def test_organization_allowlist_admits_only_notice_lines(self):
         allow = pe.load_allowlist(ROOT / "public-extract-allowlist.yaml")
@@ -110,6 +110,36 @@ class Rules(unittest.TestCase):
         self.assertEqual(self.hits(row, "profile/README.md", allow=allow, repository=".github"), [])
         self.assertEqual(len(self.hits(row, "README.md", allow=allow, repository="openamrobot-ui")), 1)
         self.assertEqual(len(self.hits(row, "docs/page.md", allow=allow, repository=".github")), 1)
+
+    def test_approved_public_contacts(self):
+        allow = pe.load_allowlist(ROOT / "public-extract-allowlist.yaml")
+        allowed = [
+            (f"Write to alex{AT}botshare.ai\n", "profile/README.md"),
+            (f"Ops: team{AT}mail.botshare.ai\n", "docs/page.md"),
+            (f"Signed-off-by: A. Writer <writer{AT}lab.org>\n", "docs/page.md"),
+            (f"Co-authored-by: B. Coder <coder{AT}uni.example-lab.org>\n", "docs/page.md"),
+            (f"- B. Coder, coder{AT}lab.org\n", "CONTRIBUTORS.md"),
+            (f"> sales{AT}zd-motor.com\n", "datasheets/ZDmotor/README.md"),
+            (f"> trade26{AT}zd-motor.com\n", "datasheets/ZDmotor/README.md"),
+            (f"Support: support{AT}vendor.cn\n", "datasheets/vendor/README.md"),
+        ]
+        for text, rel in allowed:
+            with self.subTest(allowed=text):
+                self.assertEqual(self.hits(text, rel, allow=allow, repository="openamr-platform-hw"), [])
+        flagged = [
+            (f"Contact: finkle{AT}zlingkj.com\n", "datasheets/ZLTech/README.md", "email"),
+            (f"Contact: salesperson{AT}vendor.cn\n", "datasheets/vendor/README.md", "email"),
+            (f"Write to alex{AT}botshare-ai.com\n", "docs/page.md", "email"),
+            (f"Write to alex{AT}botshare.ai.example.org\n", "docs/page.md", "email"),
+            (f"Write to alex{AT}notbotshare.ai\n", "docs/page.md", "email"),
+            (f"> sales{AT}zd-motor.com\n", "docs/suppliers.md", "email"),
+            ("Wheel: ZLLG80ASM250-L V1.0 - 115USD/1pc\n", "datasheets/ZLTech/README.md", "price"),
+            ("Driver: \u20ac145 per piece\n", "datasheets/ZLTech/README.md", "price"),
+        ]
+        for text, rel, rule in flagged:
+            with self.subTest(flagged=text):
+                found = self.hits(text, rel, allow=allow, repository="openamr-platform-hw")
+                self.assertEqual([r for r, _ in found], [rule])
 
     def test_handles_are_not_emails(self):
         self.assertEqual(self.hits("Reviewed by @BotshareAI and @panthera-momagdii.\n"), [])
