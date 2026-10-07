@@ -55,6 +55,18 @@ class HarnessModes(unittest.TestCase):
         self.assertFalse(self.inputs["harness_checks"]["default"])
         self.assertFalse(self.inputs["harness_warn"]["default"])
 
+    def test_full_history_only_when_harness_checks_run(self):
+        expr = str(self.steps["Check out repository"]["with"]["fetch-depth"])
+        inner = expr.strip()
+        self.assertTrue(inner.startswith("${{") and inner.endswith("}}"), expr)
+        inner = inner[3:-2].replace("&&", " and ").replace("||", " or ")
+        for checks in (False, True):
+            for warn in (False, True):
+                depth = eval(inner.replace("inputs.harness_checks", str(checks))  # noqa: S307 - test-only
+                             .replace("inputs.harness_warn", str(warn)), {})
+                with self.subTest(harness_checks=checks, harness_warn=warn):
+                    self.assertEqual(str(depth), "0" if (checks or warn) else "1")
+
     def test_every_harness_step_runs_in_either_mode(self):
         for name in HARNESS_STEPS:
             self.assertEqual(self.steps[name]["if"], "inputs.harness_checks || inputs.harness_warn", name)

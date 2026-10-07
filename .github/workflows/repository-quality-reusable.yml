@@ -47,7 +47,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          # Full history only when the harness checks run (they diff against the base);
+          # default callers keep the shallow checkout. The string '0' keeps the
+          # expression truthy; a bare 0 would always fall through to 1.
+          fetch-depth: ${{ (inputs.harness_checks || inputs.harness_warn) && '0' || '1' }}
 
       - name: Check out OpenAMRobot harness
         if: inputs.harness_checks || inputs.harness_warn
