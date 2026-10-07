@@ -36,7 +36,7 @@ STATUSES = {"recorded", "open", "superseded"}
 KINDS = {"value", "configuration", "limit", "exclusion", "distinction"}
 REQUIRED = ("id", "title", "kind", "status", "date", "review_by", "source", "applies_to",
             "verification", "owner")
-DATE_FORMAT = re.compile(r"^\\d{4}-\\d{2}-\\d{2}$")
+DATE_FORMAT = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 DEFAULT_FILES = [
     "**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml",
     "**/*.launch", "**/*.urdf", "**/*.xacro", "**/package.xml", "**/README*",
