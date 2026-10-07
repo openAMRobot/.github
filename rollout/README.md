@@ -8,6 +8,13 @@ machine-blocked. The organization-owner steps and the state of every check are i
 
 ## What each repository adopts
 
+The organization Watchdog is centralized in this repository: it runs against the repository list,
+creates the dashboard and grouped issues here, and does not require copying its checker code
+into product repositories. Product repositories still adopt the reusable workflow separately
+when they want findings to block their own pull requests.
+
+## What each repository adopts
+
 | Item | What the repository does | Checked by, once installed and required |
 |---|---|---|
 | AGENTS.md, CLAUDE.md | Copy the shared block v2 verbatim from `agent-rules/SHARED_RULES.md`, add a short repository-specific section; CLAUDE.md contains only `@AGENTS.md` | drift step in the reusable workflow |

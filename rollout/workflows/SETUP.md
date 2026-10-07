@@ -11,7 +11,7 @@ Each item is in one of three states:
 - **(b)** supplied under `rollout/` as an example, not installed anywhere;
 - **(c)** a human gate.
 
-No failure class is blocked across the organization until the relevant workflow is installed
+No failure class is machine-blocked in product repositories until the relevant workflow is installed
 in each repository and its check is required by that repository's ruleset. That installation
 is a rollout step (rollout/README.md), not a present fact.
 
@@ -27,7 +27,7 @@ is a rollout step (rollout/README.md), not a present fact.
 | `repository-quality-reusable.yml`, `quality/test` job (`verify: true`) | (b) | Never run on GitHub |
 | `repository-quality.yml` in this repository (`quality/test`, harness checks) | (a) once merged; never run on GitHub yet | Its commands ran locally |
 | `pr-assistant.yml` | (b) | Its two checker commands ran locally; the workflow never ran |
-| `weekly-alignment-audit.yml` | (b), design only | Nothing exercised except the issue-sync dry run. Permissions, credentials, deduplication across runs, failure handling and the issue lifecycle are untested |
+| `.github/workflows/watchdog-org-scan.yml` + `tools/watchdog_issue_sync.py` | (a) in the harness repository | Thursday organization scan, central dashboard, stable grouped issue deduplication, redaction, no-longer-detected comments and blocked-scan behavior are covered by tests; it never edits `decisions.yaml` or product repositories |
 | `docs-sync-caller.yml`, `docs-sync.yml` | (b), design only | Never run |
 | `monthly-retro.yml` | (b), design only | Never run |
 | Two human approvals on safety paths | (c) enforced by a ruleset, section 6 | `check_pr_evidence.py` only reports "safety path touched, two human approvals required" and whether reviewers are requested; it does not count approvals as a gate |
@@ -56,7 +56,17 @@ Pinning is done per repository, in the order of rollout/README.md, not organizat
 openamrobot-interfaces is the pilot and completes all five steps before any other repository
 starts step (c).
 
-## 2. Secrets
+## 2. GitHub-native Watchdog publication
+
+The deterministic Watchdog uses the repository-scoped `GITHUB_TOKEN` only for `issues: write` in
+`openAMRobot/.github`. It cannot push code or create pull requests. The job reads product
+repositories anonymously and publishes a redacted central issue dashboard. No Anthropic secret,
+Claude App or AI workflow is needed for this path.
+
+The dashboard is safe to activate after PR #38 merges. A decision-register change remains a
+human-reviewed PR; the Action only creates a review issue and never rewrites the register.
+
+## 3. Secrets
 
 | Secret | Scope | Used by |
 |---|---|---|
@@ -70,7 +80,7 @@ The three App secret pairs may point to one GitHub App. The PR assistant uses on
 
 Authentication mode must be chosen before activation. The examples use `ANTHROPIC_API_KEY` for Anthropic API authentication and retain `id-token: write` because the official Claude GitHub App path uses GitHub OIDC for the action's default GitHub token. If the organization chooses Anthropic Workload Identity Federation instead, remove the API-key secret, add the federation identifiers required by Anthropic, and keep `id-token: write`; do not configure both Anthropic credential modes by accident. Record the selected mode and the manual disposable-branch test in issue #43.
 
-## 3. GitHub Apps
+## 4. GitHub Apps
 
 1. **Claude GitHub App** (github.com/apps/claude), on audits, openamrobot-docs and .github
    only. It asks for Contents, Issues and Pull requests read and write. The current Claude Code
@@ -85,7 +95,7 @@ Authentication mode must be chosen before activation. The examples use `ANTHROPI
 
    It gets no administration, workflow or secrets permission.
 
-## 4. Actions settings
+## 5. Actions settings
 
 - Default workflow token: read repository contents only.
 - "Allow GitHub Actions to create and approve pull requests": off.
@@ -98,7 +108,7 @@ Authentication mode must be chosen before activation. The examples use `ANTHROPI
   The live workflows in this repository are pinned to full commit SHAs; the workflow-policy check fails on any unpinned external action or unresolved `<HARNESS_SHA>` in `.github/workflows/`. Examples under `rollout/` are exempt until copied.
 - Require approval for workflows from first-time fork contributors.
 
-## 5. Labels (every repository)
+## 6. Labels (every repository)
 
 | Label | Used by |
 |---|---|
@@ -109,7 +119,7 @@ Authentication mode must be chosen before activation. The examples use `ANTHROPI
 | `triage`, `bug` | existing forms |
 | `area:docs`, `area:navigation`, `area:interfaces`, `area:manipulation`, `area:ui`, `area:release`, `area:ci` | good first issue triage |
 
-## 6. Rulesets on main (per repository)
+## 7. Rulesets on main (per repository)
 
 For every active repository:
 
@@ -150,7 +160,7 @@ For platform-lead-authored PRs, apply the approval policy in `GOVERNANCE.md` and
 `maintainers.yaml`: software-lead approval plus every scoped-owner approval; the author's
 reconciliation comment is not an approval.
 
-## 7. Maintainers map
+## 8. Maintainers map
 
 Fill the empty handles in `maintainers.yaml` (ci-owner, release-owner, docs-owner) once the people confirm
 their GitHub accounts and join the organization. Until then, automation names the role and

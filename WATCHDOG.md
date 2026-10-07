@@ -203,11 +203,38 @@ PR evidence and verify.sh run on their own: `python3 tools/check_pr_evidence.py 
   appear inline in the pull request diff, and the job summary shows a table grouped by
   decision.
 - **Across the organization**, [watchdog-org-scan.yml](.github/workflows/watchdog-org-scan.yml)
-  runs every Monday and on demand. It clones every repository in
+  runs every Thursday and on demand. It clones every repository in
   [rollout/repositories.yaml](rollout/repositories.yaml) on its default branch and writes one
-  summary with a table per repository. It only reports: it never fails on findings, never
-  pushes and never opens issues or comments. A repository that cannot be cloned is shown as
-  BLOCKED.
+  summary plus JSON/Markdown artifacts. Findings do not fail the scan, but a clone or checker
+  failure is reported as **BLOCKED** and fails the job after the report is written.
+- **GitHub issue control surface:** the scan synchronizes one central dashboard issue and one
+  deduplicated issue per grouped finding in `openAMRobot/.github`. Issues are assigned to
+  `BotshareAI` when GitHub permits assignment and always mention `@BotshareAI`; public issue
+  text redacts URLs, email addresses and credential-shaped values. Repeated evidence is not
+  posted repeatedly. When a finding disappears, the Watchdog comments that it is no longer
+  detected and leaves closure to the human owner.
+- The workflow has `contents: read` and `issues: write` only. It reads product repositories
+  anonymously, writes only issues in the harness repository, never edits `decisions.yaml`,
+  never pushes a branch, never opens a pull request, and never uses AI. The platform lead
+  updates the ground truth through a normal reviewed PR.
+
+## GitHub-native operating loop
+
+The weekly loop is deliberately split at the ground-truth boundary:
+
+1. The Thursday Action scans all repositories listed in `rollout/repositories.yaml`.
+2. The Action writes or updates the central dashboard and grouped finding issues in
+   `openAMRobot/.github`.
+3. A finding issue identifies the repository commit, exact location, owner role, reason and
+   fix. It is a textual signal, not a safety or release acceptance.
+4. A due decision creates a `decision-review` issue. The platform lead confirms the controlling
+   source and either extends the review window or starts a source-first change.
+5. The platform lead updates `decisions.yaml` in a normal reviewed PR. The Watchdog never
+   guesses a new value and never edits the register itself.
+6. The next run verifies the fixing PR's result. Human owners close issues only after review.
+
+The dashboard is the durable weekly record. The uploaded JSON artifacts preserve the exact
+repository SHAs and evidence used by the run.
 
 ## Adopting it in a repository
 
