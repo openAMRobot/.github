@@ -462,12 +462,14 @@ decisions:
     kind: value
     status: recorded
     values:
-      - base camera Orbbec Gemini 336L, fixed to base_link on the front face, tilted about 10 degrees upward
-      - head camera ZED-121210 (exact commercial identity open, see HEAD-CAMERA-IDENTITY)
+      - base camera Orbbec Gemini 336L, fixed to base_link on the front face about 243 mm above the floor; up-tilt positions 5, 10 and 15 degrees, baseline 10 degrees
+      - head camera Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, see HEAD-CAMERA-IDENTITY
       - two in-hand RGB wrist cameras; no separate torso scene camera
     unit: none
-    date: 2026-09-23
-    source: {document: P-00-rev18.1, item: txt 85 and 97}
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: "item 15 (wrist cameras as in P-00-rev18.1 txt 85 and 97)"}
+    supersedes:
+      - {value: "base camera tilted about 10 degrees upward; head camera identity open", source: P-00-rev18.1 txt 85 and 97}
     applies_to:
       repositories: ["openamr-*", "openamrobot-docs", "openamrobot-manipulation", "openamrobot-ui"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.launch.py", "**/*.xacro", "**/*.urdf"]
@@ -480,26 +482,35 @@ decisions:
       - pattern: '(?P<found>IMX708|Pi Camera Module 3)'
         unless: 'legacy|Gate A|historical'
         message: the 2.0 base camera is the Orbbec Gemini 336L
+      - pattern: '(?P<found>Gemini 336L[^\n]{0,60}?\b(?!(?:5|10|15)\b)\d{1,2}\s*(?:°|deg(?:rees?)?)\s*(?:up|upward)\b)'
+        unless: 'supersed|historical|legacy'
+        message: the Gemini 336L up-tilt positions are 5, 10 and 15 degrees, baseline 10 (P-03 rev18.7 item 15)
     verification:
-      machine: other camera models without a legacy label; a down-tilted base camera
+      machine: other camera models without a legacy label; a down-tilted base camera; a Gemini 336L up-tilt other than 5, 10 or 15 degrees
       human: {reviewer: software-lead, evidence: camera joint rpy in URDF and real TF showing the upward tilt}
     owner: platform-lead
 
   - id: HEAD-CAMERA-IDENTITY
-    title: Head camera commercial identity
+    title: Head camera commercial identity and mounting
     kind: value
-    status: open
-    value: ZED-121210 per the plan; the general arrangement names a different ZED model
+    status: recorded
+    values:
+      - Stereolabs ZED Mini, SKU ZED-121210, supplied with the OpenArm 2.0 set
+      - mounted on the lift carriage
+      - pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees
     unit: none
-    date: null
-    source: {document: P-00-rev18.1, item: txt 85}
-    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html"]}
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: item 15}
+    supersedes:
+      - {value: "ZED-121210 per the plan; identity open because the general arrangement named a different ZED model", source: P-00-rev18.1 txt 85}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf"]}
     check:
-      - pattern: '(?P<found>ZED[ -]?mini)'
-        message: head camera identity is open
+      - pattern: '(?P<found>\bZED[ -]?(?:2i?|X(?:[ -]?Mini)?)\b)'
+        unless: 'supersed|historical|legacy|replaced|\bnot\b'
+        message: the head camera is the Stereolabs ZED Mini, SKU ZED-121210 (P-03 rev18.7 item 15)
     verification:
-      machine: none while open
-      human: {reviewer: platform-lead, evidence: supplier SKU and interface confirmation}
+      machine: another ZED model (ZED 2, ZED 2i, ZED X, ZED X Mini) without a superseded or legacy label
+      human: {reviewer: platform-lead, evidence: supplier SKU on the OpenArm 2.0 set and the lift-carriage mount drawing with the pitch steps}
     owner: platform-lead
 
   - id: POWER-RAILS

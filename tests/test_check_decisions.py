@@ -356,6 +356,15 @@ class RealRegister(unittest.TestCase):
                      "MB7040 on I2C is superseded.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_head_camera_recorded_and_base_camera_tilt(self):
+        for text in ("Head camera: ZED 2i on the mast.\n", "The head camera is a ZED X Mini.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["HEAD-CAMERA-IDENTITY"], text)
+        self.assertEqual(self.ids("docs/a.md", "The Gemini 336L is tilted 20 degrees up.\n", "openamrobot-docs"),
+                         ["CAMERAS"])
+        for text in ("Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, pitch 25 degrees down.\n",
+                     "Gemini 336L about 243 mm above the floor, tilted 10 degrees up (positions 5, 10, 15).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "openamrobot-docs"), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])
