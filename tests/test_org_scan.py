@@ -126,6 +126,10 @@ class Workflow(unittest.TestCase):
         # openamrobot-comm fails to clone in the fake: reported BLOCKED, job fails after the summary.
         self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
         self.assertIn("| openamrobot-comm | BLOCKED: clone failed | not scanned |", summary)
+        # Default dashboard mode: the summary must not promise per-group issues.
+        self.assertIn("Results are published to the [watchdog] Organization dashboard issue in the harness repository; "
+                      "per-group issues only when WATCHDOG_ISSUE_MODE is groups.", summary)
+        self.assertNotIn("synchronized to deduplicated issues", summary)
         rows = re.findall(r"^\| ([.\w-]+) \| abc1234 \| (\d+) \|$", summary, re.M)
         self.assertEqual(len(rows), 13)
         self.assertIn(("openamr-platform-sw", "1"), rows)

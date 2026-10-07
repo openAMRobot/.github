@@ -62,7 +62,7 @@ jobs:
           {
             echo "## OpenAMRobot Watchdog organization scan"
             echo
-            echo "Thursday run, deterministic and reportable. Findings are synchronized to deduplicated issues in the harness repository."
+            echo "Thursday run, deterministic and reportable. Results are published to the [watchdog] Organization dashboard issue in the harness repository; per-group issues only when WATCHDOG_ISSUE_MODE is groups."
             echo "A clean result shows textual consistency only, not mechanical, electrical, safety or release correctness."
             echo
             echo "| Repository | Commit | Findings |"
