@@ -27,6 +27,7 @@
 #   value/values  exactly as the source states it; nothing invented
 #   unit          SI unit or none
 #   date          date the decision was taken (null when the source gives none)
+#   review_by     review date; six weeks after date, or six weeks after this register update when date is null
 #   source        document (a key under sources) and item
 #   supersedes    earlier values with their source; optional `citation`, a
 #                 pattern that finds text still citing the superseded source
@@ -47,6 +48,10 @@
 # issue, source document first, then one reviewed PR that updates this file and
 # every affected consumer together.
 schema_version: 1
+
+in_force:
+  source: P-03-rev18.7
+  date: 2026-10-06
 
 sources:
   P-03-rev18.2:
@@ -105,6 +110,7 @@ decisions:
     value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: BOM issue in force}
     supersedes:
       - {value: Issue 7, source: P-03-rev18.2 item 7}
@@ -136,6 +142,7 @@ decisions:
     unit: mm
     configuration_id: mast_1350
     date: 2026-09-28
+    review_by: 2026-11-09
     source: {document: P-03-rev18.2, item: shoulder height}
     supersedes:
       - value: 1400
@@ -165,6 +172,7 @@ decisions:
     unit: mm
     step_mm: 50
     date: 2026-09-28
+    review_by: 2026-11-09
     source: {document: P-03-rev18.2, item: shoulder height}
     supersedes:
       - {value: nine positions 1300 to 1700 mm (mast_1300 to mast_1700), source: P-00-rev18.1 txt 293-294}
@@ -189,6 +197,7 @@ decisions:
     value: 1500
     unit: mm
     date: 2026-09-28
+    review_by: 2026-11-09
     source: {document: P-03-rev18.2, item: mast}
     supersedes:
       - {value: 1554, source: general arrangement before 28 September 2026}
@@ -213,6 +222,7 @@ decisions:
     value: 1700
     unit: mm
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.7, item: item 8}
     note: First recorded in P-03-rev18.1 item 6 line 15 and repeated in rev18.2; kept unchanged by rev18.7 item 8 with the lift. The robot may be lower, never higher.
     applies_to:
@@ -241,6 +251,7 @@ decisions:
       - base-plate top face 304 mm is the reference for lift and shoulder heights
     unit: mm
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: item 15}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
     check:
@@ -265,6 +276,7 @@ decisions:
       - imu_link on the centreline, away from motor magnetic fields
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: item 15}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
     check:
@@ -289,6 +301,7 @@ decisions:
     value: One 8S1P EVE LF105 LiFePO4 pack, 25.6 V, 105 Ah, placed as close to the rear edge as practical while preserving enclosure, service and safety clearances
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: item 9}
     supersedes:
       - {value: fit the existing battery bay first, source: P-00-rev18.1 txt 77}
@@ -311,6 +324,7 @@ decisions:
     value: 1.5 m/s command ceiling, treated as an analytical limit; the accepted operating speed follows from the stability model and stopping tests
     unit: m/s
     date: 2026-09-28
+    review_by: 2026-11-09
     source: {document: P-03-rev18.2, item: speed}
     supersedes:
       - {value: 1.5 m/s treated as an accepted operating speed, source: P-00-rev18.1 txt 60 and 352}
@@ -334,6 +348,7 @@ decisions:
     value: Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D V4.2 driver on CAN1 (CANopen), 200 mm wheels
     unit: none
     date: 2026-09-21
+    review_by: 2026-11-02
     source: {document: P-00-rev18.1, item: txt 16}
     applies_to:
       repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs", "openamrobot-release", ".github"]
@@ -358,6 +373,7 @@ decisions:
     value: none
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.1, item: item 4}
     applies_to:
       repositories: ["openamr-platform-hw", "openamr-platform-fw", "openamr-upperbody-*", "openamrobot-docs"]
@@ -384,6 +400,7 @@ decisions:
       - STM32 go/no-go 6 November 2026; fallback is the validated legacy Teensy/PWM build behind I8
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-00-rev18.1, item: "txt 63, 101, 106, 344; I8-WP adoption gate; Gate B board per P-03-rev18.5 item 14"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
@@ -412,6 +429,7 @@ decisions:
       - MCU to Jetson over Ethernet, micro-ROS over UDP; USB for the bench only
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: item 14}
     supersedes:
       - {value: STM32H743 on NUCLEO-H743ZI2, source: P-00-rev18.1 (Gate B bench board)}
@@ -441,6 +459,7 @@ decisions:
       - the host filter and EKF own /imu/data
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-00-rev18.1, item: txt 15 and 345; I8-WP line 224}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui"]
@@ -467,6 +486,7 @@ decisions:
       - two in-hand RGB wrist cameras; no separate torso scene camera
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: "item 15 (wrist cameras as in P-00-rev18.1 txt 85 and 97)"}
     supersedes:
       - {value: "base camera tilted about 10 degrees upward; head camera identity open", source: P-00-rev18.1 txt 85 and 97}
@@ -500,6 +520,7 @@ decisions:
       - pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: item 15}
     supersedes:
       - {value: "ZED-121210 per the plan; identity open because the general arrangement named a different ZED model", source: P-00-rev18.1 txt 85}
@@ -524,6 +545,7 @@ decisions:
       - no 12 V rail
     unit: V
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.1, item: "item 2 line 10; P-03-rev18.4 item 13"}
     applies_to:
       repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"]
@@ -547,6 +569,7 @@ decisions:
     value: Positioning only; manual wired charging via PWR-019 with independent charge-plug-presence inhibition; no dock contacts or dock pilot; wireless charging belongs to 3.0
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.1, item: item 3 line 11}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
@@ -573,6 +596,7 @@ decisions:
     value: Docked means an accepted pose within tolerance; pose success never establishes charging or external power
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.1, item: item 3 line 11; DOCK-WP lines 27 and 70}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
@@ -598,6 +622,7 @@ decisions:
     value: Firmware status, watchdogs, collision monitoring and BMS telemetry are functional; E-stop, brake and actuator power removal are hardwired and independent of software
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-00-rev18.1, item: txt 70 and 78; I8-WP line 669; DOCK-WP line 110}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
     check:
@@ -619,6 +644,7 @@ decisions:
       - CTL-004 is bench-only until an installed solution is qualified
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.1, item: items 4 and 5 lines 12-13}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
@@ -642,6 +668,7 @@ decisions:
     value: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe; Raspberry Pi removed from active support
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-00-rev18.1, item: "txt 14, 90 and 278"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
@@ -661,6 +688,7 @@ decisions:
     unit: none
     backup: RPLIDAR S2E, only if the S3 is unavailable
     date: 2026-10-03
+    review_by: 2026-11-14
     source: {document: P-03-rev18.4, item: item 13}
     supersedes:
       - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
@@ -690,6 +718,7 @@ decisions:
       - "18 December 2026: OpenAMRobot 2.0 final release, version v2.0.0"
     unit: none
     date: 2026-10-01
+    review_by: 2026-11-12
     source: {document: P-03-rev18.6, item: item 12}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
     check:
@@ -722,6 +751,7 @@ decisions:
       - "release gates: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface (items 6, 8, 14, 15)"
     unit: none
     date: 2026-10-06
+    review_by: 2026-11-17
     source: {document: P-03-rev18.7, item: "item 8; release gates items 6, 8, 14, 15"}
     supersedes:
       - {value: "Lift removed from OpenAMRobot 2.0; fixed mast; lift on the 3.0 roadmap (former entry LIFT-REMOVED)", source: P-00-rev18.1 txt 18}
@@ -748,6 +778,7 @@ decisions:
     value: No suspension is fitted in 2.0; sprung drive wheels are a 3.0 item
     unit: none
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-03-rev18.1, item: item 1}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
@@ -766,6 +797,7 @@ decisions:
     value: 400 mm in the general arrangement; the final track is an open input
     unit: mm
     date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
     source: {document: P-00-rev18.1, item: open inputs}
     applies_to: {repositories: ["openamr-platform-*", "openamrobot-ui"], files: ["**/*.xacro", "**/*.urdf", "**/*.yaml", "**/*.sdf"]}
     check:
