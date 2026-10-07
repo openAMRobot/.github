@@ -1,6 +1,7 @@
 # Fixture register for tests/test_check_decisions.py. Synthetic values only;
 # not decisions of record.
 schema_version: 1
+in_force: {source: D, date: 2026-10-07}
 sources:
   FIX-DOC: {title: Fixture decision document revision 2, evidence: tests only}
 exclude: ["**/CHANGELOG.md"]
@@ -12,6 +13,7 @@ decisions:
     value: 1350
     unit: mm
     date: 2026-09-28
+    review_by: 2026-11-18
     source: {document: FIX-DOC, item: item 1}
     supersedes:
       - value: 1400
@@ -35,6 +37,7 @@ decisions:
     values: [firmware publishes /imu/data_raw, host filter owns /imu/data]
     unit: none
     date: null
+    review_by: 2026-11-18
     source: {document: FIX-DOC, item: item 2}
     applies_to: {repositories: ["platform-*"], files: ["**/*.launch.py", "**/*.xacro"]}
     check:
@@ -52,6 +55,7 @@ decisions:
     value: undecided
     unit: none
     date: null
+    review_by: 2026-11-18
     source: {document: FIX-DOC, item: item 3}
     applies_to: {repositories: ["*"], files: ["**/*.md"]}
     check:
