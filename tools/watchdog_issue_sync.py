@@ -260,7 +260,8 @@ def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
     for item in active:
         current = digest(json.dumps(observation_payload(item), sort_keys=True, default=str))
         issue = existing_by_marker.get(item["marker"])
-        payload = {"title": issue_title(item), "body": body_for(item, run_url, run_date), "labels": ["watchdog-finding" if item["kind"] == "finding" else "watchdog-review", item["severity"]], "assignees": ["BotshareAI"]}
+        labels = ["watchdog-finding", item["severity"]] if item["kind"] == "finding" else ["watchdog-review", "decision-review", item["severity"]]
+        payload = {"title": issue_title(item), "body": body_for(item, run_url, run_date), "labels": labels, "assignees": ["BotshareAI"]}
         if not issue:
             opens.append({**item, "payload": payload, "observation_hash": current})
         elif issue.get("state") != "open":
