@@ -15,7 +15,7 @@ OpenAMRobot combines:
 
 - autonomous mobile robotics
 - dual-arm manipulation
-- a fixed mast for the arms (the linear lift is deferred to OpenAMRobot 3.0)
+- a lift for the arms, approved in principle for OpenAMRobot 2.0 (release gates still open)
 - AI-based perception
 - wearable embodied AI data collection
 - ROS 2 software infrastructure
@@ -164,9 +164,9 @@ openAMRobot/
 ├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
 ├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
 ├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
-├── openamr-upperbody-sw      # arm+fixed mast (lift in 3.0), MoveIt, bringup
-├── openamr-upperbody-fw      # end-effector, safety I/O; lift in 3.0
-├── openamr-upperbody-hw      # fixed mast, lift in 3.0, plates, wiring, BOM
+├── openamr-upperbody-sw      # arm + lift (approved in principle), MoveIt, bringup
+├── openamr-upperbody-fw      # end-effector, safety I/O
+├── openamr-upperbody-hw      # lift (approved in principle), plates, wiring, BOM
 
 ```
 
@@ -177,9 +177,9 @@ openAMRobot/
 | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software: simulation, navigation, docking, drivers, perception, bringup |
 | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, microcontroller systems, motor interfaces, hardware communication |
 | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical, BOMs, manufacturing files, mechatronics |
-| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + fixed mast (lift in 3.0), MoveIt on the combined model, bringup |
-| [`openamr-upperbody-fw`](https://github.com/openAMRobot/openamr-upperbody-fw) | End-effector, upper-body safety I/O; lift in 3.0 |
-| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Fixed mast (lift in 3.0), mounting plates, wiring, BOM |
+| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + lift (approved in principle), MoveIt on the combined model, bringup |
+| [`openamr-upperbody-fw`](https://github.com/openAMRobot/openamr-upperbody-fw) | End-effector, upper-body safety I/O |
+| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Lift (approved in principle), mounting plates, wiring, BOM |
 | [`openamrobot-manipulation`](https://github.com/openAMRobot/openamrobot-manipulation) | Arm framework: manipulation server, Device Package format, arms (OpenArm 2.0 primary, LeRobot SO-101 fixture) |
 | [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces) | Shared ROS 2 messages, services, actions, schemas, interface contracts |
 | [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm) | APIs, middleware, telemetry, transport protocols, interoperability |
@@ -448,7 +448,7 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 - Hub-motor drive; suspension in 3.0
   - mechanical + control integration
 
-- Robotic arm integration; linear lift in 3.0
+- Robotic arm integration; lift approved in principle for 2.0
   - mounts
   - drivers
   - wiring
@@ -491,4 +491,4 @@ Contributor attribution and legally non-waivable authorship or moral rights rema
 
 See the canonical [IP Policy](https://github.com/openAMRobot/.github/blob/main/IP_POLICY.md), [Contribution Guide](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTING.md), and [Contributor Agreement Process](https://github.com/openAMRobot/.github/blob/main/CLA.md).
 
-**Botshare LTD** · HE479056 · Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus · info@botshare.ai · https://botshare.ai
+**Botshare LTD** · HE479056 · Chrysanthou Mylona 1, Panayides Building, Floor 2, Office 1, 3030 Limassol, Cyprus · info@botshare.ai · https://botshare.ai
