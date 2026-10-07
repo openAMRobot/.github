@@ -78,7 +78,7 @@ jobs:
             -w /work \
             ros:jazzy-ros-base bash -ceu '
               apt-get update
-              DEBIAN_FRONTEND=noninteractive apt-get install -y git python3-pip python3-jsonschema shellcheck
+              DEBIAN_FRONTEND=noninteractive apt-get install -y git python3-pip python3-jsonschema ros-jazzy-rmw-cyclonedds-cpp shellcheck
               rosdep update
               python3 -c "import jsonschema" 2>/dev/null || python3 -m pip install --break-system-packages --quiet jsonschema
               git config --global --add safe.directory /work/interfaces
