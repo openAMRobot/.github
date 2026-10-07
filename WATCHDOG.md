@@ -233,8 +233,9 @@ The weekly loop is deliberately split at the ground-truth boundary:
    guesses a new value and never edits the register itself.
 6. The next run verifies the fixing PR's result. Human owners close issues only after review.
 
-The dashboard is the durable weekly record. The uploaded JSON artifacts preserve the exact
-repository SHAs and evidence used by the run.
+The dashboard is the durable weekly record. Its `Shared rules` column distinguishes `pass`,
+`drift` and `not enrolled`; `not enrolled` is rollout status, not a contradiction. The uploaded
+JSON artifacts preserve the exact repository SHAs and evidence used by the run.
 
 ## Adopting it in a repository
 
