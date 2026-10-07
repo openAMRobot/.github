@@ -217,11 +217,13 @@ jobs:
           else
             if [ -n "$AGENTS_MD_EXCEPTION" ]; then
               echo "AGENTS.md exception: $AGENTS_MD_EXCEPTION"
-              {
-                echo "### AGENTS.md exception"
-                echo
-                echo "$AGENTS_MD_EXCEPTION"
-              } >> "$GITHUB_STEP_SUMMARY"
+              if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+                {
+                  echo "### AGENTS.md exception"
+                  echo
+                  echo "$AGENTS_MD_EXCEPTION"
+                } >> "$GITHUB_STEP_SUMMARY"
+              fi
             elif [ "$ENFORCE" = true ]; then
               echo "::error::AGENTS.md is required when harness_checks is true; pass agents_md_exception with a human-readable reason"
               exit 1
