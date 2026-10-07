@@ -74,6 +74,13 @@ jobs:
             --max-turns 200
             --allowedTools "Read,Grep,Glob,Write,Edit,Bash(python3 .harness/tools/check_decisions.py:*),Bash(python3 .harness/tools/check_public_extract.py:*),Bash(git -C .repos/*:*)"
 
+      - name: Validate register and report review windows
+        run: |
+          set -euo pipefail
+          python3 .harness/tools/check_decisions.py \
+            --decisions .harness/decisions.yaml \
+            --maintainers .harness/maintainers.yaml --validate-only | tee "$FOLDER/DECISIONS-VALIDATION.txt"
+
       - name: Commit report
         run: |
           set -euo pipefail
@@ -96,5 +103,5 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
         run: |
           python3 .harness/tools/sync_audit_issues.py --issues "$FOLDER/ISSUES.csv" \
-            --maintainers .harness/maintainers.yaml --fallback-repository audits \
-            --report "$FOLDER@$(git rev-parse --short HEAD)" --apply
+            --maintainers .harness/maintainers.yaml --decisions .harness/decisions.yaml \
+            --fallback-repository audits --report "$FOLDER@$(git rev-parse --short HEAD)" --apply
