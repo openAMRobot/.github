@@ -253,7 +253,7 @@ def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
         markers = extract_markers(issue.get("body", ""))
         for item_marker in markers:
             existing_by_marker[item_marker] = issue
-        if DASHBOARD_MARKER in (issue.get("body") or ""):
+        if DASHBOARD_MARKER in (issue.get("body") or "") and issue.get("state") == "open":
             dashboard = issue
     opens = []
     updates = []
@@ -263,8 +263,10 @@ def plan(reports, blocked, decisions, maintainers, existing, run_url, run_date):
         payload = {"title": issue_title(item), "body": body_for(item, run_url, run_date), "labels": ["watchdog-finding" if item["kind"] == "finding" else "watchdog-review", item["severity"]], "assignees": ["BotshareAI"]}
         if not issue:
             opens.append({**item, "payload": payload, "observation_hash": current})
-        elif last_observation(issue) != current and issue.get("state") == "open":
-            updates.append({"issue": issue, "body": observation_comment(item, run_url, run_date)})
+        elif issue.get("state") != "open":
+            updates.append({"issue": issue, "body": observation_comment(item, run_url, run_date), "reopen": True})
+        elif last_observation(issue) != current:
+            updates.append({"issue": issue, "body": observation_comment(item, run_url, run_date), "reopen": False})
     for item_marker, issue in existing_by_marker.items():
         if item_marker not in active_by_marker and issue.get("state") == "open" and not has_no_longer(issue):
             updates.append({"issue": issue, "body": no_longer_comment({"key": item_marker}, run_url, run_date)})
@@ -350,6 +352,8 @@ def apply(repository, plan_data, reports, blocked, token, run_url, run_date, cal
         links.append((item["payload"]["title"], created.get("html_url", "")))
     for update in plan_data["updates"]:
         issue = update["issue"]
+        if update.get("reopen"):
+            call("PATCH", f"https://api.github.com/repos/{repository}/issues/{issue['number']}", token, {"state": "open"})
         call("POST", f"https://api.github.com/repos/{repository}/issues/{issue['number']}/comments", token, {"body": update["body"]})
         links.append((issue.get("title", "watchdog issue"), issue.get("url", "")))
     dashboard_text = dashboard_body(reports, blocked, plan_data, run_url, run_date, links)

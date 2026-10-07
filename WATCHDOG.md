@@ -212,7 +212,7 @@ PR evidence and verify.sh run on their own: `python3 tools/check_pr_evidence.py 
   `BotshareAI` when GitHub permits assignment and always mention `@BotshareAI`; public issue
   text redacts URLs, email addresses and credential-shaped values. Repeated evidence is not
   posted repeatedly. When a finding disappears, the Watchdog comments that it is no longer
-  detected and leaves closure to the human owner.
+  detected and leaves closure to the human owner. If the same finding returns after closure, the Watchdog reopens the issue and posts the new observation.
 - The workflow has `contents: read` and `issues: write` only. It reads product repositories
   anonymously, writes only issues in the harness repository, never edits `decisions.yaml`,
   never pushes a branch, never opens a pull request, and never uses AI. The platform lead

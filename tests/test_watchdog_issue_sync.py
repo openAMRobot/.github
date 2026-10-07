@@ -63,6 +63,16 @@ class PurePlan(unittest.TestCase):
         self.assertTrue(any(wis.NO_LONGER_MARKER in u["body"] for u in second["updates"]))
         self.assertFalse(any(u["issue"].get("number") == 8 and "PATCH" in u for u in second["updates"]))
 
+    def test_reappearing_closed_finding_is_reopened(self):
+        first = wis.plan([report()], [], {"COMPUTE": {"owner": "platform-lead"}}, MAINTAINERS, [], "run", "2026-10-08")
+        finding = next(i for i in first["open"] if i["kind"] == "finding")
+        existing = [{"number": 9, "title": finding["payload"]["title"], "body": finding["payload"]["body"],
+                     "state": "closed", "comments": [], "url": "https://github.com/openAMRobot/.github/issues/9"}]
+        second = wis.plan([report()], [], {"COMPUTE": {"owner": "platform-lead"}}, MAINTAINERS, existing, "run", "2026-10-15")
+        reopen = [u for u in second["updates"] if u["issue"].get("number") == 9]
+        self.assertEqual(len(reopen), 1)
+        self.assertTrue(reopen[0]["reopen"])
+
     def test_public_issue_body_redacts_untrusted_values(self):
         item = wis.grouped_items([report()], {"COMPUTE": {"owner": "platform-lead"}}, MAINTAINERS)[0]
         item["findings"][0]["found"] = "https://drive.google.com/x user@example.com sk-ant-123456789"
