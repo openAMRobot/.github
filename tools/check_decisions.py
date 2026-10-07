@@ -21,6 +21,7 @@ material) carries the marker `decision-allow: <ID> <reason>` on the same line
 or the line directly above it. The marker is reported, never silently ignored.
 """
 import argparse
+from datetime import date
 import fnmatch
 import json
 import re
@@ -33,8 +34,9 @@ import yaml
 SCHEMA_VERSION = 1
 STATUSES = {"recorded", "open", "superseded"}
 KINDS = {"value", "configuration", "limit", "exclusion", "distinction"}
-REQUIRED = ("id", "title", "kind", "status", "date", "source", "applies_to",
+REQUIRED = ("id", "title", "kind", "status", "date", "review_by", "source", "applies_to",
             "verification", "owner")
+DATE_FORMAT = re.compile(r"^\\d{4}-\\d{2}-\\d{2}$")
 DEFAULT_FILES = [
     "**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml",
     "**/*.launch", "**/*.urdf", "**/*.xacro", "**/package.xml", "**/README*",
@@ -45,6 +47,30 @@ SKIP_DIRS = {".git", "node_modules", ".verification", "build", "install", "log"}
 
 class DecisionError(ValueError):
     pass
+
+
+
+def as_date(value):
+    """Return a date for an ISO date or a YAML date, otherwise None."""
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str) and DATE_FORMAT.fullmatch(value):
+        try:
+            return date.fromisoformat(value)
+        except ValueError:
+            return None
+    return None
+
+
+def review_warnings(data, today=None):
+    """Return non-blocking warnings for entries whose review window has passed."""
+    today = today or date.today()
+    warnings = []
+    for entry in (data or {}).get("decisions") or []:
+        review_by = as_date(entry.get("review_by")) if isinstance(entry, dict) else None
+        if review_by and review_by < today:
+            warnings.append(f"{entry.get('id', '<unknown>')} review_by {review_by.isoformat()} is past due")
+    return warnings
 
 
 def load_decisions(path, maintainers=None):
@@ -64,6 +90,11 @@ def load_decisions(path, maintainers=None):
         roles = set((yaml.safe_load(Path(maintainers).read_text(encoding="utf-8")) or {}).get("roles", {}))
     seen = set()
     errors = []
+    in_force = data.get("in_force")
+    if not isinstance(in_force, dict) or not in_force.get("source") or not as_date(in_force.get("date")):
+        errors.append(f"{path}: in_force needs source and ISO date")
+    elif in_force["source"] not in sources:
+        errors.append(f"{path}: in_force source {in_force['source']!r} not listed under sources")
     for index, d in enumerate(decisions):
         where = f"decisions[{index}]"
         if not isinstance(d, dict):
@@ -83,6 +114,10 @@ def load_decisions(path, maintainers=None):
             errors.append(f"{where}: status must be one of {sorted(STATUSES)}")
         if d["kind"] not in KINDS:
             errors.append(f"{where}: kind must be one of {sorted(KINDS)}")
+        if d.get("date") is not None and as_date(d.get("date")) is None:
+            errors.append(f"{where}: date must be null or an ISO date")
+        if as_date(d.get("review_by")) is None:
+            errors.append(f"{where}: review_by must be an ISO date")
         ver = d["verification"]
         human = ver.get("human") if isinstance(ver, dict) else None
         if not isinstance(ver, dict) or not ver.get("machine") or not isinstance(human, dict) \
@@ -279,6 +314,12 @@ def main(argv=None):
           f"{sum(d['status'] == 'recorded' for d in decisions)} recorded and scanned, "
           f"{sum(d['status'] == 'open' for d in decisions)} open, "
           f"{sum(d['status'] == 'superseded' for d in decisions)} superseded (citations scanned)")
+    try:
+        register_data = yaml.safe_load(a.decisions.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        register_data = {}
+    for warning in review_warnings(register_data):
+        print(f"WARNING {warning}")
     if a.validate_only:
         return 0
     if not a.root.is_dir():
