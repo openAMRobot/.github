@@ -88,5 +88,26 @@ class PurePlan(unittest.TestCase):
         self.assertIn("Shared rules", body)
 
 
+class Api(unittest.TestCase):
+    def test_apply_reopens_and_comments_without_closing(self):
+        calls = []
+
+        def fake(method, url, token, data=None):
+            calls.append((method, url, data))
+            if method == "POST" and url.endswith("/issues"):
+                return {"html_url": "https://github.com/openAMRobot/.github/issues/10"}
+            return {}
+
+        plan = {"open": [], "updates": [{"issue": {"number": 9, "title": "finding", "url": "u"},
+                                          "body": "reappeared", "reopen": True}],
+                "active": [], "dashboard": None}
+        wis.apply("openAMRobot/.github", plan, [], [], "token", "run", "2026-10-15", call=fake)
+        methods = [method for method, _, _ in calls]
+        self.assertIn("PATCH", methods)
+        self.assertIn("POST", methods)
+        self.assertNotIn("DELETE", methods)
+        self.assertTrue(any("/issues/9/comments" in url for _, url, _ in calls))
+
+
 if __name__ == "__main__":
     unittest.main()
