@@ -121,7 +121,7 @@ class Workflow(unittest.TestCase):
         self.assertIn(("openamr-platform-sw", "1"), rows)
         self.assertIn("### openamr-platform-sw: 1 finding(s)", summary)
         self.assertIn("| COMPUTE | 1 |", summary)
-        self.assertIn("WATCHDOG.md", summary)
+        self.assertIn("Findings per decision or rule, per repository", summary)
         self.assertNotIn("::warning", proc.stdout)
 
 
