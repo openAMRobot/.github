@@ -497,7 +497,7 @@ decisions:
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml", "**/*.ino", "**/*.cpp", "**/*.h"]
     check:
       - pattern: '(?:micro-?ROS agent|Teensy|firmware|MCU|STM32)[^\n]{0,80}(?P<found>/imu/data)(?!_raw)\b'
-        unless: '\bhost\b|(?<!un)filter|EKF|madgwick|must not|never'
+        unless: '\bhost\b|(?<!un)filter|EKF|madgwick|must not|never|outdated|older revisions?'
         message: firmware publishes /imu/data_raw; /imu/data belongs to the host filter
       - pattern: '"(?P<found>/?imu/data)"'
         files: ["**/*.ino", "**/*.cpp", "**/*.c", "**/*.h"]
@@ -644,7 +644,7 @@ decisions:
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js"]
     check:
       - pattern: '(?P<found>SimpleChargingDock|ready to charge|charging target)'
-        unless: 'not |never|instead|non-charging'
+        unless: 'not |never|instead|non-charging|legacy'
         message: 2.0 docking is positioning only
       - pattern: '(?P<found>isCharging[^\n]{0,20}\breturn\s+true|return\s+true[^\n]{0,20}isCharging)'
         message: never report charging from a docking pose

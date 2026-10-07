@@ -301,6 +301,14 @@ class RealRegister(unittest.TestCase):
                          ["IMU-TOPIC-OWNERSHIP"])
         self.assertEqual(self.ids("docs/imu.md", "The MCU publishes /imu/data_raw; the host filter publishes /imu/data.\n"), [])
 
+    def test_imu_topic_history_label_is_accepted(self):
+        # Regression: a line that labels the old firmware topic as outdated history is not a finding.
+        self.assertEqual(self.ids("electrical/sensors/imu.md",
+                                  "*(Older revisions of this doc said the firmware publishes `/imu/data` directly"
+                                  " \u2014 that is outdated;\n", "openamr-platform-hw"), [])
+        self.assertEqual(self.ids("docs/imu.md", "The firmware publishes `/imu/data` directly.\n",
+                                  "openamr-platform-hw"), ["IMU-TOPIC-OWNERSHIP"])
+
     def test_shoulder_height_versus_envelope(self):
         self.assertEqual(self.ids("docs/a.md", "Shoulder axis at 1700 mm.\n", "openamrobot-docs"), ["MAX-ASSEMBLED-HEIGHT"])
         self.assertEqual(self.ids("docs/a.md", "Maximum assembled height 1700 mm, not a shoulder height.\n",
@@ -340,6 +348,14 @@ class RealRegister(unittest.TestCase):
                          ["DOCKING-NOT-CHARGING"])
         self.assertEqual(self.ids("web/a.ts", "// when docked the robot is connected to external power\n",
                                   "openamrobot-ui"), ["DOCKING-NOT-CHARGING"])
+
+    def test_legacy_charging_dock_fields_are_accepted(self):
+        # Regression: a comment that labels the upstream charging-dock fields as legacy is not a finding.
+        self.assertEqual(self.ids("config/dock_trigger.yaml",
+                                  "    # Legacy fields read by opennav_docking::SimpleChargingDock \u2014 kept so the\n",
+                                  "openamr-platform-sw"), [])
+        self.assertEqual(self.ids("config/nav2_params.yaml", "      plugin: 'opennav_docking::SimpleChargingDock'\n",
+                                  "openamr-platform-sw"), ["DOCKING-NOT-CHARGING"])
 
     def test_telemetry_is_not_safety_evidence(self):
         self.assertEqual(self.ids("docs/a.md", "The watchdog is our safety layer.\n", "x"), ["TELEMETRY-NOT-SAFETY-EVIDENCE"])
