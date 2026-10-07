@@ -164,6 +164,13 @@ class Guide(unittest.TestCase):
             found = watchdog.cd.scan(tmp, decisions, ".github")[0]
             self.assertEqual(sorted(f["file"] for f in found), ["docs/WATCHDOG.md"])
 
+    def test_approved_public_contacts_section(self):
+        section = self.text.split("## Approved public contacts", 1)[1].split("\n## ", 1)[0]
+        for kind in ("| Organisation |", "| Contributors and maintainers |", "| Supplier role addresses |",
+                     "| Third-party licence notices |", "`datasheets/` only", "**Prices are never public**",
+                     "docs owner", "platform lead"):
+            self.assertIn(kind, section)
+
     def test_guide_is_linked(self):
         for name in ("README.md", "CONTRIBUTING.md"):
             self.assertIn("WATCHDOG.md", (ROOT / name).read_text(encoding="utf-8"), name)

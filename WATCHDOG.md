@@ -32,31 +32,43 @@ only read files and never change them.
 
 | Check | What it looks at | Why it matters | Typical finding | How to fix | Who owns it |
 |---|---|---|---|---|---|
-| <a id="decisions-of-record"></a>Decisions of record (`tools/check_decisions.py`) | Text files covered by each entry in [decisions.yaml](decisions.yaml) | Builders and reviewers must see the approved value, not an old one | `Mismatch with approved decision: README.md:44: COMPUTE found 'Raspberry Pi 5'` | Correct the line, or label it as history with an accepted word (table below), or propose a decision change | Each entry's `owner` role, usually the platform lead |
-| <a id="public-extract"></a>Public extract (`tools/check_public_extract.py`) | `docs/`, `assets/`, every `README.md` and any path containing `public` | Public pages must not leak internal links, personal contact data, prices or secrets | `Should not be public: docs/a.md:3: google-drive-link found 'https://drive.google.com/...'` | Remove the value or move it to an internal place; intentional public contacts go on the allowlist ([public-extract-allowlist.yaml](public-extract-allowlist.yaml)) after review | Docs owner |
-| <a id="shared-agent-rules"></a>Shared agent rules (`tools/check_agent_rules.py`) | `AGENTS.md` and `CLAUDE.md` | Every contributor and agent follows the same rules; a changed copy quietly changes them | `Shared agent rules out of date: AGENTS.md:1: shared-rules found 'shared block differs from canonical'` | Copy the block between the BEGIN and END markers from [agent-rules/SHARED_RULES.md](agent-rules/SHARED_RULES.md) unchanged | Software lead |
-| <a id="workflow-policy"></a>Workflow policy (`tools/check_workflow_policy.py`) | `.github/workflows/*.yml` | A tag or branch can be moved to new code; a full commit SHA cannot | `Workflow not pinned: .github/workflows/ci.yml:12: unpinned-action found 'actions/checkout@v4'` | Pin the action to its 40-character commit SHA and keep the version as a comment | CI owner |
+| <a id="decisions-of-record"></a>Decisions of record (`tools/check_decisions.py`) | Text files covered by each entry in [decisions.yaml](decisions.yaml) | Builders and reviewers must see the approved value, not an old one | `Mismatch with approved decision: COMPUTE (14 finding(s))`, then `README.md:44: found 'Raspberry Pi 5'` | Correct the line, or label it as history with an accepted word (table below), or propose a decision change | Each entry's `owner` role, usually the platform lead |
+| <a id="public-extract"></a>Public extract (`tools/check_public_extract.py`) | `docs/`, `assets/`, every `README.md` and any path containing `public` | Public pages must not leak internal links, personal contact data, prices or secrets | `Should not be public: google-drive-link (1 finding(s))`, then `docs/a.md:3: found 'https://drive.google.com/...'` | Remove the value or move it to an internal place; approved public contacts are listed below, and new ones go on the allowlist ([public-extract-allowlist.yaml](public-extract-allowlist.yaml)) after review | Docs owner |
+| <a id="shared-agent-rules"></a>Shared agent rules (`tools/check_agent_rules.py`) | `AGENTS.md` and `CLAUDE.md` | Every contributor and agent follows the same rules; a changed copy quietly changes them | `Shared agent rules out of date: shared-rules (1 finding(s))`, then `AGENTS.md:1: found 'shared block differs from canonical'` | Copy the block between the BEGIN and END markers from [agent-rules/SHARED_RULES.md](agent-rules/SHARED_RULES.md) unchanged | Software lead |
+| <a id="workflow-policy"></a>Workflow policy (`tools/check_workflow_policy.py`) | `.github/workflows/*.yml` | A tag or branch can be moved to new code; a full commit SHA cannot | `Workflow not pinned: unpinned-action (1 finding(s))`, then `.github/workflows/ci.yml:12: found 'actions/checkout@v4'` | Pin the action to its 40-character commit SHA and keep the version as a comment | CI owner |
 | <a id="pr-evidence"></a>PR evidence and AI disclosure (`tools/check_pr_evidence.py`) | The pull request description | Reviewers need the base and head commits, exact commands, test counts, a Not verified section and an honest AI disclosure | `Missing section: Not verified` | Fill every section of the pull request template | CI owner |
 | <a id="verify"></a>verify.sh (`rollout/verify.sh`) | The repository's build and tests | A test run that runs zero tests proves nothing; a skipped test must say why | `FAIL: zero tests executed` or `FAIL: skip/xfail/importorskip without a tracking issue` | Add real tests; put the tracking issue on the same line as each skip | CI owner |
 | <a id="decision-freshness"></a>Decision freshness (`review_by` in the register) | The `review_by` date of each register entry | An old decision may no longer be true | `Review due: COMPUTE review_by 2026-11-18 is past due` (a warning, never a failure) | The entry's owner confirms the decision or starts a change | Each entry's `owner` role |
 
 ## How to read a finding
 
-This is a real finding from the scan of `openamr-platform-hw` on 7 October 2026:
+Findings are grouped by decision. Each group says once what the decision is, why it matters,
+how to fix it and where to read more, then lists every place it was found. This is the real
+COMPUTE group from the scan of `openamr-platform-hw` on 7 October 2026 (3 of its 14 places
+shown):
 
 ```text
-Mismatch with approved decision: README.md:44: COMPUTE found 'Raspberry Pi 5'
+Mismatch with approved decision: COMPUTE (14 finding(s))
   Decision: Reference compute: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401; Pi is legacy.
   Why:      Jetson Orin NX is the 2.0 reference compute; label Raspberry Pi material as legacy.
   Fix:      Name the Jetson Orin NX, or label Raspberry Pi material as legacy or Gate A.
-  More:     COMPUTE in decisions.yaml: https://github.com/openAMRobot/.github/blob/main/decisions.yaml#L709 | WATCHDOG.md: ...
+  More:     COMPUTE in decisions.yaml: https://github.com/openAMRobot/.github/blob/main/decisions.yaml#L711 | WATCHDOG.md: ...
+  Found:
+    README.md:44: found 'Raspberry Pi 5'
+    README.md:81: found 'Raspberry Pi 5'
+    electrical/computing/raspberry-pi.md:1: found 'Raspberry Pi 5'
 ```
 
-- The first line is the place: file `README.md`, line 44. `COMPUTE` is the decision ID.
+- The first line names the kind of finding, the decision ID (`COMPUTE`) and how many places
+  disagree with it.
 - **Decision** is the current decision in one line.
-- **Why** says what is wrong with this line.
+- **Why** says what is wrong. If one decision has several checks, each reason gets its own line.
 - **Fix** says what to change.
 - **More** links to the register entry and to this page.
+- **Found** lists each place as `file:line` and the text that was found.
+
+In GitHub, each place is also shown inline in the pull request diff with the full message,
+and the job summary has a table of findings per decision.
 
 The line before the fix (the README describes the robot that exists today, which still uses
 the Raspberry Pi):
@@ -137,6 +149,29 @@ identical to the register.
 | NO-SUSPENSION | recorded | `3.0`, `no`, `not fitted`, `without` |
 | DRIVE-TRACK | open | not scanned until the decision is taken |
 <!-- END ACCEPTED WORDS -->
+
+## Approved public contacts
+
+Public files (`docs/`, `assets/`, every `README.md` and any path containing `public`) carry no
+personal contact data and no prices. The public-extract check accepts only these kinds of
+contact, each listed with its reason in
+[public-extract-allowlist.yaml](public-extract-allowlist.yaml):
+
+| Kind | What is accepted | Where |
+|---|---|---|
+| Organisation | Any address on the `botshare.ai` domain. Lookalike domains are still flagged. | Anywhere |
+| Contributors and maintainers | An address on a `Signed-off-by:` or `Co-authored-by:` line, and any address in `CONTRIBUTORS.md`, `MAINTAINERS.md` or `maintainers.yaml`. Publication is agreed through the DCO, the CLA and the contributor privacy notice. | Anywhere |
+| Supplier role addresses | An address whose name part is a role: `sales`, `info`, `support`, `service`, `contact`, `export`, `trade`, `office` or `marketing`, optionally followed by digits (for example `trade26@`). An address that names a person is still flagged. | `datasheets/` only |
+| Third-party licence notices | The author address on a copyright, licence or `@author` line of third-party code, which must stay to preserve provenance. | Notice lines only |
+
+**Prices are never public**, except the approved organisation pricing (the sponsorship tiers
+and robot offerings on this organisation's README and profile). Supplier prices, quotes and
+price lists are removed, never allowlisted.
+
+**To request a new entry**, open an issue that names the file, the exact text and why it must
+be public. The docs owner decides entries for published pages; the platform lead decides
+entries about company or commercial information. Until the entry is merged, the finding
+stays.
 
 ## Run it locally in one command
 
