@@ -77,8 +77,11 @@ sources:
   P-00-rev18.1:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
+  BOM-Issue-7.3:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3 (canonical per P-03 rev18.7)
+    evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7, 27 September 2026 (canonical per P-03 rev18.2 item 7)
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7, 27 September 2026 (earlier issue; canonical per P-03 rev18.2 item 7 until Issue 7.3)
     evidence: not held in any repository; provenance only, CI never reads it
   I8-WP:
     title: I8 base-controller status work package
@@ -99,11 +102,12 @@ decisions:
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
     kind: value
     status: recorded
-    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3
     unit: none
-    date: 2026-09-28
-    source: {document: P-03-rev18.2, item: item 7}
+    date: 2026-10-06
+    source: {document: P-03-rev18.7, item: BOM issue in force}
     supersedes:
+      - {value: Issue 7, source: P-03-rev18.2 item 7}
       - value: Issue 6, or an explicitly approved successor
         source: P-03-rev18.1 line 7
         citation: '(?P<found>P-03[^\n]{0,30}(?:rev(?:ision)?\.?\s*)?18\.1[^\n]{0,30}line\s*7)'
@@ -112,12 +116,15 @@ decisions:
     check:
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier'
-        message: BOM Issue 7 is the canonical hardware BOM (P-03 rev18.2 item 7)
+        message: BOM Issue 7.3 is the canonical hardware BOM (P-03 rev18.7)
       - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
         unless: 'supersed'
         message: B-01 is superseded
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.3)(?:\.\d+)?\b|\bIssue\s*7(?!\.3)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+        unless: 'supersed|replaced|previous|earlier|historical'
+        message: BOM Issue 7.3 is the canonical hardware BOM (P-03 rev18.7)
     verification:
-      machine: Issue 6 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      machine: Issue 6, Issue 7 (other than 7.3) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
     owner: platform-lead
 

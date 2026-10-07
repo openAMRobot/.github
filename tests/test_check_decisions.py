@@ -279,7 +279,13 @@ class RealRegister(unittest.TestCase):
     def test_bom_issue_in_force(self):
         self.assertEqual(self.ids("docs/a.md", "The canonical BOM is Issue 6.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
-        self.assertEqual(self.ids("docs/a.md", "Issue 7 is canonical; Issue 6 is superseded.\n", "x"), [])
+        self.assertEqual(self.ids("docs/a.md", "Issue 7.3 is canonical; Issue 6 is superseded.\n", "x"), [])
+
+    def test_bom_issue_7_3_in_force(self):
+        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
+        for text in ("BOM Issue 7.3 is canonical.\n", "Issue 7 was canonical until Issue 7.3 superseded it.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_nav_lidar(self):
         repo = "openamr-platform-sw"
