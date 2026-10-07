@@ -16,6 +16,7 @@ only to the fallback (private) repository.
 Exit status: 0 success, 2 usage error.
 """
 import argparse
+from datetime import date
 import csv
 import json
 import os
@@ -32,6 +33,25 @@ NOT_DETECTED = "<!-- audit-no-longer-detected -->"
 OPEN_SEVERITIES = {"Blocker", "Major"}
 REPO = re.compile(r"\b(openamr(?:obot)?-[a-z0-9-]+|\.github)\b")
 
+
+
+def review_warnings(path, today=None):
+    """Return warnings for decision entries whose review window has passed."""
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    today = today or date.today()
+    warnings = []
+    for entry in data.get("decisions") or []:
+        value = entry.get("review_by") if isinstance(entry, dict) else None
+        if isinstance(value, date):
+            review_by = value
+        else:
+            try:
+                review_by = date.fromisoformat(str(value))
+            except (TypeError, ValueError):
+                continue
+        if review_by < today:
+            warnings.append(f"{entry.get('id', '<unknown>')} review_by {review_by.isoformat()} is past due")
+    return warnings
 
 def read_csv(path):
     with open(path, newline="", encoding="utf-8") as stream:
@@ -148,6 +168,7 @@ def main(argv=None):
     p.add_argument("--org", default="openAMRobot")
     p.add_argument("--apply", action="store_true", help="fetch existing issues, then create and close via the API")
     p.add_argument("--plan-output", type=Path)
+    p.add_argument("--decisions", type=Path, help="decision register; past review_by dates are warnings")
     a = p.parse_args(argv)
     maintainers = yaml.safe_load(a.maintainers.read_text(encoding="utf-8"))
     rows = read_csv(a.issues)
@@ -160,6 +181,9 @@ def main(argv=None):
         return 2
     existing = json.loads(a.existing.read_text(encoding="utf-8")) if a.existing else (
         fetch_existing(a.org, token) if a.apply else [])
+    warnings = review_warnings(a.decisions) if a.decisions else []
+    for warning in warnings:
+        print(f"WARNING decision-review {warning}")
     to_open, to_notify = plan(rows, existing, maintainers, a.fallback_repository, a.report)
     for issue in to_open:
         print(f"OPEN    {issue['repository']}: {issue['title']}")
@@ -167,7 +191,7 @@ def main(argv=None):
         print(f"COMMENT {issue['repository']}#{issue['number']}: {issue['id']} no longer detected (not closed)")
     print(f"plan: {len(to_open)} to open, {len(to_notify)} to comment 'no longer detected', 0 closed")
     if a.plan_output:
-        a.plan_output.write_text(json.dumps({"open": to_open, "no_longer_detected": to_notify}, indent=2),
+        a.plan_output.write_text(json.dumps({"open": to_open, "no_longer_detected": to_notify, "decision_review_warnings": warnings}, indent=2),
                                  encoding="utf-8")
     if a.apply:
         apply(a.org, to_open, to_notify, token, a.report)
