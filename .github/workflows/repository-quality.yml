@@ -80,6 +80,7 @@ jobs:
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y git python3-pip shellcheck
               rosdep update
+              git config --global --add safe.directory /work/interfaces
               test -d /work/interfaces/ros2/build
               test -d /work/interfaces/ros2/install
               test -d /work/interfaces/ros2/log
