@@ -188,6 +188,15 @@ class RosdepState(unittest.TestCase):
         (ros / "bin" / "rosdep").write_text(FAKE_ROSDEP, encoding="utf-8")
         (ros / "bin" / "rosdep").chmod(0o755)
         (ros / "setup.bash").write_text(f'export PATH="{ros}/bin:$PATH"\n', encoding="utf-8")
+        fake_colcon = ros / "bin" / "colcon"
+        fake_colcon.write_text(
+            "#!/usr/bin/env bash\n"
+            "if [ \"$1\" = test-result ]; then\n"
+            "  echo 'Summary: 1 tests, 0 errors, 0 failures, 0 skipped'\n"
+            "fi\n",
+            encoding="utf-8",
+        )
+        fake_colcon.chmod(0o755)
         self.ros = ros
         self.home = self.base / "home"
         self.home.mkdir()
@@ -236,6 +245,14 @@ class RosdepState(unittest.TestCase):
         self.assertEqual(code, 0, out)
         scanned = [line for line in scanned if line]
         self.assertEqual(scanned, [f"scan {root / 'ros2' / 'src' / 'pkg_a'}"])
+
+
+    def test_ros_build_copy_excludes_verification_workspace(self):
+        self.init_caller_rosdep()
+        code, out, _, _ = self.run_verify({".openamrobot/verify.env": ""})
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("into itself", out)
+        self.assertNotIn("cp: cannot copy", out)
 
 
 if __name__ == "__main__":
