@@ -21,7 +21,9 @@ block, or a source cannot be read, apply the failure rule.
 ## Task
 
 1. Run `python3 tools/check_decisions.py --decisions decisions.yaml --root <checkout> --repository <name>`
-   for every audited checkout and keep the output.
+   for every audited checkout and keep the output. Treat any `WARNING` line for a past
+   `review_by` date as a warning in REPORT.md; it is not a contradiction and must not be
+   silently dropped.
 2. Compare each finding of the previous ISSUES.csv with the current checkouts: mark it
    resolved (cite the SHA and line that fixed it), still present, or changed.
 3. Add new findings for contradictions between the plan documents supplied to you, decisions.yaml
@@ -37,6 +39,7 @@ hardware or secrets.
 
 - One new folder `<YYYY-MM-DD>-alignment-audit/` with REPORT.md and ISSUES.csv on the audit branch.
 - A summary table: counts by area and severity, new, resolved and still-present findings.
+- A `Decision review warnings` section listing every register entry past `review_by`, with its owner role and next human action.
 - A "What could not be checked" section with the reason for each gap.
 - No change in any audited repository.
 
