@@ -1,7 +1,7 @@
 # Fixture register for tests/test_check_decisions.py. Synthetic values only;
 # not decisions of record.
 schema_version: 1
-in_force: {source: D, date: 2026-10-07}
+in_force: {source: FIX-DOC, date: 2026-10-07}
 sources:
   FIX-DOC: {title: Fixture decision document revision 2, evidence: tests only}
 exclude: ["**/CHANGELOG.md"]
