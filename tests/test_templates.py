@@ -57,6 +57,13 @@ class AgentPrompts(unittest.TestCase):
                 self.assertIn("expected outcome:", block)
                 self.assertIn("A failed precondition stops the task", text)
 
+    def test_docs_fix_separates_verified_from_planned_content(self):
+        text = (PROMPTS / "docs-fix.md").read_text(encoding="utf-8")
+        self.assertIn("## Verified and planned content", text)
+        self.assertIn("<repository>@<SHA>:<file>:<line>", text.split("## Verified and planned content", 1)[1])
+        self.assertIn("**Planned** or **Experimental**", text)
+        self.assertIn("Never invent a technical claim the owning repository does not support", text)
+
 
 class Typography(unittest.TestCase):
     def test_no_em_or_en_dashes_in_harness_files(self):
