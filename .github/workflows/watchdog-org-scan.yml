@@ -1,0 +1,99 @@
+name: Watchdog organization scan
+
+# Deterministic, report-only scan of every active public openAMRobot repository with
+# tools/watchdog.py (no AI). It clones each repository listed in rollout/repositories.yaml on
+# its default branch and writes one job summary. Findings never fail the job; it never pushes,
+# opens issues or comments. A clone that fails is reported as BLOCKED and fails the job after
+# the summary is written, so an incomplete scan is never shown as complete. See WATCHDOG.md.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: watchdog-org-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    name: watchdog-org-scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: harness
+          persist-credentials: false
+
+      - name: Scan repositories
+        shell: bash
+        env:
+          WATCHDOG_ANNOTATIONS: "0"
+          HARNESS: harness
+          WORK: ${{ runner.temp }}/watchdog
+        run: |
+          set -uo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          mkdir -p "$WORK/repos" "$WORK/out"
+          python3 - "$HARNESS/rollout/repositories.yaml" > "$WORK/list.txt" <<'PY'
+          import sys, yaml
+          data = yaml.safe_load(open(sys.argv[1], encoding="utf-8"))
+          for r in data["repositories"]:
+              print(data["organization"], r["name"], r["default_branch"])
+          PY
+          summary="${GITHUB_STEP_SUMMARY:-$WORK/summary.md}"
+          {
+            echo "## OpenAMRobot Watchdog organization scan"
+            echo
+            echo "Report only: findings never fail this job. Each finding and how to fix it is explained in"
+            echo "[WATCHDOG.md](https://github.com/openAMRobot/.github/blob/main/WATCHDOG.md)."
+            echo "A clean result shows textual consistency only, not mechanical, electrical, safety or release correctness."
+            echo
+            echo "| Repository | Commit | Findings |"
+            echo "|---|---|---:|"
+          } >> "$summary"
+          blocked=0
+          : > "$WORK/details.md"
+          while read -r org name branch; do
+            dest="$WORK/repos/$name"
+            if ! git clone --quiet --depth 1 --branch "$branch" "https://github.com/$org/$name.git" "$dest"; then
+              echo "| $name | BLOCKED: clone failed | not scanned |" >> "$summary"
+              blocked=$((blocked + 1))
+              continue
+            fi
+            sha=$(git -C "$dest" rev-parse --short HEAD)
+            python3 "$HARNESS/tools/watchdog.py" --root "$dest" --repository "$name" --report-only \
+              --json "$WORK/out/$name.json" --markdown "$WORK/details.md" > "$WORK/out/$name.txt"
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              echo "| $name | $sha | BLOCKED: watchdog exit $status |" >> "$summary"
+              blocked=$((blocked + 1))
+              continue
+            fi
+            total=$(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print(sum(len(v or []) for v in r["results"].values()))' "$WORK/out/$name.json")
+            echo "| $name | $sha | $total |" >> "$summary"
+            tail -n 12 "$WORK/out/$name.txt"
+          done < "$WORK/list.txt"
+          {
+            echo
+            echo "## Findings per decision or rule, per repository"
+            echo
+            cat "$WORK/details.md"
+          } >> "$summary"
+          if [ "$blocked" -ne 0 ]; then
+            echo "::error::$blocked repository scan(s) BLOCKED; the summary lists them"
+            exit 1
+          fi
+
+      - name: Upload scan logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: watchdog-org-scan
+          path: ${{ runner.temp }}/watchdog/out/
+          if-no-files-found: warn
