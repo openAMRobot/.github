@@ -11,7 +11,7 @@ around the delegated run.
 | Stage | Default action | Fails when |
 |---|---|---|
 | prerequisites | detect ROS 2 (`package.xml`), Node (`package.json`), Python (`tests/`, `pyproject.toml`, `setup.py`) | nothing is detected and no `VERIFY_TEST` is set |
-| install | `npm ci`, or `rosdep check` for ROS 2 | a dependency does not resolve |
+| install | `npm ci`, or `rosdep check` for ROS 2 on the source packages only (never `build/`, `install/`, `log/` or a `COLCON_IGNORE` folder) | a dependency does not resolve |
 | build | `colcon build` in a copied workspace, or `npm run build` | the build fails |
 | lint | `py_compile` for tracked Python, `bash -n` (and `shellcheck` when installed) for shell, `npm run lint` | any file fails |
 | test-markers | scan tracked test sources | a skip, xfail or importorskip does not name an issue (`#123` or `issues/123`) on the same line |

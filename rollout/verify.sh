@@ -160,6 +160,16 @@ if [ -d "$caller_rosdep" ]; then
   mkdir -p "$run/home/.ros" && cp -a "$caller_rosdep" "$run/home/.ros/rosdep"
 fi
 
+# ROS package directories of the source tree only: never colcon's build/, install/ or
+# log/ (any directory with those names or a COLCON_IGNORE marker), .verification/,
+# node_modules/ or checker fixtures.
+ros_source_paths() {
+  find "$root" \( -name .git -o -name .verification -o -name node_modules -o -name build \
+      -o -name install -o -name log -o -path "$root/tests/fixtures" \) -prune \
+    -o -type d -exec test -e '{}/COLCON_IGNORE' \; -prune \
+    -o -name package.xml -printf '%h\n' | sort -u
+}
+
 if [ -f "$root/.openamrobot/verify.env" ]; then
   # shellcheck disable=SC1091
   source "$root/.openamrobot/verify.env"
@@ -186,7 +196,10 @@ stage=install
 if [ -n "${VERIFY_INSTALL:-}" ]; then clean_bash -c "cd '$root' && $VERIFY_INSTALL"
 elif $node; then clean_bash -c "cd '$root' && npm ci"
 elif $ros; then
-  clean_bash -c "source '$ros_setup' && rosdep check --from-paths '$root' --ignore-src --rosdistro $distro"
+  mapfile -t ros_paths < <(ros_source_paths)
+  # shellcheck disable=SC2016  # $@ expands inside the clean shell
+  clean_bash -c "source '$ros_setup' && rosdep check --from-paths \"\$@\" --ignore-src --rosdistro $distro" \
+    rosdep-check "${ros_paths[@]}"
 fi
 pass
 

@@ -224,6 +224,19 @@ class RosdepState(unittest.TestCase):
         self.assertIn("not been initialized", out)
         self.assertIn("FAIL: install", out)
 
+    def test_generated_build_install_log_folders_are_not_scanned(self):
+        self.init_caller_rosdep()
+        bad = PACKAGE_XML.format(name="pkg_a", deps="<depend>unresolvable_generated_key</depend>")
+        code, out, root, scanned = self.run_verify({
+            "ros2/build/pkg_a/package.xml": bad, "ros2/build/COLCON_IGNORE": "",
+            "ros2/install/pkg_a/share/pkg_a/package.xml": bad, "ros2/install/COLCON_IGNORE": "",
+            "ros2/log/latest/package.xml": bad,
+            "ros2/generated/COLCON_IGNORE": "", "ros2/generated/pkg_a/package.xml": bad,
+        })
+        self.assertEqual(code, 0, out)
+        scanned = [line for line in scanned if line]
+        self.assertEqual(scanned, [f"scan {root / 'ros2' / 'src' / 'pkg_a'}"])
+
 
 if __name__ == "__main__":
     unittest.main()
