@@ -1,0 +1,868 @@
+# OpenAMRobot register of approved technical decisions.
+#
+# Two layers, kept separate:
+#   - AGENTS.md and CONTRIBUTING.md hold process: how a decision is proposed,
+#     reviewed, recorded, changed, tested and propagated.
+#   - This file holds the approved technical decisions repositories follow:
+#     values with units, allowed configurations, limits, exclusions and
+#     semantic distinctions.
+#
+# CI evaluates only this pinned, version-controlled file. No check fetches a
+# plan document, a drive or the documentation site. Source documents are
+# provenance: when a source and this register disagree, a human resolves it
+# (the entry's owner) and no tool rewrites either side. tools/check_decisions.py
+# only reads files and reports.
+#
+# What the scan proves: that a scanned file does not contain a listed
+# contradicting phrase. It proves textual consistency only, never mechanical,
+# electrical or safety correctness. Each entry's `verification.human` names
+# the reviewer and the evidence that the scan cannot provide.
+#
+# Schema (schema_version 1), one entry per decision:
+#   id            unique, upper case, stable
+#   title         one line
+#   summary       optional; the decision in one line of at most 120 characters,
+#                 printed with each finding (the long value stays here)
+#   fix_hint      optional; how to fix a finding, one line of at most 120 characters
+#   kind          value | configuration | limit | exclusion | distinction
+#   status        recorded (scanned and reported) | open (not decided; not scanned) |
+#                 superseded (replaced by a later decision; only its citation is scanned)
+#   value/values  exactly as the source states it; nothing invented
+#   unit          SI unit or none
+#   date          date the decision was taken (null when the source gives none)
+#   review_by     review date; six weeks after date, or six weeks after this register update when date is null
+#   source        document (a key under sources) and item
+#   supersedes    earlier values with their source; optional `citation`, a
+#                 pattern that finds text still citing the superseded source
+#   applies_to    repositories (globs) and files (globs); exclude optional
+#   check         patterns; each has a (?P<found>...) group, optional files
+#                 (globs narrowing this pattern), optional line-level `unless`
+#                 exemption and a message
+#   verification  machine: what the scan detects; human: reviewer role and
+#                 the evidence they need
+#   owner         role in maintainers.yaml who approves changes to this entry
+#   superseded_by for status superseded: document (a key under sources), item,
+#                 optional decision (the replacing entry), citation (a pattern
+#                 with a (?P<found>...) group for text still presenting the
+#                 superseded value as current) and optional unless; `check`
+#                 is then not used
+#
+# Changing an entry follows "Changing a decision" in AGENTS.md: change request
+# issue, source document first, then one reviewed PR that updates this file and
+# every affected consumer together.
+schema_version: 1
+
+in_force:
+  source: P-03-rev18.7
+  date: 2026-10-06
+
+sources:
+  P-03-rev18.2:
+    title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.7 as the addendum in force)
+    evidence: >-
+      Not held in any repository. Confirmed by the platform lead on 29 September 2026
+      as the addendum in force at that date. Values that cite it were seeded from its citation on the
+      documentation site (openamrobot-docs main e0f2aac,
+      docs/reference/openamrobot-2/index.md lines 30-39) and from that confirmation.
+  P-03-rev18.4:
+    title: P-03 Decision Addendum, revision 18.4 (earlier revision)
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.7:
+    title: P-03 Decision Addendum, revision 18.7, 6 October 2026 (the addendum in force)
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.6:
+    title: P-03 Decision Addendum, revision 18.6 (earlier revision)
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.5:
+    title: P-03 Decision Addendum, revision 18.5, 6 October 2026 (earlier revision)
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.3:
+    title: P-03 Decision Addendum, revision 18.3 (earlier revision)
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.1:
+    title: P-03 Decision Addendum, revision 18.1
+    evidence: plan-set document, not held in any repository; cited by item and line
+  P-00-rev18.1:
+    title: P-00 Master Coordination Plan, revision 18.1
+    evidence: plan-set document, not held in any repository; cited by text line
+  BOM-Issue-7.3:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3 (canonical per P-03 rev18.7)
+    evidence: not held in any repository; provenance only, CI never reads it
+  BOM-Issue-7:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7, 27 September 2026 (earlier issue; canonical per P-03 rev18.2 item 7 until Issue 7.3)
+    evidence: not held in any repository; provenance only, CI never reads it
+  I8-WP:
+    title: I8 base-controller status work package
+    evidence: plan-set work package, not held in any repository
+  DOCK-WP:
+    title: 2.0 docking work package
+    evidence: plan-set work package, not held in any repository
+
+# Never scanned: this register, checker fixtures, change logs and the Watchdog guide
+# (WATCHDOG.md quotes findings and its accepted-words table is generated from this register).
+exclude:
+  - decisions.yaml
+  - WATCHDOG.md
+  - tests/fixtures/**
+  - "**/CHANGELOG.md"
+  - agent-runs.md
+
+decisions:
+  - id: BOM-ISSUE-IN-FORCE
+    title: Canonical hardware BOM issue for OpenAMRobot 2.0
+    summary: "BOM Issue 7.3 is the canonical OpenAMRobot 2.0 hardware BOM."
+    fix_hint: "Name Issue 7.3 as canonical, or label older issues (Issue 6, Issue 7, B-01) as superseded."
+    kind: value
+    status: recorded
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: BOM issue in force}
+    supersedes:
+      - {value: Issue 7, source: P-03-rev18.2 item 7}
+      - value: Issue 6, or an explicitly approved successor
+        source: P-03-rev18.1 line 7
+        citation: '(?P<found>P-03[^\n]{0,30}(?:rev(?:ision)?\.?\s*)?18\.1[^\n]{0,30}line\s*7)'
+      - {value: B-01 development BOM and evidence register rev18, source: P-03-rev18.1 line 7}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
+    check:
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+        unless: 'supersed|replaced|previous|earlier'
+        message: BOM Issue 7.3 is the canonical hardware BOM (P-03 rev18.7)
+      - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
+        unless: 'supersed'
+        message: B-01 is superseded
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.3)(?:\.\d+)?\b|\bIssue\s*7(?!\.3)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+        unless: 'supersed|replaced|previous|earlier|historical'
+        message: BOM Issue 7.3 is the canonical hardware BOM (P-03 rev18.7)
+    verification:
+      machine: Issue 6, Issue 7 (other than 7.3) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
+    owner: platform-lead
+
+  - id: MAST-INSTALL-HEIGHT
+    title: Shoulder-axis installation height of the fixed mast (superseded by LIFT)
+    summary: "Superseded: the fixed-mast 1350 mm installation height was replaced by LIFT."
+    fix_hint: "Describe the lift (shoulder axis 1000 to 1350 mm), or label the fixed-mast text as superseded or historical."
+    kind: configuration
+    status: superseded
+    value: 1350
+    unit: mm
+    configuration_id: mast_1350
+    date: 2026-09-28
+    review_by: 2026-11-09
+    source: {document: P-03-rev18.2, item: shoulder height}
+    supersedes:
+      - value: 1400
+        configuration_id: mast_1400
+        source: P-03-rev18.1 item 6 line 15
+        citation: '(?P<found>P-03[^\n]{0,30}(?:rev(?:ision)?\.?\s*)?18\.1[^\n]{0,30}item\s*6)'
+      - {value: 1300, configuration_id: mast_1300, source: working baseline before P-03-rev18.1 item 6}
+    applies_to:
+      repositories: ["*"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf", "**/*.launch.py", "**/package.xml", "**/*.html"]
+    superseded_by:
+      document: P-03-rev18.7
+      item: item 8
+      decision: LIFT
+      citation: '(?P<found>\bmast_1350\b[^\n]{0,60}\b(?:baseline|installation)|(?:shoulder[- ]axis|installation) height\s*(?:at|of|is|:)?\s*1350\s*mm)'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
+    verification:
+      machine: text still presenting the superseded fixed-mast value as current (citation pattern)
+      human: {reviewer: platform-lead, evidence: URDF/Xacro mast configuration and the general arrangement drawing at 1350 mm}
+    owner: platform-lead
+
+  - id: MAST-POSITIONS
+    title: Indexed mast mounting positions (superseded by LIFT)
+    summary: "Superseded: the indexed fixed-mast positions were replaced by LIFT."
+    fix_hint: "Describe the lift positions, or label mast_1300/1400/1450 text as superseded or historical."
+    kind: configuration
+    status: superseded
+    values: [1300, 1350, 1400, 1450]
+    unit: mm
+    step_mm: 50
+    date: 2026-09-28
+    review_by: 2026-11-09
+    source: {document: P-03-rev18.2, item: shoulder height}
+    supersedes:
+      - {value: nine positions 1300 to 1700 mm (mast_1300 to mast_1700), source: P-00-rev18.1 txt 293-294}
+    applies_to:
+      repositories: ["*"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf", "**/*.launch.py", "**/*.html"]
+    superseded_by:
+      document: P-03-rev18.7
+      item: item 8
+      decision: LIFT
+      citation: '(?P<found>\bmast_1(?:300|400|450)\b|\b(?:four|4) indexed (?:mast )?(?:mounting )?positions|\bindexed mast (?:mounting )?positions)'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
+    verification:
+      machine: text still presenting the superseded fixed-mast value as current (citation pattern)
+      human: {reviewer: platform-lead, evidence: mast drawing with index holes}
+    owner: platform-lead
+
+  - id: MAST-TOP-HEIGHT
+    title: Mast top height above the floor (own COTS mast, one MISUMI HFS6-60120 profile; superseded by LIFT)
+    summary: "Superseded: the 1500 mm mast top on an HFS6-60120 profile was replaced by LIFT."
+    fix_hint: "Describe the lift, or label the mast-top or HFS6-60120 text as superseded or historical."
+    kind: value
+    status: superseded
+    value: 1500
+    unit: mm
+    date: 2026-09-28
+    review_by: 2026-11-09
+    source: {document: P-03-rev18.2, item: mast}
+    supersedes:
+      - {value: 1554, source: general arrangement before 28 September 2026}
+    applies_to:
+      repositories: ["*"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]
+    superseded_by:
+      document: P-03-rev18.7
+      item: item 8
+      decision: LIFT
+      citation: '(?P<found>\bmast top[^\n]{0,20}\b1500\s*mm|\bHFS6-60120\b)'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
+    verification:
+      machine: text still presenting the superseded fixed-mast value as current (citation pattern)
+      human: {reviewer: platform-lead, evidence: mast drawing and CAD}
+    owner: platform-lead
+
+  - id: MAX-ASSEMBLED-HEIGHT
+    title: 1700 mm is the maximum assembled-height envelope, not a shoulder-axis height
+    summary: "1700 mm is the maximum assembled-height envelope, not a shoulder height."
+    fix_hint: "Use 1700 mm only as the assembled-height envelope; give shoulder heights from the LIFT entry."
+    kind: distinction
+    status: recorded
+    value: 1700
+    unit: mm
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.7, item: item 8}
+    note: First recorded in P-03-rev18.1 item 6 line 15 and repeated in rev18.2; kept unchanged by rev18.7 item 8 with the lift. The robot may be lower, never higher.
+    applies_to:
+      repositories: ["*"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]
+    check:
+      - pattern: '(?P<found>max(?:imum)?\s+(?:assembled\s+|robot\s+)?height\s*(?:of|is|:)?\s*(?!1700)1\d{3}\s*mm)'
+        message: maximum assembled height is 1700 mm
+      - pattern: '(?P<found>(?:shoulder[- ]axis|shoulder height|mast_)[^\n]{0,20}\b1700\b)'
+        unless: 'max|envelope|not (?:the )?shoulder|higher|supersed'
+        message: 1700 mm is the assembled-height envelope, not a shoulder height or mast position
+    verification:
+      machine: another maximum-height value, or 1700 mm presented as a shoulder height or mast position
+      human: {reviewer: platform-lead, evidence: assembled-height measurement on the general arrangement}
+    owner: platform-lead
+
+  - id: DATUM-HEIGHT-STACK
+    title: Height datum and base height stack
+    summary: "Floor Z = 0; steel deck top 294 mm; lift base-plate top face 304 mm is the height reference."
+    fix_hint: "Use 294 mm for the deck top and 304 mm for the base-plate top face, or label old values as historical."
+    kind: configuration
+    status: recorded
+    values:
+      - floor Z = 0
+      - steel chassis deck top 294 mm (MMP STEP)
+      - top cover 2 mm plastic, or optional 0.5 to 0.8 mm sheet metal
+      - 10 mm aluminium lift base plate bears on the steel deck; the cover is cut out around it
+      - base-plate top face 304 mm is the reference for lift and shoulder heights
+    unit: mm
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: item 15}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
+    check:
+      - pattern: '(?P<found>\bdeck top\b[^\n]{0,25}?\b(?!294\b)\d{3}\s*mm)'
+        unless: 'supersed|historical|legacy|earlier|previous'
+        message: the steel chassis deck top is 294 mm above the floor (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\bbase[- ]plate top(?: face)?\b[^\n]{0,25}?\b(?!304\b)\d{3}\s*mm)'
+        unless: 'supersed|historical|legacy|earlier|previous'
+        message: the lift base-plate top face is 304 mm above the floor, the reference for lift and shoulder heights (P-03 rev18.7 item 15)
+    verification:
+      machine: a deck-top height other than 294 mm or a base-plate top face other than 304 mm
+      human: {reviewer: platform-lead, evidence: MMP STEP deck height and the lift base-plate drawing}
+    owner: platform-lead
+
+  - id: FRAMES-REP105
+    title: Base frames follow REP 105
+    summary: "REP 105: base_footprint on the floor, base_link at the axle midpoint, imu_link away from motors."
+    fix_hint: "Place base_footprint on the floor, base_link at axle height, and imu_link on the centreline away from motors."
+    kind: configuration
+    status: recorded
+    values:
+      - base_footprint on the floor under the drive-axle midpoint
+      - base_link at the drive-axle midpoint and axle height; x forward, z up
+      - imu_link on the centreline, away from motor magnetic fields
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: item 15}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
+    check:
+      - pattern: '(?P<found>\bbase_link\b[^\n]{0,30}\b(?:on|at) the floor\b)'
+        unless: 'base_footprint|\bnot\b|never|supersed|historical|legacy'
+        message: base_link is at the drive-axle midpoint and axle height; base_footprint is on the floor (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\bbase_footprint\b[^\n]{0,30}\bat (?:the )?axle height\b)'
+        unless: '\bnot\b|never|supersed|historical|legacy'
+        message: base_footprint is on the floor under the drive-axle midpoint (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\bimu_link\b[^\n]{0,40}\b(?:next to|beside|on|near|above) the (?:drive |hub |wheel )?motors?\b)'
+        unless: '\baway\b|\bnot\b|never|supersed|historical|legacy'
+        message: imu_link sits on the centreline away from motor magnetic fields (P-03 rev18.7 item 15)
+    verification:
+      machine: base_link placed on the floor, base_footprint at axle height, or imu_link next to a motor
+      human: {reviewer: software-lead, evidence: URDF frame tree and real TF on the robot matching REP 105}
+    owner: platform-lead
+
+  - id: BATTERY-PLACEMENT
+    title: Battery pack and placement
+    summary: "One 8S1P LF105 pack, 25.6 V, 105 Ah, as close to the rear edge as practical."
+    fix_hint: "Describe the pack as close to the rear edge as practical; label the 25 percent position as superseded."
+    kind: value
+    status: recorded
+    value: One 8S1P EVE LF105 LiFePO4 pack, 25.6 V, 105 Ah, placed as close to the rear edge as practical while preserving enclosure, service and safety clearances
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: item 9}
+    supersedes:
+      - {value: fit the existing battery bay first, source: P-00-rev18.1 txt 77}
+      - {value: centred at 25 percent of the robot length from the rear, source: P-03-rev18.2 battery}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>battery[^\n]{0,40}\bcent(?:red|ered) at \d+\s*(?:%|percent)|\b25\s*(?:%|percent) of the (?:robot )?length from the rear)'
+        unless: 'supersed|historical|previous|earlier|rev ?18\.[1-6]\b'
+        message: the battery sits as close to the rear edge as practical while preserving enclosure, service and safety clearances (P-03 rev18.7 item 9)
+    verification:
+      machine: a battery centred at a fixed percentage of the length, including the superseded 25 percent position
+      human: {reviewer: platform-lead, evidence: general arrangement and mass model}
+    owner: platform-lead
+    note: The rev18.1 plan set did not record a placement; P-03 rev18.2 recorded 25 percent; rev18.7 item 9 replaces it.
+
+  - id: SPEED-CEILING
+    title: 1.5 m/s is a command ceiling, not an operating speed
+    summary: "1.5 m/s is a command ceiling (analytical limit), not an accepted operating speed."
+    fix_hint: "Call 1.5 m/s a command ceiling; take operating speed from the stability model and stopping tests."
+    kind: limit
+    status: recorded
+    value: 1.5 m/s command ceiling, treated as an analytical limit; the accepted operating speed follows from the stability model and stopping tests
+    unit: m/s
+    date: 2026-09-28
+    review_by: 2026-11-09
+    source: {document: P-03-rev18.2, item: speed}
+    supersedes:
+      - {value: 1.5 m/s treated as an accepted operating speed, source: P-00-rev18.1 txt 60 and 352}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>software speed limit\s*(?:of\s*)?1\.5\s*m/s)'
+        unless: 'ceiling|analytical'
+        message: 1.5 m/s is a command ceiling, not an operating limit
+      - pattern: '(?P<found>(?:operating|validated|rated) speed\s*(?:of|is|:)?\s*1\.5\s*m/s)'
+        unless: 'ceiling|analytical|not'
+        message: 1.5 m/s is not an accepted operating speed
+    verification:
+      machine: 1.5 m/s presented as a software or operating speed limit in text
+      human: {reviewer: platform-lead, evidence: stability model and recorded stopping tests; configured velocity limits in the Nav2 and base parameters}
+    owner: platform-lead
+
+  - id: DRIVETRAIN
+    title: Drivetrain
+    summary: "Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D driver on CAN1."
+    fix_hint: "Name the ZLLG80ASM250-L-B as selected; mark brake ratings as pending supplier evidence."
+    kind: value
+    status: recorded
+    value: Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D V4.2 driver on CAN1 (CANopen), 200 mm wheels
+    unit: none
+    date: 2026-09-21
+    review_by: 2026-11-02
+    source: {document: P-00-rev18.1, item: txt 16}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs", "openamrobot-release", ".github"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]
+    check:
+      - pattern: '(?P<found>ZLLG80ASM250-L)(?!-B)\b'
+        message: the selected motor variant is ZLLG80ASM250-L-B
+      - pattern: '(?P<found>ZL ?TECH[^\n]{0,40}\b(?:alternative|option(?:al)?)\b)'
+        message: ZLTECH is the selected 2.0 drivetrain, not an option
+      - pattern: '(?P<found>fail-safe brakes?)'
+        unless: 'pending|F2A|verif|not yet|unverified'
+        message: brake fail-safe function and ratings are open supplier-evidence gates
+    verification:
+      machine: the unbraked motor variant, ZLTECH described as optional, brakes described as fail-safe
+      human: {reviewer: platform-lead, evidence: supplier datasheets for the brake rating and fail-safe behaviour}
+    owner: platform-lead
+
+  - id: RS485-NOT-IN-2-0
+    title: Release 2.0 has no RS485 hardware, fallback, adapter or commissioning path
+    summary: "Release 2.0 has no RS485 hardware, fallback, adapter or commissioning path."
+    fix_hint: "Remove RS485 from 2.0 text, or label it as legacy, Gate A or not in 2.0."
+    kind: exclusion
+    status: recorded
+    value: none
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.1, item: item 4}
+    applies_to:
+      repositories: ["openamr-platform-hw", "openamr-platform-fw", "openamr-upperbody-*", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>RS-?485)'
+        unless: 'not used|no RS-?485|not provisioned|without|legacy|Gate A|removed|not in 2\.0'
+        message: RS485 is not provisioned in 2.0
+      - pattern: '(?P<found>CAN or serial)'
+        message: CAN1 and CAN2 are dedicated; no upper-body serial link to the base
+    verification:
+      machine: RS485 mentioned without a negation or legacy label; "CAN or serial" links
+      human: {reviewer: platform-lead, evidence: wiring diagram and BOM without RS485 parts}
+    owner: platform-lead
+
+  - id: BASE-CONTROLLER-GATES
+    title: Base-controller gates and IMU gating stay distinct
+    summary: "Gate A (Teensy, MPU6500) and Gate B (STM32H723ZG) stay distinct; ICM-42688-P is gated."
+    fix_hint: "Call the Teensy the Gate A controller, the IMU MPU6500, and the ICM-42688-P conditional (Gate B)."
+    kind: distinction
+    status: recorded
+    values:
+      - Gate A, Jetson with the existing Teensy, ZBLD/PWM drivetrain and MPU6500 (legacy test configuration)
+      - Gate B, Jetson with the STM32H723ZG (NUCLEO-H723ZG bench board) and the ZLTECH drivers
+      - ICM-42688-P enters the manufacturing BOM only after side-by-side robot evidence; adoption decision 20 November 2026
+      - STM32 go/no-go 6 November 2026; fallback is the validated legacy Teensy/PWM build behind I8
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-00-rev18.1, item: "txt 63, 101, 106, 344; I8-WP adoption gate; Gate B board per P-03-rev18.5 item 14"}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>Teensy[^\n]{0,20}\bbench target)'
+        message: Teensy is the Gate A controller and the release fallback, not a bench target
+      - pattern: '(?P<found>ICM-42688-P[^\n]{0,40}\b(?:selected|baseline|chosen)\b)'
+        unless: 'Gate B|conditional|20 Nov|candidate|pending|not yet|after'
+        message: ICM-42688-P is gated; MPU6500 remains the Gate A IMU
+      - pattern: '\b(?P<found>MPU6050)\b'
+        message: the Gate A IMU is the MPU6500
+    verification:
+      machine: Teensy called a bench target, ICM-42688-P called selected without its gate, MPU6050 named as the IMU
+      human: {reviewer: platform-lead, evidence: gate records (Gate A test log, STM32 go/no-go record, IMU side-by-side data)}
+    owner: platform-lead
+
+  - id: BASE-CONTROLLER-IO
+    title: Base-controller MCU, sensor and IMU buses, CAN mapping and micro-ROS transport
+    summary: "STM32H723ZG; MB7060 on dedicated UARTs; CAN1/2/3 split; micro-ROS over UDP on Ethernet."
+    fix_hint: "Use the STM32H723ZG and MB7060 on UART; label STM32H743 or MB7040 text as superseded; USB is bench only."
+    kind: configuration
+    status: recorded
+    values:
+      - Base controller STM32H723ZG on NUCLEO-H723ZG
+      - TF-Luna on UART, one per UART
+      - two MaxBotix MB7060 serial sensors, each on one dedicated STM32 UART, 9600 8N1; no sensor I2C off the controller board
+      - IMU on a dedicated SPI, Mode 0
+      - CAN1 traction only, CAN2 BMS, CAN3 reserved for upper-body auxiliary actuators (CANopen, no safety function)
+      - MCU to Jetson over Ethernet, micro-ROS over UDP; USB for the bench only
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: item 14}
+    supersedes:
+      - {value: STM32H743 on NUCLEO-H743ZI2, source: P-00-rev18.1 (Gate B bench board)}
+      - {value: MB7040 one per I2C bus, source: P-03-rev18.5 item 14}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>NUCLEO-H743ZI2|STM32H743)'
+        unless: 'supersed|legacy|historical|replaced'
+        message: the base controller is the STM32H723ZG on the NUCLEO-H723ZG; label STM32H743 / NUCLEO-H743ZI2 material as superseded
+      - pattern: '(?P<found>\bMB7040\b)'
+        unless: 'supersed|legacy|historical|replaced'
+        message: the ultrasonic sensors are two MaxBotix MB7060 on dedicated STM32 UARTs at 9600 8N1; no sensor I2C (P-03 rev18.7 item 14)
+      - pattern: '(?P<found>\bmicro-?ROS\b[^\n]{0,30}\bover (?:USB|serial)\b)'
+        unless: 'bench|legacy|Gate A|Teensy|supersed|historical'
+        message: micro-ROS runs over UDP on Ethernet between MCU and Jetson; USB is for the bench only (P-03 rev18.7 item 14)
+    verification:
+      machine: NUCLEO-H743ZI2 or STM32H743 without a superseded, legacy, historical or replaced label; MB7040 without such a label; micro-ROS over USB or serial outside the bench or Gate A
+      human: {reviewer: platform-lead, evidence: P-03 rev18.7 item 14 and the MCU I/O allocation in openamr-platform-hw}
+    owner: platform-lead
+
+  - id: IMU-TOPIC-OWNERSHIP
+    title: IMU topic ownership
+    summary: "Firmware publishes /imu/data_raw; the host filter and EKF own /imu/data."
+    fix_hint: "Make firmware publish /imu/data_raw and leave /imu/data to the host filter."
+    kind: distinction
+    status: recorded
+    values:
+      - firmware publishes /imu/data_raw
+      - the host filter and EKF own /imu/data
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-00-rev18.1, item: txt 15 and 345; I8-WP line 224}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml", "**/*.ino", "**/*.cpp", "**/*.h"]
+    check:
+      - pattern: '(?:micro-?ROS agent|Teensy|firmware|MCU|STM32)[^\n]{0,80}(?P<found>/imu/data)(?!_raw)\b'
+        unless: '\bhost\b|(?<!un)filter|EKF|madgwick|must not|never|outdated|older revisions?'
+        message: firmware publishes /imu/data_raw; /imu/data belongs to the host filter
+      - pattern: '"(?P<found>/?imu/data)"'
+        files: ["**/*.ino", "**/*.cpp", "**/*.c", "**/*.h"]
+        message: firmware must not publish filtered /imu/data
+    verification:
+      machine: text attributing /imu/data to firmware; firmware sources containing the literal topic imu/data
+      human: {reviewer: software-lead, evidence: ros2 topic info on the running bring-up showing one publisher per topic}
+    owner: software-lead
+
+  - id: CAMERAS
+    title: Cameras
+    summary: "Base camera Orbbec Gemini 336L, about 243 mm up, tilted 5, 10 or 15 degrees up (baseline 10)."
+    fix_hint: "Name the Gemini 336L with an up-tilt of 5, 10 or 15 degrees, or label other cameras as legacy."
+    kind: value
+    status: recorded
+    values:
+      - base camera Orbbec Gemini 336L, fixed to base_link on the front face about 243 mm above the floor; up-tilt positions 5, 10 and 15 degrees, baseline 10 degrees
+      - head camera Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, see HEAD-CAMERA-IDENTITY
+      - two in-hand RGB wrist cameras; no separate torso scene camera
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: "item 15 (wrist cameras as in P-00-rev18.1 txt 85 and 97)"}
+    supersedes:
+      - {value: "base camera tilted about 10 degrees upward; head camera identity open", source: P-00-rev18.1 txt 85 and 97}
+    applies_to:
+      repositories: ["openamr-*", "openamrobot-docs", "openamrobot-manipulation", "openamrobot-ui"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.launch.py", "**/*.xacro", "**/*.urdf"]
+    check:
+      - pattern: '(?P<found>\b(?:D4[35]5i?|RealSense)\b)'
+        unless: 'legacy|historical|previous|not used|replaced'
+        message: the base camera is the Orbbec Gemini 336L
+      - pattern: '(?P<found>down-tilted depth camera)'
+        message: the base camera tilts about 10 degrees up
+      - pattern: '(?P<found>IMX708|Pi Camera Module 3)'
+        unless: 'legacy|Gate A|historical'
+        message: the 2.0 base camera is the Orbbec Gemini 336L
+      - pattern: '(?P<found>Gemini 336L[^\n]{0,60}?\b(?!(?:5|10|15)\b)\d{1,2}\s*(?:°|deg(?:rees?)?)\s*(?:up|upward)\b)'
+        unless: 'supersed|historical|legacy'
+        message: the Gemini 336L up-tilt positions are 5, 10 and 15 degrees, baseline 10 (P-03 rev18.7 item 15)
+    verification:
+      machine: other camera models without a legacy label; a down-tilted base camera; a Gemini 336L up-tilt other than 5, 10 or 15 degrees
+      human: {reviewer: software-lead, evidence: camera joint rpy in URDF and real TF showing the upward tilt}
+    owner: platform-lead
+
+  - id: HEAD-CAMERA-IDENTITY
+    title: Head camera commercial identity and mounting
+    summary: "Head camera: Stereolabs ZED Mini, SKU ZED-121210, on the lift carriage."
+    fix_hint: "Name the ZED Mini (ZED-121210), or label other ZED models as superseded or legacy."
+    kind: value
+    status: recorded
+    values:
+      - Stereolabs ZED Mini, SKU ZED-121210, supplied with the OpenArm 2.0 set
+      - mounted on the lift carriage
+      - pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: item 15}
+    supersedes:
+      - {value: "ZED-121210 per the plan; identity open because the general arrangement named a different ZED model", source: P-00-rev18.1 txt 85}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf"]}
+    check:
+      - pattern: '(?P<found>\bZED[ -]?(?:2i?|X(?:[ -]?Mini)?)\b)'
+        unless: 'supersed|historical|legacy|replaced|\bnot\b'
+        message: the head camera is the Stereolabs ZED Mini, SKU ZED-121210 (P-03 rev18.7 item 15)
+    verification:
+      machine: another ZED model (ZED 2, ZED 2i, ZED X, ZED X Mini) without a superseded or legacy label
+      human: {reviewer: platform-lead, evidence: supplier SKU on the OpenArm 2.0 set and the lift-carriage mount drawing with the pitch steps}
+    owner: platform-lead
+
+  - id: POWER-RAILS
+    title: Power rails; no 12 V rail
+    summary: "25.6 V battery bus, regulated 24 V and 5 V branches; there is no 12 V rail."
+    fix_hint: "Remove the 12 V rail from 2.0 text, or label it as legacy."
+    kind: exclusion
+    status: recorded
+    values:
+      - main battery bus 25.6 V nominal (not a regulated 24 V rail)
+      - regulated 24 V branch (safety relay, brake coils, peripherals)
+      - regulated 5 V (includes the navigation LiDAR)
+      - no 12 V rail
+    unit: V
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.1, item: "item 2 line 10; P-03-rev18.4 item 13"}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\b12\s*V\s+rail)'
+        unless: '\bno 12|not|never|legacy'
+        message: there is no 12 V rail in 2.0
+      - pattern: '(?P<found>24\s*V?\s*(?:->|→|to)\s*5\s*V?\s*/\s*12\s*V)'
+        unless: 'legacy'
+        message: there is no 12 V rail in 2.0
+    verification:
+      machine: a 12 V rail or a 24 V to 5/12 V converter in text
+      human: {reviewer: platform-lead, evidence: power distribution schematic}
+    owner: platform-lead
+
+  - id: DOCK-NO-CONTACTS
+    title: Release 2.0 docking has no dock contacts or dock pilot; wireless charging is 3.0
+    summary: "2.0 docking is positioning only: no dock contacts or pilot; wireless charging is 3.0."
+    fix_hint: "Say the dock has no contacts and charging is manual and wired; put wireless charging in 3.0."
+    kind: exclusion
+    status: recorded
+    value: Positioning only; manual wired charging via PWR-019 with independent charge-plug-presence inhibition; no dock contacts or dock pilot; wireless charging belongs to 3.0
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.1, item: item 3 line 11}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.launch.py", "**/*.xacro", "**/*.urdf"]
+    check:
+      - pattern: '(?P<found>charg(?:e|ing)[ -]contacts?)'
+        unless: '\bno\b|\bnot\b|without|3\.0|never'
+        message: 2.0 docking has no dock contacts
+      - pattern: '(?P<found>(?:charge|charger|dock|DC)\s*\+?\s*pilot)'
+        unless: '\bno\b'
+        message: no dock or charge pilot in 2.0
+      - pattern: '(?P<found>wireless charging)'
+        unless: '3\.0|later|deferred|not '
+        message: wireless charging belongs to 3.0
+    verification:
+      machine: charge contacts or pilots without a negation; wireless charging without a 3.0 label
+      human: {reviewer: platform-lead, evidence: dock drawing and harness list without contacts}
+    owner: platform-lead
+
+  - id: DOCKING-NOT-CHARGING
+    title: Docking success never establishes charging
+    summary: "Docked means an accepted pose; docking never establishes charging or external power."
+    fix_hint: "Report docking as a pose result only; never infer charging from it."
+    kind: distinction
+    status: recorded
+    value: Docked means an accepted pose within tolerance; pose success never establishes charging or external power
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.1, item: item 3 line 11; DOCK-WP lines 27 and 70}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js"]
+    check:
+      - pattern: '(?P<found>SimpleChargingDock|ready to charge|charging target)'
+        unless: 'not |never|instead|non-charging|legacy'
+        message: 2.0 docking is positioning only
+      - pattern: '(?P<found>isCharging[^\n]{0,20}\breturn\s+true|return\s+true[^\n]{0,20}isCharging)'
+        message: never report charging from a docking pose
+      - pattern: '(?P<found>dock(?:ed|ing)?[^\n]{0,60}\b(?:connected to (?:external )?power|is charging|charging (?:started|confirmed)))'
+        unless: '\bnot\b|never|does not'
+        message: docking success never establishes charging
+    verification:
+      machine: charging dock plugins, forced isCharging, text deriving charging or external power from docking
+      human: {reviewer: software-lead, evidence: docking state machine and UI source showing charge state comes only from the charge-plug-presence input}
+    owner: platform-lead
+
+  - id: TELEMETRY-NOT-SAFETY-EVIDENCE
+    title: Functional telemetry is never safety evidence
+    summary: "Telemetry, watchdogs and BMS data are functional, never safety evidence."
+    fix_hint: "Describe telemetry and watchdogs as functional, not as a safety layer."
+    kind: distinction
+    status: recorded
+    value: Firmware status, watchdogs, collision monitoring and BMS telemetry are functional; E-stop, brake and actuator power removal are hardwired and independent of software
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-00-rev18.1, item: txt 70 and 78; I8-WP line 669; DOCK-WP line 110}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
+    check:
+      - pattern: '(?P<found>(?:watchdog|collision monitor|telemetry|status message|diagnostic)s?[^\n]{0,40}\bsafety (?:layer|function|evidence|guarantee))'
+        unless: '\bnot\b|never|functional|no substitute'
+        message: functional telemetry is not a safety layer or safety evidence
+    verification:
+      machine: text calling watchdogs, collision monitoring, telemetry or diagnostics a safety layer, function or evidence
+      human: {reviewer: platform-lead, evidence: hardwired safety-chain test record; a software PASS is never accepted in its place}
+    owner: platform-lead
+
+  - id: SAFETY-PROCUREMENT
+    title: Safety-chain procurement boundary (record only; this register implements no safety function)
+    summary: "Two dual-channel latching E-stops into a monitored safety relay; EDM contactor unselected."
+    fix_hint: "Do not recommend single-channel or uncertified E-stops; keep the EDM variant open and CTL-004 bench-only."
+    kind: limit
+    status: recorded
+    values:
+      - two installed E-stops (base front panel and chest), red latching mushroom, dual normally-closed channels into a monitored safety relay
+      - K1 and K2 contactors from the LEV100 family; the linked-feedback (EDM) variant is unselected under one CONTACTOR gate
+      - CTL-004 is bench-only until an installed solution is qualified
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.1, item: items 4 and 5 lines 12-13}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>(?:EDM|linked[- ]feedback) variant[^\n]{0,30}\b(?:selected|chosen|decided))'
+        unless: '\bnot\b|unselected|open'
+        message: the EDM variant is not selected
+      - pattern: '(?P<found>fine for prototyp\w*|single[- ]contact[^\n]{0,30}e-?stop)'
+        message: no single-channel or uncertified E-stop recommendation
+      - pattern: '(?P<found>CTL-004[^\n]{0,60}\b(?:installed|robot interface))'
+        unless: 'bench-only|until'
+        message: CTL-004 is bench-only
+    verification:
+      machine: text claiming the EDM variant is chosen, recommending a single-channel or uncertified E-stop, or presenting CTL-004 as installed
+      human: {reviewer: platform-lead, evidence: safety-chain design and component certificates; two human approvals per the repository ruleset}
+    owner: platform-lead
+
+  - id: COMPUTE
+    title: Reference compute
+    summary: "Reference compute: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401; Pi is legacy."
+    fix_hint: "Name the Jetson Orin NX, or label Raspberry Pi material as legacy or Gate A."
+    kind: value
+    status: recorded
+    value: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe; Raspberry Pi removed from active support
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-00-rev18.1, item: "txt 14, 90 and 278"}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>Raspberry Pi 5)'
+        unless: 'legacy|historical|removed|supersed|Gate A|previous|earlier'
+        message: Jetson Orin NX is the 2.0 reference compute; label Raspberry Pi material as legacy
+    verification:
+      machine: Raspberry Pi 5 without a legacy label
+      human: {reviewer: software-lead, evidence: bring-up documentation on the Jetson}
+    owner: platform-lead
+
+  - id: NAV-LIDAR
+    title: Navigation LiDAR
+    summary: "Navigation LiDAR: SLAMTEC RPLIDAR S3 (S3M1-R2) on USB, regulated 5 V rail."
+    fix_hint: "Name the RPLIDAR S3; label Hokuyo as dropped or superseded and the A1 as legacy (existing robot)."
+    kind: value
+    status: recorded
+    value: SLAMTEC RPLIDAR S3 (S3M1-R2), connected over USB, powered from the regulated 5 V rail (functional sensing, not a safety device)
+    unit: none
+    backup: RPLIDAR S2E, only if the S3 is unavailable
+    date: 2026-10-03
+    review_by: 2026-11-14
+    source: {document: P-03-rev18.4, item: item 13}
+    supersedes:
+      - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
+      - {value: RPLIDAR A1, source: existing robot (Gate A)}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-release"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/package.xml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\bHokuyo\b|\bUST-10LX\b)'
+        unless: 'supersed|dropped|legacy|historical'
+        message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); the Hokuyo UST-10LX was dropped
+      - pattern: '(?P<found>\bRPLIDAR A1(?:M8)?\b|\bA1M8\b)'
+        unless: 'legacy|Gate A|existing robot|historical|replaced'
+        message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); label RPLIDAR A1 material as legacy (Gate A)
+    verification:
+      machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label
+      human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the sllidar_ros2 driver with the RPLIDAR S3}
+    owner: software-lead
+
+  - id: RELEASE-MILESTONES
+    title: OpenAMRobot 2.0 release milestones
+    summary: "v2.0.0-rc.1 on 20 November 2026; v2.0.0 final release on 18 December 2026."
+    fix_hint: "Use 20 November (v2.0.0-rc.1) and 18 December 2026 (v2.0.0); label v0.2 or 13 November as superseded."
+    kind: value
+    status: recorded
+    values:
+      - "20 November 2026: OpenAMRobot 2.0 pre-release, version v2.0.0-rc.1 (GitHub pre-release; full readiness, frozen platform baseline, end of development cycle 2)"
+      - "23 November to 18 December 2026: physical integration, testing and acceptance"
+      - "18 December 2026: OpenAMRobot 2.0 final release, version v2.0.0"
+    unit: none
+    date: 2026-10-01
+    review_by: 2026-11-12
+    source: {document: P-03-rev18.6, item: item 12}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml"]}
+    check:
+      # The schema requires at least one check: a 2.0 final release given another date.
+      - pattern: '(?P<found>2\.0 final release[^\n]{0,20}?\b(?!18 December 2026)\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})'
+        unless: 'supersed|previous|earlier|historical'
+        message: the OpenAMRobot 2.0 final release is 18 December 2026
+      - pattern: '(?P<found>\bv0\.2\b[^\n]{0,40}\brelease\b|\brelease\b[^\n]{0,20}\bv0\.2\b|\breadiness declaration for v0\.2\b)'
+        unless: 'supersed|historical|earlier|previous'
+        message: there is no v0.2 release; development cycle 2 ends 20 November 2026 with v2.0.0-rc.1, and v2.0.0 follows on 18 December 2026
+      - pattern: '(?P<found>\bcycle\b[^\n]{0,60}\b13 November(?: 2026)?\b|\b13 November(?: 2026)?\b[^\n]{0,60}\bcycle\b)'
+        unless: 'supersed|historical|earlier|previous'
+        message: development cycle 2 ends 20 November 2026 with v2.0.0-rc.1, not 13 November
+    verification:
+      machine: text giving the 2.0 final release a date other than 18 December 2026; a v0.2 release or a development cycle ending 13 November 2026 without a superseded label
+      human: {reviewer: platform-lead, evidence: the release plan and versions in P-03 rev18.6 item 12}
+    owner: platform-lead
+
+  - id: LIFT
+    title: Lift approved in principle for OpenAMRobot 2.0
+    summary: "The lift is approved in principle for 2.0; shoulder axis 1000 to 1350 mm; release gates open."
+    fix_hint: "Describe the lift as approved in principle, or label fixed-mast and 3.0 lift text as superseded."
+    kind: configuration
+    status: recorded
+    values:
+      - lift approved in principle
+      - DOLD Hexalift V1 350 mm primary; TiMOTION TL3 400 mm fallback
+      - shoulder axis 1000 to 1350 mm
+      - base plate fore-aft positions centre, +50, +100, +150 and +200 mm
+      - lift motion only in the stowed or carry safe pose with the base stopped
+      - hold-and-move limits 0.05 m/s (drawer reversal) and 0.3 m/s (carrying)
+      - "release gates: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface (items 6, 8, 14, 15)"
+    unit: none
+    date: 2026-10-06
+    review_by: 2026-11-17
+    source: {document: P-03-rev18.7, item: "item 8; release gates items 6, 8, 14, 15"}
+    supersedes:
+      - {value: "Lift removed from OpenAMRobot 2.0; fixed mast; lift on the 3.0 roadmap (former entry LIFT-REMOVED)", source: P-00-rev18.1 txt 18}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/package.xml", "**/*.xacro", "**/*.urdf"]}
+    check:
+      - pattern: '(?P<found>\bno (?:linear |actuated )?lift\b(?=\s*(?:[.,;:)]|$|(?:in|for|on)\b)))'
+        unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
+        message: the lift is approved in principle for 2.0 (P-03 rev18.7 item 8)
+      - pattern: '(?P<found>\bfixed[- ]mast\b)'
+        unless: 'supersed|historical|earlier|previous|legacy|replace|instead of|no longer|rev ?18\.[1-6]\b'
+        message: the fixed mast is no longer the baseline; the lift is approved in principle (P-03 rev18.7 item 8)
+      - pattern: '(?P<found>\blift\b[^\n]{0,40}\b(?:deferred|moved|postponed)\b[^\n]{0,25}\b3\.0\b|\blift\b[^\n]{0,15}\bin (?:OpenAMRobot )?3\.0\b|\blift (?:is |was )?removed\b|\blift\b[^\n]{0,40}\b(?:OpenAMRobot )?3\.0 scope\b|\b3\.0 lift\b)'
+        unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
+        message: the lift is not deferred to 3.0; it is approved in principle for 2.0 (P-03 rev18.7 item 8)
+    verification:
+      machine: text saying 2.0 has no lift, presenting a fixed mast as the current baseline, or deferring the lift to 3.0
+      human: {reviewer: platform-lead, evidence: "P-03 rev18.7 item 8 and the release-gate records: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface"}
+    owner: platform-lead
+
+  - id: NO-SUSPENSION
+    title: Release 2.0 has no suspension
+    summary: "Release 2.0 has no suspension; sprung drive wheels are a 3.0 item."
+    fix_hint: "Say there is no suspension in 2.0, or put sprung drive wheels in 3.0."
+    kind: exclusion
+    status: recorded
+    value: No suspension is fitted in 2.0; sprung drive wheels are a 3.0 item
+    unit: none
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-03-rev18.1, item: item 1}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>sprung drive(?: module| wheels?)?|drive(?:train)? suspension)'
+        unless: '3\.0|\bno\b|not fitted|without'
+        message: no suspension in 2.0
+    verification:
+      machine: sprung drive or drive suspension without a 3.0 or negation label
+      human: {reviewer: platform-lead, evidence: chassis drawing}
+    owner: platform-lead
+
+  - id: DRIVE-TRACK
+    title: Drive track
+    summary: "Open: 400 mm in the general arrangement; the final drive track is still an open input."
+    fix_hint: "Not scanned while open; give the track as 400 mm (general arrangement) until the value is decided."
+    kind: value
+    status: open
+    value: 400 mm in the general arrangement; the final track is an open input
+    unit: mm
+    date: null
+    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
+    source: {document: P-00-rev18.1, item: open inputs}
+    applies_to: {repositories: ["openamr-platform-*", "openamrobot-ui"], files: ["**/*.xacro", "**/*.urdf", "**/*.yaml", "**/*.sdf"]}
+    check:
+      - pattern: '(?P<found>0\.4075)'
+        message: track value disagrees with the general arrangement
+    verification:
+      machine: none while open
+      human: {reviewer: platform-lead, evidence: final hub-motor bracket design}
+    owner: platform-lead

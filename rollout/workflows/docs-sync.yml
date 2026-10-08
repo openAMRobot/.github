@@ -1,0 +1,68 @@
+# DESIGN ONLY (state b): an example under rollout/, not installed anywhere and
+# never run. Permissions, credentials, deduplication and failure handling have
+# not been exercised.
+#
+# Docs sync, receiver side: copy to .github/workflows/docs-sync.yml in
+# openamrobot-docs. On a source-changed dispatch it compares the source diff
+# with the documentation pages and, when a page became wrong, opens one draft
+# PR following agent-prompts/docs-fix.md. It never merges and never edits the
+# source repository. Replace <HARNESS_SHA>. Secret: ANTHROPIC_API_KEY.
+name: Docs sync
+
+on:
+  repository_dispatch:
+    types: [source-changed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: docs-sync-${{ github.event.client_payload.repository }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Validate payload
+        env:
+          REPO: ${{ github.event.client_payload.repository }}
+          BEFORE: ${{ github.event.client_payload.before }}
+          AFTER: ${{ github.event.client_payload.after }}
+        run: |
+          set -euo pipefail
+          [[ "$REPO" =~ ^(openamr|openamrobot)-[a-z0-9-]+$|^\.github$ ]] || { echo "bad repository"; exit 1; }
+          [[ "$AFTER" =~ ^[0-9a-f]{40}$ ]] || { echo "bad sha"; exit 1; }
+          [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || { echo "bad sha"; exit 1; }
+          { echo "SRC=$REPO"; echo "BEFORE=$BEFORE"; echo "AFTER=$AFTER"; } >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check out harness and source diff (read-only)
+        run: |
+          set -euo pipefail
+          git clone --quiet https://github.com/openAMRobot/.github .harness
+          git -C .harness checkout --quiet <HARNESS_SHA>
+          git clone --quiet --filter=blob:none "https://github.com/openAMRobot/$SRC" .source
+          git -C .source diff --stat "$BEFORE" "$AFTER" > .source-diff-stat.txt
+          git -C .source diff "$BEFORE" "$AFTER" -- '*.md' '*.yaml' '*.yml' '*.launch.py' '*.xacro' '*.urdf' '*.msg' '*.srv' '*.action' 'package.xml' > .source-diff.txt
+          wc -l .source-diff.txt
+
+      - name: Compare and draft a fix
+        uses: anthropics/claude-code-action@8ce9314fa9a404564fa7e954cd84f25bcba2b829 # v1.0.236
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Source repository openAMRobot/${{ env.SRC }} changed from ${{ env.BEFORE }} to ${{ env.AFTER }}.
+            The diff is in .source-diff.txt (stat in .source-diff-stat.txt); the full source is in .source/.
+            Find documentation pages in this repository that state a command, version, parameter, topic,
+            configuration ID or value that the diff made wrong. If none, print "no page affected" and stop.
+            Otherwise follow .harness/agent-prompts/docs-fix.md exactly, on branch docs-sync/${{ env.SRC }}-<short after SHA>,
+            parent SHA ${{ github.sha }}, and open one draft PR with the filled PR template.
+            Never edit .source/ or .harness/, never merge, never push to main.
+          claude_args: |
+            --max-turns 80
+            --allowedTools "Read,Grep,Glob,Edit,Write,Bash(git switch -c docs-sync/*),Bash(git add docs/*),Bash(git commit -s *),Bash(git push origin docs-sync/*),Bash(gh pr create --draft *),Bash(python3 .harness/tools/check_decisions.py:*),Bash(python3 .harness/tools/check_public_extract.py:*),Bash(bash scripts/check_docs.sh)"

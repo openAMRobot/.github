@@ -111,17 +111,17 @@ Vision
 - Encoders
 - Safety I/O
 
-## Mid-Level Compute
-- Raspberry Pi 5
+## Main Compute (OpenAMRobot 2.0)
+- NVIDIA Jetson Orin NX on the reComputer Robotics J401 carrier
 - Navigation
 - SLAM
 - ROS 2 System Management
-
-## High-Level AI Compute
-- NVIDIA Jetson Orin / Orin NX
 - Perception
 - Manipulation
 - VLA / Policy Inference
+
+The Raspberry Pi mid-level computer is legacy and remains only in the Gate A test
+configuration of the existing robot.
 
 ## Wearable Edge Compute
 - RK3588-based Modules (optional)

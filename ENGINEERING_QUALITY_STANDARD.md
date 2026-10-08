@@ -380,9 +380,12 @@ The standard is operational, not merely published, when:
 
 ## 13. Cycle schedule, workstream H
 
-The phases above map onto the 14 September to 13 November cycle as
-workstream H. Lead: Documentation & Release Lead, executed by the DevOps
-members of that team.
+The phases above map onto development cycle 2 as workstream H. The cycle
+opened 14 September and ends 20 November 2026 with the v2.0.0-rc.1 GitHub
+pre-release; v2.0.0 follows on 18 December 2026 after physical integration,
+testing and acceptance (register entry RELEASE-MILESTONES in decisions.yaml).
+Lead: Documentation & Release Lead, executed by the DevOps members of that
+team.
 
 | **\#** | **Phase** | **Deliverable**                                                                                                                                                                                                                                                         | **Due**                        |
 |--------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
@@ -401,12 +404,12 @@ provenance, the compatibility dashboard and formal R3 approval records
 go to ROADMAP-v0.3.md. Saying so now is cheaper than discovering it on
 10 November.
 
-**Readiness declaration for v0.2.** The four pilot repositories target
-**R2**. Every other active repository targets **R1**. **No component
-claims R3 in this cycle.** v0.2 is the first release built from
-immutable component refs, which is the precondition for R3, not the
-evidence for it. A component that builds is R1, and building has never
-been the difficult part.
+**Release readiness.** Development cycle 2 ends 20 November 2026 with
+v2.0.0-rc.1; v2.0.0 follows on 18 December 2026 (RELEASE-MILESTONES). The
+earlier v0.2 readiness declaration is superseded by those milestones.
+Readiness levels are evidence, not targets: a component that builds is R1,
+building has never been the difficult part, and a release built from
+immutable component refs is the precondition for R3, not the evidence for it.
 
 ## 14. How this standard binds the plan set
 

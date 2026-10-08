@@ -1,0 +1,4 @@
+<robot name="fixture">
+  <!-- mast_1400 is the baseline configuration -->
+  <xacro:property name="imu_topic" value="imu/data_raw"/>
+</robot>

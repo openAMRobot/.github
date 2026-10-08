@@ -1,41 +1,62 @@
+<!--
+Fill every section. tools/check_pr_evidence.py reads this description on every push and
+posts one summary comment. Headings must stay as they are. Rules: AGENTS.md.
+Keep the PR as a draft until the evidence check passes on the current head.
+-->
+
 ## Summary
 
-Describe what changed, why it is needed, and the exact repository scope.
+<!-- What changed and why, in plain sentences. Scope: which repository paths. -->
 
-## Standards impact
+## Work package
 
-- **Repository type / subsystem:**
-- **Safety impact:** none / motion / power / battery / actuator / safety-I/O / other
-- **Interface or compatibility impact:**
-- **Documentation impact and canonical source:**
-- **Readiness impact:** none / evidence added / evidence invalidated
+<!-- Issue link of the work package or contract change request, e.g. #123. -->
 
-- [ ] I reviewed the [Engineering Quality Standard](../ENGINEERING_QUALITY_STANDARD.md).
-- [ ] Documentation changes follow the [Documentation Information Architecture](https://github.com/openAMRobot/openamrobot-docs/blob/main/docs/DOCUMENTATION_INFORMATION_ARCHITECTURE.md).
-- [ ] I have not described planned or unverified work as passing, validated, production-ready, or release-ready.
+## Integration Gate
 
-## Validation
+<!-- What already existed (open PRs, branches, upstream packages), what you reused,
+what you rejected and why. -->
 
-List commands, tests, simulation runs, hardware checks, documentation checks, and observable results.
+## Tests
 
-## Safety and compatibility
+<!-- Test added or changed, and the run that fails when the change is reverted.
+Report counts, e.g. "Ran 42 tests, 0 skipped". A run with zero tests fails the check. -->
 
-Describe effects on robot motion, power, actuators, batteries, safety I/O, networking, APIs, interfaces, migration, releases, or supported hardware. Write “None” only after considering each area.
+## Evidence
 
-## Intellectual property and provenance
+Base SHA:
+Head SHA:
 
-- [ ] Every commit is signed off under the [DCO](../DCO.md).
-- [ ] I am covered by an accepted [Individual or Corporate Contributor Agreement](../CLA.md).
-- [ ] I have authority from any relevant employer, university, client, sponsor, co-author, or organization.
-- [ ] I identified all third-party code, designs, data, media, models, and adapted examples with source and licence.
-- [ ] I disclosed material generative-AI assistance and reviewed the output for provenance, security, correctness, and licence risk.
-- [ ] I did not submit unauthorized confidential, personal, proprietary, credential, or export-controlled information.
-- [ ] Required copyright, licence, patent, modification, and attribution notices are included.
+```
+<!-- exact commands you ran, one per line, with their result lines -->
+```
 
-## Quality
+## Dependencies
 
-- [ ] The change is focused and contains no unrelated artifacts.
-- [ ] Documentation and notices are updated.
-- [ ] Tests appropriate to the change pass.
-- [ ] I reviewed the final diff.
-- [ ] I understand that submission does not guarantee acceptance and that accepted contributions are governed by the Contributor Agreement and applicable outbound licence.
+<!-- None, or each added, removed or upgraded dependency with licence and source. -->
+
+## Safety impact
+
+<!-- None, or: motion / power / battery / actuator / safety I/O / E-stop / brake / contactor /
+watchdog / motor-enable / charge-inhibit. Safety paths need two human approvals (ruleset) including the
+platform lead. Telemetry and fixtures are not safety evidence. -->
+
+## STATE.md
+
+<!-- Updated, or "no change" with the reason. -->
+
+## Not verified
+
+<!-- Everything you could not run or check, and why. SKIP or BLOCKED is not PASS. -->
+
+## AI disclosure
+
+<!-- None, or the tool, what it produced and how you reviewed it. -->
+
+## Contribution terms
+
+- [ ] Every commit is signed off under the [DCO](https://github.com/openAMRobot/.github/blob/main/DCO.md).
+- [ ] I am covered by an accepted [Contributor Agreement](https://github.com/openAMRobot/.github/blob/main/CLA.md).
+- [ ] Third-party material is identified with source and licence.
+- [ ] No confidential, personal, credential or export-controlled information is included.
+- [ ] No partner, customer or private person is named; the application is Use_Case_1.
