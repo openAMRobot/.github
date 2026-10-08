@@ -1,0 +1,207 @@
+name: Watchdog organization scan
+
+# Deterministic organization scan. Product repositories are cloned read-only. The only write
+# is a central, deduplicated issue control surface in openAMRobot/.github. The workflow never
+# edits decisions.yaml, pushes a branch, opens a PR, or runs an AI agent. See WATCHDOG.md.
+#
+# Fail closed: the scan is COMPLETE only when every repository in rollout/repositories.yaml was
+# scanned. A repository that cannot be listed, cloned, scanned or reported is BLOCKED; the run is
+# then INCOMPLETE, the dashboard says so, missing repositories are never treated as clean, and
+# the job fails. See WATCHDOG.md, "Incomplete scans".
+#
+# Schedule: every Thursday at 14:00 Berlin time (timezone Europe/Berlin, so the run follows
+# daylight saving time), plus manual dispatch.
+#
+# Issue mode: the repository variable WATCHDOG_ISSUE_MODE (Settings > Secrets and variables >
+# Actions > Variables) selects what the sync step writes.
+#   unset or "dashboard"  only the single "[watchdog] Organization dashboard" issue, updated in
+#                         place; it lists every active group and every scan-blocked repository.
+#   "groups"              also one deduplicated issue per active group (finding, decision review,
+#                         blocked scan), as described in WATCHDOG.md.
+# The platform lead decides when to switch to "groups" (WATCHDOG.md, "Watchdog issue mode").
+
+on:
+  schedule:
+    - cron: "0 14 * * 4"
+      timezone: "Europe/Berlin"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: watchdog-org-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    name: watchdog-org-scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: harness
+          persist-credentials: false
+
+      - name: Scan repositories
+        shell: bash
+        env:
+          WATCHDOG_ANNOTATIONS: "0"
+          HARNESS: harness
+          WORK: ${{ runner.temp }}/watchdog
+        run: |
+          # Fail closed: any unguarded error stops the step, and the EXIT trap marks the scan
+          # INCOMPLETE. Commands that may fail for one repository are guarded so that
+          # repository is recorded as BLOCKED and the loop continues.
+          set -euo pipefail
+          summary="${GITHUB_STEP_SUMMARY:-$WORK/summary.md}"
+          support="$HARNESS/tools/watchdog_scan_support.py"
+          finished=0
+          on_exit() {
+            if [ "$finished" -ne 1 ]; then
+              {
+                echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
+                echo
+                echo "Scan INCOMPLETE: the scan step stopped before every repository was scanned. Missing repositories are not clean."
+              } >> "$summary"
+              echo "::error::Scan INCOMPLETE: the scan step stopped before every repository was scanned"
+            fi
+          }
+          trap on_exit EXIT
+          mkdir -p "$WORK/repos" "$WORK/out"
+          rm -f "$WORK/expected.json" "$WORK/list.txt"
+          echo '[]' > "$WORK/blocked.json"
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+
+          # Repository list: a failure stops the step; expected.json is written before list.txt.
+          if ! python3 "$support" list --repositories "$HARNESS/rollout/repositories.yaml" \
+              --list "$WORK/list.txt" --expected "$WORK/expected.json"; then
+            {
+              echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
+              echo
+              echo "Scan INCOMPLETE: repository list could not be generated."
+            } >> "$summary"
+            echo "::error::Scan INCOMPLETE: repository list could not be generated"
+            finished=1
+            exit 1
+          fi
+          expected_count=$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$WORK/expected.json")
+          listed_count=$(wc -l < "$WORK/list.txt")
+          if [ ! -s "$WORK/list.txt" ] || [ "$listed_count" -ne "$expected_count" ]; then
+            {
+              echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
+              echo
+              echo "Scan INCOMPLETE: repository list could not be generated ($listed_count of $expected_count entries usable)."
+            } >> "$summary"
+            echo "::error::Scan INCOMPLETE: repository list could not be generated ($listed_count of $expected_count entries usable)"
+            finished=1
+            exit 1
+          fi
+
+          block() {  # block <repository> <reason> <table cell>
+            python3 "$support" block --blocked "$WORK/blocked.json" --repository "$1" --reason "$2"
+            echo "| $1 | BLOCKED: $3 | not scanned |" >> "$WORK/table.md"
+          }
+          : > "$WORK/table.md"
+          : > "$WORK/details.md"
+          while read -r org name branch; do
+            dest="$WORK/repos/$name"
+            if ! git clone --quiet --depth 1 --branch "$branch" "https://github.com/$org/$name.git" "$dest"; then
+              block "$name" "clone failed" "clone failed"
+              continue
+            fi
+            if ! sha=$(git -C "$dest" rev-parse HEAD); then
+              block "$name" "commit could not be read" "commit could not be read"
+              continue
+            fi
+            status=0
+            python3 "$HARNESS/tools/watchdog.py" --root "$dest" --repository "$name" --report-only \
+              --json "$WORK/out/$name.json" --markdown "$WORK/details.md" > "$WORK/out/$name.txt" || status=$?
+            if [ "$status" -ne 0 ]; then
+              rm -f "$WORK/out/$name.json"
+              block "$name" "watchdog exit $status at $sha" "watchdog exit $status"
+              continue
+            fi
+            if ! total=$(python3 "$support" enrich --report "$WORK/out/$name.json" --repository "$name" --commit "$sha"); then
+              if [ -f "$WORK/out/$name.json" ]; then mv "$WORK/out/$name.json" "$WORK/out/$name.json.invalid"; fi
+              block "$name" "report enrichment failed at $sha" "report enrichment failed"
+              continue
+            fi
+            echo "| $name | $sha | $total |" >> "$WORK/table.md"
+            tail -n 12 "$WORK/out/$name.txt" || true
+          done < "$WORK/list.txt"
+
+          # Every expected repository needs a report or a BLOCKED entry; missing ones are added.
+          if ! counts=$(python3 "$support" finalize --expected "$WORK/expected.json" \
+              --reports "$WORK/out" --blocked "$WORK/blocked.json"); then
+            exit 1  # the EXIT trap writes the INCOMPLETE summary
+          fi
+          read -r scanned expected <<< "$counts"
+          if [ "$scanned" -eq "$expected" ]; then
+            heading="COMPLETE"
+          else
+            heading="INCOMPLETE: $scanned of $expected repositories scanned"
+          fi
+          {
+            echo "## OpenAMRobot Watchdog organization scan: $heading"
+            echo
+            echo "Thursday run, deterministic and reportable. Results are published to the [watchdog] Organization dashboard issue in the harness repository; per-group issues only when WATCHDOG_ISSUE_MODE is groups."
+            echo "A clean result shows textual consistency only, not mechanical, electrical, safety or release correctness."
+            if [ "$scanned" -ne "$expected" ]; then
+              echo
+              echo "BLOCKED repositories were not scanned and are not clean. The job fails until every repository is scanned."
+            fi
+            echo
+            echo "| Repository | Commit | Findings |"
+            echo "|---|---|---:|"
+            cat "$WORK/table.md"
+            python3 -c '
+          import json, sys
+          for b in json.load(open(sys.argv[1])):
+              if b.get("reason") == "no report produced":
+                  print("| {} | BLOCKED: no report produced | not scanned |".format(b.get("repository")))
+          ' "$WORK/blocked.json"
+            echo
+            echo "## Findings per decision or rule, per repository"
+            echo
+            cat "$WORK/details.md"
+          } >> "$summary"
+          finished=1
+          if [ "$scanned" -ne "$expected" ]; then
+            echo "::error::Scan INCOMPLETE: $scanned of $expected repositories scanned; the summary lists the BLOCKED ones"
+            exit 1
+          fi
+
+      - name: Synchronize Watchdog issues
+        if: always()
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Empty when the variable is unset; the tool then uses dashboard mode.
+          WATCHDOG_ISSUE_MODE: ${{ vars.WATCHDOG_ISSUE_MODE }}
+          HARNESS: harness
+          WORK: ${{ runner.temp }}/watchdog
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 "$HARNESS/tools/watchdog_issue_sync.py" \
+            --reports "$WORK/out" \
+            --blocked "$WORK/blocked.json" \
+            --expected "$WORK/expected.json" \
+            --maintainers "$HARNESS/maintainers.yaml" \
+            --decisions "$HARNESS/decisions.yaml" \
+            --repository "$GITHUB_REPOSITORY" \
+            --run-url "$RUN_URL" \
+            --run-date "$(date -u +%F)" \
+            --apply | tee -a "${GITHUB_STEP_SUMMARY:-$WORK/summary.md}"
+
+      - name: Upload scan logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: watchdog-org-scan
+          path: ${{ runner.temp }}/watchdog/
+          if-no-files-found: warn

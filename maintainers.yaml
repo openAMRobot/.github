@@ -1,0 +1,77 @@
+# Maintainers map for automation. Handles only; no names or contact data.
+# An empty handle means no GitHub handle is recorded yet; the organization owner
+# fills it once the person has confirmed their account and joined the
+# organization. Automation that needs that role names the role and mentions nobody.
+# Changes to this file need a code-owner review. This repository's .github/CODEOWNERS
+# names owner handles, not a team: @wikki26, @BotshareAI and @panthera-momagdii for
+# every path; each repository's own CODEOWNERS names its owner handles. The author's
+# own approval never counts.
+schema_version: 1
+
+roles:
+  platform-lead:
+    handle: BotshareAI
+    covers: platform, hardware, safety chain, decisions of record, final review
+  software-lead:
+    handle: panthera-momagdii
+    covers: robot software, AI, interfaces, agent rules
+  ci-owner:
+    handle: wikki26
+    covers: CI/CD, reusable workflows, verify.sh, quality gates
+  release-owner:
+    handle: KARTHIKEYAN124
+    covers: release, installation, manifest
+  docs-owner:
+    handle: anandgawai123456-glitch
+    covers: documentation site, public extracts
+
+review_policy:
+  platform-lead-authored:
+    required_roles: [software-lead]
+    scoped_owners_required: true
+    author_statement_counts_as_approval: false
+    safety_paths_still_require_platform_lead: true
+    unavailable_owner_requires_org_owner_exception: true
+
+# Owner of audit findings by ID prefix, used by the weekly alignment audit.
+audit_prefixes:
+  GEO: platform-lead
+  BOM: platform-lead
+  ELE: platform-lead
+  TEAM: platform-lead
+  SW: software-lead
+  CI: ci-owner
+  PR: ci-owner
+  DOC: docs-owner
+
+# Owner role per repository, used by docs-sync and the rollout CODEOWNERS proposal.
+repositories:
+  .github: [ci-owner, platform-lead]
+  openamrobot-interfaces: [software-lead]
+  openamr-platform-sw: [software-lead]
+  openamr-platform-fw: [platform-lead]
+  openamr-platform-hw: [platform-lead]
+  openamr-upperbody-sw: [software-lead]
+  openamr-upperbody-fw: [platform-lead]
+  openamr-upperbody-hw: [platform-lead]
+  openamrobot-manipulation: [software-lead]
+  openamrobot-ui: [software-lead]
+  openamrobot-comm: [software-lead]
+  openamrobot-manifest: [release-owner]
+  openamrobot-release: [release-owner]
+  openamrobot-docs: [docs-owner]
+
+# Paths whose change needs two human approvals including the platform lead.
+# check_pr_evidence.py reports "safety path touched, two human approvals
+# required" and checks that reviewers are requested; the approvals themselves
+# are enforced by each repository's ruleset (rollout/workflows/SETUP.md).
+safety_paths:
+  - "**/*estop*"
+  - "**/*e_stop*"
+  - "**/*emergency*"
+  - "**/*brake*"
+  - "**/*contactor*"
+  - "**/*watchdog*"
+  - "**/*motor_enable*"
+  - "**/*charge_inhibit*"
+  - "**/*safety*"

@@ -40,6 +40,22 @@ Empty placeholder governance files do not satisfy this baseline.
 
 Only repositories, releases, domains, documentation sites, and communications designated by Botshare LTD may claim official OpenAMRobot status. Forks and compatible products must not imply endorsement or certification.
 
+## Platform-lead-authored pull requests
+
+When the platform lead authors a pull request, the platform lead's reconciliation comment is
+the author's statement of source alignment; it is not an approval. Before merge, the PR must
+have:
+
+- an approval from the software lead; and
+- an approval from every scoped owner whose repository or path responsibility is touched,
+  including CI/CD, documentation and release owners when their scopes are affected.
+
+The author cannot satisfy any of those approvals. Safety-path changes still require the
+separate two-human-approval ruleset gate, including the platform lead through CODEOWNERS.
+If a scoped owner is unavailable, the organization owner records a dated exception and its
+replacement reviewer before merge. A draft remains a draft until all required owner gates,
+required checks, DCO/CLA and source reconciliation are complete.
+
 ## Changes to governance
 
 Governance changes require review by an authorized Botshare LTD representative. No governance change may remove authentic third-party notices or claim rights Botshare LTD does not own.

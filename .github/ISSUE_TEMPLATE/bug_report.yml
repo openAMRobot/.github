@@ -1,40 +1,58 @@
 name: Bug report
-description: Report a reproducible software or firmware defect
+description: Report a reproducible software or firmware defect with the evidence a fix needs
 title: "[Bug]: "
 labels: ["bug", "triage"]
 body:
   - type: markdown
     attributes:
-      value: "Do not include credentials, confidential information, export-controlled data, or third-party material you cannot disclose."
-  - type: textarea
-    id: summary
+      value: |
+        Issues are public. Do not include credentials, personal data, internal document links or prices.
+        The fix PR links this issue in its Work package section and adds a test that fails on the defect.
+  - type: input
+    id: repository
     attributes:
-      label: Summary
-      description: What happened, and what did you expect?
+      label: Repository and path
+      placeholder: "openAMRobot/<repository>, path/to/file"
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit SHA
+      description: Full or short SHA of the checkout where the defect reproduces.
+      placeholder: "d1ac6b64db83"
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Reproduction steps
-    validations:
-      required: true
-  - type: input
-    id: version
-    attributes:
-      label: Repository version, tag, or commit
+      label: Exact commands
+      description: Commands that reproduce the defect, one per line, from a clean checkout.
+      render: shell
     validations:
       required: true
   - type: textarea
-    id: environment
+    id: expected
     attributes:
-      label: Environment
-      description: OS, ROS version, hardware, browser, and relevant dependencies.
+      label: Expected and actual result
+      description: Paste the relevant output; state the decision ID from decisions.yaml if a decided value is wrong.
+    validations:
+      required: true
+  - type: dropdown
+    id: safety
+    attributes:
+      label: Safety impact
+      description: E-stop, brake, contactor, watchdog, motor-enable and charge-inhibit defects are reported, never fixed by an agent.
+      options:
+        - None
+        - Motion, power, battery, actuator or safety I/O (platform lead reviews)
+    validations:
+      required: true
   - type: textarea
-    id: logs
+    id: not_verified
     attributes:
-      label: Logs and supporting evidence
-      description: Remove personal, confidential, and security-sensitive information.
+      label: Not verified
+      description: What you could not check, for example real hardware or another ROS distribution.
   - type: checkboxes
     id: provenance
     attributes:

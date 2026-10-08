@@ -1,0 +1,63 @@
+name: Good first issue
+description: A small, self-contained task for a first-time contributor (maintainers open these)
+title: "[Good first issue]: "
+labels: ["good first issue", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A good first issue can be done in one PR, needs no hardware and no access beyond a fork, and
+        touches no safety path or shared contract. Maintainers add the area label from CONTRIBUTING.md.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - documentation (openamrobot-docs)
+        - navigation and bring-up (openamr-platform-sw)
+        - interfaces (openamrobot-interfaces)
+        - manipulation (openamrobot-manipulation)
+        - operator UI (openamrobot-ui)
+        - manifest and release (openamrobot-manifest, openamrobot-release)
+        - CI and harness (.github)
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: Repository and files
+      placeholder: "openAMRobot/<repository>: path/to/file"
+    validations:
+      required: true
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What needs to become true, in two or three sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Observable pass/fail conditions, including the test that must fail before and pass after.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: How to verify
+      description: The exact command a contributor runs, and the result it prints.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: mentor
+    attributes:
+      label: Reviewer role
+      description: Role from maintainers.yaml that reviews the PR.
+      placeholder: "docs-owner"
+    validations:
+      required: true
