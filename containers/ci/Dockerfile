@@ -34,7 +34,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-xacro \
     ros-jazzy-ros-gz-sim \
     ros-jazzy-ros-gz-bridge \
-    ros-jazzy-rplidar-ros \
     ros-jazzy-apriltag-msgs \
     ros-jazzy-apriltag-ros \
     ros-jazzy-nav2-msgs \
