@@ -383,12 +383,13 @@ class RealRegister(unittest.TestCase):
     def test_bom_issue_in_force(self):
         self.assertEqual(self.ids("docs/a.md", "The canonical BOM is Issue 6.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
-        self.assertEqual(self.ids("docs/a.md", "Issue 7.3 is canonical; Issue 6 is superseded.\n", "x"), [])
+        self.assertEqual(self.ids("docs/a.md", "Issue 7.6 is canonical; Issue 6 is superseded.\n", "x"), [])
 
-    def test_bom_issue_7_3_in_force(self):
-        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n"):
+    def test_bom_issue_7_6_in_force(self):
+        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n",
+                     "BOM Issue 7.3 is canonical.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
-        for text in ("BOM Issue 7.3 is canonical.\n", "Issue 7 was canonical until Issue 7.3 superseded it.\n"):
+        for text in ("BOM Issue 7.6 is canonical.\n", "Issue 7.3 was canonical until Issue 7.6 superseded it.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_nav_lidar(self):
@@ -422,12 +423,38 @@ class RealRegister(unittest.TestCase):
                      "The linear lift is deferred to OpenAMRobot 3.0.\n",
                      "Fixed mast (lift in 3.0), mounting plates.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["LIFT"], text)
-        for text in ("Lift approved in principle: DOLD Hexalift V1 350 mm primary, TiMOTION TL3 400 mm fallback.\n",
+        for text in ("Lift approved in principle: DOLD Hexalift V4 350 mm primary, TiMOTION TL3 400 mm fallback.\n",
+                     "The Hexalift V1 was replaced by the V4 (P-03 rev18.8 item 16).\n",
+                     "Base plate positions centre and +50 mm (bp000, bp050).\n",
                      "Lift motion only in the stowed or carry safe pose with the base stopped.\n",
                      "No lift motion while the base moves.\n",
                      "The fixed mast is superseded by the lift (P-03 rev18.7 item 8).\n",
                      "The lift column moves the shoulder axis from 1000 to 1350 mm.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_lift_v4_and_two_base_plate_positions(self):
+        for text in ("Lift: DOLD Hexalift V1 350 mm primary.\n",
+                     "Column ID dold_v1_350.\n",
+                     "Base plate: five fore-aft positions, centre to +200 mm.\n",
+                     "Configurations bp000 to bp200, including bp150.\n",
+                     "Positions centre, +50, +100, +150 and +200 mm.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["LIFT"], text)
+
+    def test_arm_mount_and_config_ids(self):
+        repo = "openamr-upperbody-sw"
+        self.assertEqual(self.ids("docs/a.md", "Attach the arm base links to openarm_body_link0.\n", repo),
+                         ["ARM-MOUNT"])
+        self.assertEqual(self.ids("docs/a.md", "The upstream openarm_body_link0 is not used.\n", repo), [])
+        self.assertEqual(self.ids("docs/a.md", "Select the robot with mast_id.\n", repo), ["CONFIG-IDS"])
+        self.assertEqual(self.ids("docs/a.md", "mast_id is replaced by column and base_plate.\n", repo), [])
+
+    def test_hfs6_arm_profile_is_current(self):
+        for text in ("Arm profile MISUMI HFS6-60120, 340 mm, on the lift adapter plate.\n",
+                     "Base-plate top face, arm mount point 180 mm ahead of the column axis.\n",
+                     "Shoulder-axis height 1350 mm at L1350 on the lift.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+        self.assertEqual(self.ids("docs/a.md", "One HFS6-60120 profile bolted to the centre bracket as the mast.\n", "x"),
+                         ["MAST-TOP-HEIGHT"])
 
     def test_datum_height_stack(self):
         for text in ("The steel chassis deck top is at 300 mm.\n", "Base-plate top face 310 mm above the floor.\n"):
