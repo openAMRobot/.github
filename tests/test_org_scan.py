@@ -247,6 +247,20 @@ class FailClosed(unittest.TestCase):
                 self.assertEqual(code, 1, out)
                 self.assertIn("the expected repository list could not be read", out)
 
+    def test_empty_repository_list_is_incomplete_not_a_zero_repository_scan(self):
+        with tempfile.TemporaryDirectory() as keep:
+            result = run_scan(fail_clones="", repositories="organization: openAMRobot\nrepositories: []\n", keep=keep)
+            self.assertNotEqual(result.code, 0, result.output)
+            self.assertIn("## OpenAMRobot Watchdog organization scan: INCOMPLETE", result.summary)
+            self.assertIn("Scan INCOMPLETE: repository list could not be generated (0 of 0 entries usable).", result.summary)
+            self.assertNotIn(": COMPLETE", result.summary)
+            self.assertEqual(result.expected, [])
+            # An empty expected list is unreadable for the sync, never a valid zero-repository scan.
+            code, out = sync(keep)
+            self.assertEqual(code, 1, out)
+            self.assertIn("the expected repository list could not be read", out)
+            self.assertNotIn("complete)", out)
+
     def test_short_repository_list_fails_and_missing_repositories_are_blocked(self):
         data = yaml.safe_load(LIST.read_text(encoding="utf-8"))
         del data["repositories"][3]["default_branch"]  # openamr-platform-hw cannot be listed
