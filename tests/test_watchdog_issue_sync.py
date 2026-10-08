@@ -150,7 +150,7 @@ class IssueMode(unittest.TestCase):
                               "[README.md:4](https://github.com/openAMRobot/openamrobot-docs/blob/" + "a" * 40 + "/README.md#L4) |", body)
                 self.assertIn("| decisions.yaml | decision-review | COMPUTE | 1 |", body)
                 self.assertIn("| openamrobot-comm | scan | **BLOCKED** | - | ci-owner", body)
-                self.assertIn("| openamrobot-comm | unavailable | - | - | - | **BLOCKED** |", body)
+                self.assertIn("| openamrobot-comm | unavailable | - | - | - | **BLOCKED** (clone failed) |", body)
 
     def test_file_links_are_capped_per_group(self):
         many = copy.deepcopy(report())
@@ -214,6 +214,141 @@ class IssueMode(unittest.TestCase):
             err = io.StringIO()
             with unittest.mock.patch.dict(os.environ, {"WATCHDOG_ISSUE_MODE": "all"}), contextlib.redirect_stderr(err):
                 self.assertEqual(wis.main(args), 2)
+
+
+def docs_report():
+    return report()
+
+
+def comm_report():
+    data = report()
+    data["repository"] = "openamrobot-comm"
+    return data
+
+
+class FailClosed(unittest.TestCase):
+    """CI/CD review of 8 Oct: missing or broken reports are BLOCKED, never clean."""
+    DECISIONS = {"COMPUTE": {"owner": "platform-lead"}}
+    EXPECTED = ["openamrobot-docs", "openamrobot-comm"]
+
+    def test_missing_report_is_blocked_with_banner(self):
+        blocked, status = wis.completeness(self.EXPECTED, [docs_report()], [])
+        self.assertEqual(blocked, [{"repository": "openamrobot-comm", "reason": "no report produced"}])
+        self.assertEqual(status, {"scanned": 1, "expected": 2, "incomplete": True})
+        for mode in ("dashboard", "groups"):
+            with self.subTest(mode=mode):
+                data = wis.plan([docs_report()], blocked, self.DECISIONS, MAINTAINERS, [], "run", "2026-10-08", mode, status)
+                body = wis.dashboard_body([docs_report()], blocked, data, "run", "2026-10-08", [])
+                self.assertIn("**Scan INCOMPLETE on 2026-10-08: 1 of 2 repositories scanned. Results below are partial; "
+                              "missing repositories are listed as BLOCKED and are not clean.**", body)
+                self.assertLess(body.index("Scan INCOMPLETE"), body.index("## OpenAMRobot Watchdog dashboard"))
+                self.assertIn("| openamrobot-comm | unavailable | - | - | - | **BLOCKED** (no report produced) |", body)
+                self.assertNotIn("| openamrobot-comm | `", body)  # never listed with a commit, never clean
+
+    def test_complete_run_has_no_banner(self):
+        blocked, status = wis.completeness(self.EXPECTED, [docs_report(), comm_report()], [])
+        self.assertEqual((blocked, status["incomplete"]), ([], False))
+        data = wis.plan([docs_report(), comm_report()], blocked, self.DECISIONS, MAINTAINERS, [], "run", "2026-10-08", "dashboard", status)
+        self.assertNotIn("INCOMPLETE", wis.dashboard_body([docs_report(), comm_report()], [], data, "run", "2026-10-08", []))
+
+    def existing_issues(self):
+        first = wis.plan([docs_report(), comm_report()], [], self.DECISIONS, MAINTAINERS, [], "run", "2026-10-01", mode="groups")
+        issues = []
+        for number, item in enumerate(i for i in first["open"] if i["kind"] == "finding"):
+            issues.append({"number": 20 + number, "title": item["payload"]["title"], "body": item["payload"]["body"],
+                           "state": "open", "comments": [], "url": f"u{number}"})
+        return issues
+
+    def test_incomplete_run_never_clears_findings_of_unscanned_repositories(self):
+        existing = self.existing_issues()
+        clean_docs = report(False)  # docs was scanned and its finding is gone
+        blocked, status = wis.completeness(self.EXPECTED, [clean_docs], [])
+        data = wis.plan([clean_docs], blocked, self.DECISIONS, MAINTAINERS, existing, "run", "2026-10-08", "groups", status)
+        cleared = {u["issue"]["title"] for u in data["updates"] if wis.NO_LONGER_MARKER in u["body"]}
+        self.assertIn("[watchdog] openamrobot-docs: decisions / COMPUTE", cleared)
+        self.assertNotIn("[watchdog] openamrobot-comm: decisions / COMPUTE", cleared)
+        self.assertFalse(any(u.get("reopen") is False and "openamrobot-comm" in u["issue"]["title"] and wis.NO_LONGER_MARKER in u["body"]
+                             for u in data["updates"]))
+
+    def test_incomplete_dashboard_keeps_last_known_rows_of_unscanned_repositories(self):
+        full = [docs_report(), comm_report()]
+        first = wis.plan(full, [], self.DECISIONS, MAINTAINERS, [], "run", "2026-10-01", "dashboard", wis.completeness(self.EXPECTED, full, [])[1])
+        previous = {"number": 5, "state": "open", "comments": [], "url": "u5",
+                    "body": wis.dashboard_body(full, [], first, "run", "2026-10-01", [])}
+        blocked, status = wis.completeness(self.EXPECTED, [docs_report()], [])
+        data = wis.plan([docs_report()], blocked, self.DECISIONS, MAINTAINERS, [previous], "run", "2026-10-08", "dashboard", status)
+        body = wis.dashboard_body([docs_report()], blocked, data, "run", "2026-10-08", [])
+        self.assertIn("| openamrobot-comm | decisions | COMPUTE | 1 |", body)
+        self.assertIn("last known from an earlier run, not rescanned", body)
+
+    def test_malformed_report_is_blocked_not_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "openamrobot-docs.json").write_text(json.dumps(report()), encoding="utf-8")
+            Path(tmp, "openamrobot-comm.json").write_text("{not json", encoding="utf-8")
+            reports, failures = wis.load_reports_checked(tmp)
+            self.assertEqual([r["repository"] for r in reports], ["openamrobot-docs"])
+            self.assertEqual(failures, [{"repository": "openamrobot-comm", "reason": "malformed report"}])
+            for mode in ("dashboard", "groups"):
+                with self.subTest(mode=mode):
+                    code, out = self.main(tmp, mode=mode)
+                    self.assertEqual(code, 1, out)
+                    self.assertIn("INCOMPLETE, 1 of 2 repositories scanned", out)
+
+    def main(self, reports, expected="write", mode="dashboard"):
+        with tempfile.TemporaryDirectory() as tmp:
+            args = ["--reports", str(reports), "--maintainers", str(ROOT / "maintainers.yaml"),
+                    "--decisions", str(ROOT / "decisions.yaml"), "--run-url", "run", "--run-date", "2026-10-08",
+                    "--mode", mode]
+            if expected == "write":
+                Path(tmp, "expected.json").write_text(json.dumps(self.EXPECTED), encoding="utf-8")
+            elif expected is not None:
+                Path(tmp, "expected.json").write_text(expected, encoding="utf-8")
+            args += ["--expected", str(Path(tmp, "expected.json"))]
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                code = wis.main(args)
+            return code, out.getvalue()
+
+    def test_command_line_exit_codes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "openamrobot-docs.json").write_text(json.dumps(report()), encoding="utf-8")
+            code, out = self.main(tmp)
+            self.assertEqual(code, 1, out)  # a report is missing for openamrobot-comm
+            self.assertIn("INCOMPLETE, 1 of 2 repositories scanned", out)
+            Path(tmp, "openamrobot-comm.json").write_text(json.dumps(comm_report()), encoding="utf-8")
+            code, out = self.main(tmp)
+            self.assertEqual(code, 0, out)
+            self.assertIn("complete)", out)
+
+    def test_unreadable_expected_list_refuses_to_publish(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "openamrobot-docs.json").write_text(json.dumps(report()), encoding="utf-8")
+            for expected in (None, "{not json", "[]"):
+                with self.subTest(expected=expected):
+                    code, out = self.main(tmp, expected=expected)
+                    self.assertEqual(code, 1, out)
+                    self.assertIn("the expected repository list could not be read", out)
+                    self.assertNotIn("Watchdog issue plan", out)
+
+    def test_unreadable_expected_list_posts_only_the_banner(self):
+        calls = []
+
+        def fake(method, url, token, data=None):
+            calls.append((method, url.split("/repos/openAMRobot/.github/", 1)[1], data))
+            return {}
+
+        dashboard = {"number": 5, "state": "open", "comments": [], "url": "u5",
+                     "body": wis.DASHBOARD_MARKER + "\nprevious results"}
+        wis.publish_unreadable("openAMRobot/.github", [dashboard], "expected.json: missing", "token", "run", "2026-10-08", call=fake)
+        writes = [(m, u) for m, u, d in calls if u != "labels"]
+        self.assertEqual(writes, [("POST", "issues/5/comments")])  # the dashboard body is not overwritten
+        self.assertIn("Scan INCOMPLETE on 2026-10-08: the expected repository list could not be read",
+                      calls[-1][2]["body"])
+        calls.clear()
+        wis.publish_unreadable("openAMRobot/.github", [], "expected.json: missing", "token", "run", "2026-10-08", call=fake)
+        created = [d for m, u, d in calls if u == "issues"]
+        self.assertEqual(len(created), 1)
+        self.assertNotIn("| Repository |", created[0]["body"])  # banner only, no results table
 
 
 if __name__ == "__main__":

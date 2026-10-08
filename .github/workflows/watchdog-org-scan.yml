@@ -4,6 +4,11 @@ name: Watchdog organization scan
 # is a central, deduplicated issue control surface in openAMRobot/.github. The workflow never
 # edits decisions.yaml, pushes a branch, opens a PR, or runs an AI agent. See WATCHDOG.md.
 #
+# Fail closed: the scan is COMPLETE only when every repository in rollout/repositories.yaml was
+# scanned. A repository that cannot be listed, cloned, scanned or reported is BLOCKED; the run is
+# then INCOMPLETE, the dashboard says so, missing repositories are never treated as clean, and
+# the job fails. See WATCHDOG.md, "Incomplete scans".
+#
 # Schedule: every Thursday at 14:00 Berlin time (timezone Europe/Berlin, so the run follows
 # daylight saving time), plus manual dispatch.
 #
@@ -48,78 +53,125 @@ jobs:
           HARNESS: harness
           WORK: ${{ runner.temp }}/watchdog
         run: |
-          set -uo pipefail
-          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
-          mkdir -p "$WORK/repos" "$WORK/out"
-          echo '[]' > "$WORK/blocked.json"
-          python3 - "$HARNESS/rollout/repositories.yaml" > "$WORK/list.txt" <<'PY'
-          import sys, yaml
-          data = yaml.safe_load(open(sys.argv[1], encoding="utf-8"))
-          for r in data["repositories"]:
-              print(data["organization"], r["name"], r["default_branch"])
-          PY
+          # Fail closed: any unguarded error stops the step, and the EXIT trap marks the scan
+          # INCOMPLETE. Commands that may fail for one repository are guarded so that
+          # repository is recorded as BLOCKED and the loop continues.
+          set -euo pipefail
           summary="${GITHUB_STEP_SUMMARY:-$WORK/summary.md}"
-          {
-            echo "## OpenAMRobot Watchdog organization scan"
-            echo
-            echo "Thursday run, deterministic and reportable. Results are published to the [watchdog] Organization dashboard issue in the harness repository; per-group issues only when WATCHDOG_ISSUE_MODE is groups."
-            echo "A clean result shows textual consistency only, not mechanical, electrical, safety or release correctness."
-            echo
-            echo "| Repository | Commit | Findings |"
-            echo "|---|---|---:|"
-          } >> "$summary"
-          blocked=0
+          support="$HARNESS/tools/watchdog_scan_support.py"
+          finished=0
+          on_exit() {
+            if [ "$finished" -ne 1 ]; then
+              {
+                echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
+                echo
+                echo "Scan INCOMPLETE: the scan step stopped before every repository was scanned. Missing repositories are not clean."
+              } >> "$summary"
+              echo "::error::Scan INCOMPLETE: the scan step stopped before every repository was scanned"
+            fi
+          }
+          trap on_exit EXIT
+          mkdir -p "$WORK/repos" "$WORK/out"
+          rm -f "$WORK/expected.json" "$WORK/list.txt"
+          echo '[]' > "$WORK/blocked.json"
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+
+          # Repository list: a failure stops the step; expected.json is written before list.txt.
+          if ! python3 "$support" list --repositories "$HARNESS/rollout/repositories.yaml" \
+              --list "$WORK/list.txt" --expected "$WORK/expected.json"; then
+            {
+              echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
+              echo
+              echo "Scan INCOMPLETE: repository list could not be generated."
+            } >> "$summary"
+            echo "::error::Scan INCOMPLETE: repository list could not be generated"
+            finished=1
+            exit 1
+          fi
+          expected_count=$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$WORK/expected.json")
+          listed_count=$(wc -l < "$WORK/list.txt")
+          if [ ! -s "$WORK/list.txt" ] || [ "$listed_count" -ne "$expected_count" ]; then
+            {
+              echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
+              echo
+              echo "Scan INCOMPLETE: repository list could not be generated ($listed_count of $expected_count entries usable)."
+            } >> "$summary"
+            echo "::error::Scan INCOMPLETE: repository list could not be generated ($listed_count of $expected_count entries usable)"
+            finished=1
+            exit 1
+          fi
+
+          block() {  # block <repository> <reason> <table cell>
+            python3 "$support" block --blocked "$WORK/blocked.json" --repository "$1" --reason "$2"
+            echo "| $1 | BLOCKED: $3 | not scanned |" >> "$WORK/table.md"
+          }
+          : > "$WORK/table.md"
           : > "$WORK/details.md"
           while read -r org name branch; do
             dest="$WORK/repos/$name"
             if ! git clone --quiet --depth 1 --branch "$branch" "https://github.com/$org/$name.git" "$dest"; then
-              echo "| $name | BLOCKED: clone failed | not scanned |" >> "$summary"
-              python3 - "$WORK/blocked.json" "$name" "clone failed" <<'PY'
-          import json, sys
-          path, repo, reason = sys.argv[1:]
-          data = json.load(open(path, encoding="utf-8"))
-          data.append({"repository": repo, "reason": reason})
-          json.dump(data, open(path, "w", encoding="utf-8"))
-          PY
-              blocked=$((blocked + 1))
+              block "$name" "clone failed" "clone failed"
               continue
             fi
-            sha=$(git -C "$dest" rev-parse HEAD)
+            if ! sha=$(git -C "$dest" rev-parse HEAD); then
+              block "$name" "commit could not be read" "commit could not be read"
+              continue
+            fi
+            status=0
             python3 "$HARNESS/tools/watchdog.py" --root "$dest" --repository "$name" --report-only \
-              --json "$WORK/out/$name.json" --markdown "$WORK/details.md" > "$WORK/out/$name.txt"
-            status=$?
+              --json "$WORK/out/$name.json" --markdown "$WORK/details.md" > "$WORK/out/$name.txt" || status=$?
             if [ "$status" -ne 0 ]; then
-              echo "| $name | $sha | BLOCKED: watchdog exit $status |" >> "$summary"
-              python3 - "$WORK/blocked.json" "$name" "watchdog exit $status at $sha" <<'PY'
-          import json, sys
-          path, repo, reason = sys.argv[1:]
-          data = json.load(open(path, encoding="utf-8"))
-          data.append({"repository": repo, "reason": reason})
-          json.dump(data, open(path, "w", encoding="utf-8"))
-          PY
-              blocked=$((blocked + 1))
+              rm -f "$WORK/out/$name.json"
+              block "$name" "watchdog exit $status at $sha" "watchdog exit $status"
               continue
             fi
-            python3 - "$WORK/out/$name.json" "$name" "$sha" <<'PY'
-          import json, sys
-          path, repo, sha = sys.argv[1:]
-          data = json.load(open(path, encoding="utf-8"))
-          data["repository"] = repo
-          data["commit"] = sha
-          json.dump(data, open(path, "w", encoding="utf-8"), indent=2)
-          PY
-            total=$(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print(sum(len(v or []) for v in r["results"].values()))' "$WORK/out/$name.json")
-            echo "| $name | $sha | $total |" >> "$summary"
-            tail -n 12 "$WORK/out/$name.txt"
+            if ! total=$(python3 "$support" enrich --report "$WORK/out/$name.json" --repository "$name" --commit "$sha"); then
+              if [ -f "$WORK/out/$name.json" ]; then mv "$WORK/out/$name.json" "$WORK/out/$name.json.invalid"; fi
+              block "$name" "report enrichment failed at $sha" "report enrichment failed"
+              continue
+            fi
+            echo "| $name | $sha | $total |" >> "$WORK/table.md"
+            tail -n 12 "$WORK/out/$name.txt" || true
           done < "$WORK/list.txt"
+
+          # Every expected repository needs a report or a BLOCKED entry; missing ones are added.
+          if ! counts=$(python3 "$support" finalize --expected "$WORK/expected.json" \
+              --reports "$WORK/out" --blocked "$WORK/blocked.json"); then
+            exit 1  # the EXIT trap writes the INCOMPLETE summary
+          fi
+          read -r scanned expected <<< "$counts"
+          if [ "$scanned" -eq "$expected" ]; then
+            heading="COMPLETE"
+          else
+            heading="INCOMPLETE: $scanned of $expected repositories scanned"
+          fi
           {
+            echo "## OpenAMRobot Watchdog organization scan: $heading"
+            echo
+            echo "Thursday run, deterministic and reportable. Results are published to the [watchdog] Organization dashboard issue in the harness repository; per-group issues only when WATCHDOG_ISSUE_MODE is groups."
+            echo "A clean result shows textual consistency only, not mechanical, electrical, safety or release correctness."
+            if [ "$scanned" -ne "$expected" ]; then
+              echo
+              echo "BLOCKED repositories were not scanned and are not clean. The job fails until every repository is scanned."
+            fi
+            echo
+            echo "| Repository | Commit | Findings |"
+            echo "|---|---|---:|"
+            cat "$WORK/table.md"
+            python3 -c '
+          import json, sys
+          for b in json.load(open(sys.argv[1])):
+              if b.get("reason") == "no report produced":
+                  print("| {} | BLOCKED: no report produced | not scanned |".format(b.get("repository")))
+          ' "$WORK/blocked.json"
             echo
             echo "## Findings per decision or rule, per repository"
             echo
             cat "$WORK/details.md"
           } >> "$summary"
-          if [ "$blocked" -ne 0 ]; then
-            echo "::error::$blocked repository scan(s) BLOCKED; the summary lists them"
+          finished=1
+          if [ "$scanned" -ne "$expected" ]; then
+            echo "::error::Scan INCOMPLETE: $scanned of $expected repositories scanned; the summary lists the BLOCKED ones"
             exit 1
           fi
 
@@ -138,6 +190,7 @@ jobs:
           python3 "$HARNESS/tools/watchdog_issue_sync.py" \
             --reports "$WORK/out" \
             --blocked "$WORK/blocked.json" \
+            --expected "$WORK/expected.json" \
             --maintainers "$HARNESS/maintainers.yaml" \
             --decisions "$HARNESS/decisions.yaml" \
             --repository "$GITHUB_REPOSITORY" \

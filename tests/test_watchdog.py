@@ -178,6 +178,12 @@ class Guide(unittest.TestCase):
                      "Scan-blocked\nrepositories appear on the dashboard in both modes"):
             self.assertIn(text, section)
 
+    def test_incomplete_scans_section(self):
+        section = self.text.split("### Incomplete scans", 1)[1].split("\n### ", 1)[0]
+        for text in ("**BLOCKED**", "**INCOMPLETE**", "INCOMPLETE: N of M repositories scanned",
+                     "The job is red", "never treated as clean"):
+            self.assertIn(text, section)
+
     def test_guide_is_linked(self):
         for name in ("README.md", "CONTRIBUTING.md"):
             self.assertIn("WATCHDOG.md", (ROOT / name).read_text(encoding="utf-8"), name)

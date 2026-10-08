@@ -243,6 +243,24 @@ The dashboard is the durable weekly record. Its `Shared rules` column distinguis
 `drift` and `not enrolled`; `not enrolled` is rollout status, not a contradiction. The uploaded
 JSON artifacts preserve the exact repository SHAs and evidence used by the run.
 
+### Incomplete scans
+
+The organization scan fails closed. A result is only called complete when every repository in
+[rollout/repositories.yaml](rollout/repositories.yaml) was scanned.
+
+- **BLOCKED** means one repository was not scanned: it could not be cloned, `tools/watchdog.py`
+  failed, its report could not be read or enriched, or no report was produced for it. The
+  reason is shown next to the repository.
+- **INCOMPLETE** means the run as a whole did not cover every repository. The job summary
+  heading then says "INCOMPLETE: N of M repositories scanned" instead of "COMPLETE", and the
+  dashboard issue opens with a "Scan INCOMPLETE" banner. If the repository list itself cannot
+  be read, the scan stops and the dashboard is not overwritten; only an INCOMPLETE notice is
+  posted.
+- The job is red whenever a repository is BLOCKED or the scan is INCOMPLETE.
+- A missing repository is never treated as clean. Its findings from an earlier run stay on the
+  dashboard as "last known", and its existing issues are not marked as no longer detected. Only
+  a repository that was actually scanned can clear its own findings.
+
 ### Watchdog issue mode
 
 The repository variable `WATCHDOG_ISSUE_MODE` in `openAMRobot/.github` decides which issues the
