@@ -53,8 +53,8 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev18.7
-  date: 2026-10-06
+  source: P-03-rev18.9
+  date: 2026-10-09
 
 sources:
   P-03-rev18.2:
@@ -67,8 +67,14 @@ sources:
   P-03-rev18.4:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.9:
+    title: P-03 Decision Addendum, revision 18.9, 9 October 2026 (the addendum in force)
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev18.8:
+    title: P-03 Decision Addendum, revision 18.8, 8 October 2026 (earlier revision)
+    evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.7:
-    title: P-03 Decision Addendum, revision 18.7, 6 October 2026 (the addendum in force)
+    title: P-03 Decision Addendum, revision 18.7, 6 October 2026 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.6:
     title: P-03 Decision Addendum, revision 18.6 (earlier revision)
@@ -85,8 +91,11 @@ sources:
   P-00-rev18.1:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
+  BOM-Issue-7.6:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.6, 9 October 2026 (canonical per P-03 rev18.9)
+    evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.3:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3 (canonical per P-03 rev18.7)
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3 (earlier issue; canonical per P-03 rev18.7)
     evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7, 27 September 2026 (earlier issue; canonical per P-03 rev18.2 item 7 until Issue 7.3)
@@ -110,16 +119,17 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
-    summary: "BOM Issue 7.3 is the canonical OpenAMRobot 2.0 hardware BOM."
-    fix_hint: "Name Issue 7.3 as canonical, or label older issues (Issue 6, Issue 7, B-01) as superseded."
+    summary: "BOM Issue 7.6 is the canonical OpenAMRobot 2.0 hardware BOM."
+    fix_hint: "Name Issue 7.6 as canonical, or label older issues (Issue 6, Issue 7 to 7.5, B-01) as superseded."
     kind: value
     status: recorded
-    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.6
     unit: none
-    date: 2026-10-06
-    review_by: 2026-11-17
-    source: {document: P-03-rev18.7, item: BOM issue in force}
+    date: 2026-10-09
+    review_by: 2026-11-20
+    source: {document: P-03-rev18.9, item: "item 16 (BOM Issue 7.6 carries the change)"}
     supersedes:
+      - {value: Issue 7.3, source: P-03-rev18.7 BOM issue in force}
       - {value: Issue 7, source: P-03-rev18.2 item 7}
       - value: Issue 6, or an explicitly approved successor
         source: P-03-rev18.1 line 7
@@ -129,15 +139,15 @@ decisions:
     check:
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier'
-        message: BOM Issue 7.3 is the canonical hardware BOM (P-03 rev18.7)
+        message: BOM Issue 7.6 is the canonical hardware BOM (P-03 rev18.9)
       - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
         unless: 'supersed'
         message: B-01 is superseded
-      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.3)(?:\.\d+)?\b|\bIssue\s*7(?!\.3)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.6)(?:\.\d+)?\b|\bIssue\s*7(?!\.6)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier|historical'
-        message: BOM Issue 7.3 is the canonical hardware BOM (P-03 rev18.7)
+        message: BOM Issue 7.6 is the canonical hardware BOM (P-03 rev18.9)
     verification:
-      machine: Issue 6, Issue 7 (other than 7.3) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      machine: Issue 6, Issue 7 (other than 7.6) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
     owner: platform-lead
 
@@ -167,7 +177,7 @@ decisions:
       item: item 8
       decision: LIFT
       citation: '(?P<found>\bmast_1350\b[^\n]{0,60}\b(?:baseline|installation)|(?:shoulder[- ]axis|installation) height\s*(?:at|of|is|:)?\s*1350\s*mm)'
-      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
+      unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b|\blift\b|L1350|extended|full stroke'
     verification:
       machine: text still presenting the superseded fixed-mast value as current (citation pattern)
       human: {reviewer: platform-lead, evidence: URDF/Xacro mast configuration and the general arrangement drawing at 1350 mm}
@@ -204,7 +214,7 @@ decisions:
   - id: MAST-TOP-HEIGHT
     title: Mast top height above the floor (own COTS mast, one MISUMI HFS6-60120 profile; superseded by LIFT)
     summary: "Superseded: the 1500 mm mast top on an HFS6-60120 profile was replaced by LIFT."
-    fix_hint: "Describe the lift, or label the mast-top or HFS6-60120 text as superseded or historical."
+    fix_hint: "Describe the lift; HFS6-60120 is now the short arm profile on the lift (ARM-MOUNT), not a mast."
     kind: value
     status: superseded
     value: 1500
@@ -221,7 +231,7 @@ decisions:
       document: P-03-rev18.7
       item: item 8
       decision: LIFT
-      citation: '(?P<found>\bmast top[^\n]{0,20}\b1500\s*mm|\bHFS6-60120\b)'
+      citation: '(?P<found>\bmast top[^\n]{0,20}\b1500\s*mm|\bHFS6-60120\b[^\n]{0,60}\b(?:mast|centre bracket|center bracket)\b)'
       unless: 'supersed|legacy|historical|earlier|previous|rev ?18\.[1-6]\b'
     verification:
       machine: text still presenting the superseded fixed-mast value as current (citation pattern)
@@ -275,7 +285,7 @@ decisions:
       - pattern: '(?P<found>\bdeck top\b[^\n]{0,25}?\b(?!294\b)\d{3}\s*mm)'
         unless: 'supersed|historical|legacy|earlier|previous'
         message: the steel chassis deck top is 294 mm above the floor (P-03 rev18.7 item 15)
-      - pattern: '(?P<found>\bbase[- ]plate top(?: face)?\b[^\n]{0,25}?\b(?!304\b)\d{3}\s*mm)'
+      - pattern: '(?P<found>\bbase[- ]plate top(?: face)?\b\s*(?:is\s*|at\s*|of\s*|=\s*|:\s*)?(?:z\s*=?\s*)?(?!304\b)\d{3}\s*mm)'
         unless: 'supersed|historical|legacy|earlier|previous'
         message: the lift base-plate top face is 304 mm above the floor, the reference for lift and shoulder heights (P-03 rev18.7 item 15)
     verification:
@@ -553,8 +563,9 @@ decisions:
     status: recorded
     values:
       - Stereolabs ZED Mini, SKU ZED-121210, supplied with the OpenArm 2.0 set
-      - mounted on the lift carriage
-      - pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees
+      - mounted on the lift carriage, held at its ends by the mount supplied with the OpenArm set, on a pitch bracket on the arm-profile top
+      - lens 0.022 m ahead of and 0.223 m above the arm mount point, centred; 1223 mm at L1000 and 1573 mm at L1350
+      - pitch 15 to 35 degrees down in 5 degree steps about the lens line, baseline 25 degrees
     unit: none
     date: 2026-10-06
     review_by: 2026-11-17
@@ -792,38 +803,105 @@ decisions:
 
   - id: LIFT
     title: Lift approved in principle for OpenAMRobot 2.0
-    summary: "The lift is approved in principle for 2.0; shoulder axis 1000 to 1350 mm; release gates open."
-    fix_hint: "Describe the lift as approved in principle, or label fixed-mast and 3.0 lift text as superseded."
+    summary: "Lift approved in principle: DOLD Hexalift V4 350 mm, shoulder 1000 to 1350 mm, base plate centre or +50 mm."
+    fix_hint: "Describe the DOLD V4 lift on a two-position base plate; label V1, five positions and fixed-mast text as superseded."
     kind: configuration
     status: recorded
     values:
       - lift approved in principle
-      - DOLD Hexalift V1 350 mm primary; TiMOTION TL3 400 mm fallback
-      - shoulder axis 1000 to 1350 mm
-      - base plate fore-aft positions centre, +50, +100, +150 and +200 mm
+      - DOLD Hexalift V4 350 mm (800 N push, 18 mm/s, order code BS-HM240G350530-MFF24) primary; TiMOTION TL3 400 mm fallback
+      - column 530 mm retracted, 880 mm extended, mounted with its 240 mm side fore-aft
+      - shoulder 1000 to 1350 mm (304 + 530 or 880 + 166 mm), see ARM-MOUNT
+      - lift base plate fore-aft positions centre and +50 mm (bp000, bp050)
       - lift motion only in the stowed or carry safe pose with the base stopped
       - hold-and-move limits 0.05 m/s (drawer reversal) and 0.3 m/s (carrying)
-      - "release gates: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface (items 6, 8, 14, 15)"
+      - "release gates: written DOLD holding on E-stop and power loss, supplier CAD, weighed mass, the CAN3 lift interface and the F2S rerun"
     unit: none
-    date: 2026-10-06
-    review_by: 2026-11-17
-    source: {document: P-03-rev18.7, item: "item 8; release gates items 6, 8, 14, 15"}
+    date: 2026-10-09
+    review_by: 2026-11-20
+    source: {document: P-03-rev18.9, item: "items 16 and 18; motion rules item 15; release gates items 6, 8, 14, 15, 16"}
     supersedes:
       - {value: "Lift removed from OpenAMRobot 2.0; fixed mast; lift on the 3.0 roadmap (former entry LIFT-REMOVED)", source: P-00-rev18.1 txt 18}
+      - {value: "DOLD Hexalift V1 350 mm primary", source: P-03-rev18.7 item 15}
+      - {value: "base plate positions centre, +50, +100, +150 and +200 mm", source: P-03-rev18.7 item 15}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/package.xml", "**/*.xacro", "**/*.urdf"]}
     check:
       - pattern: '(?P<found>\bno (?:linear |actuated )?lift\b(?=\s*(?:[.,;:)]|$|(?:in|for|on)\b)))'
         unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
-        message: the lift is approved in principle for 2.0 (P-03 rev18.7 item 8)
+        message: the lift is approved in principle for 2.0 (P-03 rev18.9)
       - pattern: '(?P<found>\bfixed[- ]mast\b)'
         unless: 'supersed|historical|earlier|previous|legacy|replace|instead of|no longer|rev ?18\.[1-6]\b'
-        message: the fixed mast is no longer the baseline; the lift is approved in principle (P-03 rev18.7 item 8)
+        message: the fixed mast is no longer the baseline; the lift is approved in principle (P-03 rev18.9)
       - pattern: '(?P<found>\blift\b[^\n]{0,40}\b(?:deferred|moved|postponed)\b[^\n]{0,25}\b3\.0\b|\blift\b[^\n]{0,15}\bin (?:OpenAMRobot )?3\.0\b|\blift (?:is |was )?removed\b|\blift\b[^\n]{0,40}\b(?:OpenAMRobot )?3\.0 scope\b|\b3\.0 lift\b)'
         unless: 'supersed|historical|earlier|previous|no longer|rev ?18\.[1-6]\b'
-        message: the lift is not deferred to 3.0; it is approved in principle for 2.0 (P-03 rev18.7 item 8)
+        message: the lift is not deferred to 3.0; it is approved in principle for 2.0 (P-03 rev18.9)
+      - pattern: '(?P<found>\bHexalift V1\b|\bBS-HD240D350530\b|\bdold_v1_350\b)'
+        unless: 'supersed|historical|earlier|previous|replac|legacy|rev ?18\.[1-7]\b'
+        message: the lift is the DOLD Hexalift V4 350 mm, BS-HM240G350530-MFF24 (P-03 rev18.9 item 16)
+      - pattern: '(?P<found>\bbp(?:100|150|200)\b|\bfive[- ](?:position|fore-aft|base[- ]plate)\b|\+100, \+150 and \+200)'
+        unless: 'supersed|historical|earlier|previous|replac|no longer|rev ?18\.[1-8]\b'
+        message: the lift base plate has two fore-aft positions, centre and +50 mm (P-03 rev18.9 item 18)
     verification:
-      machine: text saying 2.0 has no lift, presenting a fixed mast as the current baseline, or deferring the lift to 3.0
-      human: {reviewer: platform-lead, evidence: "P-03 rev18.7 item 8 and the release-gate records: holding on E-stop and power loss, supplier CAD, base-plate geometry and the CAN3 lift interface"}
+      machine: text saying 2.0 has no lift, presenting a fixed mast as current, deferring the lift to 3.0, naming Hexalift V1 as current, or base-plate positions beyond +50 mm
+      human: {reviewer: platform-lead, evidence: "P-03 rev18.9 items 16 and 18, the option B drawing set and the release-gate records: DOLD holding on E-stop and power loss, supplier CAD, weighed mass, CAN3 lift interface, F2S rerun"}
+    owner: platform-lead
+
+  - id: ARM-MOUNT
+    title: Shoulder datum and arm mount on the lift (option B)
+    summary: "Shoulder = height of openarm_{side}_base_link; arm mount 180 mm ahead of the column axis, y +/-31 mm."
+    fix_hint: "Attach the arm base links to the lift carriage as listed; the upstream openarm_body_link0 is not used."
+    kind: configuration
+    status: recorded
+    values:
+      - shoulder height is the height above the floor of the OpenArm arm mount point, frame openarm_{side}_base_link (J1_A interface); joint1 and joint2 have no vertical offset from it
+      - the upstream OpenArm body (openarm_body_link0, arm mounts at z 0.698 m) is not part of OpenAMRobot; the arm base links attach to the lift carriage
+      - arm mount points at y +/-0.031 m, roll, pitch and yaw 0, one 1 mm spacer under each J1_A plate; shoulder spacing 307 mm
+      - arm mount point 0.180 m ahead of the lift column axis and 0.166 m above the column top plate
+      - arm profile MISUMI HFS6-60120 (60 mm lateral, 120 mm fore-aft), 340 mm, end-tapped, standing on a 10 mm adapter plate on the column top
+      - column axis at bp000 on the drive axle (x 0 from base_link), 330 mm behind the chassis front edge; bp050 is +0.050 m
+      - calibrated lift stops L1000, L1175 and L1350 (shoulder height in mm); the lift height is joint state
+    unit: m
+    date: 2026-10-09
+    review_by: 2026-11-20
+    source: {document: P-03-rev18.9, item: "items 17 and 18"}
+    supersedes:
+      - {value: "fore-aft offset of the arm mount from the column axis 0 until CAD", source: P-03-rev18.8 item 17}
+    applies_to: {repositories: ["openamr-*", "openamrobot-*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
+    check:
+      - pattern: '(?P<found>(?:parent|attach\w*|mount\w*)[^\n]{0,40}\bopenarm_body_link0\b)'
+        unless: 'not used|removed|upstream|no OpenArm body|supersed|historical'
+        message: the upstream OpenArm body is not used; attach openarm_{side}_base_link to the lift carriage (P-03 rev18.9 item 17)
+    verification:
+      machine: text or a model that attaches the arms to the upstream openarm_body_link0
+      human: {reviewer: software-lead, evidence: "URDF frame tree: openarm_{side}_base_link under the lift carriage at x +0.180, y +/-0.031; shoulder z = 1.000 + lift q"}
+    owner: platform-lead
+
+  - id: CONFIG-IDS
+    title: Robot configuration identity
+    summary: "Configuration IDs: column, base_plate (bp000, bp050), head_pitch (hp15 to hp35), base_tilt; mast_id is gone."
+    fix_hint: "Use column, base_plate, head_pitch and base_tilt IDs; the lift height is joint state, not a configuration ID."
+    kind: configuration
+    status: recorded
+    values:
+      - column dold_v4_350 or tl3_400
+      - base_plate bp000 or bp050
+      - head_pitch hp15, hp20, hp25, hp30, hp35 (baseline hp25)
+      - base_tilt bt05, bt10, bt15 (baseline bt10)
+      - lift stops L1000, L1175, L1350 are calibration IDs; the lift height is joint state
+    unit: none
+    date: 2026-10-09
+    review_by: 2026-11-20
+    source: {document: P-03-rev18.9, item: "items 17 and 18"}
+    supersedes:
+      - {value: "mast_id (mast_1300 to mast_1450)", source: P-03-rev18.2 shoulder height}
+    applies_to: {repositories: ["openamr-*", "openamrobot-*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf", "**/*.launch.py", "**/*.py"]}
+    check:
+      - pattern: '(?P<found>\bmast_id\b)'
+        unless: 'supersed|replac|historical|legacy|no longer'
+        message: mast_id is replaced by the column, base_plate, head_pitch and base_tilt IDs (P-03 rev18.9 item 17)
+    verification:
+      machine: mast_id used as a current configuration ID
+      human: {reviewer: software-lead, evidence: configuration hash inputs and dataset metadata carrying the four IDs}
     owner: platform-lead
 
   - id: NO-SUSPENSION
