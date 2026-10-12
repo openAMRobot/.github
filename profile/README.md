@@ -15,7 +15,7 @@ OpenAMRobot combines:
 
 - autonomous mobile robotics
 - dual-arm manipulation
-- a lift for the arms, approved in principle for OpenAMRobot 2.0 (release gates still open)
+- a lift for the arms, approved in principle for OpenAMRobot 2.0 (release gates still open): DOLD Hexalift V4 350 mm, shoulder 1000 to 1350 mm, lift base plate centre or +50 mm, arm profile 180 mm ahead of the column axis
 - AI-based perception
 - wearable embodied AI data collection
 - ROS 2 software infrastructure
