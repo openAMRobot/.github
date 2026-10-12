@@ -385,11 +385,12 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "Issue 7.6 is canonical; Issue 6 is superseded.\n", "x"), [])
 
-    def test_bom_issue_7_6_in_force(self):
+    def test_bom_issue_7_7_in_force(self):
         for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n",
-                     "BOM Issue 7.3 is canonical.\n"):
+                     "BOM Issue 7.3 is canonical.\n", "BOM Issue 7.6 is canonical.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
-        for text in ("BOM Issue 7.6 is canonical.\n", "Issue 7.3 was canonical until Issue 7.6 superseded it.\n"):
+        for text in ("BOM Issue 7.7 is canonical.\n", "Issue 7.6 was canonical until Issue 7.7 superseded it.\n",
+                     "The earlier canonical BOM was Issue 7.6.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_nav_lidar(self):
@@ -518,6 +519,27 @@ class RealRegister(unittest.TestCase):
                      "ICM-42688-P (MIKROE-4237, SPI) is the baseline IMU; WHO_AM_I 0x47 at boot.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
         self.assertEqual(self.ids("docs/a.md", "The Gate A IMU is the MPU6050.\n", "x"), ["BASE-CONTROLLER-GATES"])
+
+    def test_mpu6050_explanatory_gate_a_text_is_accepted(self):
+        # Text explaining why the Gate A chip is not an MPU6050 is not a finding.
+        for text in ("| `WHO_AM_I` (reg 0x75) | **0x70** (an MPU6050 would return 0x68; Gate A unit) |\n",
+                     "The board labeled \"MPU6050\" is actually an MPU6500.\n",
+                     "the board was labelled / assumed to be an MPU6050, but it is an MPU6500\n",
+                     "A real MPU6500 is not a real MPU6050.\n",
+                     "Use the MPU9250 path instead of MPU6050.\n",
+                     "#define USE_MPU6050 0\n",
+                     "The MPU9250 driver recognises it; the MPU6050 driver rejects it.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+        for text in ("The base uses an MPU6050 IMU.\n", "IMU: MPU6050 on I2C.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["BASE-CONTROLLER-GATES"], text)
+
+    def test_power_rails_24v_to_5v_12v(self):
+        repo = "openamr-platform-hw"
+        self.assertEqual(self.ids("docs/a.md", "DC-DC: 24 V to 5 V / 12 V for the peripherals.\n", repo),
+                         ["POWER-RAILS"])
+        for text in ("Gate A unit: DROK converter 24 V to 5 V / 12 V.\n",
+                     "Legacy converter 24V -> 5V/12V.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_column_axis_not_on_drive_axle(self):
         repo = "openamr-upperbody-sw"
