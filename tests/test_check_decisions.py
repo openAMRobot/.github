@@ -482,7 +482,7 @@ class RealRegister(unittest.TestCase):
     def test_base_controller_io_rev18_7(self):
         for text in ("Two MB7040 sensors, one per I2C bus.\n", "micro-ROS over USB to the Jetson.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BASE-CONTROLLER-IO"], text)
-        for text in ("Two MaxBotix MB7060 sensors, each on a dedicated STM32 UART at 9600 8N1.\n",
+        for text in ("Four MaxBotix MB7060 sensors, each on a dedicated STM32 UART at 9600 8N1.\n",
                      "MCU to Jetson over Ethernet, micro-ROS over UDP; micro-ROS over USB on the bench only.\n",
                      "MB7040 on I2C is superseded.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
@@ -493,8 +493,58 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "The Gemini 336L is tilted 20 degrees up.\n", "openamrobot-docs"),
                          ["CAMERAS"])
         for text in ("Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, pitch 25 degrees down.\n",
-                     "Gemini 336L about 243 mm above the floor, tilted 10 degrees up (positions 5, 10, 15).\n"):
+                     "Gemini 336L 142.5 mm above the floor, tilted 10 degrees up (positions 5, 10, 15).\n"):
             self.assertEqual(self.ids("docs/a.md", text, "openamrobot-docs"), [], text)
+
+    def test_sensor_layout_alex_2026_10_12(self):
+        for text in ("Two MaxBotix MB7060 sensors on dedicated UARTs.\n", "Ultrasonics: 2 x MB7060.\n",
+                     "Cliff sensing with four TF-Luna.\n", "Fit 4 x TF-Luna on the panels.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["BASE-CONTROLLER-IO"], text)
+        for text in ("Four MaxBotix MB7060 in the edge holes, two TF-Luna cliff sensors in the centre holes.\n",
+                     "Two MaxBotix MB7060 (superseded by four).\n", "Legacy layout: 4 x TF-Luna.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_base_camera_height_243_superseded(self):
+        repo = "openamrobot-docs"
+        for text in ("Gemini 336L about 243 mm above the floor.\n", "The base camera sits at 243 mm.\n",
+                     "243 mm above the floor: Orbbec Gemini 336L.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CAMERAS"], text)
+        for text in ("Gemini 336L 142.5 mm above the floor; base_camera_link (0.376, 0, 0.0445).\n",
+                     "The base camera at 243 mm is superseded.\n", "Historical: Gemini 336L at 243 mm.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_icm42688p_is_the_2_0_imu(self):
+        for text in ("The ICM-42688-P is selected as the OpenAMRobot 2.0 IMU.\n",
+                     "ICM-42688-P (MIKROE-4237, SPI) is the baseline IMU; WHO_AM_I 0x47 at boot.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+        self.assertEqual(self.ids("docs/a.md", "The Gate A IMU is the MPU6050.\n", "x"), ["BASE-CONTROLLER-GATES"])
+
+    def test_column_axis_not_on_drive_axle(self):
+        repo = "openamr-upperbody-sw"
+        for text in ("The column axis at bp000 is on the drive axle.\n", "Drive axle and column axis coincide at bp000.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["ARM-MOUNT"], text)
+        for text in ("Column axis 330 mm behind the front edge: x +0.060 at bp000, x +0.110 at bp050.\n",
+                     "Column axis on the drive axle (superseded).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_lidar_link_pose(self):
+        repo = "openamr-platform-sw"
+        self.assertEqual(self.ids("config/a.yaml", "lidar_xyz: [0.335, 0.0, 0.18]\n", repo), ["NAV-LIDAR"])
+        for path in ("urdf/base.urdf.xacro", "urdf/base.urdf"):
+            self.assertEqual(self.ids(path, '<origin xyz="0.335 0 0.18" rpy="0 0 3.14159"/>\n', repo),
+                             ["NAV-LIDAR"], path)
+            self.assertEqual(self.ids(path, '<origin xyz="0.330 0 0.124" rpy="0 0 3.14159"/>\n', repo), [], path)
+        for text in ("lidar_xyz: [0.330, 0.0, 0.124]  # yaw pi, 7.1 mm spacer\n",
+                     "lidar_xyz: [0.335, 0.0, 0.18]  # legacy Gate A pose\n"):
+            self.assertEqual(self.ids("config/a.yaml", text, repo), [], text)
+
+    def test_near_field_frames_tof_pitch_is_screening(self):
+        repo = "openamr-platform-hw"
+        self.assertEqual(self.ids("docs/a.md", "tof_front pitched 20 degrees down, final.\n", repo),
+                         ["NEAR-FIELD-FRAMES"])
+        for text in ("tof_front pitched 20 degrees down (screening value until the bench test).\n",
+                     "us_front_left (0.390, +0.130, -0.0066); tof_rear (-0.390, 0, -0.0066, yaw pi).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_release_milestones_no_v0_2_or_13_november(self):
         for text in ("v0.2 is the first release built from the harness.\n",

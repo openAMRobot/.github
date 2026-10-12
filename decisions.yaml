@@ -57,6 +57,9 @@ in_force:
   date: 2026-10-09
 
 sources:
+  Alex decision 2026-10-12:
+    title: Platform decision of 12 October 2026 (sensor layout, base camera, IMU, column position, LiDAR mount), to be recorded in P-03 rev19.0
+    evidence: decision record, not held in any repository; provenance only, CI never reads it
   P-03-rev18.2:
     title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.7 as the addendum in force)
     evidence: >-
@@ -303,10 +306,11 @@ decisions:
       - base_footprint on the floor under the drive-axle midpoint
       - base_link at the drive-axle midpoint and axle height; x forward, z up
       - imu_link on the centreline, away from motor magnetic fields
+      - imu_link (ICM-42688-P) on the centreline at x 0.195 m from base_link, halfway between the drive axle and the front panel, on the base plate (top z -0.044) plus the board stack; axes aligned with base_link
     unit: none
-    date: 2026-10-06
-    review_by: 2026-11-17
-    source: {document: P-03-rev18.7, item: item 15}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "imu_link position; P-03 rev19.0 to record"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
     check:
       - pattern: '(?P<found>\bbase_link\b[^\n]{0,30}\b(?:on|at) the floor\b)'
@@ -321,6 +325,31 @@ decisions:
     verification:
       machine: base_link placed on the floor, base_footprint at axle height, or imu_link next to a motor
       human: {reviewer: software-lead, evidence: URDF frame tree and real TF on the robot matching REP 105}
+    owner: platform-lead
+
+  - id: NEAR-FIELD-FRAMES
+    title: Near-field ultrasonic and ToF sensor frames on the base panels
+    summary: "Four MB7060 frames us_* at x +/-0.390, y +/-0.130; two TF-Luna frames tof_* at x +/-0.390 on the centreline."
+    fix_hint: "Use the listed frame origins; the ToF pitch of 20 degrees is a screening value until the bench test."
+    kind: value
+    status: recorded
+    values:
+      - us_front_left (0.390, +0.130, -0.0066), us_front_right (0.390, -0.130, -0.0066), us_rear_left (-0.390, +0.130, -0.0066, yaw pi), us_rear_right (-0.390, -0.130, -0.0066, yaw pi) from base_link
+      - "ultrasonic mounting: MB7060 holes 27.5 mm on the existing centres, sensor centred, 3/4 inch NPS lock nut, tilt 0 until the bench test"
+      - tof_front (0.390, 0, -0.0066) in the existing 22.0 mm front centre hole; tof_rear (-0.390, 0, -0.0066, yaw pi) in a new 22.0 mm rear centre hole
+      - both ToF sensors pitched down so the beam meets the floor beyond 0.2 m (20 degree screening value until the bench test)
+    unit: m
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "near-field sensor frames; P-03 rev19.0 to record"}
+    applies_to: {repositories: ["openamr-platform-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
+    check:
+      - pattern: '(?P<found>\b(?:tof_(?:front|rear)|TF-Luna)\b[^\n]{0,60}?\b20\s*(?:°|deg(?:rees?)?)[^\n]{0,40}?\b(?:final|fixed|validated|confirmed)\b)'
+        unless: 'screening|bench|until'
+        message: the 20 degree ToF pitch is a screening value until the bench test (Alex decision 2026-10-12)
+    verification:
+      machine: the 20 degree ToF screening pitch presented as final, fixed, validated or confirmed
+      human: {reviewer: platform-lead, evidence: Rev B panel drawing and URDF joint origins}
     owner: platform-lead
 
   - id: BATTERY-PLACEMENT
@@ -427,32 +456,31 @@ decisions:
     owner: platform-lead
 
   - id: BASE-CONTROLLER-GATES
-    title: Base-controller gates and IMU gating stay distinct
-    summary: "Gate A (Teensy, MPU6500) and Gate B (STM32H723ZG) stay distinct; ICM-42688-P is gated."
-    fix_hint: "Call the Teensy the Gate A controller, the IMU MPU6500, and the ICM-42688-P conditional (Gate B)."
+    title: Base-controller gates and the 2.0 IMU
+    summary: "Gate A (Teensy, MPU6500) and Gate B (STM32H723ZG) stay distinct; the ICM-42688-P is the 2.0 IMU."
+    fix_hint: "Call the Teensy and MPU6500 Gate A (legacy); the 2.0 IMU is the ICM-42688-P (MIKROE-4237, SPI)."
     kind: distinction
     status: recorded
     values:
       - Gate A, Jetson with the existing Teensy, ZBLD/PWM drivetrain and MPU6500 (legacy test configuration)
       - Gate B, Jetson with the STM32H723ZG (NUCLEO-H723ZG bench board) and the ZLTECH drivers
-      - ICM-42688-P enters the manufacturing BOM only after side-by-side robot evidence; adoption decision 20 November 2026
+      - the ICM-42688-P (MIKROE-4237, SPI) is the OpenAMRobot 2.0 IMU, WHO_AM_I 0x47 at boot; the MPU6500 stays the Gate A (legacy) IMU
       - STM32 go/no-go 6 November 2026; fallback is the validated legacy Teensy/PWM build behind I8
     unit: none
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-00-rev18.1, item: "txt 63, 101, 106, 344; I8-WP adoption gate; Gate B board per P-03-rev18.5 item 14"}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "base-controller IMU; P-03 rev19.0 to record"}
+    supersedes:
+      - {value: "ICM-42688-P enters the manufacturing BOM only after side-by-side robot evidence; adoption decision 20 November 2026", source: "P-00-rev18.1 txt 63, 101, 106, 344; I8-WP adoption gate"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>Teensy[^\n]{0,20}\bbench target)'
         message: Teensy is the Gate A controller and the release fallback, not a bench target
-      - pattern: '(?P<found>ICM-42688-P[^\n]{0,40}\b(?:selected|baseline|chosen)\b)'
-        unless: 'Gate B|conditional|20 Nov|candidate|pending|not yet|after'
-        message: ICM-42688-P is gated; MPU6500 remains the Gate A IMU
       - pattern: '\b(?P<found>MPU6050)\b'
         message: the Gate A IMU is the MPU6500
     verification:
-      machine: Teensy called a bench target, ICM-42688-P called selected without its gate, MPU6050 named as the IMU
-      human: {reviewer: platform-lead, evidence: gate records (Gate A test log, STM32 go/no-go record, IMU side-by-side data)}
+      machine: Teensy called a bench target, MPU6050 named as the IMU
+      human: {reviewer: platform-lead, evidence: "Gate A test log, STM32 go/no-go record, ICM-42688-P WHO_AM_I 0x47 boot log"}
     owner: platform-lead
 
   - id: BASE-CONTROLLER-IO
@@ -463,18 +491,20 @@ decisions:
     status: recorded
     values:
       - Base controller STM32H723ZG on NUCLEO-H723ZG
-      - TF-Luna on UART, one per UART
-      - two MaxBotix MB7060 serial sensors, each on one dedicated STM32 UART, 9600 8N1; no sensor I2C off the controller board
+      - four MaxBotix MB7060 XL-MaxSonar-WR (-2XX 3/4 inch NPS housing, RS232 output) in the front and back panel left and right edge holes, each on one dedicated STM32 UART at 9600 8N1 with receive inversion and one trigger GPIO
+      - two Benewake TF-Luna ToF cliff sensors in the front and back panel centre holes, one UART each, pin 5 tied to 3.3 V
       - IMU on a dedicated SPI, Mode 0
       - CAN1 traction only, CAN2 BMS, CAN3 reserved for upper-body auxiliary actuators (CANopen, no safety function)
       - MCU to Jetson over Ethernet, micro-ROS over UDP; USB for the bench only
     unit: none
-    date: 2026-10-06
-    review_by: 2026-11-17
-    source: {document: P-03-rev18.7, item: item 14}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "base-controller sensor I/O; P-03 rev19.0 to record"}
     supersedes:
       - {value: STM32H743 on NUCLEO-H743ZI2, source: P-00-rev18.1 (Gate B bench board)}
       - {value: MB7040 one per I2C bus, source: P-03-rev18.5 item 14}
+      - {value: "TF-Luna on UART, one per UART", source: P-03-rev18.7 item 14}
+      - {value: "two MaxBotix MB7060 serial sensors, each on one dedicated STM32 UART, 9600 8N1; no sensor I2C off the controller board", source: P-03-rev18.7 item 14}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>NUCLEO-H743ZI2|STM32H743)'
@@ -482,12 +512,15 @@ decisions:
         message: the base controller is the STM32H723ZG on the NUCLEO-H723ZG; label STM32H743 / NUCLEO-H743ZI2 material as superseded
       - pattern: '(?P<found>\bMB7040\b)'
         unless: 'supersed|legacy|historical|replaced'
-        message: the ultrasonic sensors are two MaxBotix MB7060 on dedicated STM32 UARTs at 9600 8N1; no sensor I2C (P-03 rev18.7 item 14)
+        message: the ultrasonic sensors are four MaxBotix MB7060 on dedicated STM32 UARTs at 9600 8N1; no sensor I2C (Alex decision 2026-10-12)
       - pattern: '(?P<found>\bmicro-?ROS\b[^\n]{0,30}\bover (?:USB|serial)\b)'
         unless: 'bench|legacy|Gate A|Teensy|supersed|historical'
         message: micro-ROS runs over UDP on Ethernet between MCU and Jetson; USB is for the bench only (P-03 rev18.7 item 14)
+      - pattern: '(?P<found>\btwo MaxBotix MB7060\b|\b2\s*x\s*MB7060\b|\bfour TF-Luna\b|\b4\s*x\s*TF-Luna\b)'
+        unless: 'supersed|legacy|historical'
+        message: the base has four MaxBotix MB7060 (edge holes) and two TF-Luna ToF cliff sensors (centre holes) (Alex decision 2026-10-12)
     verification:
-      machine: NUCLEO-H743ZI2 or STM32H743 without a superseded, legacy, historical or replaced label; MB7040 without such a label; micro-ROS over USB or serial outside the bench or Gate A
+      machine: NUCLEO-H743ZI2 or STM32H743 without a superseded, legacy, historical or replaced label; MB7040 without such a label; micro-ROS over USB or serial outside the bench or Gate A; two MB7060 or four TF-Luna as the current count
       human: {reviewer: platform-lead, evidence: P-03 rev18.7 item 14 and the MCU I/O allocation in openamr-platform-hw}
     owner: platform-lead
 
@@ -521,20 +554,21 @@ decisions:
 
   - id: CAMERAS
     title: Cameras
-    summary: "Base camera Orbbec Gemini 336L, about 243 mm up, tilted 5, 10 or 15 degrees up (baseline 10)."
+    summary: "Base camera Orbbec Gemini 336L, 142.5 mm above the floor, tilted 5, 10 or 15 degrees up (baseline 10)."
     fix_hint: "Name the Gemini 336L with an up-tilt of 5, 10 or 15 degrees, or label other cameras as legacy."
     kind: value
     status: recorded
     values:
-      - base camera Orbbec Gemini 336L, fixed to base_link on the front face about 243 mm above the floor; up-tilt positions 5, 10 and 15 degrees, baseline 10 degrees
+      - base camera Orbbec Gemini 336L, housing centre on the old camera centre, 142.5 mm above the floor, base_camera_link (0.376, 0, 0.0445) from base_link; front-panel opening about 126 x 36 mm on that centre; up-tilt 5, 10 or 15 degrees, baseline 10
       - head camera Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, see HEAD-CAMERA-IDENTITY
       - two in-hand RGB wrist cameras; no separate torso scene camera
     unit: none
-    date: 2026-10-06
-    review_by: 2026-11-17
-    source: {document: P-03-rev18.7, item: "item 15 (wrist cameras as in P-00-rev18.1 txt 85 and 97)"}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "base camera position; P-03 rev19.0 to record"}
     supersedes:
       - {value: "base camera tilted about 10 degrees upward; head camera identity open", source: P-00-rev18.1 txt 85 and 97}
+      - {value: "base camera Orbbec Gemini 336L, fixed to base_link on the front face about 243 mm above the floor; up-tilt positions 5, 10 and 15 degrees, baseline 10 degrees", source: P-03-rev18.7 item 15}
     applies_to:
       repositories: ["openamr-*", "openamrobot-docs", "openamrobot-manipulation", "openamrobot-ui"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.launch.py", "**/*.xacro", "**/*.urdf"]
@@ -550,8 +584,11 @@ decisions:
       - pattern: '(?P<found>Gemini 336L[^\n]{0,60}?\b(?!(?:5|10|15)\b)\d{1,2}\s*(?:°|deg(?:rees?)?)\s*(?:up|upward)\b)'
         unless: 'supersed|historical|legacy'
         message: the Gemini 336L up-tilt positions are 5, 10 and 15 degrees, baseline 10 (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>(?:Gemini|base camera)[^\n]{0,60}?\b243\s*mm|\b243\s*mm[^\n]{0,60}?(?:Gemini|base camera))'
+        unless: 'supersed|historical'
+        message: the Gemini 336L housing centre is 142.5 mm above the floor, base_camera_link (0.376, 0, 0.0445) (Alex decision 2026-10-12)
     verification:
-      machine: other camera models without a legacy label; a down-tilted base camera; a Gemini 336L up-tilt other than 5, 10 or 15 degrees
+      machine: other camera models without a legacy label; a down-tilted base camera; a Gemini 336L up-tilt other than 5, 10 or 15 degrees; the base camera at 243 mm
       human: {reviewer: software-lead, evidence: camera joint rpy in URDF and real TF showing the upward tilt}
     owner: platform-lead
 
@@ -746,18 +783,21 @@ decisions:
     fix_hint: "Name the RPLIDAR S3; label Hokuyo as dropped or superseded and the A1 as legacy (existing robot)."
     kind: value
     status: recorded
-    value: SLAMTEC RPLIDAR S3 (S3M1-R2), connected over USB, powered from the regulated 5 V rail (functional sensing, not a safety device)
+    values:
+      - SLAMTEC RPLIDAR S3 (S3M1-R2), connected over USB, powered from the regulated 5 V rail (functional sensing, not a safety device)
+      - mounted on the existing MMP.07 bracket and 10 mm standoffs with a 7.1 mm spacer plate; scan plane 222.0 mm above the floor; lidar_link (0.330, 0, 0.124) from base_link, yaw pi
+      - "body filter: openamrobot_perception scan_body_filter with scan_body_filter_real.yaml from v0.0.1, unchanged (side posts at 82.9 to 89.5 degrees in the LiDAR frame lie inside its close-mask sectors)"
     unit: none
     backup: RPLIDAR S2E, only if the S3 is unavailable
-    date: 2026-10-03
-    review_by: 2026-11-14
-    source: {document: P-03-rev18.4, item: item 13}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "navigation LiDAR mount; P-03 rev19.0 to record"}
     supersedes:
       - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
       - {value: RPLIDAR A1, source: existing robot (Gate A)}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-release"]
-      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/package.xml", "**/*.html"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/package.xml", "**/*.html", "**/*.xacro", "**/*.urdf"]
     check:
       - pattern: '(?P<found>\bHokuyo\b|\bUST-10LX\b)'
         unless: 'supersed|dropped|legacy|historical'
@@ -765,8 +805,11 @@ decisions:
       - pattern: '(?P<found>\bRPLIDAR A1(?:M8)?\b|\bA1M8\b)'
         unless: 'legacy|Gate A|existing robot|historical|replaced'
         message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); label RPLIDAR A1 material as legacy (Gate A)
+      - pattern: '(?P<found>\b0\.335\b[^\n]{0,40}?\b0\.18)'
+        unless: 'legacy|Gate A|supersed|historical'
+        message: lidar_link is (0.330, 0, 0.124) from base_link, yaw pi, with the 7.1 mm spacer plate (Alex decision 2026-10-12)
     verification:
-      machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label
+      machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label; a lidar_link pose of 0.335 followed by 0.18 without a legacy label
       human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the sllidar_ros2 driver with the RPLIDAR S3}
     owner: software-lead
 
@@ -858,21 +901,25 @@ decisions:
       - arm mount points at y +/-0.031 m, roll, pitch and yaw 0, one 1 mm spacer under each J1_A plate; shoulder spacing 307 mm
       - arm mount point 0.180 m ahead of the lift column axis and 0.166 m above the column top plate
       - arm profile MISUMI HFS6-60120 (60 mm lateral, 120 mm fore-aft), 340 mm, end-tapped, standing on a 10 mm adapter plate on the column top
-      - column axis at bp000 on the drive axle (x 0 from base_link), 330 mm behind the chassis front edge; bp050 is +0.050 m
+      - column axis 330 mm behind the chassis front edge, x +0.060 at bp000 and x +0.110 at bp050 from base_link; chassis 780 x 582 mm; arm mount 150 mm behind the front edge (option B drawing sheet 2 rev A)
       - calibrated lift stops L1000, L1175 and L1350 (shoulder height in mm); the lift height is joint state
     unit: m
-    date: 2026-10-09
-    review_by: 2026-11-20
-    source: {document: P-03-rev18.9, item: "items 17 and 18"}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "lift column position; P-03 rev19.0 to record"}
     supersedes:
       - {value: "fore-aft offset of the arm mount from the column axis 0 until CAD", source: P-03-rev18.8 item 17}
+      - {value: "column axis at bp000 on the drive axle (x 0 from base_link), 330 mm behind the chassis front edge; bp050 is +0.050 m", source: P-03-rev18.9 items 17 and 18}
     applies_to: {repositories: ["openamr-*", "openamrobot-*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
     check:
       - pattern: '(?P<found>(?:parent|attach\w*|mount\w*)[^\n]{0,40}\bopenarm_body_link0\b)'
         unless: 'not used|removed|upstream|no OpenArm body|supersed|historical'
         message: the upstream OpenArm body is not used; attach openarm_{side}_base_link to the lift carriage (P-03 rev18.9 item 17)
+      - pattern: '(?P<found>\bcolumn axis\b[^\n]{0,40}?\bdrive axle\b|\bdrive axle\b[^\n]{0,40}?\bcolumn axis\b)'
+        unless: 'supersed|historical'
+        message: the column axis is 330 mm behind the front edge, x +0.060 at bp000 and +0.110 at bp050, not on the drive axle (Alex decision 2026-10-12)
     verification:
-      machine: text or a model that attaches the arms to the upstream openarm_body_link0
+      machine: text or a model that attaches the arms to the upstream openarm_body_link0; the column axis placed on the drive axle
       human: {reviewer: software-lead, evidence: "URDF frame tree: openarm_{side}_base_link under the lift carriage at x +0.180, y +/-0.031; shoulder z = 1.000 + lift q"}
     owner: platform-lead
 
