@@ -530,6 +530,10 @@ class RealRegister(unittest.TestCase):
     def test_lidar_link_pose(self):
         repo = "openamr-platform-sw"
         self.assertEqual(self.ids("config/a.yaml", "lidar_xyz: [0.335, 0.0, 0.18]\n", repo), ["NAV-LIDAR"])
+        for path in ("urdf/base.urdf.xacro", "urdf/base.urdf"):
+            self.assertEqual(self.ids(path, '<origin xyz="0.335 0 0.18" rpy="0 0 3.14159"/>\n', repo),
+                             ["NAV-LIDAR"], path)
+            self.assertEqual(self.ids(path, '<origin xyz="0.330 0 0.124" rpy="0 0 3.14159"/>\n', repo), [], path)
         for text in ("lidar_xyz: [0.330, 0.0, 0.124]  # yaw pi, 7.1 mm spacer\n",
                      "lidar_xyz: [0.335, 0.0, 0.18]  # legacy Gate A pose\n"):
             self.assertEqual(self.ids("config/a.yaml", text, repo), [], text)
