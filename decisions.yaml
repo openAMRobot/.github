@@ -53,12 +53,12 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev18.9
-  date: 2026-10-09
+  source: P-03-rev19.0
+  date: 2026-10-12
 
 sources:
   Alex decision 2026-10-12:
-    title: Platform decision of 12 October 2026 (sensor layout, base camera, IMU, column position, LiDAR mount), to be recorded in P-03 rev19.0
+    title: Platform decision of 12 October 2026 (sensor layout, base camera, IMU, column position, LiDAR mount, drive track); history, recorded in P-03 rev19.0 item 19
     evidence: decision record, not held in any repository; provenance only, CI never reads it
   P-03-rev18.2:
     title: P-03 Decision Addendum, revision 18.2, 28 September 2026 (earlier revision; superseded by revision 18.7 as the addendum in force)
@@ -70,8 +70,11 @@ sources:
   P-03-rev18.4:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev19.0:
+    title: P-03 Decision Addendum, revision 19.0, 12 October 2026 (the addendum in force; item 19 records the 12 October decisions D1 to D6)
+    evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.9:
-    title: P-03 Decision Addendum, revision 18.9, 9 October 2026 (the addendum in force)
+    title: P-03 Decision Addendum, revision 18.9, 9 October 2026 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.8:
     title: P-03 Decision Addendum, revision 18.8, 8 October 2026 (earlier revision)
@@ -94,8 +97,11 @@ sources:
   P-00-rev18.1:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
+  BOM-Issue-7.7:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.7, 12 October 2026 (canonical per P-03 rev19.0)
+    evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.6:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.6, 9 October 2026 (canonical per P-03 rev18.9)
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.6, 9 October 2026 (earlier issue; canonical per P-03 rev18.9)
     evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.3:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.3 (earlier issue; canonical per P-03 rev18.7)
@@ -122,16 +128,17 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
-    summary: "BOM Issue 7.6 is the canonical OpenAMRobot 2.0 hardware BOM."
-    fix_hint: "Name Issue 7.6 as canonical, or label older issues (Issue 6, Issue 7 to 7.5, B-01) as superseded."
+    summary: "BOM Issue 7.7 is the canonical OpenAMRobot 2.0 hardware BOM."
+    fix_hint: "Name Issue 7.7 as canonical, or label older issues (Issue 6, Issue 7 to 7.6, B-01) as superseded or earlier."
     kind: value
     status: recorded
-    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.6
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.7
     unit: none
-    date: 2026-10-09
-    review_by: 2026-11-20
-    source: {document: P-03-rev18.9, item: "item 16 (BOM Issue 7.6 carries the change)"}
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: P-03-rev19.0, item: "BOM issue in force (BOM Issue 7.7)"}
     supersedes:
+      - {value: Issue 7.6, source: "P-03-rev18.9 item 16 (BOM Issue 7.6 carries the change)"}
       - {value: Issue 7.3, source: P-03-rev18.7 BOM issue in force}
       - {value: Issue 7, source: P-03-rev18.2 item 7}
       - value: Issue 6, or an explicitly approved successor
@@ -142,15 +149,15 @@ decisions:
     check:
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier'
-        message: BOM Issue 7.6 is the canonical hardware BOM (P-03 rev18.9)
+        message: BOM Issue 7.7 is the canonical hardware BOM (P-03 rev19.0)
       - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
         unless: 'supersed'
         message: B-01 is superseded
-      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.6)(?:\.\d+)?\b|\bIssue\s*7(?!\.6)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.7)(?:\.\d+)?\b|\bIssue\s*7(?!\.7)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier|historical'
-        message: BOM Issue 7.6 is the canonical hardware BOM (P-03 rev18.9)
+        message: BOM Issue 7.7 is the canonical hardware BOM (P-03 rev19.0)
     verification:
-      machine: Issue 6, Issue 7 (other than 7.6) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      machine: Issue 6, Issue 7 to 7.6 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
     owner: platform-lead
 
@@ -310,7 +317,7 @@ decisions:
     unit: none
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "imu_link position; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (imu_link position)"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
     check:
       - pattern: '(?P<found>\bbase_link\b[^\n]{0,30}\b(?:on|at) the floor\b)'
@@ -341,12 +348,12 @@ decisions:
     unit: m
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "near-field sensor frames; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (near-field sensor frames)"}
     applies_to: {repositories: ["openamr-platform-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
     check:
       - pattern: '(?P<found>\b(?:tof_(?:front|rear)|TF-Luna)\b[^\n]{0,60}?\b20\s*(?:°|deg(?:rees?)?)[^\n]{0,40}?\b(?:final|fixed|validated|confirmed)\b)'
         unless: 'screening|bench|until'
-        message: the 20 degree ToF pitch is a screening value until the bench test (Alex decision 2026-10-12)
+        message: the 20 degree ToF pitch is a screening value until the bench test (P-03 rev19.0 item 19)
     verification:
       machine: the 20 degree ToF screening pitch presented as final, fixed, validated or confirmed
       human: {reviewer: platform-lead, evidence: Rev B panel drawing and URDF joint origins}
@@ -469,7 +476,7 @@ decisions:
     unit: none
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "base-controller IMU; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (base-controller IMU)"}
     supersedes:
       - {value: "ICM-42688-P enters the manufacturing BOM only after side-by-side robot evidence; adoption decision 20 November 2026", source: "P-00-rev18.1 txt 63, 101, 106, 344; I8-WP adoption gate"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
@@ -477,6 +484,7 @@ decisions:
       - pattern: '(?P<found>Teensy[^\n]{0,20}\bbench target)'
         message: Teensy is the Gate A controller and the release fallback, not a bench target
       - pattern: '\b(?P<found>MPU6050)\b'
+        unless: 'would return|labeled|labelled|assumed|not a real|instead of|USE_MPU6050|driver'
         message: the Gate A IMU is the MPU6500
     verification:
       machine: Teensy called a bench target, MPU6050 named as the IMU
@@ -499,7 +507,7 @@ decisions:
     unit: none
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "base-controller sensor I/O; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (base-controller sensor I/O)"}
     supersedes:
       - {value: STM32H743 on NUCLEO-H743ZI2, source: P-00-rev18.1 (Gate B bench board)}
       - {value: MB7040 one per I2C bus, source: P-03-rev18.5 item 14}
@@ -512,13 +520,13 @@ decisions:
         message: the base controller is the STM32H723ZG on the NUCLEO-H723ZG; label STM32H743 / NUCLEO-H743ZI2 material as superseded
       - pattern: '(?P<found>\bMB7040\b)'
         unless: 'supersed|legacy|historical|replaced'
-        message: the ultrasonic sensors are four MaxBotix MB7060 on dedicated STM32 UARTs at 9600 8N1; no sensor I2C (Alex decision 2026-10-12)
+        message: the ultrasonic sensors are four MaxBotix MB7060 on dedicated STM32 UARTs at 9600 8N1; no sensor I2C (P-03 rev19.0 item 19)
       - pattern: '(?P<found>\bmicro-?ROS\b[^\n]{0,30}\bover (?:USB|serial)\b)'
         unless: 'bench|legacy|Gate A|Teensy|supersed|historical'
         message: micro-ROS runs over UDP on Ethernet between MCU and Jetson; USB is for the bench only (P-03 rev18.7 item 14)
       - pattern: '(?P<found>\btwo MaxBotix MB7060\b|\b2\s*x\s*MB7060\b|\bfour TF-Luna\b|\b4\s*x\s*TF-Luna\b)'
         unless: 'supersed|legacy|historical'
-        message: the base has four MaxBotix MB7060 (edge holes) and two TF-Luna ToF cliff sensors (centre holes) (Alex decision 2026-10-12)
+        message: the base has four MaxBotix MB7060 (edge holes) and two TF-Luna ToF cliff sensors (centre holes) (P-03 rev19.0 item 19)
     verification:
       machine: NUCLEO-H743ZI2 or STM32H743 without a superseded, legacy, historical or replaced label; MB7040 without such a label; micro-ROS over USB or serial outside the bench or Gate A; two MB7060 or four TF-Luna as the current count
       human: {reviewer: platform-lead, evidence: P-03 rev18.7 item 14 and the MCU I/O allocation in openamr-platform-hw}
@@ -565,7 +573,7 @@ decisions:
     unit: none
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "base camera position; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (base camera position)"}
     supersedes:
       - {value: "base camera tilted about 10 degrees upward; head camera identity open", source: P-00-rev18.1 txt 85 and 97}
       - {value: "base camera Orbbec Gemini 336L, fixed to base_link on the front face about 243 mm above the floor; up-tilt positions 5, 10 and 15 degrees, baseline 10 degrees", source: P-03-rev18.7 item 15}
@@ -586,7 +594,7 @@ decisions:
         message: the Gemini 336L up-tilt positions are 5, 10 and 15 degrees, baseline 10 (P-03 rev18.7 item 15)
       - pattern: '(?P<found>(?:Gemini|base camera)[^\n]{0,60}?\b243\s*mm|\b243\s*mm[^\n]{0,60}?(?:Gemini|base camera))'
         unless: 'supersed|historical'
-        message: the Gemini 336L housing centre is 142.5 mm above the floor, base_camera_link (0.376, 0, 0.0445) (Alex decision 2026-10-12)
+        message: the Gemini 336L housing centre is 142.5 mm above the floor, base_camera_link (0.376, 0, 0.0445) (P-03 rev19.0 item 19)
     verification:
       machine: other camera models without a legacy label; a down-tilted base camera; a Gemini 336L up-tilt other than 5, 10 or 15 degrees; the base camera at 243 mm
       human: {reviewer: software-lead, evidence: camera joint rpy in URDF and real TF showing the upward tilt}
@@ -642,7 +650,7 @@ decisions:
         unless: '\bno 12|not|never|legacy'
         message: there is no 12 V rail in 2.0
       - pattern: '(?P<found>24\s*V?\s*(?:->|→|to)\s*5\s*V?\s*/\s*12\s*V)'
-        unless: 'legacy'
+        unless: 'legacy|Gate A'
         message: there is no 12 V rail in 2.0
     verification:
       machine: a 12 V rail or a 24 V to 5/12 V converter in text
@@ -791,7 +799,7 @@ decisions:
     backup: RPLIDAR S2E, only if the S3 is unavailable
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "navigation LiDAR mount; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (navigation LiDAR mount)"}
     supersedes:
       - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
       - {value: RPLIDAR A1, source: existing robot (Gate A)}
@@ -807,7 +815,7 @@ decisions:
         message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); label RPLIDAR A1 material as legacy (Gate A)
       - pattern: '(?P<found>\b0\.335\b[^\n]{0,40}?\b0\.18)'
         unless: 'legacy|Gate A|supersed|historical'
-        message: lidar_link is (0.330, 0, 0.124) from base_link, yaw pi, with the 7.1 mm spacer plate (Alex decision 2026-10-12)
+        message: lidar_link is (0.330, 0, 0.124) from base_link, yaw pi, with the 7.1 mm spacer plate (P-03 rev19.0 item 19)
     verification:
       machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label; a lidar_link pose of 0.335 followed by 0.18 without a legacy label
       human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the sllidar_ros2 driver with the RPLIDAR S3}
@@ -906,7 +914,7 @@ decisions:
     unit: m
     date: 2026-10-12
     review_by: 2026-11-23
-    source: {document: "Alex decision 2026-10-12", item: "lift column position; P-03 rev19.0 to record"}
+    source: {document: P-03-rev19.0, item: "item 19 (lift column position)"}
     supersedes:
       - {value: "fore-aft offset of the arm mount from the column axis 0 until CAD", source: P-03-rev18.8 item 17}
       - {value: "column axis at bp000 on the drive axle (x 0 from base_link), 330 mm behind the chassis front edge; bp050 is +0.050 m", source: P-03-rev18.9 items 17 and 18}
@@ -917,7 +925,7 @@ decisions:
         message: the upstream OpenArm body is not used; attach openarm_{side}_base_link to the lift carriage (P-03 rev18.9 item 17)
       - pattern: '(?P<found>\bcolumn axis\b[^\n]{0,40}?\bdrive axle\b|\bdrive axle\b[^\n]{0,40}?\bcolumn axis\b)'
         unless: 'supersed|historical'
-        message: the column axis is 330 mm behind the front edge, x +0.060 at bp000 and +0.110 at bp050, not on the drive axle (Alex decision 2026-10-12)
+        message: the column axis is 330 mm behind the front edge, x +0.060 at bp000 and +0.110 at bp050, not on the drive axle (P-03 rev19.0 item 19)
     verification:
       machine: text or a model that attaches the arms to the upstream openarm_body_link0; the column axis placed on the drive axle
       human: {reviewer: software-lead, evidence: "URDF frame tree: openarm_{side}_base_link under the lift carriage at x +0.180, y +/-0.031; shoulder z = 1.000 + lift q"}
@@ -974,15 +982,15 @@ decisions:
 
   - id: DRIVE-TRACK
     title: Drive track
-    summary: "Open: 400 mm in the general arrangement; the final drive track is still an open input."
-    fix_hint: "Not scanned while open; give the track as 400 mm (general arrangement) until the value is decided."
+    summary: "Open: the 2.0 wheel assembly will change the track; placeholder 0.400 m, Gate A unit measured 0.46 m."
+    fix_hint: "Not scanned while open; call the track open and give 0.400 m only as the model placeholder."
     kind: value
     status: open
-    value: 400 mm in the general arrangement; the final track is an open input
-    unit: mm
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-00-rev18.1, item: open inputs}
+    value: "open; the 2.0 wheel assembly will change the dimensions. Model placeholder 0.400 m (2023 STEP and general arrangement); Gate A unit measured 0.46 m (19 June 2026)"
+    unit: m
+    date: 2026-10-12
+    review_by: 2026-11-23
+    source: {document: "Alex decision 2026-10-12", item: "drive track (stays open)"}
     applies_to: {repositories: ["openamr-platform-*", "openamrobot-ui"], files: ["**/*.xacro", "**/*.urdf", "**/*.yaml", "**/*.sdf"]}
     check:
       - pattern: '(?P<found>0\.4075)'
