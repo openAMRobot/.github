@@ -15,6 +15,12 @@ on:
       - ".github/workflows/ci-image.yml"
 
   workflow_dispatch:
+    inputs:
+      publish_candidate:
+        description: "Publish H-CI-1 candidate image to GHCR"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -40,26 +46,44 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Log in to GHCR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: >-
+          (github.event_name == 'push' &&
+           github.ref == 'refs/heads/main') ||
+          (github.event_name == 'workflow_dispatch' &&
+           github.ref == 'refs/heads/h-ci-1-baseline-image' &&
+           inputs.publish_candidate == true)
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build CI image and publish from main
+      - name: Build CI image and publish when authorized
         id: build
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
           file: containers/ci/Dockerfile
-          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+          push: >-
+            ${{ (github.event_name == 'push' &&
+                 github.ref == 'refs/heads/main') ||
+                (github.event_name == 'workflow_dispatch' &&
+                 github.ref == 'refs/heads/h-ci-1-baseline-image' &&
+                 inputs.publish_candidate == true) }}
+
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'latest' || format('candidate-{0}', github.sha) }}
 
       - name: Print published image digest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: >-
+          (github.event_name == 'push' &&
+           github.ref == 'refs/heads/main') ||
+          (github.event_name == 'workflow_dispatch' &&
+           github.ref == 'refs/heads/h-ci-1-baseline-image' &&
+           inputs.publish_candidate == true)
         run: |
           echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
           echo "Digest: ${{ steps.build.outputs.digest }}"
+          echo "Pinned reference: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
