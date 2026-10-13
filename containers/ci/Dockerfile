@@ -2,6 +2,12 @@ FROM ros:jazzy-ros-base@sha256:066420e07f60aa18262f2479981def87ebcfcec42eefb0c0c
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# LiDAR driver policy:
+# Do not install the legacy ros-jazzy-rplidar-ros package in this baseline.
+# OpenAMRobot 2.0 targets RPLIDAR S3 using sllidar_ros2.
+# The current workspace manifest does not pin sllidar_ros2 yet.
+# Driver source integration and hardware validation remain separate work.
+#
 # Common CI and ROS workspace tooling
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-colcon-common-extensions \
