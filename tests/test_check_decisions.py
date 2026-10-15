@@ -13,6 +13,8 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import check_decisions as cd  # noqa: E402
@@ -287,6 +289,20 @@ class RealRegister(unittest.TestCase):
         for d in self.decisions:
             self.assertTrue(d["source"]["item"], d["id"])
             self.assertTrue(d["verification"]["human"]["evidence"], d["id"])
+
+    def test_owner_roles_of_16_october(self):
+        # Platform lead decision of 16 October 2026: electrical/safety/firmware and robot-description roles.
+        roles = yaml.safe_load((ROOT / "maintainers.yaml").read_text(encoding="utf-8"))["roles"]
+        self.assertEqual(roles["electrical-owner"]["handle"], "evans-kwashie")
+        self.assertEqual(roles["robot-description-owner"]["handle"], "fridayali")
+        by_id = {d["id"]: d for d in self.decisions}
+        for did in ("ESTOP-SCOPE", "RESET-BUTTON", "CHARGING", "BMS-FAULTS", "MAIN-PROTECTION", "SAFETY-PROCUREMENT"):
+            self.assertEqual(by_id[did]["owner"], "electrical-owner", did)
+        self.assertEqual(by_id["NAV-LIDAR"]["owner"], "robot-description-owner")
+        # Where the platform lead holds the decision, it stays owner; the new role reviews the model evidence.
+        for did in ("NEAR-FIELD-FRAMES", "FRAMES-REP105", "CAMERAS"):
+            self.assertEqual(by_id[did]["owner"], "platform-lead", did)
+            self.assertEqual(by_id[did]["verification"]["human"]["reviewer"], "robot-description-owner", did)
 
     def test_every_entry_has_summary_and_fix_hint(self):
         for d in self.decisions:

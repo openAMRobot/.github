@@ -341,7 +341,7 @@ decisions:
         message: imu_link sits on the centreline away from motor magnetic fields (P-03 rev18.7 item 15)
     verification:
       machine: base_link placed on the floor, base_footprint at axle height, or imu_link next to a motor
-      human: {reviewer: software-lead, evidence: URDF frame tree and real TF on the robot matching REP 105}
+      human: {reviewer: robot-description-owner, evidence: URDF frame tree and real TF on the robot matching REP 105}
     owner: platform-lead
 
   - id: NEAR-FIELD-FRAMES
@@ -366,7 +366,7 @@ decisions:
         message: the 20 degree ToF pitch is a screening value until the bench test (P-03 rev19.0 item 19)
     verification:
       machine: the 20 degree ToF screening pitch presented as final, fixed, validated or confirmed
-      human: {reviewer: platform-lead, evidence: Rev B panel drawing and URDF joint origins}
+      human: {reviewer: robot-description-owner, evidence: Rev B panel drawing and URDF joint origins}
     owner: platform-lead
 
   - id: BATTERY-PLACEMENT
@@ -607,7 +607,7 @@ decisions:
         message: the Gemini 336L housing centre is 142.5 mm above the floor, base_camera_link (0.376, 0, 0.0445) (P-03 rev19.0 item 19)
     verification:
       machine: other camera models without a legacy label; a down-tilted base camera; a Gemini 336L up-tilt other than 5, 10 or 15 degrees; the base camera at 243 mm
-      human: {reviewer: software-lead, evidence: camera joint rpy in URDF and real TF showing the upward tilt}
+      human: {reviewer: robot-description-owner, evidence: camera joint rpy in URDF and real TF showing the upward tilt}
     owner: platform-lead
 
   - id: HEAD-CAMERA-IDENTITY
@@ -784,7 +784,7 @@ decisions:
     verification:
       machine: text claiming the EDM variant is chosen, recommending a single-channel or uncertified E-stop, presenting CTL-004 as installed, or naming automotive relays as the 2.0 E-stop
       human: {reviewer: platform-lead, evidence: safety-chain design and component certificates; two human approvals per the repository ruleset}
-    owner: platform-lead
+    owner: electrical-owner
 
   - id: ESTOP-SCOPE
     title: E-stop scope; actuator power only
@@ -810,7 +810,7 @@ decisions:
     verification:
       machine: text saying an E-stop cuts all power or shuts down the Jetson
       human: {reviewer: platform-lead, evidence: "E-01 rev1.1 power distribution and the hardwired safety-chain test record; two human approvals per the repository ruleset"}
-    owner: platform-lead
+    owner: electrical-owner
 
   - id: RESET-BUTTON
     title: One RESET button
@@ -837,7 +837,7 @@ decisions:
     verification:
       machine: a separate electronics-reset button or switch presented as current
       human: {reviewer: platform-lead, evidence: "E-01 rev1.1 reset circuit and the controller reset handling (short press, 5 s hold)"}
-    owner: platform-lead
+    owner: electrical-owner
 
   - id: CHARGING
     title: Wireless charging is the 2.0 charging path
@@ -870,7 +870,7 @@ decisions:
     verification:
       machine: a plug-presence input, PWR-019 or PWR-020 presented as a 2.0 requirement
       human: {reviewer: platform-lead, evidence: "written TZBOT confirmation of the 28.4 V output, E-01 rev1.1 charge-relay wiring into the PNOZ supply"}
-    owner: platform-lead
+    owner: electrical-owner
 
   - id: BMS-FAULTS
     title: Battery fault handling
@@ -897,7 +897,7 @@ decisions:
     verification:
       machine: the RUN_OK contact presented as current
       human: {reviewer: platform-lead, evidence: "STM32 BMS fault handling on CAN2 and the BMS hard-fault disconnect test record"}
-    owner: platform-lead
+    owner: electrical-owner
 
   - id: MAIN-PROTECTION
     title: Main protection
@@ -923,7 +923,7 @@ decisions:
     verification:
       machine: a main or battery circuit breaker in the 2.0 power path
       human: {reviewer: platform-lead, evidence: "E-01 rev1.1 single-line diagram and the B-02 fuse schedule"}
-    owner: platform-lead
+    owner: electrical-owner
 
   - id: COMPUTE
     title: Reference compute
@@ -980,7 +980,7 @@ decisions:
     verification:
       machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label; a lidar_link pose of 0.335 followed by 0.18 without a legacy label
       human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the sllidar_ros2 driver with the RPLIDAR S3}
-    owner: software-lead
+    owner: robot-description-owner
 
   - id: RELEASE-MILESTONES
     title: OpenAMRobot 2.0 release milestones
