@@ -385,13 +385,77 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "Issue 7.6 is canonical; Issue 6 is superseded.\n", "x"), [])
 
-    def test_bom_issue_7_7_in_force(self):
+    def test_bom_issue_7_8_in_force(self):
         for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n",
-                     "BOM Issue 7.3 is canonical.\n", "BOM Issue 7.6 is canonical.\n"):
+                     "BOM Issue 7.6 is canonical.\n", "BOM Issue 7.7 is canonical.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
-        for text in ("BOM Issue 7.7 is canonical.\n", "Issue 7.6 was canonical until Issue 7.7 superseded it.\n",
-                     "The earlier canonical BOM was Issue 7.6.\n"):
+        for text in ("BOM Issue 7.8 is canonical.\n", "Issue 7.7 was canonical until Issue 7.8 superseded it.\n",
+                     "The earlier canonical BOM was Issue 7.7.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    # P-03 rev19.2 item 20 (E-01 rev1.1): each check flags the stale wording and accepts a
+    # sentence that labels it as superseded, removed or legacy.
+    def test_wireless_charging_is_2_0(self):
+        repo = "openamrobot-docs"
+        for text in ("Wireless charging (WCM-300) with auto-docking is OpenAMRobot 3.0.\n",
+                     "Wireless charging is deferred to 3.0.\n", "OpenAMRobot 3.0 wireless charging.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["DOCK-NO-CONTACTS"], text)
+        for text in ("The TZBOT WCM-500-24 wireless charging path is part of 2.0.\n",
+                     "Wireless charging is 3.0 (superseded by P-03 rev19.2 item 20).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_automotive_relays_are_not_the_2_0_estop(self):
+        for text in ("K1 and K2 are automotive relays.\n", "Use automotive relays for the E-stop contactors.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-PROCUREMENT"], text)
+        for text in ("Automotive relays as K1 and K2 (superseded; v0.0.1 only).\n",
+                     "K1 and K2 are TE KILOVAC LEV100H contactors.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_edm_variant_is_gate_edm_stop(self):
+        self.assertEqual(self.ids("docs/a.md", "The EDM variant is selected.\n", "x"), ["SAFETY-PROCUREMENT"])
+        self.assertEqual(self.ids("docs/a.md", "The EDM variant is decided at gate EDM-STOP before ordering.\n",
+                                  "x"), [])
+
+    def test_estop_cuts_actuator_power_only(self):
+        repo = "openamr-platform-hw"
+        for text in ("The E-stop cuts all power to the robot.\n", "Pressing the E-stop shuts down the Jetson.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["ESTOP-SCOPE"], text)
+        for text in ("The E-stop cuts actuator power only; the Jetson stays powered.\n",
+                     "The E-stop cuts all power (superseded, v0.0.1 only).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_single_reset_button(self):
+        repo = "openamr-platform-hw"
+        for text in ("Electronics Reset is separate from the safety RESET.\n",
+                     "A separate electronics reset button reboots the controller.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["RESET-BUTTON"], text)
+        for text in ("There is no separate electronics reset button.\n",
+                     "Electronics reset button (removed in P-03 rev19.2).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_charging_plug_presence_and_wired_inlet_removed(self):
+        repo = "openamr-platform-hw"
+        for text in ("Charging is inhibited by the charge-plug-presence switch.\n", "Plug presence input on the STM32.\n",
+                     "Wired charge inlet PWR-019.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CHARGING"], text)
+        for text in ("Plug-presence switch PWR-020 (removed, superseded by wireless charging).\n",
+                     "Charging uses the TZBOT WCM-500-24 at 28.4 V.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_bms_run_ok_dropped(self):
+        repo = "openamr-platform-fw"
+        self.assertEqual(self.ids("docs/a.md", "The BMS RUN_OK contact (D26) opens on a fault.\n", repo),
+                         ["BMS-FAULTS"])
+        for text in ("RUN_OK (D26) is dropped; faults arrive over CAN2.\n", "RUN_OK contact: legacy, v0.0.1 only.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_main_protection_has_no_circuit_breaker(self):
+        repo = "openamr-platform-hw"
+        for text in ("A 100 A main circuit breaker protects the battery.\n", "Battery output goes to a circuit breaker.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["MAIN-PROTECTION"], text)
+        for text in ("Main fuse F0 110 A Class T, then a lockable disconnect; no circuit breaker.\n",
+                     "Main circuit breaker (superseded by F0 110 A Class T).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_nav_lidar(self):
         repo = "openamr-platform-sw"

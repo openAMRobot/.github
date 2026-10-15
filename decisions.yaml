@@ -53,8 +53,8 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev19.0
-  date: 2026-10-12
+  source: P-03-rev19.2
+  date: 2026-10-15
 
 sources:
   Alex decision 2026-10-12:
@@ -70,8 +70,14 @@ sources:
   P-03-rev18.4:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev19.2:
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.2, 15 October 2026 (item 20: E-stop scope, single RESET button, wireless charging, battery faults)"
+    evidence: plan-set document, not held in any repository; cited by item
+  E-01-rev1.1:
+    title: E-01 Safety and Power Distribution Baseline rev1.1, 15 October 2026 (detail for P-03 item 20)
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev19.0:
-    title: P-03 Decision Addendum, revision 19.0, 12 October 2026 (the addendum in force; item 19 records the 12 October decisions D1 to D6)
+    title: P-03 Decision Addendum, revision 19.0, 12 October 2026 (earlier revision; item 19 records the 12 October decisions D1 to D6)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev18.9:
     title: P-03 Decision Addendum, revision 18.9, 9 October 2026 (earlier revision)
@@ -97,8 +103,11 @@ sources:
   P-00-rev18.1:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
+  BOM-Issue-7.8:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.8, 15 October 2026 (canonical per P-03 rev19.2)
+    evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.7:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.7, 12 October 2026 (canonical per P-03 rev19.0)
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.7, 12 October 2026 (earlier issue; canonical per P-03 rev19.0)
     evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.6:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.6, 9 October 2026 (earlier issue; canonical per P-03 rev18.9)
@@ -128,16 +137,17 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
-    summary: "BOM Issue 7.7 is the canonical OpenAMRobot 2.0 hardware BOM."
-    fix_hint: "Name Issue 7.7 as canonical, or label older issues (Issue 6, Issue 7 to 7.6, B-01) as superseded or earlier."
+    summary: "BOM Issue 7.8 is the canonical OpenAMRobot 2.0 hardware BOM."
+    fix_hint: "Name Issue 7.8 as canonical, or label older issues (Issue 6, Issue 7 to 7.7, B-01) as superseded or earlier."
     kind: value
     status: recorded
-    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.7
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.8
     unit: none
-    date: 2026-10-12
-    review_by: 2026-11-23
-    source: {document: P-03-rev19.0, item: "BOM issue in force (BOM Issue 7.7)"}
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "BOM issue in force (BOM Issue 7.8)"}
     supersedes:
+      - {value: Issue 7.7, source: "P-03-rev19.0 BOM issue in force (BOM Issue 7.7)"}
       - {value: Issue 7.6, source: "P-03-rev18.9 item 16 (BOM Issue 7.6 carries the change)"}
       - {value: Issue 7.3, source: P-03-rev18.7 BOM issue in force}
       - {value: Issue 7, source: P-03-rev18.2 item 7}
@@ -149,15 +159,15 @@ decisions:
     check:
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier'
-        message: BOM Issue 7.7 is the canonical hardware BOM (P-03 rev19.0)
+        message: BOM Issue 7.8 is the canonical hardware BOM (P-03 rev19.2)
       - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
         unless: 'supersed'
         message: B-01 is superseded
-      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.7)(?:\.\d+)?\b|\bIssue\s*7(?!\.7)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.8)(?:\.\d+)?\b|\bIssue\s*7(?!\.8)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier|historical'
-        message: BOM Issue 7.7 is the canonical hardware BOM (P-03 rev19.0)
+        message: BOM Issue 7.8 is the canonical hardware BOM (P-03 rev19.2)
     verification:
-      machine: Issue 6, Issue 7 to 7.6 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      machine: Issue 6, Issue 7 to 7.7 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
     owner: platform-lead
 
@@ -635,13 +645,15 @@ decisions:
     status: recorded
     values:
       - main battery bus 25.6 V nominal (not a regulated 24 V rail)
-      - regulated 24 V branch (safety relay, brake coils, peripherals)
+      - regulated 24 V branch (safety relay, peripherals); the brake-release supply comes from the actuator side, see ESTOP-SCOPE
       - regulated 5 V (includes the navigation LiDAR)
       - no 12 V rail
     unit: V
     date: null
     review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-03-rev18.1, item: "item 2 line 10; P-03-rev18.4 item 13"}
+    source: {document: P-03-rev18.1, item: "item 2 line 10; P-03-rev18.4 item 13; brake-release supply per P-03-rev19.2 item 20"}
+    supersedes:
+      - {value: "regulated 24 V branch (safety relay, brake coils, peripherals)", source: "P-03-rev18.4 item 13"}
     applies_to:
       repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
@@ -658,16 +670,19 @@ decisions:
     owner: platform-lead
 
   - id: DOCK-NO-CONTACTS
-    title: Release 2.0 docking has no dock contacts or dock pilot; wireless charging is 3.0
-    summary: "2.0 docking is positioning only: no dock contacts or pilot; wireless charging is 3.0."
-    fix_hint: "Say the dock has no contacts and charging is manual and wired; put wireless charging in 3.0."
+    title: Release 2.0 docking has no dock contacts or dock pilot; wireless charging is 2.0
+    summary: "2.0 docking is positioning only: no dock contacts or pilot; wireless charging belongs to 2.0."
+    fix_hint: "Say the dock has no contacts or pilot; describe wireless charging as 2.0 (see CHARGING), not 3.0."
     kind: exclusion
     status: recorded
-    value: Positioning only; manual wired charging via PWR-019 with independent charge-plug-presence inhibition; no dock contacts or dock pilot; wireless charging belongs to 3.0
+    value: Positioning only; no dock contacts or dock pilot; wireless charging belongs to 2.0 (see CHARGING)
     unit: none
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-03-rev18.1, item: item 3 line 11}
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "item 3 as changed by item 20"}
+    supersedes:
+      - value: Positioning only; manual wired charging via PWR-019 with independent charge-plug-presence inhibition; no dock contacts or dock pilot; wireless charging belongs to 3.0
+        source: P-03-rev18.1 item 3 line 11
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.launch.py", "**/*.xacro", "**/*.urdf"]
@@ -678,11 +693,11 @@ decisions:
       - pattern: '(?P<found>(?:charge|charger|dock|DC)\s*\+?\s*pilot)'
         unless: '\bno\b'
         message: no dock or charge pilot in 2.0
-      - pattern: '(?P<found>wireless charging)'
-        unless: '3\.0|later|deferred|not '
-        message: wireless charging belongs to 3.0
+      - pattern: '(?P<found>wireless charg\w*[^\n]{0,40}?\b(?:is|belongs to|deferred to|moved to|planned for|reserved for) (?:OpenAMRobot )?3\.0\b|(?:OpenAMRobot )?3\.0 wireless charg\w*)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1'
+        message: wireless charging belongs to 2.0, not 3.0 (P-03 rev19.2 item 20)
     verification:
-      machine: charge contacts or pilots without a negation; wireless charging without a 3.0 label
+      machine: charge contacts or pilots without a negation; wireless charging presented as 3.0 or deferred to 3.0
       human: {reviewer: platform-lead, evidence: dock drawing and harness list without contacts}
     owner: platform-lead
 
@@ -696,7 +711,7 @@ decisions:
     unit: none
     date: null
     review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-03-rev18.1, item: item 3 line 11; DOCK-WP lines 27 and 70}
+    source: {document: P-03-rev18.1, item: "item 3 line 11; DOCK-WP lines 27 and 70; charge-state inputs per P-03-rev19.2 item 20"}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js"]
@@ -711,7 +726,7 @@ decisions:
         message: docking success never establishes charging
     verification:
       machine: charging dock plugins, forced isCharging, text deriving charging or external power from docking
-      human: {reviewer: software-lead, evidence: docking state machine and UI source showing charge state comes only from the charge-plug-presence input}
+      human: {reviewer: software-lead, evidence: docking state machine and UI source showing charge state comes only from the charging hardware (receiver, charge relay, fault input), never from the docking pose}
     owner: platform-lead
 
   - id: TELEMETRY-NOT-SAFETY-EVIDENCE
@@ -737,31 +752,177 @@ decisions:
 
   - id: SAFETY-PROCUREMENT
     title: Safety-chain procurement boundary (record only; this register implements no safety function)
-    summary: "Two dual-channel latching E-stops into a monitored safety relay; EDM contactor unselected."
-    fix_hint: "Do not recommend single-channel or uncertified E-stops; keep the EDM variant open and CTL-004 bench-only."
+    summary: "Exactly two E-stops, dual channel into a Pilz PNOZ s3 with monitored reset; K1, K2 LEV100H in series."
+    fix_hint: "Name the two E-stops, PNOZ s3 and LEV100H K1/K2; no automotive relays; the EDM variant is gate EDM-STOP."
     kind: limit
     status: recorded
     values:
-      - two installed E-stops (base front panel and chest), red latching mushroom, dual normally-closed channels into a monitored safety relay
-      - K1 and K2 contactors from the LEV100 family; the linked-feedback (EDM) variant is unselected under one CONTACTOR gate
-      - CTL-004 is bench-only until an installed solution is qualified
+      - exactly two E-stops; base front Schneider XB4BS8445 with one ZBE-102 block; chest button from the OpenArm kit
+      - dual channel into a Pilz PNOZ s3 24 V DC (750103) with monitored manual reset
+      - K1 and K2 TE KILOVAC LEV100H, normally open, in series; auxiliary NC contacts in the reset circuit (EDM)
+      - the linked-auxiliary variant is gate EDM-STOP before ordering
+      - CTL-004 is bench-only until an installed solution is qualified (P-03-rev18.1 item 5, unchanged)
     unit: none
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-03-rev18.1, item: items 4 and 5 lines 12-13}
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "items 5 and 20; detail in E-01-rev1.1"}
+    supersedes:
+      - {value: "two installed E-stops, dual normally-closed channels into a monitored safety relay; K1 and K2 from the LEV100 family, linked-feedback (EDM) variant unselected under one CONTACTOR gate", source: P-03-rev18.1 items 4 and 5 lines 12-13}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>(?:EDM|linked[- ]feedback) variant[^\n]{0,30}\b(?:selected|chosen|decided))'
-        unless: '\bnot\b|unselected|open'
-        message: the EDM variant is not selected
+        unless: '\bnot\b|unselected|open|EDM-STOP'
+        message: the EDM variant is not selected; it is gate EDM-STOP before ordering
       - pattern: '(?P<found>fine for prototyp\w*|single[- ]contact[^\n]{0,30}e-?stop)'
         message: no single-channel or uncertified E-stop recommendation
       - pattern: '(?P<found>CTL-004[^\n]{0,60}\b(?:installed|robot interface))'
         unless: 'bench-only|until'
         message: CTL-004 is bench-only
+      - pattern: '(?P<found>automotive relays?[^\n]{0,40}\b(?:E-?stop|K1|K2|contactors?)\b|\b(?:E-?stop|K1|K2)\b[^\n]{0,40}automotive relays?)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bnot\b|never|Gate A'
+        message: K1 and K2 are TE KILOVAC LEV100H contactors; automotive relays are not the 2.0 E-stop (P-03 rev19.2 item 20)
     verification:
-      machine: text claiming the EDM variant is chosen, recommending a single-channel or uncertified E-stop, or presenting CTL-004 as installed
+      machine: text claiming the EDM variant is chosen, recommending a single-channel or uncertified E-stop, presenting CTL-004 as installed, or naming automotive relays as the 2.0 E-stop
       human: {reviewer: platform-lead, evidence: safety-chain design and component certificates; two human approvals per the repository ruleset}
+    owner: platform-lead
+
+  - id: ESTOP-SCOPE
+    title: E-stop scope; actuator power only
+    summary: "An E-stop cuts actuator power only (traction, arms, lift); Jetson, 5 V and regulated 24 V stay powered."
+    fix_hint: "Say the E-stop removes actuator power and engages the brakes; the Jetson and logic rails stay powered."
+    kind: limit
+    status: recorded
+    values:
+      - an E-stop cuts actuator power only (traction, both arms, lift)
+      - the Jetson, the 5 V rail and the regulated 24 V rail stay powered
+      - brake release is fed from the actuator side, so an E-stop engages the brakes
+    unit: none
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs", "openamrobot-ui"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\bE-?stop\b[^\n]{0,40}\b(?:cuts|removes|kills|disconnects) (?:all|the whole robot|system) power\b|\bE-?stop\b[^\n]{0,40}\b(?:powers? (?:down|off)|shuts? down) the Jetson\b)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bnot\b|never|actuator'
+        message: an E-stop cuts actuator power only; the Jetson, 5 V and regulated 24 V stay powered (P-03 rev19.2 item 20)
+    verification:
+      machine: text saying an E-stop cuts all power or shuts down the Jetson
+      human: {reviewer: platform-lead, evidence: "E-01 rev1.1 power distribution and the hardwired safety-chain test record; two human approvals per the repository ruleset"}
+    owner: platform-lead
+
+  - id: RESET-BUTTON
+    title: One RESET button
+    summary: "One RESET button (Schneider XB4BW36B5): short press = PNOZ reset; hold 5 s = Jetson reboot, then controller reset."
+    fix_hint: "Describe the single RESET button; there is no separate electronics-reset button; disconnect OFF/ON is the hard restart."
+    kind: configuration
+    status: recorded
+    values:
+      - one RESET button, Schneider XB4BW36B5 (1NO + 1NC)
+      - short press is the PNOZ monitored reset; motion still needs a command
+      - hold 5 s and the controller requests a Jetson reboot, then resets itself
+      - no separate electronics-reset button; disconnect OFF/ON is the hard restart
+    unit: none
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs", "openamrobot-ui"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\belectronics[- ]reset (?:button|switch|is separate)\b|\bseparate (?:electronics[- ])?reset (?:button|switch)\b)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|never|without'
+        message: there is one RESET button; no separate electronics-reset button (P-03 rev19.2 item 20)
+    verification:
+      machine: a separate electronics-reset button or switch presented as current
+      human: {reviewer: platform-lead, evidence: "E-01 rev1.1 reset circuit and the controller reset handling (short press, 5 s hold)"}
+    owner: platform-lead
+
+  - id: CHARGING
+    title: Wireless charging is the 2.0 charging path
+    summary: "TZBOT WCM-500-24 wireless charging, 28.4 V; charge relay opens the PNOZ supply; no wired inlet."
+    fix_hint: "Describe the TZBOT WCM-500-24 path; label PWR-019 and plug-presence text as removed; Daly charger is bench only."
+    kind: configuration
+    status: recorded
+    values:
+      - TZBOT WCM-500-24 wireless charger is the 2.0 charging path; output ordered at 28.4 V after written TZBOT confirmation
+      - receiver, SB50 connector, F-CHG 30 A, charge relay and fault input are designed in
+      - the charge relay NC contact opens the PNOZ supply, so actuators cannot be enabled while charging and a RESET is needed after
+      - wired inlet PWR-019 and plug-presence switch PWR-020 are removed
+      - Daly 28.4 V / 20 A charger (PWR-005) is bench only, through the same SB50 connector with the E-stop pressed
+    unit: none
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    supersedes:
+      - {value: "manual wired charging via PWR-019 with independent charge-plug-presence inhibition", source: P-03-rev18.1 item 3 line 11}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\b(?:charge[- ])?plug[- ]presence\b)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|without'
+        message: the plug-presence switch PWR-020 is removed; charging is the TZBOT wireless path (P-03 rev19.2 item 20)
+      - pattern: '(?P<found>\bPWR-0?(?:19|20)\b)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1'
+        message: the wired inlet PWR-019 and plug-presence switch PWR-020 are removed (P-03 rev19.2 item 20)
+    verification:
+      machine: a plug-presence input, PWR-019 or PWR-020 presented as a 2.0 requirement
+      human: {reviewer: platform-lead, evidence: "written TZBOT confirmation of the 28.4 V output, E-01 rev1.1 charge-relay wiring into the PNOZ supply"}
+    owner: platform-lead
+
+  - id: BMS-FAULTS
+    title: Battery fault handling
+    summary: "Daly BMS reports over CAN2; the STM32 stops motion and locks; the BMS disconnects the pack on a hard fault."
+    fix_hint: "Describe BMS faults over CAN2; the hardwired RUN_OK contact (D26) is dropped."
+    kind: configuration
+    status: recorded
+    values:
+      - the Daly BMS reports over CAN2; the STM32 stops motion and locks
+      - the BMS disconnects the pack itself on a hard fault
+      - the hardwired RUN_OK contact (D26) is dropped
+      - EVE LF105 with Daly BMS primary; LiTech second option
+    unit: none
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\bRUN_OK\b)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bnot\b|not used'
+        message: the hardwired RUN_OK contact (D26) is dropped; BMS faults arrive over CAN2 (P-03 rev19.2 item 20)
+    verification:
+      machine: the RUN_OK contact presented as current
+      human: {reviewer: platform-lead, evidence: "STM32 BMS fault handling on CAN2 and the BMS hard-fault disconnect test record"}
+    owner: platform-lead
+
+  - id: MAIN-PROTECTION
+    title: Main protection
+    summary: "Main fuse F0 110 A Class T, then a lockable battery disconnect; no circuit breaker; branch fuses per B-02."
+    fix_hint: "Name F0 110 A Class T and the lockable disconnect; remove main circuit-breaker text or label it as superseded."
+    kind: configuration
+    status: recorded
+    values:
+      - main fuse F0 110 A Class T, then a lockable battery disconnect
+      - no circuit breaker
+      - branch fuses per the B-02 fuse schedule
+    unit: none
+    date: 2026-10-15
+    review_by: 2026-11-26
+    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\bmain (?:circuit )?breaker\b|\bcircuit breaker\b[^\n]{0,40}\b(?:main|battery|power path)\b|\b(?:main|battery|power path)\b[^\n]{0,40}\bcircuit breaker\b)'
+        unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|without|instead of'
+        message: main protection is fuse F0 110 A Class T and a lockable disconnect; no circuit breaker (P-03 rev19.2 item 20)
+    verification:
+      machine: a main or battery circuit breaker in the 2.0 power path
+      human: {reviewer: platform-lead, evidence: "E-01 rev1.1 single-line diagram and the B-02 fuse schedule"}
     owner: platform-lead
 
   - id: COMPUTE
