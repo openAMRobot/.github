@@ -53,12 +53,12 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev19.2
-  date: 2026-10-15
+  source: P-03-rev19.4
+  date: 2026-10-16
 
 sources:
   Alex decision 2026-10-16:
-    title: Platform decision of 16 October 2026 (base camera pose, imu_link and LiDAR stack as built, from CAD Rev B, platform-hw #20; imu_link pose and orientation from platform-sw #70); to be recorded in the next P-03 revision, item 19 D3, D4 and D5
+    title: Platform decision of 16 October 2026 (base camera pose, imu_link and LiDAR stack as built, from CAD Rev B, platform-hw #20; imu_link pose and orientation from platform-sw #70); recorded in P-03 rev19.4 item 19 D3, D4 and D5
     evidence: decision record, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-12:
     title: Platform decision of 12 October 2026 (sensor layout, base camera, IMU, column position, LiDAR mount, drive track); history, recorded in P-03 rev19.0 item 19
@@ -75,6 +75,9 @@ sources:
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev19.2:
     title: "OpenAMRobot 2.0 Decision Addendum rev19.2, 15 October 2026 (item 20: E-stop scope, single RESET button, wireless charging, battery faults)"
+    evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev19.4:
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.4, 16 October 2026 (item 19 updates of 16 October: base camera D3, LiDAR mount D4, imu_link D5, from CAD Rev B)"
     evidence: plan-set document, not held in any repository; cited by item
   E-01-rev1.1:
     title: E-01 Safety and Power Distribution Baseline rev1.1, 15 October 2026 (detail for P-03 item 20)
@@ -331,7 +334,7 @@ decisions:
     unit: none
     date: 2026-10-16
     review_by: 2026-11-27
-    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026 (platform-sw #70); P-03 next revision, item 19 D5"}
+    source: {document: P-03-rev19.4, item: "item 19 D5 update (Alex decision 16 Oct 2026, platform-sw #70)"}
     supersedes:
       - {value: "(0.0544, 0, 0.133), rpy 0", source: "measured against a displaced base plate in the CAD; superseded by Alex decision 16 Oct 2026 (platform-sw #70)"}
       - {value: "(0.195, 0, -0.044) plus board stack", source: "Alex decision 12 Oct 2026, superseded by Alex decision 16 Oct 2026 (CAD Rev B, platform-hw #20)"}
@@ -590,7 +593,7 @@ decisions:
     unit: none
     date: 2026-10-16
     review_by: 2026-11-27
-    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026; P-03 next revision, item 19 D3"}
+    source: {document: P-03-rev19.4, item: "item 19 D3 update (Alex decision 16 Oct 2026)"}
     supersedes:
       - {value: "base camera Orbbec Gemini 336L, housing centre on the old camera centre, 142.5 mm above the floor, base_camera_link (0.376, 0, 0.0445) from base_link; front-panel opening about 126 x 36 mm on that centre; up-tilt 5, 10 or 15 degrees, baseline 10", source: "Alex decision 12 Oct 2026, superseded by Alex decision 16 Oct 2026 (CAD Rev B)"}
       - {value: "base camera tilted about 10 degrees upward; head camera identity open", source: P-00-rev18.1 txt 85 and 97}
@@ -968,7 +971,7 @@ decisions:
     backup: RPLIDAR S2E, only if the S3 is unavailable
     date: 2026-10-16
     review_by: 2026-11-27
-    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026; P-03 next revision, item 19 D4"}
+    source: {document: P-03-rev19.4, item: "item 19 D4 update (Alex decision 16 Oct 2026)"}
     supersedes:
       - {value: "MMP.07 bracket and 10 mm standoffs with a 7.1 mm spacer plate; scan plane 222.0 mm above the floor", source: "Alex decision 12 Oct 2026, superseded by Alex decision 16 Oct 2026 (CAD Rev B, platform-hw #20)"}
       - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
