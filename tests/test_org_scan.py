@@ -69,9 +69,14 @@ class RepositoryList(unittest.TestCase):
         self.assertEqual(set(names), ACTIVE)
         for r in data["repositories"]:
             with self.subTest(repository=r["name"]):
-                self.assertEqual(set(r), {"name", "default_branch"})
+                self.assertEqual(set(r), {"name", "default_branch", "agent_rules"})
                 self.assertRegex(r["name"], r"^[A-Za-z0-9._-]+$")
                 self.assertRegex(r["default_branch"], r"^[A-Za-z0-9._/-]+$")
+                self.assertIn(r["agent_rules"], {"required", "exempt"})
+                if r["agent_rules"] == "exempt":
+                    self.assertTrue(r.get("agent_rules_reason", "").strip())
+                else:
+                    self.assertNotIn("agent_rules_reason", r)
 
 
 class Workflow(unittest.TestCase):
@@ -120,8 +125,8 @@ class Workflow(unittest.TestCase):
         self.assertIn("BLOCKED repositories were not scanned and are not clean.", result.summary)
         rows = re.findall(r"^\| ([.\w-]+) \| abc1234 \| (\d+) \|$", result.summary, re.M)
         self.assertEqual(len(rows), 13)
-        self.assertIn(("openamr-platform-sw", "1"), rows)
-        self.assertIn("### openamr-platform-sw: 1 finding(s)", result.summary)
+        self.assertIn(("openamr-platform-sw", "2"), rows)
+        self.assertIn("### openamr-platform-sw: 2 finding(s)", result.summary)
         self.assertIn("| COMPUTE | 1 |", result.summary)
         self.assertEqual(result.blocked, [{"repository": "openamrobot-comm", "reason": "clone failed"}])
         # Default dashboard mode: the summary must not promise per-group issues.

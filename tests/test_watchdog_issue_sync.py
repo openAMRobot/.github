@@ -93,6 +93,13 @@ class PurePlan(unittest.TestCase):
         self.assertIsNotNone(wis.OBSERVATION_RE.search(body))
         self.assertIn("Shared rules", body)
 
+    def test_dashboard_labels_exempt_agent_rules_explicitly(self):
+        data = report()
+        data["agent_rules"] = {"status": "exempt", "reason": "release process owns this boundary"}
+        plan = wis.plan([data], [], {"COMPUTE": {"owner": "platform-lead"}}, MAINTAINERS, [], "run", "2026-10-08")
+        body = wis.dashboard_body([data], [], plan, "run", "2026-10-08", [])
+        self.assertIn("| openamrobot-docs |", body)
+        self.assertIn("| exempt |", body)
 
 class Api(unittest.TestCase):
     def test_apply_reopens_and_comments_without_closing(self):
