@@ -582,7 +582,7 @@ decisions:
     kind: value
     status: recorded
     values:
-      - base camera Orbbec Gemini 336L, base_camera_link (0.387, 0, 0.046) m from base_link, pitch from base_tilt (bt05, bt10, bt15, default bt10), from CAD Rev B (platform-hw #20)
+      - base camera Orbbec Gemini 336L, base_camera_link (0.387, 0, 0.046) m from base_link, pitch from base_tilt (bt05, bt10, bt15, default bt10); camera centre 144 mm above the floor (base_link 0.098 m + z 0.046 m); front-panel opening about 126 x 36 mm centred on it; from CAD Rev B (platform-hw #20)
       - head camera Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, see HEAD-CAMERA-IDENTITY
       - two in-hand RGB wrist cameras; no separate torso scene camera
     unit: none
