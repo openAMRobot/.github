@@ -190,8 +190,9 @@ python3 -m pip install --user PyYAML   # once, if PyYAML is missing
 python3 tools/watchdog.py --root ../openamrobot-docs
 ```
 
-It runs decisions of record, public extract, shared agent rules according to `rollout/repositories.yaml`, workflow policy and decision freshness. A missing AGENTS.md is a finding unless the entry is explicitly exempt.
-`AGENTS.md`), workflow policy and decision freshness, prints each finding with its fix, then a
+It runs decisions of record, public extract, shared agent rules (according to
+`rollout/repositories.yaml`; a missing AGENTS.md is a finding unless the entry is exempt),
+workflow policy and decision freshness, prints each finding with its fix, then a
 summary table. Exit status: 0 clean, 1 findings, 2 a configuration or usage error. Useful
 options:
 
@@ -247,8 +248,10 @@ The weekly loop is deliberately split at the ground-truth boundary:
    guesses a new value and never edits the register itself.
 6. The next run verifies the fixing PR's result. Human owners close issues only after review.
 
-The dashboard is the durable weekly record. Its `Shared rules` column distinguishes `required/pass`, `required/drift`, `required/missing`, `exempt` and legacy `not enrolled` status. An exemption is an explicit governance decision, not a clean adoption result.
-`drift` and `not enrolled`; `not enrolled` is rollout status, not a contradiction. The uploaded
+The dashboard is the durable weekly record. Its `Shared rules` column distinguishes
+`required/pass`, `required/drift`, `required/missing`, `exempt` and legacy `not enrolled`;
+`not enrolled` is rollout status, not a contradiction, and an exemption is a governance
+decision, not a clean adoption result. The uploaded
 JSON artifacts preserve the exact repository SHAs and evidence used by the run.
 
 ### Incomplete scans
