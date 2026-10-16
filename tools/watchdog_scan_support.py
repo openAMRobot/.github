@@ -29,7 +29,7 @@ def cmd_list(args):
     data = yaml.safe_load(Path(args.repositories).read_text(encoding="utf-8"))
     if not isinstance(data, dict) or not isinstance(data.get("repositories"), list) or not data.get("organization"):
         raise ValueError("repositories.yaml needs an organization and a repositories list")
-    entries = aa.validate_document(data)
+    entries = data["repositories"]
     expected = []
     lines = []
     for number, entry in enumerate(entries, 1):
@@ -40,8 +40,12 @@ def cmd_list(args):
             lines.append(f"{data['organization']} {name} {branch}")
     # expected.json is written first and always reflects every entry, valid or not, so the
     # issue sync can report entries that never reached list.txt as BLOCKED.
+    # Write the structural inventory before validating policy metadata. This lets the
+    # workflow report precise usable/expected counts for an invalid entry while still
+    # stopping before any clone or Watchdog run.
     Path(args.expected).write_text(json.dumps(expected), encoding="utf-8")
     Path(args.list).write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
+    aa.validate_document(data)
     return 0
 
 
