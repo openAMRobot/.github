@@ -125,8 +125,8 @@ class Workflow(unittest.TestCase):
         self.assertIn("BLOCKED repositories were not scanned and are not clean.", result.summary)
         rows = re.findall(r"^\| ([.\w-]+) \| abc1234 \| (\d+) \|$", result.summary, re.M)
         self.assertEqual(len(rows), 13)
-        self.assertIn(("openamr-platform-sw", "1"), rows)
-        self.assertIn("### openamr-platform-sw: 1 finding(s)", result.summary)
+        self.assertIn(("openamr-platform-sw", "2"), rows)
+        self.assertIn("### openamr-platform-sw: 2 finding(s)", result.summary)
         self.assertIn("| COMPUTE | 1 |", result.summary)
         self.assertEqual(result.blocked, [{"repository": "openamrobot-comm", "reason": "clone failed"}])
         # Default dashboard mode: the summary must not promise per-group issues.
