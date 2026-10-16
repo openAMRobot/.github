@@ -19,6 +19,8 @@ from pathlib import Path
 
 import yaml
 
+import check_agent_adoption as aa
+
 NAME = re.compile(r"^[A-Za-z0-9._-]+$")
 BRANCH = re.compile(r"^[A-Za-z0-9._/-]+$")
 
@@ -27,7 +29,7 @@ def cmd_list(args):
     data = yaml.safe_load(Path(args.repositories).read_text(encoding="utf-8"))
     if not isinstance(data, dict) or not isinstance(data.get("repositories"), list) or not data.get("organization"):
         raise ValueError("repositories.yaml needs an organization and a repositories list")
-    entries = data["repositories"]
+    entries = aa.validate_document(data)
     expected = []
     lines = []
     for number, entry in enumerate(entries, 1):

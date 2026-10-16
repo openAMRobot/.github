@@ -80,6 +80,16 @@ class Watchdog(unittest.TestCase):
             self.assertIn("Total: 0 finding(s)", out)
             self.assertIn("Next step: nothing to fix.", out)
 
+    def test_required_repository_without_agents_is_a_finding(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp, "openamr-platform-sw")
+            repo.mkdir()
+            (repo / "README.md").write_text("Reference compute is the Jetson.\n", encoding="utf-8")
+            report = watchdog.run(repo, "openamr-platform-sw")
+            self.assertEqual(report["agent_rules"], {"status": "required", "present": False})
+            self.assertEqual(report["results"]["shared-rules"][0]["group"], "agent-rules")
+            self.assertEqual(report["results"]["shared-rules"][0]["found"], "file is missing")
+
     def test_this_repository_passes_its_own_agents_check(self):
         report = watchdog.run(ROOT, ".github")
         self.assertEqual(report["results"]["shared-rules"], [])
@@ -104,9 +114,9 @@ class Watchdog(unittest.TestCase):
             run("--root", repo, "--report-only", "--markdown", md, "--json", js, "--repository", "x")
             run("--root", repo, "--report-only", "--markdown", md, "--repository", "y")
             text = md.read_text(encoding="utf-8")
-            self.assertIn("### x: 3 finding(s)", text)
-            self.assertIn("### y: 3 finding(s)", text)
-            self.assertIn("| Shared agent rules | not run (no AGENTS.md) |", text)
+            self.assertIn("### x: 4 finding(s)", text)
+            self.assertIn("### y: 4 finding(s)", text)
+            self.assertIn("| Shared agent rules | 1 |", text)
             self.assertIn("| COMPUTE | 1 |", text)
             data = json.loads(js.read_text(encoding="utf-8"))
             self.assertEqual(data["repository"], "x")

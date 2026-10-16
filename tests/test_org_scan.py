@@ -69,9 +69,14 @@ class RepositoryList(unittest.TestCase):
         self.assertEqual(set(names), ACTIVE)
         for r in data["repositories"]:
             with self.subTest(repository=r["name"]):
-                self.assertEqual(set(r), {"name", "default_branch"})
+                self.assertEqual(set(r), {"name", "default_branch", "agent_rules"})
                 self.assertRegex(r["name"], r"^[A-Za-z0-9._-]+$")
                 self.assertRegex(r["default_branch"], r"^[A-Za-z0-9._/-]+$")
+                self.assertIn(r["agent_rules"], {"required", "exempt"})
+                if r["agent_rules"] == "exempt":
+                    self.assertTrue(r.get("agent_rules_reason", "").strip())
+                else:
+                    self.assertNotIn("agent_rules_reason", r)
 
 
 class Workflow(unittest.TestCase):

@@ -26,6 +26,7 @@ import yaml
 
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
+import check_agent_adoption as aa  # noqa: E402
 import check_agent_rules as car  # noqa: E402
 import check_decisions as cd  # noqa: E402
 import check_public_extract as pe  # noqa: E402
@@ -40,11 +41,17 @@ NEXT_STEPS = {"decisions": cd.NEXT_STEP, "public-extract": pe.NEXT_STEP,
               "shared-rules": car.NEXT_STEP, "workflow-policy": wp.NEXT_STEP}
 
 
-def shared_rules(root, canonical):
-    """Findings for AGENTS.md drift; None when the repository has no AGENTS.md."""
+def shared_rules(root, canonical, policy=None):
+    """Findings for adoption and AGENTS.md drift.
+
+    Unknown repositories keep the historical None result for direct local checks. Listed
+    repositories must declare whether rules are required or explicitly exempt.
+    """
     path = Path(root, "AGENTS.md")
     if not path.is_file():
-        return None
+        if policy and policy["agent_rules"] == "required":
+            return aa.missing_findings(root, policy)
+        return None if policy is None else []
     version, expected = car.block(canonical)
     try:
         text = path.read_text(encoding="utf-8")
@@ -79,15 +86,27 @@ def run(root, repository, harness=HARNESS, today=None):
         allow = pe.load_allowlist(Path(harness, "public-extract-allowlist.yaml"))
     except (OSError, ValueError, yaml.YAMLError) as exc:
         raise ValueError(f"invalid public extract allowlist: {exc}") from exc
+    policy = None
+    policy_path = Path(harness, "rollout", "repositories.yaml")
+    if policy_path.is_file():
+        try:
+            policy = aa.entry_for(policy_path, repository)
+        except aa.RepositoryNotListed:
+            # Direct local checks may target a temporary or external checkout. The organization
+            # scan supplies only repositories listed in rollout/repositories.yaml.
+            policy = None
+        except (OSError, ValueError, yaml.YAMLError) as exc:
+            raise ValueError(f"invalid agent-rules adoption policy: {exc}") from exc
     stats = {}
     found, allowed = cd.scan(root, decisions, repository, None, stats)
     results = {
         "decisions": cd.to_watchdog(found, decisions),
         "public-extract": pe.to_watchdog(pe.scan(root, allow, repository)),
-        "shared-rules": shared_rules(root, Path(harness, "agent-rules", "SHARED_RULES.md")),
+        "shared-rules": shared_rules(root, Path(harness, "agent-rules", "SHARED_RULES.md"), policy),
         "workflow-policy": wp.to_watchdog(wp.records(root)),
     }
     return {"repository": repository, "results": results, "allowed": allowed,
+            "agent_rules": aa.policy_status(root, policy) if policy else None,
             "freshness": freshness(register, today), "unscanned": stats.get("unscanned", 0)}
 
 
@@ -178,6 +197,8 @@ def render(report):
         if items is None:
             lines += ["Not run: the repository has no AGENTS.md.", ""]
             continue
+        if check == "shared-rules" and (report.get("agent_rules") or {}).get("status") == "exempt":
+            lines += [f"Policy: agent rules exempt ({report['agent_rules']['reason']}).", ""]
         if check == "decisions":
             for a in report["allowed"]:
                 lines.append(f"Allowed by decision-allow marker: {a['file']}:{a['line']}: {a['id']} "

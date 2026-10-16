@@ -430,6 +430,23 @@ def group_rows(active):
     return rows
 
 
+
+def agent_rules_label(report):
+    """Render adoption state without confusing an exemption with a clean required repo."""
+    policy = report.get("agent_rules")
+    results = report.get("results") or {}
+    shared = results.get("shared-rules")
+    if not isinstance(policy, dict) or not policy.get("status"):
+        return "not enrolled" if shared is None else ("drift" if shared else "pass")
+    if policy["status"] == "exempt":
+        return "exempt"
+    if shared is None:
+        return "required/not checked"
+    if any(item.get("group") == "agent-rules" for item in shared):
+        return "required/missing"
+    return "required/drift" if shared else "required/pass"
+
+
 def dashboard_body(reports, blocked, plan_data, run_url, run_date, links):
     mode = plan_data.get("mode", DEFAULT_MODE)
     status = plan_data.get("status")
@@ -443,8 +460,7 @@ def dashboard_body(reports, blocked, plan_data, run_url, run_date, links):
     for report in reports:
         findings = sum(len(value or []) for value in (report.get("results") or {}).values())
         warnings = len(report.get("freshness") or [])
-        shared = report.get("results", {}).get("shared-rules")
-        adoption = "not enrolled" if shared is None else ("drift" if shared else "pass")
+        adoption = agent_rules_label(report)
         status = "findings" if findings or warnings else "clean"
         lines.append(f"| {scrub(report.get('repository'))} | `{scrub(report.get('commit', 'unknown'))}` | {findings} | {warnings} | {adoption} | {status} |")
     for item in blocked:
