@@ -57,6 +57,9 @@ in_force:
   date: 2026-10-15
 
 sources:
+  Alex decision 2026-10-16:
+    title: Platform decision of 16 October 2026 (imu_link and LiDAR stack as built, from CAD Rev B, platform-hw #20); to be recorded in the next P-03 revision, item 19 D5
+    evidence: decision record, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-12:
     title: Platform decision of 12 October 2026 (sensor layout, base camera, IMU, column position, LiDAR mount, drive track); history, recorded in P-03 rev19.0 item 19
     evidence: decision record, not held in any repository; provenance only, CI never reads it
@@ -323,11 +326,13 @@ decisions:
       - base_footprint on the floor under the drive-axle midpoint
       - base_link at the drive-axle midpoint and axle height; x forward, z up
       - imu_link on the centreline, away from motor magnetic fields
-      - imu_link (ICM-42688-P) on the centreline at x 0.195 m from base_link, halfway between the drive axle and the front panel, on the base plate (top z -0.044) plus the board stack; axes aligned with base_link
+      - "imu_link (ICM-42688-P) on the centreline at (0.0544, 0, 0.133) m from base_link: electronics bracket MMP.04.00.00.002, 54.4 mm ahead of the drive axle, 177 mm above the base-plate top (-0.044); axes aligned with base_link"
     unit: none
-    date: 2026-10-12
-    review_by: 2026-11-23
-    source: {document: P-03-rev19.0, item: "item 19 (imu_link position)"}
+    date: 2026-10-16
+    review_by: 2026-11-27
+    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026; P-03 next revision, item 19 D5"}
+    supersedes:
+      - {value: "(0.195, 0, -0.044) plus board stack", source: "Alex decision 12 Oct 2026, superseded by Alex decision 16 Oct 2026 (CAD Rev B, platform-hw #20)"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
     check:
       - pattern: '(?P<found>\bbase_link\b[^\n]{0,30}\b(?:on|at) the floor\b)'
@@ -954,14 +959,15 @@ decisions:
     status: recorded
     values:
       - SLAMTEC RPLIDAR S3 (S3M1-R2), connected over USB, powered from the regulated 5 V rail (functional sensing, not a safety device)
-      - mounted on the existing MMP.07 bracket and 10 mm standoffs with a 7.1 mm spacer plate; scan plane 222.0 mm above the floor; lidar_link (0.330, 0, 0.124) from base_link, yaw pi
+      - mounted on the existing MMP.07 bracket with a 17.5 mm printed spacer MMP.07.00.00.002 and no standoffs; scan plane 222.05 mm above the floor; lidar_link (0.330, 0, 0.124) from base_link, yaw pi
       - "body filter: openamrobot_perception scan_body_filter with scan_body_filter_real.yaml from v0.0.1, unchanged (side posts at 82.9 to 89.5 degrees in the LiDAR frame lie inside its close-mask sectors)"
     unit: none
     backup: RPLIDAR S2E, only if the S3 is unavailable
-    date: 2026-10-12
-    review_by: 2026-11-23
-    source: {document: P-03-rev19.0, item: "item 19 (navigation LiDAR mount)"}
+    date: 2026-10-16
+    review_by: 2026-11-27
+    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026; P-03 next revision, item 19 D5"}
     supersedes:
+      - {value: "MMP.07 bracket and 10 mm standoffs with a 7.1 mm spacer plate; scan plane 222.0 mm above the floor", source: "Alex decision 12 Oct 2026, superseded by Alex decision 16 Oct 2026 (CAD Rev B, platform-hw #20)"}
       - {value: Hokuyo UST-10LX, source: P-03-rev18.3 item 11 (dropped on cost)}
       - {value: RPLIDAR A1, source: existing robot (Gate A)}
     applies_to:
@@ -976,7 +982,7 @@ decisions:
         message: the 2.0 navigation LiDAR is the RPLIDAR S3 (S3M1-R2); label RPLIDAR A1 material as legacy (Gate A)
       - pattern: '(?P<found>\b0\.335\b[^\n]{0,40}?\b0\.18)'
         unless: 'legacy|Gate A|supersed|historical'
-        message: lidar_link is (0.330, 0, 0.124) from base_link, yaw pi, with the 7.1 mm spacer plate (P-03 rev19.0 item 19)
+        message: lidar_link is (0.330, 0, 0.124) from base_link, yaw pi, on the MMP.07 bracket with the 17.5 mm printed spacer (Alex decision 2026-10-16)
     verification:
       machine: Hokuyo or UST-10LX without a superseded or legacy label; RPLIDAR A1 or A1M8 without a legacy label; a lidar_link pose of 0.335 followed by 0.18 without a legacy label
       human: {reviewer: software-lead, evidence: bring-up launch and scan topic from the sllidar_ros2 driver with the RPLIDAR S3}
