@@ -58,7 +58,7 @@ in_force:
 
 sources:
   Alex decision 2026-10-16:
-    title: Platform decision of 16 October 2026 (base camera pose, imu_link and LiDAR stack as built, from CAD Rev B, platform-hw #20); to be recorded in the next P-03 revision, item 19 D3, D4 and D5
+    title: Platform decision of 16 October 2026 (base camera pose, imu_link and LiDAR stack as built, from CAD Rev B, platform-hw #20; imu_link pose and orientation from platform-sw #70); to be recorded in the next P-03 revision, item 19 D3, D4 and D5
     evidence: decision record, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-12:
     title: Platform decision of 12 October 2026 (sensor layout, base camera, IMU, column position, LiDAR mount, drive track); history, recorded in P-03 rev19.0 item 19
@@ -326,12 +326,14 @@ decisions:
       - base_footprint on the floor under the drive-axle midpoint
       - base_link at the drive-axle midpoint and axle height; x forward, z up
       - imu_link on the centreline, away from motor magnetic fields
-      - "imu_link (ICM-42688-P) on the centreline at (0.0544, 0, 0.133) m from base_link: electronics bracket MMP.04.00.00.002, 54.4 mm ahead of the drive axle, 177 mm above the base-plate top (-0.044); axes aligned with base_link"
+      - "imu_link (0.0544, 0, 0.1210) m from base_link, rpy (0, 0, -pi/2), yaw -90 deg: ICM-42688-P on MIKROE-4237 on the electronics bracket MMP.04.00.00.002, centreline, 54.4 mm ahead of the drive axle, chip centre 165.043 mm above the base-plate top, 219.04 mm above the floor"
+      - "the IMU publishes raw sensor-frame values; the axis mapping is in the URDF (sensor X to base -y, Y to +x, Z to +z); no firmware remap"
     unit: none
     date: 2026-10-16
     review_by: 2026-11-27
-    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026; P-03 next revision, item 19 D5"}
+    source: {document: "Alex decision 2026-10-16", item: "Alex decision 16 Oct 2026 (platform-sw #70); P-03 next revision, item 19 D5"}
     supersedes:
+      - {value: "(0.0544, 0, 0.133), rpy 0", source: "measured against a displaced base plate in the CAD; superseded by Alex decision 16 Oct 2026 (platform-sw #70)"}
       - {value: "(0.195, 0, -0.044) plus board stack", source: "Alex decision 12 Oct 2026, superseded by Alex decision 16 Oct 2026 (CAD Rev B, platform-hw #20)"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf", "**/*.launch.py"]}
     check:
