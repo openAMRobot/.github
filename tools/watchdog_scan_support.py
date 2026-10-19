@@ -19,6 +19,8 @@ from pathlib import Path
 
 import yaml
 
+import check_agent_adoption as aa
+
 NAME = re.compile(r"^[A-Za-z0-9._-]+$")
 BRANCH = re.compile(r"^[A-Za-z0-9._/-]+$")
 
@@ -38,8 +40,12 @@ def cmd_list(args):
             lines.append(f"{data['organization']} {name} {branch}")
     # expected.json is written first and always reflects every entry, valid or not, so the
     # issue sync can report entries that never reached list.txt as BLOCKED.
+    # Write the structural inventory before validating policy metadata. This lets the
+    # workflow report precise usable/expected counts for an invalid entry while still
+    # stopping before any clone or Watchdog run.
     Path(args.expected).write_text(json.dumps(expected), encoding="utf-8")
     Path(args.list).write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
+    aa.validate_document(data)
     return 0
 
 

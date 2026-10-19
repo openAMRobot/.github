@@ -79,12 +79,18 @@ jobs:
           # Repository list: a failure stops the step; expected.json is written before list.txt.
           if ! python3 "$support" list --repositories "$HARNESS/rollout/repositories.yaml" \
               --list "$WORK/list.txt" --expected "$WORK/expected.json"; then
+            detail=""
+            if [ -f "$WORK/expected.json" ] && [ -f "$WORK/list.txt" ]; then
+              expected_count=$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$WORK/expected.json")
+              listed_count=$(wc -l < "$WORK/list.txt")
+              detail=" ($listed_count of $expected_count entries usable)"
+            fi
             {
               echo "## OpenAMRobot Watchdog organization scan: INCOMPLETE"
               echo
-              echo "Scan INCOMPLETE: repository list could not be generated."
+              echo "Scan INCOMPLETE: repository list could not be generated$detail."
             } >> "$summary"
-            echo "::error::Scan INCOMPLETE: repository list could not be generated"
+            echo "::error::Scan INCOMPLETE: repository list could not be generated$detail"
             finished=1
             exit 1
           fi

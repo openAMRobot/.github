@@ -34,7 +34,7 @@ only read files and never change them.
 |---|---|---|---|---|---|
 | <a id="decisions-of-record"></a>Decisions of record (`tools/check_decisions.py`) | Text files covered by each entry in [decisions.yaml](decisions.yaml) | Builders and reviewers must see the approved value, not an old one | `Mismatch with approved decision: COMPUTE (14 finding(s))`, then `README.md:44: found 'Raspberry Pi 5'` | Correct the line, or label it as history with an accepted word (table below), or propose a decision change | Each entry's `owner` role, usually the platform lead |
 | <a id="public-extract"></a>Public extract (`tools/check_public_extract.py`) | `docs/`, `assets/`, every `README.md` and any path containing `public` | Public pages must not leak internal links, personal contact data, prices or secrets | `Should not be public: google-drive-link (1 finding(s))`, then `docs/a.md:3: found 'https://drive.google.com/...'` | Remove the value or move it to an internal place; approved public contacts are listed below, and new ones go on the allowlist ([public-extract-allowlist.yaml](public-extract-allowlist.yaml)) after review | Docs owner |
-| <a id="shared-agent-rules"></a>Shared agent rules (`tools/check_agent_rules.py`) | `AGENTS.md` and `CLAUDE.md` | Every contributor and agent follows the same rules; a changed copy quietly changes them | `Shared agent rules out of date: shared-rules (1 finding(s))`, then `AGENTS.md:1: found 'shared block differs from canonical'` | Copy the block between the BEGIN and END markers from [agent-rules/SHARED_RULES.md](agent-rules/SHARED_RULES.md) unchanged | Software lead |
+| <a id="shared-agent-rules"></a>Shared agent rules (`tools/check_agent_rules.py` + `tools/check_agent_adoption.py`) | `rollout/repositories.yaml`, `AGENTS.md` and `CLAUDE.md` | Every listed repository is either required to carry the shared rules or explicitly exempted with an owner-approved reason | `Agent rules missing: agent-rules (1 finding(s))`, then `AGENTS.md:1: found 'file is missing'` | Add the canonical AGENTS.md, or record a reviewed `agent_rules: exempt` entry with a reason | Software lead |
 | <a id="workflow-policy"></a>Workflow policy (`tools/check_workflow_policy.py`) | `.github/workflows/*.yml` | A tag or branch can be moved to new code; a full commit SHA cannot | `Workflow not pinned: unpinned-action (1 finding(s))`, then `.github/workflows/ci.yml:12: found 'actions/checkout@v4'` | Pin the action to its 40-character commit SHA and keep the version as a comment | CI owner |
 | <a id="pr-evidence"></a>PR evidence and AI disclosure (`tools/check_pr_evidence.py`) | The pull request description | Reviewers need the base and head commits, exact commands, test counts, a Not verified section and an honest AI disclosure | `Missing section: Not verified` | Fill every section of the pull request template | CI owner |
 | <a id="verify"></a>verify.sh (`rollout/verify.sh`) | The repository's build and tests | A test run that runs zero tests proves nothing; a skipped test must say why | `FAIL: zero tests executed` or `FAIL: skip/xfail/importorskip without a tracking issue` | Add real tests; put the tracking issue on the same line as each skip | CI owner |
@@ -191,8 +191,9 @@ python3 -m pip install --user PyYAML   # once, if PyYAML is missing
 python3 tools/watchdog.py --root ../openamrobot-docs
 ```
 
-It runs decisions of record, public extract, shared agent rules (when the repository has an
-`AGENTS.md`), workflow policy and decision freshness, prints each finding with its fix, then a
+It runs decisions of record, public extract, shared agent rules (according to
+`rollout/repositories.yaml`; a missing AGENTS.md is a finding unless the entry is exempt),
+workflow policy and decision freshness, prints each finding with its fix, then a
 summary table. Exit status: 0 clean, 1 findings, 2 a configuration or usage error. Useful
 options:
 
@@ -248,8 +249,10 @@ The weekly loop is deliberately split at the ground-truth boundary:
    guesses a new value and never edits the register itself.
 6. The next run verifies the fixing PR's result. Human owners close issues only after review.
 
-The dashboard is the durable weekly record. Its `Shared rules` column distinguishes `pass`,
-`drift` and `not enrolled`; `not enrolled` is rollout status, not a contradiction. The uploaded
+The dashboard is the durable weekly record. Its `Shared rules` column distinguishes
+`required/pass`, `required/drift`, `required/missing`, `exempt` and legacy `not enrolled`;
+`not enrolled` is rollout status, not a contradiction, and an exemption is a governance
+decision, not a clean adoption result. The uploaded
 JSON artifacts preserve the exact repository SHAs and evidence used by the run.
 
 ### Incomplete scans
@@ -291,6 +294,10 @@ back, delete the variable or set it to `dashboard`; issues that already exist st
 **Who decides:** the platform lead decides when to switch to `groups`, for example once the
 first repositories have finished rollout and their owners are ready to work from one issue per
 group. Until then the dashboard alone keeps the organization view in one place.
+
+## Agent-rules adoption policy
+
+`rollout/repositories.yaml` is the authoritative enrollment manifest. Every entry declares `agent_rules: required` or `agent_rules: exempt`. An exempt entry must include `agent_rules_reason`; the Watchdog reports the exemption explicitly. It never treats a missing AGENTS.md as clean merely because the file is absent.
 
 ## Adopting it in a repository
 

@@ -77,7 +77,7 @@ sources:
     title: "OpenAMRobot 2.0 Decision Addendum rev19.6, 18 October 2026 (the addendum in force; item 22: Gigavac GX11CAC contactors and the item 22 controller I/O)"
     evidence: plan-set document, not held in any repository; cited by item
   E-01-rev1.3:
-    title: E-01 Safety and Power Distribution Baseline rev1.3 (detail for P-03 rev19.6 item 22)
+    title: E-01 Safety and Power Distribution Baseline rev1.3, 18 October 2026 (detail for P-03 rev19.6 item 22)
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev19.2:
     title: "OpenAMRobot 2.0 Decision Addendum rev19.2, 15 October 2026 (earlier revision; item 20: E-stop scope, single RESET button, wireless charging, battery faults)"
@@ -116,7 +116,7 @@ sources:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
   BOM-Issue-7.10:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.10 (canonical per P-03 rev19.6)
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.10, 18 October 2026 (canonical per P-03 rev19.6)
     evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.8:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.8, 15 October 2026 (earlier issue; canonical per P-03 rev19.2)
@@ -967,7 +967,7 @@ decisions:
     unit: none
     date: 2026-10-18
     review_by: 2026-11-29
-    source: {document: P-03-rev19.6, item: "F-LIFT 15 A with 2.5 mm2 cable; main protection per P-03-rev19.2 item 20; detail in E-01-rev1.3"}
+    source: {document: P-03-rev19.6, item: "item 22 (F-LIFT 15 A with 2.5 mm2 cable); main protection per P-03-rev19.2 item 20; detail in E-01-rev1.3"}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
