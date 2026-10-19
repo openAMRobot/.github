@@ -53,8 +53,8 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev19.4
-  date: 2026-10-16
+  source: P-03-rev19.6
+  date: 2026-10-18
 
 sources:
   Alex decision 2026-10-16:
@@ -73,11 +73,17 @@ sources:
   P-03-rev18.4:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
+  P-03-rev19.6:
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.6, 18 October 2026 (the addendum in force; item 22: Gigavac GX11CAC contactors and the item 22 controller I/O)"
+    evidence: plan-set document, not held in any repository; cited by item
+  E-01-rev1.3:
+    title: E-01 Safety and Power Distribution Baseline rev1.3 (detail for P-03 rev19.6 item 22)
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev19.2:
-    title: "OpenAMRobot 2.0 Decision Addendum rev19.2, 15 October 2026 (item 20: E-stop scope, single RESET button, wireless charging, battery faults)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.2, 15 October 2026 (earlier revision; item 20: E-stop scope, single RESET button, wireless charging, battery faults)"
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev19.4:
-    title: "OpenAMRobot 2.0 Decision Addendum rev19.4, 16 October 2026 (item 19 updates of 16 October: base camera D3, LiDAR mount D4, imu_link D5, from CAD Rev B)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.4, 16 October 2026 (earlier revision; item 19 updates of 16 October: base camera D3, LiDAR mount D4, imu_link D5, from CAD Rev B)"
     evidence: plan-set document, not held in any repository; cited by item
   E-01-rev1.1:
     title: E-01 Safety and Power Distribution Baseline rev1.1, 15 October 2026 (detail for P-03 item 20)
@@ -109,8 +115,11 @@ sources:
   P-00-rev18.1:
     title: P-00 Master Coordination Plan, revision 18.1
     evidence: plan-set document, not held in any repository; cited by text line
+  BOM-Issue-7.10:
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.10 (canonical per P-03 rev19.6)
+    evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.8:
-    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.8, 15 October 2026 (canonical per P-03 rev19.2)
+    title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.8, 15 October 2026 (earlier issue; canonical per P-03 rev19.2)
     evidence: not held in any repository; provenance only, CI never reads it
   BOM-Issue-7.7:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.7, 12 October 2026 (earlier issue; canonical per P-03 rev19.0)
@@ -143,16 +152,17 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
-    summary: "BOM Issue 7.8 is the canonical OpenAMRobot 2.0 hardware BOM."
-    fix_hint: "Name Issue 7.8 as canonical, or label older issues (Issue 6, Issue 7 to 7.7, B-01) as superseded or earlier."
+    summary: "BOM Issue 7.10 is the canonical OpenAMRobot 2.0 hardware BOM."
+    fix_hint: "Name Issue 7.10 as canonical, or label older issues (Issue 6, Issue 7 to 7.9, B-01) as superseded or earlier."
     kind: value
     status: recorded
-    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.8
+    value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.10
     unit: none
-    date: 2026-10-15
-    review_by: 2026-11-26
-    source: {document: P-03-rev19.2, item: "BOM issue in force (BOM Issue 7.8)"}
+    date: 2026-10-18
+    review_by: 2026-11-29
+    source: {document: P-03-rev19.6, item: "BOM issue in force (BOM Issue 7.10)"}
     supersedes:
+      - {value: Issue 7.8, source: "P-03-rev19.2 BOM issue in force (BOM Issue 7.8)"}
       - {value: Issue 7.7, source: "P-03-rev19.0 BOM issue in force (BOM Issue 7.7)"}
       - {value: Issue 7.6, source: "P-03-rev18.9 item 16 (BOM Issue 7.6 carries the change)"}
       - {value: Issue 7.3, source: P-03-rev18.7 BOM issue in force}
@@ -165,15 +175,15 @@ decisions:
     check:
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*6\b|\bIssue\s*6\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier'
-        message: BOM Issue 7.8 is the canonical hardware BOM (P-03 rev19.2)
+        message: BOM Issue 7.10 is the canonical hardware BOM (P-03 rev19.6)
       - pattern: '(?P<found>B-01[^\n]{0,60}\b(?:canonical|current))'
         unless: 'supersed'
         message: B-01 is superseded
-      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.8)(?:\.\d+)?\b|\bIssue\s*7(?!\.8)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
+      - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.10\b)(?:\.\d+)?\b|\bIssue\s*7(?!\.10\b)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier|historical'
-        message: BOM Issue 7.8 is the canonical hardware BOM (P-03 rev19.2)
+        message: BOM Issue 7.10 is the canonical hardware BOM (P-03 rev19.6)
     verification:
-      machine: Issue 6, Issue 7 to 7.7 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
+      machine: Issue 6, Issue 7 to 7.9 or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
     owner: platform-lead
 
@@ -763,27 +773,29 @@ decisions:
 
   - id: SAFETY-PROCUREMENT
     title: Safety-chain procurement boundary (record only; this register implements no safety function)
-    summary: "Exactly two E-stops, dual channel into a Pilz PNOZ s3 with monitored reset; K1, K2 LEV100H in series."
-    fix_hint: "Name the two E-stops, PNOZ s3 and LEV100H K1/K2; no automotive relays; the EDM variant is gate EDM-STOP."
+    summary: "Two E-stops into a Pilz PNOZ s3 with monitored reset; K1, K2 Gigavac GX11CAC with linked NC auxiliaries."
+    fix_hint: "Name the PNOZ s3 and Gigavac GX11CAC K1/K2; label LEV100H and K1/K2 firmware feedback as superseded."
     kind: limit
     status: recorded
     values:
       - exactly two E-stops; base front Schneider XB4BS8445 with one ZBE-102 block; chest button from the OpenArm kit
       - dual channel into a Pilz PNOZ s3 24 V DC (750103) with monitored manual reset
-      - K1 and K2 TE KILOVAC LEV100H, normally open, in series; auxiliary NC contacts in the reset circuit (EDM)
-      - the linked-auxiliary variant is gate EDM-STOP before ordering
+      - K1 and K2 Gigavac GX11CAC (150 A, 24 V coil with internal suppression), normally open, in series; each with one SPST-NC auxiliary, mechanically linked, in the PNOZ reset loop
+      - ordering (BUY-32) is gated on the GX11CAC datasheet checks
       - CTL-004 is bench-only until an installed solution is qualified (P-03-rev18.1 item 5, unchanged)
     unit: none
-    date: 2026-10-15
-    review_by: 2026-11-26
-    source: {document: P-03-rev19.2, item: "items 5 and 20; detail in E-01-rev1.1"}
+    date: 2026-10-18
+    review_by: 2026-11-29
+    source: {document: P-03-rev19.6, item: "item 22 (contactors); E-stops and PNOZ per P-03-rev19.2 items 5 and 20; detail in E-01-rev1.3"}
     supersedes:
+      - {value: "K1 and K2 TE KILOVAC LEV100H, normally open, in series; auxiliary NC contacts in the reset circuit (EDM); the linked-auxiliary variant is gate EDM-STOP before ordering", source: "P-03-rev19.2 items 5 and 20, E-01-rev1.1"}
+      - {value: "separate K1/K2 contactor feedback read by the firmware", source: "earlier contactor design; replaced by the linked auxiliaries in the PNOZ reset loop, P-03-rev19.6 item 22"}
       - {value: "two installed E-stops, dual normally-closed channels into a monitored safety relay; K1 and K2 from the LEV100 family, linked-feedback (EDM) variant unselected under one CONTACTOR gate", source: P-03-rev18.1 items 4 and 5 lines 12-13}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>(?:EDM|linked[- ]feedback) variant[^\n]{0,30}\b(?:selected|chosen|decided))'
-        unless: '\bnot\b|unselected|open|EDM-STOP'
-        message: the EDM variant is not selected; it is gate EDM-STOP before ordering
+        unless: '\bnot\b|unselected|open|EDM-STOP|GX11CAC|BUY-32'
+        message: the linked-auxiliary contactor is the Gigavac GX11CAC; ordering (BUY-32) is gated on the datasheet checks (P-03 rev19.6 item 22)
       - pattern: '(?P<found>fine for prototyp\w*|single[- ]contact[^\n]{0,30}e-?stop)'
         message: no single-channel or uncertified E-stop recommendation
       - pattern: '(?P<found>CTL-004[^\n]{0,60}\b(?:installed|robot interface))'
@@ -791,10 +803,41 @@ decisions:
         message: CTL-004 is bench-only
       - pattern: '(?P<found>automotive relays?[^\n]{0,40}\b(?:E-?stop|K1|K2|contactors?)\b|\b(?:E-?stop|K1|K2)\b[^\n]{0,40}automotive relays?)'
         unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bnot\b|never|Gate A'
-        message: K1 and K2 are TE KILOVAC LEV100H contactors; automotive relays are not the 2.0 E-stop (P-03 rev19.2 item 20)
+        message: K1 and K2 are Gigavac GX11CAC contactors; automotive relays are not the 2.0 E-stop (P-03 rev19.6 item 22)
+      - pattern: '(?P<found>\bLEV100H?\b)'
+        unless: 'supersed|legacy|historical|replaced|removed|dropped|no longer|earlier|previous|v0\.0\.1'
+        message: K1 and K2 are Gigavac GX11CAC contactors; label LEV100H material as superseded (P-03 rev19.6 item 22)
     verification:
-      machine: text claiming the EDM variant is chosen, recommending a single-channel or uncertified E-stop, presenting CTL-004 as installed, or naming automotive relays as the 2.0 E-stop
-      human: {reviewer: platform-lead, evidence: safety-chain design and component certificates; two human approvals per the repository ruleset}
+      machine: text claiming the EDM variant is chosen without the GX11CAC or BUY-32, recommending a single-channel or uncertified E-stop, presenting CTL-004 as installed, naming automotive relays as the 2.0 E-stop, or LEV100H outside superseded or historical context
+      human: {reviewer: platform-lead, evidence: "safety-chain design, GX11CAC datasheet checks for BUY-32 and component certificates; two human approvals per the repository ruleset"}
+    owner: electrical-owner
+
+  - id: SAFETY-CHAIN-IO
+    title: Controller I/O for the safety chain and charging (item 22)
+    summary: "Y32 via one ISO1212; E-stop spare NO, RESET NC and charger fault inputs; TPL7407L for RESET lamp and KCHG."
+    fix_hint: "Read Y32 through the ISO1212; no separate K1/K2 feedback input; label older contactor feedback as superseded."
+    kind: configuration
+    status: recorded
+    values:
+      - Y32 read through one ISO1212 module
+      - base E-stop spare NO contact as a diagnostic input
+      - RESET NC contact input
+      - charger fault input
+      - TPL7407L outputs for the RESET lamp and KCHG
+    unit: none
+    date: 2026-10-18
+    review_by: 2026-11-29
+    source: {document: P-03-rev19.6, item: "item 22 (controller I/O); detail in E-01-rev1.3"}
+    supersedes:
+      - {value: "separate K1/K2 contactor feedback read by the firmware", source: "earlier contactor design; replaced by the linked auxiliaries in the PNOZ reset loop, P-03-rev19.6 item 22"}
+    applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      - pattern: '(?P<found>\b(?:K1|K2|contactors?)\b[^\n]{0,40}\bfeedback\b[^\n]{0,40}\b(?:firmware|STM32|MCU|GPIO)\b|\b(?:firmware|STM32|MCU)\b[^\n]{0,40}\b(?:K1|K2|contactors?)\b[^\n]{0,20}\bfeedback\b)'
+        unless: 'supersed|legacy|historical|replaced|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|never|without|PNOZ'
+        message: there is no separate K1/K2 feedback to the firmware; the linked auxiliaries sit in the PNOZ reset loop and the controller reads Y32 (P-03 rev19.6 item 22)
+    verification:
+      machine: K1/K2 or contactor feedback wired to the firmware, STM32, MCU or a GPIO outside superseded or historical context
+      human: {reviewer: platform-lead, evidence: "E-01 rev1.3 controller I/O allocation (ISO1212, TPL7407L) and the safety-chain test record; two human approvals per the repository ruleset"}
     owner: electrical-owner
 
   - id: ESTOP-SCOPE
@@ -920,10 +963,11 @@ decisions:
       - main fuse F0 110 A Class T, then a lockable battery disconnect
       - no circuit breaker
       - branch fuses per the B-02 fuse schedule
+      - F-LIFT 15 A with 2.5 mm2 cable
     unit: none
-    date: 2026-10-15
-    review_by: 2026-11-26
-    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    date: 2026-10-18
+    review_by: 2026-11-29
+    source: {document: P-03-rev19.6, item: "F-LIFT 15 A with 2.5 mm2 cable; main protection per P-03-rev19.2 item 20; detail in E-01-rev1.3"}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
@@ -933,7 +977,7 @@ decisions:
         message: main protection is fuse F0 110 A Class T and a lockable disconnect; no circuit breaker (P-03 rev19.2 item 20)
     verification:
       machine: a main or battery circuit breaker in the 2.0 power path
-      human: {reviewer: platform-lead, evidence: "E-01 rev1.1 single-line diagram and the B-02 fuse schedule"}
+      human: {reviewer: platform-lead, evidence: "E-01 rev1.3 single-line diagram and the B-02 fuse schedule, including F-LIFT"}
     owner: electrical-owner
 
   - id: COMPUTE
