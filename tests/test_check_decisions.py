@@ -401,12 +401,12 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "Issue 7.6 is canonical; Issue 6 is superseded.\n", "x"), [])
 
-    def test_bom_issue_7_8_in_force(self):
-        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n",
-                     "BOM Issue 7.6 is canonical.\n", "BOM Issue 7.7 is canonical.\n"):
+    def test_bom_issue_7_10_in_force(self):
+        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.1 is the BOM of record.\n",
+                     "BOM Issue 7.8 is canonical.\n", "BOM Issue 7.9 is canonical.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
-        for text in ("BOM Issue 7.8 is canonical.\n", "Issue 7.7 was canonical until Issue 7.8 superseded it.\n",
-                     "The earlier canonical BOM was Issue 7.7.\n"):
+        for text in ("BOM Issue 7.10 is canonical.\n", "Issue 7.8 was canonical until Issue 7.10 superseded it.\n",
+                     "The earlier canonical BOM was Issue 7.8.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     # P-03 rev19.2 item 20 (E-01 rev1.1): each check flags the stale wording and accepts a
@@ -424,13 +424,34 @@ class RealRegister(unittest.TestCase):
         for text in ("K1 and K2 are automotive relays.\n", "Use automotive relays for the E-stop contactors.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-PROCUREMENT"], text)
         for text in ("Automotive relays as K1 and K2 (superseded; v0.0.1 only).\n",
-                     "K1 and K2 are TE KILOVAC LEV100H contactors.\n"):
+                     "K1 and K2 are Gigavac GX11CAC contactors.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_edm_variant_is_gate_edm_stop(self):
         self.assertEqual(self.ids("docs/a.md", "The EDM variant is selected.\n", "x"), ["SAFETY-PROCUREMENT"])
         self.assertEqual(self.ids("docs/a.md", "The EDM variant is decided at gate EDM-STOP before ordering.\n",
                                   "x"), [])
+
+    # P-03 rev19.6 item 22 (E-01 rev1.3): Gigavac GX11CAC contactors, linked auxiliaries in the PNOZ reset loop.
+    def test_linked_auxiliary_variant_is_the_gx11cac(self):
+        self.assertEqual(self.ids("docs/a.md", "The EDM variant is selected: Gigavac GX11CAC, BUY-32 pending.\n",
+                                  "x"), [])
+
+    def test_lev100h_is_superseded(self):
+        for text in ("K1 and K2 are TE KILOVAC LEV100H contactors.\n", "Contactor: LEV100 family, normally open.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-PROCUREMENT"], text)
+        for text in ("K1 and K2 were LEV100H (superseded by the Gigavac GX11CAC).\n",
+                     "Historical: TE KILOVAC LEV100H in rev19.2.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_no_separate_k1_k2_firmware_feedback(self):
+        for text in ("K1 and K2 feedback is read by the firmware on two inputs.\n",
+                     "The STM32 monitors K1/K2 feedback.\n", "Contactor feedback goes to an STM32 GPIO.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-CHAIN-IO"], text)
+        for text in ("K1/K2 feedback to the firmware (superseded by P-03 rev19.6 item 22).\n",
+                     "The K1 and K2 auxiliaries sit in the PNOZ reset loop; the firmware reads Y32.\n",
+                     "There is no K1/K2 feedback input to the firmware.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_estop_cuts_actuator_power_only(self):
         repo = "openamr-platform-hw"
