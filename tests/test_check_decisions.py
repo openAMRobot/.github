@@ -396,6 +396,31 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "An uncertified button is fine for prototypes.\n", "x"),
                          ["SAFETY-PROCUREMENT"])
 
+    def test_tof_pitch_is_10_degrees(self):
+        # Alex decision 20 Oct 2026: ToF cliff pitch 10 degrees down; 20 degrees is superseded.
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna is pitched 20 degrees down.\n", "openamrobot-docs"), ["NEAR-FIELD-FRAMES"])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna is pitched 10 degrees down.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna pitch replaced the earlier 20 degree value.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna 10 degree pitch is final.\n", "openamrobot-docs"), ["NEAR-FIELD-FRAMES"])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna 10 degree pitch is final after the bench test.\n", "openamrobot-docs"), [])
+
+    def test_shared_base_charger(self):
+        self.assertEqual(self.ids("docs/a.md", "Release 001 charges through a WCM-300 receiver.\n", "openamrobot-docs"), ["SHARED-BASE"])
+        self.assertEqual(self.ids("docs/a.md", "The WCM-300 is the existing unit on the robot today.\n", "openamrobot-docs"), [])
+
+    def test_embodied_ai_repository(self):
+        self.assertEqual(self.ids("docs/a.md", "The recorder lives in openamrobot-interfaces.\n", "openamrobot-interfaces"), ["EMBODIED-AI-REPO"])
+        self.assertEqual(self.ids("docs/a.md", "The recorder does not live in openamrobot-interfaces.\n", "openamrobot-interfaces"), [])
+
+    def test_platform_pin(self):
+        self.assertEqual(self.ids("docs/a.md", "A6 was tested against platform-sw main.\n", "openamr-upperbody-sw"), ["PLATFORM-PIN"])
+        self.assertEqual(self.ids("docs/a.md", "A6 was tested against platform-sw dfd44a5.\n", "openamr-upperbody-sw"), [])
+
+    def test_base_link_height_is_a_frame_value(self):
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertTrue(any("base_link 0.098 m" in v for v in by_id["FRAMES-REP105"]["values"]))
+        self.assertFalse(any("base_link 0.098 m" in v for v in by_id["CAMERAS"]["values"]))
+
     def test_bom_issue_in_force(self):
         self.assertEqual(self.ids("docs/a.md", "The canonical BOM is Issue 6.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
@@ -415,7 +440,8 @@ class RealRegister(unittest.TestCase):
         repo = "openamrobot-docs"
         for text in ("Wireless charging (WCM-300) with auto-docking is OpenAMRobot 3.0.\n",
                      "Wireless charging is deferred to 3.0.\n", "OpenAMRobot 3.0 wireless charging.\n"):
-            self.assertEqual(self.ids("docs/a.md", text, repo), ["DOCK-NO-CONTACTS"], text)
+            expected = ["DOCK-NO-CONTACTS", "SHARED-BASE"] if "WCM-300" in text else ["DOCK-NO-CONTACTS"]
+            self.assertEqual(self.ids("docs/a.md", text, repo), expected, text)
         for text in ("The TZBOT WCM-500-24 wireless charging path is part of 2.0.\n",
                      "Wireless charging is 3.0 (superseded by P-03 rev19.2 item 20).\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
@@ -663,9 +689,12 @@ class RealRegister(unittest.TestCase):
 
     def test_near_field_frames_tof_pitch_is_screening(self):
         repo = "openamr-platform-hw"
+        # Alex decision 20 Oct 2026: 20 degrees is superseded; the pitch is 10 degrees down.
         self.assertEqual(self.ids("docs/a.md", "tof_front pitched 20 degrees down, final.\n", repo),
                          ["NEAR-FIELD-FRAMES"])
-        for text in ("tof_front pitched 20 degrees down (screening value until the bench test).\n",
+        self.assertEqual(self.ids("docs/a.md", "tof_front pitched 20 degrees down (screening value until the bench test).\n", repo),
+                         ["NEAR-FIELD-FRAMES"])
+        for text in ("tof_front pitched 10 degrees down (until the bench test).\n",
                      "us_front_left (0.390, +0.130, -0.0066); tof_rear (-0.390, 0, -0.0066, yaw pi).\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
