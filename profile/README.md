@@ -33,6 +33,7 @@ The platform is designed not as a fixed product, but as an open and extensible i
 - industrial automation
 - embodied AI research
 - logistics and warehouse robotics
+- grocery and retail order picking (one of our first demonstration use cases)
 - educational platforms
 - teleoperation systems
 - human-robot collaboration
@@ -440,19 +441,34 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 ---
 
-## Planned releases (next 6 months)
+## Planned releases
+
+### OpenAMRobot 2.0 (in development)
+
+- 20 Nov 2026: v2.0.0-rc.1 pre-release (design, software and manufacturing package)
+- 23 Nov to 18 Dec 2026: physical integration and acceptance testing in Berlin
+- 18 Dec 2026: v2.0.0 final release
+- December 2026: hands-on hackathon with the robot at MotionLab.Berlin
+- Current discussion: https://github.com/orgs/openAMRobot/discussions/27
+
+What 2.0 brings:
+
+- Dual-arm upper body: two OpenArm 2.0 arms (7 DoF each) on a lift, shoulder height 1000 to 1350 mm
+- NVIDIA Jetson Orin NX as the single high-level computer; STM32H723 base controller over micro-ROS
+- Hub-motor drive with fail-safe holding brakes, 25.6 V LiFePO4 battery, wireless charging
+- Safety layer with two E-stops that cut motor power
+- ROS 2, Nav2, MoveIt 2, ros2_control and the browser-based operator UI
+- Embodied AI pipeline: demonstration recording, ACT imitation-learning baseline, evaluation
+
+### OpenAMRobot 3.0 (development cycle starts January 2027)
+
+- Suspension for the hub-motor drive
+- Next steps of the teach-by-demonstration platform (VLA-based training)
+
+### Ongoing
 
 - Carrier PCB (compute + power + sensors)
   - Current discussion: https://github.com/orgs/openAMRobot/discussions/9
-
-- Hub-motor drive; suspension in 3.0
-  - mechanical + control integration
-
-- Robotic arm integration; lift approved in principle for 2.0
-  - mounts
-  - drivers
-  - wiring
-  - examples
 
 - ML-based computer vision
   - object recognition
@@ -473,7 +489,6 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
   - embedded systems
   - mechatronics
 
-  
 ---
 
 ## Licensing, ownership, and contributions
