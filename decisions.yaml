@@ -57,6 +57,12 @@ in_force:
   date: 2026-10-18
 
 sources:
+  Alex decision 2026-10-20:
+    title: Platform decision of 20 October 2026 (TF-Luna cliff pitch 10 degrees; WCM-500-24 on release 001 and 2.0; embodied-AI repository; platform-sw pin for the combined model)
+    evidence: decision record, not held in any repository; provenance only, CI never reads it; to be recorded in the next P-03 revision
+  Alex decision 2026-10-19:
+    title: Platform decision of 19 October 2026 (one shared base electrical design for release 001 and 2.0)
+    evidence: decision record, not held in any repository; provenance only, CI never reads it; to be recorded in the next P-03 revision
   Alex decision 2026-10-16:
     title: Platform decision of 16 October 2026 (base camera pose, imu_link and LiDAR stack as built, from CAD Rev B, platform-hw #20; imu_link pose and orientation from platform-sw #70); recorded in P-03 rev19.4 item 19 D3, D4 and D5
     evidence: decision record, not held in any repository; provenance only, CI never reads it
@@ -338,6 +344,7 @@ decisions:
     values:
       - base_footprint on the floor under the drive-axle midpoint
       - base_link at the drive-axle midpoint and axle height; x forward, z up
+      - base_link 0.098 m above the floor (axle height; moved here from CAMERAS on 20 Oct 2026, value unchanged, P-03 rev19.4 item 19 D3)
       - imu_link on the centreline, away from motor magnetic fields
       - "imu_link (0.0544, 0, 0.1210) m from base_link, rpy (0, 0, -pi/2), yaw -90 deg: ICM-42688-P on MIKROE-4237 on the electronics bracket MMP.04.00.00.002, centreline, 54.4 mm ahead of the drive axle, chip centre 165.043 mm above the base-plate top, 219.04 mm above the floor"
       - "the IMU publishes raw sensor-frame values; the axis mapping is in the URDF (sensor X to base -y, Y to +x, Z to +z); no firmware remap"
@@ -366,26 +373,32 @@ decisions:
 
   - id: NEAR-FIELD-FRAMES
     title: Near-field ultrasonic and ToF sensor frames on the base panels
-    summary: "Four MB7060 frames us_* at x +/-0.390, y +/-0.130; two TF-Luna frames tof_* at x +/-0.390 on the centreline."
-    fix_hint: "Use the listed frame origins; the ToF pitch of 20 degrees is a screening value until the bench test."
+    summary: "Four MB7060 us_* at x +/-0.390 (panel face), y +/-0.130; two TF-Luna tof_* at x +/-0.399 (lens face), 10 deg down."
+    fix_hint: "Use the listed frame origins; the ToF pitch is 10 degrees down, confirmed in the bench test."
     kind: value
     status: recorded
     values:
-      - us_front_left (0.390, +0.130, -0.0066), us_front_right (0.390, -0.130, -0.0066), us_rear_left (-0.390, +0.130, -0.0066, yaw pi), us_rear_right (-0.390, -0.130, -0.0066, yaw pi) from base_link
+      - us_front_left (0.390, +0.130, -0.0066), us_front_right (0.390, -0.130, -0.0066), us_rear_left (-0.390, +0.130, -0.0066, yaw pi), us_rear_right (-0.390, -0.130, -0.0066, yaw pi) from base_link; confirmed flush with the panel outer face (the CAD offsets +0.6 / -1.4 mm only reflect the sensor depth in the lock nut)
       - "ultrasonic mounting: MB7060 holes 27.5 mm on the existing centres, sensor centred, 3/4 inch NPS lock nut, tilt 0 until the bench test"
-      - tof_front (0.390, 0, -0.0066) in the existing 22.0 mm front centre hole; tof_rear (-0.390, 0, -0.0066, yaw pi) in a new 22.0 mm rear centre hole
-      - both ToF sensors pitched down so the beam meets the floor beyond 0.2 m (20 degree screening value until the bench test)
+      - tof_front (0.399, 0, -0.0066) and tof_rear (-0.399, 0, -0.0066, yaw pi) from base_link: lens face 9 mm ahead of the panel on mount MMP.00.00.00.005, pitched 10 degrees down; in the existing 22.0 mm front centre hole and a new 22.0 mm rear centre hole
+      - both ToF sensors pitched 10 degrees down; from 91.4 mm above the floor the beam meets the floor about 0.52 m ahead (0.47 to 0.58 m over the 2 degree beam); the bench test confirms the return on real floors
     unit: m
-    date: 2026-10-12
-    review_by: 2026-11-23
-    source: {document: P-03-rev19.0, item: "item 19 (near-field sensor frames)"}
+    date: 2026-10-20
+    review_by: 2026-12-01
+    source: {document: Alex decision 2026-10-20, item: "Alex decision 2026-10-20 (ToF pitch) and robot-description owner confirmation 2026-10-20 (frame x values); y and height from P-03 rev19.0 item 19"}
+    supersedes:
+      - {value: "both ToF sensors pitched 20 degrees down (screening value)", source: "P-03-rev19.0 item 19 D6"}
+      - {value: "tof_* at x +/-0.390", source: "P-03-rev19.0 item 19 D6"}
     applies_to: {repositories: ["openamr-platform-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
     check:
-      - pattern: '(?P<found>\b(?:tof_(?:front|rear)|TF-Luna)\b[^\n]{0,60}?\b20\s*(?:°|deg(?:rees?)?)[^\n]{0,40}?\b(?:final|fixed|validated|confirmed)\b)'
-        unless: 'screening|bench|until'
-        message: the 20 degree ToF pitch is a screening value until the bench test (P-03 rev19.0 item 19)
+      - pattern: '(?P<found>\b(?:tof_(?:front|rear)|TF-Luna)\b[^\n]{0,60}?\b20\s*(?:°|deg(?:rees?)?))'
+        unless: 'supersed|replac|previous|earlier|historical|instead of|was 20|from 20'
+        message: the ToF cliff pitch is 10 degrees down, not 20 (Alex decision 20 Oct 2026)
+      - pattern: '(?P<found>\b(?:tof_(?:front|rear)|TF-Luna)\b[^\n]{0,60}?\b10\s*(?:°|deg(?:rees?)?)[^\n]{0,40}?\b(?:final|validated|confirmed)\b)'
+        unless: 'bench|until'
+        message: the 10 degree ToF pitch is confirmed only by the bench test (Alex decision 20 Oct 2026)
     verification:
-      machine: the 20 degree ToF screening pitch presented as final, fixed, validated or confirmed
+      machine: a 20 degree ToF pitch presented as current, or the 10 degree pitch presented as validated before the bench test
       human: {reviewer: robot-description-owner, evidence: Rev B panel drawing and URDF joint origins}
     owner: platform-lead
 
@@ -597,7 +610,7 @@ decisions:
     kind: value
     status: recorded
     values:
-      - base camera Orbbec Gemini 336L, base_camera_link (0.387, 0, 0.046) m from base_link, pitch from base_tilt (bt05, bt10, bt15, default bt10); camera centre 144 mm above the floor (base_link 0.098 m + z 0.046 m); front-panel opening about 126 x 36 mm centred on it; from CAD Rev B (platform-hw #20)
+      - base camera Orbbec Gemini 336L, base_camera_link (0.387, 0, 0.046) m from base_link, pitch from base_tilt (bt05, bt10, bt15, default bt10); camera centre 144 mm above the floor (base_link height from FRAMES-REP105 + z 0.046 m); front-panel opening about 126 x 36 mm centred on it; from CAD Rev B (platform-hw #20)
       - head camera Stereolabs ZED Mini (SKU ZED-121210) on the lift carriage, see HEAD-CAMERA-IDENTITY
       - two in-hand RGB wrist cameras; no separate torso scene camera
     unit: none
@@ -901,6 +914,7 @@ decisions:
     status: recorded
     values:
       - TZBOT WCM-500-24 wireless charger is the 2.0 charging path; output ordered at 28.4 V after written TZBOT confirmation
+      - the release 001 build uses the same WCM-500-24 path (SHARED-BASE, Alex decision 20 Oct 2026); the WCM-300 on the release 001 robot today is an existing unit, not the design
       - receiver, SB50 connector, F-CHG 30 A, charge relay and fault input are designed in
       - the charge relay NC contact opens the PNOZ supply, so actuators cannot be enabled while charging and a RESET is needed after
       - wired inlet PWR-019 and plug-presence switch PWR-020 are removed
@@ -925,6 +939,84 @@ decisions:
       machine: a plug-presence input, PWR-019 or PWR-020 presented as a 2.0 requirement
       human: {reviewer: platform-lead, evidence: "written TZBOT confirmation of the 28.4 V output, E-01 rev1.1 charge-relay wiring into the PNOZ supply"}
     owner: electrical-owner
+
+  - id: SHARED-BASE
+    title: One base electrical design for release 001 and 2.0
+    summary: "One base electrical design for release 001 and 2.0; only the controller and sensor types differ."
+    fix_hint: "Describe the base electrical design as shared; only the controller (Teensy/STM32) and sensor types differ."
+    kind: configuration
+    status: recorded
+    values:
+      - "the base electrical design is designed once for the release 001 build and carried over to 2.0 as the same solution: safety chain (E-01), charging, E-stop wiring and logic, power distribution, battery and protection, and the near-field sensing approach (integration, mounting and wiring)"
+      - "intended differences only: base controller (release 001 Teensy, 2.0 STM32H723ZG) and sensor types (release 001 JSN-SR04T ultrasonic and E18-D80NK IR; 2.0 MB7060 ultrasonic and TF-Luna ToF), plus changes that follow from those two"
+      - both robots use the TZBOT WCM-500-24 charging path (see CHARGING)
+      - test evidence from the release 001 build counts for 2.0 only where parts, revisions, wiring, configuration and acceptance criteria match
+    unit: none
+    date: 2026-10-19
+    review_by: 2026-11-30
+    source: {document: Alex decision 2026-10-19, item: "shared base for release 001 and 2.0; WCM-500-24 on both robots added 20 Oct 2026"}
+    applies_to:
+      repositories: ["openamr-platform-*", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>(?:charg\w*|receiver)[^\n]{0,40}\bWCM-300\b|\bWCM-300\b[^\n]{0,20}\bcharg\w*)'
+        unless: 'existing|today|legacy|historical|replaced|supersed|not the design|current unit|manual|instruction'
+        message: both robots use the TZBOT WCM-500-24 charging path; the WCM-300 is only the existing unit on the release 001 robot (SHARED-BASE)
+    verification:
+      machine: the WCM-300 presented as the release 001 or 2.0 design
+      human: {reviewer: electrical-owner, evidence: "Sheet A and Sheet B and the wire list showing the shared parts; equivalence table per shared subsystem"}
+    owner: platform-lead
+
+  - id: EMBODIED-AI-REPO
+    title: Embodied-AI work lives in openamrobot-embodied-ai
+    summary: "Recorder, policy runner, dataset QA, ACT baseline and evaluation live in openamrobot-embodied-ai; schema in interfaces."
+    fix_hint: "Put recorder, dataset QA and training code in openamrobot-embodied-ai; interfaces keeps the C9 schema."
+    kind: configuration
+    status: recorded
+    values:
+      - "openamrobot-embodied-ai holds two parts: ros2/ (colcon: recorder to LeRobotDataset, policy runner) and python/ (pip, pinned LeRobot release: dataset QA C10, conversion, ACT baseline C11, evaluation C14); each part has its own CI job"
+      - openamrobot-interfaces keeps only the C9 whole-body capture schema contract and its conformance test
+      - datasets and model checkpoints are never committed to git; they are published on the Hugging Face Hub with dataset and model cards after the C10 privacy and source checks
+    unit: none
+    date: 2026-10-20
+    review_by: 2026-12-01
+    source: {document: Alex decision 2026-10-20, item: "embodied-AI repository structure"}
+    applies_to:
+      repositories: ["openamrobot-interfaces", "openamrobot-embodied-ai", "openamrobot-docs"]
+      files: ["**/*.md"]
+    check:
+      - pattern: '(?P<found>\b(?:recorder|policy runner|ACT baseline)\b[^\n]{0,60}\b(?:in|into|under) openamrobot-interfaces\b)'
+        unless: '\bnot\b|never|no longer|schema only|contract only|supersed'
+        message: recorder, policy runner and training code live in openamrobot-embodied-ai; interfaces keeps only the C9 schema (EMBODIED-AI-REPO)
+    verification:
+      machine: recorder, policy runner or training code placed in openamrobot-interfaces
+      human: {reviewer: software-lead, evidence: repository layout and CI jobs of openamrobot-embodied-ai}
+    owner: software-lead
+
+  - id: PLATFORM-PIN
+    title: The combined robot model is tested against one pinned platform-sw commit
+    summary: "upperbody-sw tests the combined model against one pinned platform-sw SHA; the pin moves only with a full A6/A7 rerun."
+    fix_hint: "Cite the pinned platform-sw SHA in combined-model evidence; move the pin only together with a full A6/A7 rerun."
+    kind: configuration
+    status: recorded
+    values:
+      - the combined robot model in openamr-upperbody-sw is tested against one pinned platform-sw commit (dfd44a5 on 20 Oct 2026)
+      - the pin moves only together with a full A6/A7 rerun on the new commit, and every evidence report records the platform-sw SHA it used
+    unit: none
+    date: 2026-10-20
+    review_by: 2026-12-01
+    source: {document: Alex decision 2026-10-20, item: "platform-sw pin for the combined model (requested by the combined-model owner)"}
+    applies_to:
+      repositories: ["openamr-upperbody-sw"]
+      files: ["**/*.md"]
+    check:
+      - pattern: '(?P<found>\btested against (?:openamr-)?platform-sw (?:main|latest|HEAD)\b)'
+        unless: '\bnot\b|never|supersed|historical'
+        message: combined-model evidence uses one pinned platform-sw SHA, not main (PLATFORM-PIN)
+    verification:
+      machine: combined-model evidence claiming to be tested against platform-sw main instead of a pinned SHA
+      human: {reviewer: software-lead, evidence: "A6/A7 reports recording the pinned platform-sw SHA"}
+    owner: software-lead
 
   - id: BMS-FAULTS
     title: Battery fault handling
