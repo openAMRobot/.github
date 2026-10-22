@@ -373,21 +373,22 @@ decisions:
 
   - id: NEAR-FIELD-FRAMES
     title: Near-field ultrasonic and ToF sensor frames on the base panels
-    summary: "Four MB7060 frames us_* at x +/-0.390, y +/-0.130; two TF-Luna tof_* at x +/-0.390, pitched 10 deg down."
+    summary: "Four MB7060 us_* at x +/-0.390 (panel face), y +/-0.130; two TF-Luna tof_* at x +/-0.399 (lens face), 10 deg down."
     fix_hint: "Use the listed frame origins; the ToF pitch is 10 degrees down, confirmed in the bench test."
     kind: value
     status: recorded
     values:
-      - us_front_left (0.390, +0.130, -0.0066), us_front_right (0.390, -0.130, -0.0066), us_rear_left (-0.390, +0.130, -0.0066, yaw pi), us_rear_right (-0.390, -0.130, -0.0066, yaw pi) from base_link
+      - us_front_left (0.390, +0.130, -0.0066), us_front_right (0.390, -0.130, -0.0066), us_rear_left (-0.390, +0.130, -0.0066, yaw pi), us_rear_right (-0.390, -0.130, -0.0066, yaw pi) from base_link; confirmed flush with the panel outer face (the CAD offsets +0.6 / -1.4 mm only reflect the sensor depth in the lock nut)
       - "ultrasonic mounting: MB7060 holes 27.5 mm on the existing centres, sensor centred, 3/4 inch NPS lock nut, tilt 0 until the bench test"
-      - tof_front (0.390, 0, -0.0066) in the existing 22.0 mm front centre hole; tof_rear (-0.390, 0, -0.0066, yaw pi) in a new 22.0 mm rear centre hole
+      - tof_front (0.399, 0, -0.0066) and tof_rear (-0.399, 0, -0.0066, yaw pi) from base_link: lens face 9 mm ahead of the panel on mount MMP.00.00.00.005, pitched 10 degrees down; in the existing 22.0 mm front centre hole and a new 22.0 mm rear centre hole
       - both ToF sensors pitched 10 degrees down; from 91.4 mm above the floor the beam meets the floor about 0.52 m ahead (0.47 to 0.58 m over the 2 degree beam); the bench test confirms the return on real floors
     unit: m
     date: 2026-10-20
     review_by: 2026-12-01
-    source: {document: Alex decision 2026-10-20, item: "ToF cliff pitch 10 degrees; frame positions from P-03 rev19.0 item 19, unchanged until the robot-description owner confirms the CAD values"}
+    source: {document: Alex decision 2026-10-20, item: "Alex decision 2026-10-20 (ToF pitch) and robot-description owner confirmation 2026-10-20 (frame x values); y and height from P-03 rev19.0 item 19"}
     supersedes:
       - {value: "both ToF sensors pitched 20 degrees down (screening value)", source: "P-03-rev19.0 item 19 D6"}
+      - {value: "tof_* at x +/-0.390", source: "P-03-rev19.0 item 19 D6"}
     applies_to: {repositories: ["openamr-platform-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]}
     check:
       - pattern: '(?P<found>\b(?:tof_(?:front|rear)|TF-Luna)\b[^\n]{0,60}?\b20\s*(?:°|deg(?:rees?)?))'
