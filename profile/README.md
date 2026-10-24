@@ -69,7 +69,7 @@ OpenAMRobot is available in multiple formats depending on your needs.
 | Assembled Dual-Arm Manipulator: base, lift and two OpenArm 2.0 arms, assembled and tested in Berlin | **from €14,800** |
 | **Premium Embodied AI Training Kit**: assembled dual-arm robot with two OpenArm 2.0 arms, OpenArm KER leader set for teleoperation, and the AI pipelines | **from €25,000** |
 
-Every package includes a Daly charger for manual charging; no package includes a wireless charger. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
+OpenAMRobot 2.0 is designed for the TZBOT WCM-500-24 wireless charger, which is not included in these packages; every package includes a Daly charger for manual charging. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
 
 ### Premium Embodied AI Training Kit
 
