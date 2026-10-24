@@ -62,17 +62,20 @@ OpenAMRobot is available as:
 OpenAMRobot is available in multiple formats depending on your needs.
 
 | Offering | Starting Price |
-|----------|---------------:|
-| Mobile Robot Platform - full initial package (components and chassis production), MIT license | **€5,500** |
-| DIY Development Kit - assembled complete mobile robot hardware, electronics, documentation & software package | **€7,000** |
-| Dual-Arm Embodied AI Mobile Robot | **from €13,500** |
-| **Dual-Arm Embodied AI Mobile Robot + Teach-by-Demonstration AI Platform** | **from €25,000** |
+|---|---:|
+| DIY Mobile Platform kit: complete OpenAMRobot 2.0 base as a parts kit (chassis parts, drivetrain, electronics, compute, sensors), assembled by you | **€5,500** |
+| Assembled Mobile Platform: the same base, assembled and tested in Berlin | **€7,000** |
+| DIY Dual-Arm Manipulator kit: base parts kit, lift and two OpenArm 2.0 arms, assembled by you | **from €12,800** |
+| Assembled Dual-Arm Manipulator: base, lift and two OpenArm 2.0 arms, assembled and tested in Berlin | **from €14,800** |
+| **Premium Embodied AI Training Kit**: assembled dual-arm robot with two OpenArm 2.0 arms, OpenArm KER leader set for teleoperation, and the AI pipelines | **from €25,000** |
 
-### Teach-by-Demonstration AI Platform
+Every package includes a Daly charger for manual charging; no package includes a wireless charger. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
+
+### Premium Embodied AI Training Kit
 
 A complete Physical AI development and deployment platform designed to enable **domain experts - not robotics engineers - to teach robots new tasks by demonstration**.
 
-The package combines the Dual-Arm Embodied AI Mobile Robot with the software and AI workflows required for:
+The kit combines the assembled dual-arm robot (two OpenArm 2.0 arms), the OpenArm KER leader set for teleoperation, and the software and AI pipelines required for:
 
 - teleoperation and human task demonstration;
 - demonstration recording and dataset collection;
