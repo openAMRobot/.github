@@ -84,7 +84,7 @@ jobs:
         run: |
           set -euo pipefail
           # Vendored STM32Cube driver trees keep ST's original files; their "=====" doc rules are not merge markers.
-          if git grep -nE '^(<<<<<<<|=======|>>>>>>>)' --             ':!*.patch' ':!*.diff' ':!*.md' ':!**/*.md' ':!**/Drivers/STM32*/**' ':!**/Drivers/CMSIS/**' ':!**/Drivers/BSP/**'; then
+          if git grep -nE '^(<<<<<<<|=======|>>>>>>>)' --             ':!*.patch' ':!*.diff' ':!*.md' ':!**/*.md' ':!**/Drivers/STM32H7xx_HAL_Driver/**' ':!**/Drivers/CMSIS/**' ':!**/Drivers/BSP/STM32H7xx_Nucleo/**'; then
             echo "::error::Unresolved merge-conflict marker detected"
             exit 1
           fi
