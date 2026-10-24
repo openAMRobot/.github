@@ -139,5 +139,39 @@ class HarnessModes(unittest.TestCase):
             self.assertEqual(self.run_step("Decisions of record", 0, enforce=enforce)[0], 0)
 
 
+class MergeMarkers(unittest.TestCase):
+    """The "Reject unresolved merge markers" step, run from the workflow file in a scratch repository."""
+
+    def run_marker_step(self, files):
+        _, steps = load()
+        with tempfile.TemporaryDirectory() as tmp:
+            for rel, text in files.items():
+                path = Path(tmp, rel)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            git = ["git", "-c", "user.name=test", "-c", "user.email=test@example.invalid", "-C", tmp]
+            subprocess.run(["git", "init", "-q", tmp], check=True)
+            subprocess.run(git + ["add", "-A"], check=True)
+            subprocess.run(git + ["commit", "-q", "-m", "fixture"], check=True)
+            proc = subprocess.run(["bash", "-c", steps["Reject unresolved merge markers"]["run"]], cwd=tmp,
+                                  capture_output=True, text=True)
+            return proc.returncode, proc.stdout + proc.stderr
+
+    def test_vendored_stm32cube_drivers_are_excluded_but_project_code_is_not(self):
+        hal = "boards/stm32/X/Drivers/STM32H7xx_HAL_Driver/Src/hal.c"
+        cmsis = "boards/stm32/X/Drivers/CMSIS/Include/c.h"
+        real = "src/real.c"
+        code, out = self.run_marker_step({
+            hal: "/*\n=======\n  ST documentation rule\n*/\n",
+            cmsis: "/*\n=======\n*/\n",
+            real: "int a;\n=======\nint b;\n",
+        })
+        self.assertEqual(code, 1, out)
+        self.assertIn(real, out)
+        self.assertIn("Unresolved merge-conflict marker detected", out)
+        self.assertNotIn(hal, out)
+        self.assertNotIn(cmsis, out)
+
+
 if __name__ == "__main__":
     unittest.main()
