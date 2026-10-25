@@ -2,6 +2,14 @@
 
 OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem initiated, operated, and controlled by **Botshare LTD** (Cyprus Company ID HE479056).
 
+> [!IMPORTANT]
+> ### Pre-order OpenAMRobot 2.0 at founder prices
+> DIY kits and assembled robots: **30% off until 15 November 2026**, 25% off 16 to 30 November, 20% off 1 to 31 December. Full payment, price locked, first dispatch April 2027.
+>
+> **[See packages and pre-order on botshare.ai →](https://botshare.ai/openamrobot)**
+
+Botshare LTD is a member of **[NVIDIA Inception](https://www.nvidia.com/en-us/startups/)**, NVIDIA's programme for startups.
+
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
 - mobile manipulation
@@ -59,15 +67,17 @@ OpenAMRobot is available as:
 
 # Commercial Options
 
-OpenAMRobot is available in multiple formats depending on your needs.
+OpenAMRobot 2.0 is open for pre-order at founder prices until 31 December 2026. Prices in EUR, excluding VAT, Berlin time. List prices apply from 1 January 2027.
 
-| Offering | Starting Price |
-|---|---:|
-| DIY Mobile Platform kit: complete OpenAMRobot 2.0 base as a parts kit (chassis parts, drivetrain, electronics, compute, sensors), assembled by you | **€5,500** |
-| Assembled Mobile Platform: the same base, assembled and tested in Berlin | **€7,000** |
-| DIY Dual-Arm Manipulator kit: base parts kit, lift and two OpenArm 2.0 arms, assembled by you | **from €12,800** |
-| Assembled Dual-Arm Manipulator: base, lift and two OpenArm 2.0 arms, assembled and tested in Berlin | **from €14,800** |
-| **Premium Embodied AI Training Kit**: assembled dual-arm robot with two OpenArm 2.0 arms, OpenArm KER leader set for teleoperation, and the AI pipelines | **from €25,000** |
+| Package | List | 30% off, to 15 Nov | 25% off, 16 to 30 Nov | 20% off, 1 to 31 Dec |
+|---|---:|---:|---:|---:|
+| **DIY Mobile Platform kit**: complete OpenAMRobot 2.0 base as a parts kit (chassis parts, drivetrain, electronics, compute, sensors), assembled by you | €5,500 | **€3,850** | €4,125 | €4,400 |
+| **Assembled Mobile Platform**: the same base, assembled and tested in Berlin | €7,000 | **€4,900** | €5,250 | €5,600 |
+| **DIY Dual-Arm Manipulator kit**: base parts kit, lift and two OpenArm 2.0 arms, assembled by you | from €12,800 | **from €8,960** | from €9,600 | from €10,240 |
+| **Assembled Dual-Arm Manipulator**: base, lift and two OpenArm 2.0 arms, assembled and tested in Berlin | from €14,800 | **from €10,360** | from €11,100 | from €11,840 |
+| **Premium Embodied AI Training Kit**: assembled dual-arm robot with two OpenArm 2.0 arms, OpenArm KER leader set for teleoperation, and the AI pipelines | from €25,000 | **from €17,500** | from €18,750 | from €20,000 |
+
+**[Pre-order on botshare.ai →](https://botshare.ai/openamrobot#prices)** · Full payment, price locked, first dispatch April 2027. Refund rules, delivery and VAT are in the [pre-order FAQ](https://botshare.ai/openamrobot#faq).
 
 OpenAMRobot 2.0 is designed for the TZBOT WCM-500-24 wireless charger, which is not included in these packages; every package includes a Daly charger for manual charging. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
 
@@ -119,6 +129,8 @@ Our services include:
 - Corporate training and technical workshops
 
 Whether you need a custom mobile robot, a proof of concept, or a complete production-ready solution, our engineering team can help accelerate your development.
+
+Fixed-scope offers (Technical Review, Engineering Sprint, Discovery Workshop, Build Partner and Platform packages, monthly support): **[botshare.ai/services →](https://botshare.ai/services)**
 
 ---
 ## 🎥 Demo (release v0.0.1)
