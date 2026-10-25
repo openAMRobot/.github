@@ -8,7 +8,7 @@ OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem i
 >
 > **[See packages and pre-order on botshare.ai →](https://botshare.ai/openamrobot)**
 
-Botshare LTD is a member of **[NVIDIA Inception](https://www.nvidia.com/en-us/startups/)**, NVIDIA's programme for startups.
+<img src="nvidia-inception.jpg" alt="Botshare LTD is a member of the NVIDIA Inception Program" height="70"/>
 
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
