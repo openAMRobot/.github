@@ -719,6 +719,49 @@ class RealRegister(unittest.TestCase):
                      "Planning groups: arm, arm+lift.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_head_camera_lens_42_mm_ahead(self):
+        # P-03 rev20.0 item 18 (28 Oct 2026): lens 42 mm ahead of the arm mount point, was 22 mm.
+        repo = "openamrobot-docs"
+        for text in ("Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The ZED Mini lens sits 22 mm ahead of the shoulder.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["HEAD-CAMERA-IDENTITY"], text)
+        for text in ("Head-camera lens 0.042 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The lens was 22 mm ahead of the shoulder before the 28 Oct correction.\n",
+                     "Lens 0.022 m ahead (superseded by 42 mm).\n",
+                     "Historical layout: lens 22 mm ahead of the shoulder.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_head_camera_pitch_baseline_30(self):
+        # P-03 rev20.0 items 15 and 17 (28 Oct 2026): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
+        repo = "openamr-upperbody-sw"
+        self.assertEqual(self.ids("docs/a.md", "Head-camera pitch 15 to 35 degrees down, baseline 25 degrees.\n", repo),
+                         ["HEAD-CAMERA-IDENTITY"])
+        for text in ("head_pitch hp15 to hp35, baseline hp25.\n", "Configuration: baseline hp25.\n",
+                     "head_pitch: baseline 25\n",
+                     "`head_pitch` (`hp15` to `hp35` in 5 degree steps, baseline `hp25`).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CONFIG-IDS"], text)
+        for text in ("Head-camera pitch 15 to 35 degrees down, baseline 30 degrees.\n",
+                     "head_pitch hp15 to hp35, baseline hp30.\n",
+                     "head_pitch baseline hp30 (was hp25).\n",
+                     "Head-camera pitch baseline 25 degrees (superseded by 30).\n",
+                     "Historical: head_pitch baseline hp25.\n",
+                     "head_pitch hp25 is one of the five steps.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_second_estop_is_not_the_openarm_kit_button(self):
+        # P-03 rev20.0 item 24: second XB4BS8445 with ZBE-102 on the static lift column replaces the kit button.
+        repo = "openamrobot-docs"
+        for text in ("The OpenArm kit supplies the chest button.\n",
+                     "Chest E-stop: from the OpenArm kit.\n",
+                     "Second E-stop from the OpenArm 2.0 kit.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["SAFETY-PROCUREMENT"], text)
+        for text in ("Second E-stop: Schneider XB4BS8445 with ZBE-102 on the rear face of the static lift column.\n",
+                     "The chest button was from the OpenArm kit.\n",
+                     "Chest E-stop from the OpenArm kit (superseded by P-03 rev20.0 item 24).\n",
+                     "It replaces the OpenArm kit button.\n",
+                     "Historical: the OpenArm kit chest button.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])
         self.assertEqual(self.ids("README.md", "Compute: Raspberry Pi 5.\n", "openamr-platform-hw"), ["COMPUTE"])

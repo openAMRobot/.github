@@ -57,6 +57,9 @@ in_force:
   date: 2026-10-18
 
 sources:
+  P-03-rev20.0:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.0, 27 October 2026, with the 28 October 2026 corrections (items 15, 17 and 18: head-camera lens 42 mm ahead of the shoulder, baseline pitch 30 degrees, hp30; item 24: second E-stop on the static lift column)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-20:
     title: Platform decision of 20 October 2026 (TF-Luna cliff pitch 10 degrees; WCM-500-24 on release 001 and 2.0; embodied-AI repository; platform-sw pin for the combined model)
     evidence: decision record, not held in any repository; provenance only, CI never reads it; to be recorded in the next P-03 revision
@@ -653,21 +656,29 @@ decisions:
     values:
       - Stereolabs ZED Mini, SKU ZED-121210, supplied with the OpenArm 2.0 set
       - mounted on the lift carriage, held at its ends by the mount supplied with the OpenArm set, on a pitch bracket on the arm-profile top
-      - lens 0.022 m ahead of and 0.223 m above the arm mount point, centred; 1223 mm at L1000 and 1573 mm at L1350
-      - pitch 15 to 35 degrees down in 5 degree steps about the lens line, baseline 25 degrees
+      - lens 0.042 m ahead of and 0.223 m above the arm mount point, centred; 1223 mm at L1000 and 1573 mm at L1350
+      - pitch 15 to 35 degrees down in 5 degree steps about the lens line, baseline 30 degrees
     unit: none
-    date: 2026-10-06
-    review_by: 2026-11-17
-    source: {document: P-03-rev18.7, item: item 15}
+    date: 2026-10-28
+    review_by: 2026-12-09
+    source: {document: P-03-rev20.0, item: "items 15 and 18 (28 Oct 2026 corrections); camera identity per P-03-rev18.7 item 15"}
     supersedes:
+      - {value: "lens 0.022 m ahead of and 0.223 m above the arm mount point", source: P-03-rev18.9 item 18}
+      - {value: "pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees", source: P-03-rev18.7 item 15}
       - {value: "ZED-121210 per the plan; identity open because the general arrangement named a different ZED model", source: P-00-rev18.1 txt 85}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.html", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf"]}
     check:
       - pattern: '(?P<found>\bZED[ -]?(?:2i?|X(?:[ -]?Mini)?)\b)'
         unless: 'supersed|historical|legacy|replaced|\bnot\b'
         message: the head camera is the Stereolabs ZED Mini, SKU ZED-121210 (P-03 rev18.7 item 15)
+      - pattern: '(?P<found>\b(?:0\.022 m|22 mm) ahead\b)'
+        unless: 'supersed|historical|\bwas\b'
+        message: the head-camera lens is 0.042 m (42 mm) ahead of the arm mount point (P-03 rev20.0 item 18)
+      - pattern: '(?P<found>\b(?:head[- ]camera|ZED Mini)\b[^\n]{0,60}\bpitch\b[^\n]{0,40}\bbaseline:?\s*25\b(?!\s*mm))'
+        unless: 'supersed|historical|\bwas\b'
+        message: the head-camera baseline pitch is 30 degrees down (P-03 rev20.0 item 15)
     verification:
-      machine: another ZED model (ZED 2, ZED 2i, ZED X, ZED X Mini) without a superseded or legacy label
+      machine: another ZED model (ZED 2, ZED 2i, ZED X, ZED X Mini) without a superseded or legacy label; the lens 0.022 m or 22 mm ahead; a head-camera pitch baseline of 25 degrees
       human: {reviewer: platform-lead, evidence: supplier SKU on the OpenArm 2.0 set and the lift-carriage mount drawing with the pitch steps}
     owner: platform-lead
 
@@ -791,7 +802,7 @@ decisions:
     kind: limit
     status: recorded
     values:
-      - exactly two E-stops; base front Schneider XB4BS8445 with one ZBE-102 block; chest button from the OpenArm kit
+      - exactly two E-stops; base front Schneider XB4BS8445 with one ZBE-102 block; second Schneider XB4BS8445 with ZBE-102 on the rear face of the static lift column, close to its upper edge (placeholder position until M-09)
       - dual channel into a Pilz PNOZ s3 24 V DC (750103) with monitored manual reset
       - K1 and K2 Gigavac GX11CAC (150 A, 24 V coil with internal suppression), normally open, in series; each with one SPST-NC auxiliary, mechanically linked, in the PNOZ reset loop
       - ordering (BUY-32) is gated on the GX11CAC datasheet checks
@@ -799,8 +810,9 @@ decisions:
     unit: none
     date: 2026-10-18
     review_by: 2026-11-29
-    source: {document: P-03-rev19.6, item: "item 22 (contactors); E-stops and PNOZ per P-03-rev19.2 items 5 and 20; detail in E-01-rev1.3"}
+    source: {document: P-03-rev19.6, item: "item 22 (contactors); E-stops and PNOZ per P-03-rev19.2 items 5 and 20; second E-stop per P-03-rev20.0 item 24; detail in E-01-rev1.3"}
     supersedes:
+      - {value: "second E-stop: chest button from the OpenArm kit", source: "P-03-rev19.2 items 5 and 20; replaced by P-03-rev20.0 item 24"}
       - {value: "K1 and K2 TE KILOVAC LEV100H, normally open, in series; auxiliary NC contacts in the reset circuit (EDM); the linked-auxiliary variant is gate EDM-STOP before ordering", source: "P-03-rev19.2 items 5 and 20, E-01-rev1.1"}
       - {value: "separate K1/K2 contactor feedback read by the firmware", source: "earlier contactor design; replaced by the linked auxiliaries in the PNOZ reset loop, P-03-rev19.6 item 22"}
       - {value: "two installed E-stops, dual normally-closed channels into a monitored safety relay; K1 and K2 from the LEV100 family, linked-feedback (EDM) variant unselected under one CONTACTOR gate", source: P-03-rev18.1 items 4 and 5 lines 12-13}
@@ -820,8 +832,11 @@ decisions:
       - pattern: '(?P<found>\bLEV100H?\b)'
         unless: 'supersed|legacy|historical|replaced|removed|dropped|no longer|earlier|previous|v0\.0\.1'
         message: K1 and K2 are Gigavac GX11CAC contactors; label LEV100H material as superseded (P-03 rev19.6 item 22)
+      - pattern: '(?P<found>\bOpenArm(?:[- ][\w.]+)?[- ]kit\b[^\n]{0,50}\b(?:E-?stop|button)\b|\b(?:chest|second) (?:E-?stop|button)\b[^\n]{0,50}\bOpenArm(?:[- ][\w.]+)?[- ]kit\b)'
+        unless: 'supersed|historical|\bwas\b|replac'
+        message: the second E-stop is a Schneider XB4BS8445 with ZBE-102 on the static lift column, not the OpenArm kit button (P-03 rev20.0 item 24)
     verification:
-      machine: text claiming the EDM variant is chosen without the GX11CAC or BUY-32, recommending a single-channel or uncertified E-stop, presenting CTL-004 as installed, naming automotive relays as the 2.0 E-stop, or LEV100H outside superseded or historical context
+      machine: text claiming the EDM variant is chosen without the GX11CAC or BUY-32, recommending a single-channel or uncertified E-stop, presenting CTL-004 as installed, naming automotive relays as the 2.0 E-stop, LEV100H outside superseded or historical context, or the OpenArm kit button as the chest or second E-stop
       human: {reviewer: platform-lead, evidence: "safety-chain design, GX11CAC datasheet checks for BUY-32 and component certificates; two human approvals per the repository ruleset"}
     owner: electrical-owner
 
@@ -1249,22 +1264,26 @@ decisions:
     values:
       - column dold_v4_350 or tl3_400
       - base_plate bp000 or bp050
-      - head_pitch hp15, hp20, hp25, hp30, hp35 (baseline hp25)
+      - head_pitch hp15, hp20, hp25, hp30, hp35 (baseline hp30)
       - base_tilt bt05, bt10, bt15 (baseline bt10)
       - lift stops L1000, L1175, L1350 are calibration IDs; the lift height is joint state
     unit: none
-    date: 2026-10-09
-    review_by: 2026-11-20
-    source: {document: P-03-rev18.9, item: "items 17 and 18"}
+    date: 2026-10-28
+    review_by: 2026-12-09
+    source: {document: P-03-rev20.0, item: "item 17 (28 Oct 2026 corrections: head_pitch baseline hp30); column, base_plate and base_tilt per P-03-rev18.9 items 17 and 18"}
     supersedes:
+      - {value: "head_pitch hp15, hp20, hp25, hp30, hp35 (baseline hp25)", source: P-03-rev18.9 item 17}
       - {value: "mast_id (mast_1300 to mast_1450)", source: P-03-rev18.2 shoulder height}
     applies_to: {repositories: ["openamr-*", "openamrobot-*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.xacro", "**/*.urdf", "**/*.launch.py", "**/*.py"]}
     check:
       - pattern: '(?P<found>\bmast_id\b)'
         unless: 'supersed|replac|historical|legacy|no longer'
         message: mast_id is replaced by the column, base_plate, head_pitch and base_tilt IDs (P-03 rev18.9 item 17)
+      - pattern: '(?P<found>\bhead_pitch\b[^\n]{0,60}\bbaseline:?\s*[`"]?(?:hp)?25\b|\bbaseline:?\s*[`"]?hp25\b)'
+        unless: 'supersed|historical|\bwas\b'
+        message: the head_pitch baseline is hp30 (P-03 rev20.0 item 17)
     verification:
-      machine: mast_id used as a current configuration ID
+      machine: mast_id used as a current configuration ID; a head_pitch baseline of hp25
       human: {reviewer: software-lead, evidence: configuration hash inputs and dataset metadata carrying the four IDs}
     owner: platform-lead
 
