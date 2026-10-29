@@ -1,0 +1,120 @@
+{
+ "ci_window_days": 7,
+ "expected": 4,
+ "generated_at": "2026-10-28T04:41:00Z",
+ "measured": 3,
+ "organization": "openAMRobot",
+ "repositories": [
+  {
+   "ci": {
+    "green": 1,
+    "green_rate": 0.5,
+    "other": 0,
+    "red": 1,
+    "workflows": [
+     {
+      "conclusion": "failure",
+      "created_at": "2026-10-27T10:00:00Z",
+      "run_id": 102,
+      "workflow": "ci.yml"
+     },
+     {
+      "conclusion": "success",
+      "created_at": "2026-10-26T09:00:00Z",
+      "run_id": 106,
+      "workflow": "lint.yml"
+     }
+    ]
+   },
+   "default_branch": "main",
+   "issues_enabled": true,
+   "measured": true,
+   "pull_requests": [
+    {
+     "age_days": 38,
+     "author": "dev-one",
+     "created_at": "2026-09-20T08:00:00Z",
+     "draft": false,
+     "idle_days": 18,
+     "number": 3,
+     "updated_at": "2026-10-10T08:00:00Z"
+    },
+    {
+     "age_days": 8,
+     "author": "dev-two",
+     "created_at": "2026-10-20T08:00:00Z",
+     "draft": false,
+     "idle_days": 1,
+     "number": 4,
+     "updated_at": "2026-10-27T08:00:00Z"
+    }
+   ],
+   "rc1_issues": [
+    {
+     "age_days": 8,
+     "assignees": [
+      "dev-one"
+     ],
+     "created_at": "2026-10-20T08:00:00Z",
+     "idle_days": 1,
+     "number": 7,
+     "updated_at": "2026-10-27T08:00:00Z"
+    }
+   ],
+   "repository": "fixture-alpha",
+   "stale": {
+    "issues": [
+     9
+    ],
+    "pull_requests": []
+   }
+  },
+  {
+   "ci": {
+    "green": 0,
+    "green_rate": null,
+    "other": 0,
+    "red": 0,
+    "workflows": []
+   },
+   "default_branch": "main",
+   "issues_enabled": true,
+   "measured": true,
+   "pull_requests": [],
+   "rc1_issues": [],
+   "repository": "fixture-beta",
+   "stale": {
+    "issues": [],
+    "pull_requests": []
+   }
+  },
+  {
+   "ci": {
+    "green": 0,
+    "green_rate": null,
+    "other": 0,
+    "red": 0,
+    "workflows": []
+   },
+   "default_branch": "main",
+   "issues_enabled": false,
+   "measured": true,
+   "pull_requests": [],
+   "rc1_issues": [],
+   "repository": "fixture-gamma",
+   "stale": {
+    "issues": [],
+    "pull_requests": []
+   }
+  },
+  {
+   "default_branch": "main",
+   "measured": false,
+   "reason": "workflow runs: HTTP 502",
+   "repository": "fixture-delta"
+  }
+ ],
+ "schema_version": 1,
+ "stale_days": 14,
+ "status": "incomplete"
+}

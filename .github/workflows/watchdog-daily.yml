@@ -1,0 +1,107 @@
+name: Watchdog daily
+
+# Deterministic daily software-health report: CI conclusions and 7-day green rate on each default
+# branch, open pull requests, rc.1 issues and items with no update for 14 days, for every
+# repository in rollout/repositories.yaml. It reads the GitHub REST API only (all listed
+# repositories are public, so the workflow token is enough), uses no AI, and writes only the
+# "Daily" section of the "[watchdog] Organization dashboard" issue in this repository. The
+# Thursday organization scan (watchdog-org-scan.yml) is separate and unchanged. See WATCHDOG.md,
+# "Daily report".
+#
+# Fail closed: a repository that cannot be read completely is shown as "not measured", the report
+# is INCOMPLETE and the job fails after the report is uploaded and published.
+#
+# Schedule: 04:41 UTC, Monday to Friday, plus manual dispatch. To stop it: Actions, Watchdog
+# daily, "Disable workflow".
+
+on:
+  schedule:
+    - cron: "41 4 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+concurrency:
+  group: watchdog-daily
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    name: watchdog-daily
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      WORK: ${{ runner.temp }}/watchdog-daily
+    steps:
+      - name: Check out harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: harness
+          persist-credentials: false
+
+      - name: Download the previous report
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The newest unexpired watchdog-daily artifact of an earlier run. None (first run,
+          # expired, unreadable) is not an error: the report then says there is no previous report.
+          set -euo pipefail
+          mkdir -p "$WORK/previous"
+          id=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=watchdog-daily&per_page=20" \
+            --jq "[.artifacts[] | select(.expired == false and .workflow_run.id != $GITHUB_RUN_ID)][0].id // empty") || id=""
+          if [ -n "$id" ] && gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$WORK/previous.zip" \
+              && unzip -o -q "$WORK/previous.zip" daily.json -d "$WORK/previous"; then
+            echo "Previous report: artifact $id"
+          else
+            rm -f "$WORK/previous/daily.json"
+            echo "No previous report available"
+          fi
+
+      - name: Collect the daily report
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          status=0
+          python3 harness/tools/watchdog_daily.py \
+            --repositories harness/rollout/repositories.yaml \
+            --out "$WORK/out" \
+            --previous "$WORK/previous/daily.json" || status=$?
+          if [ -f "$WORK/out/daily.md" ]; then
+            cat "$WORK/out/daily.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: watchdog-daily
+          path: |
+            ${{ runner.temp }}/watchdog-daily/out/daily.json
+            ${{ runner.temp }}/watchdog-daily/out/daily.md
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish the Daily section of the dashboard
+        if: always()
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # A missing daily.md is published as "Daily report INCOMPLETE", never as an empty or old report.
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          python3 harness/tools/watchdog_issue_sync.py \
+            --daily "$WORK/out/daily.md" \
+            --repository "$GITHUB_REPOSITORY" \
+            --run-url "$RUN_URL" \
+            --run-date "$(date -u +%F)" \
+            --apply > "$WORK/sync.log" || { cat "$WORK/sync.log"; exit 1; }
+          tail -n 1 "$WORK/sync.log"

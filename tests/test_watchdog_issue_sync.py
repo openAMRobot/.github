@@ -223,6 +223,86 @@ class IssueMode(unittest.TestCase):
                 self.assertEqual(wis.main(args), 2)
 
 
+class DailySection(unittest.TestCase):
+    """--daily replaces only the Daily section; the Thursday rewrite keeps it."""
+
+    OTHER = wis.DASHBOARD_MARKER + "\n<!-- watchdog:observation:0000 -->\n## OpenAMRobot Watchdog dashboard\n\nThursday table"
+
+    def dashboard(self, body):
+        return {"number": 44, "title": wis.DASHBOARD_TITLE, "state": "open", "comments": [], "body": body, "url": "u44"}
+
+    def apply(self, existing, section):
+        calls = []
+
+        def fake(method, url, token, data=None):
+            calls.append((method, url.split("/repos/openAMRobot/.github/", 1)[1], data))
+            return {}
+
+        result = wis.apply_daily("openAMRobot/.github", existing, section, "token", call=fake)
+        return result, [(m, u, d) for m, u, d in calls if u != "labels"]
+
+    def section(self, text="daily table"):
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "daily.md").write_text(text, encoding="utf-8")
+            return wis.daily_text(Path(tmp, "daily.md"), "run", "2026-10-29")[0]
+
+    def test_replaces_only_the_daily_section(self):
+        old = self.OTHER + "\n\n" + self.section("yesterday")
+        result, writes = self.apply([self.dashboard(old)], self.section("today"))
+        self.assertEqual(result, "updated")
+        self.assertEqual([(m, u) for m, u, _ in writes], [("PATCH", "issues/44")])
+        body = writes[0][2]["body"]
+        self.assertEqual(set(writes[0][2]), {"body"})  # title and labels untouched
+        self.assertTrue(body.startswith(self.OTHER + "\n\n"))
+        self.assertIn("## Daily\n\ntoday", body)
+        self.assertNotIn("yesterday", body)
+
+    def test_appends_the_section_when_absent_and_skips_unchanged(self):
+        _, writes = self.apply([self.dashboard(self.OTHER)], self.section())
+        body = writes[0][2]["body"]
+        self.assertEqual(body, self.OTHER + "\n\n" + self.section())
+        result, writes = self.apply([self.dashboard(body)], self.section())
+        self.assertEqual((result, writes), ("unchanged", []))
+
+    def test_creates_the_dashboard_when_none_exists(self):
+        result, writes = self.apply([], self.section())
+        self.assertEqual(result, "created")
+        (method, url, data), = writes
+        self.assertEqual((method, url, data["title"]), ("POST", "issues", wis.DASHBOARD_TITLE))
+        self.assertIn(wis.DASHBOARD_MARKER, data["body"])
+        self.assertIn(self.section(), data["body"])
+
+    def test_thursday_rewrite_keeps_the_daily_section(self):
+        old = {"number": 5, "title": wis.DASHBOARD_TITLE, "state": "open", "comments": [],
+               "body": wis.DASHBOARD_MARKER + "\n<!-- watchdog:observation:0000 -->\nold\n\n" + self.section(), "url": "u5"}
+        calls = IssueMode().run_apply("dashboard", old)
+        body = next(d for m, u, d in calls if m == "PATCH")["body"]
+        self.assertIn("## OpenAMRobot Watchdog dashboard", body)
+        self.assertNotIn("\nold\n", body)
+        self.assertTrue(body.endswith(self.section()))
+
+    def test_report_text_cannot_move_or_close_the_section(self):
+        section = self.section(f"a {wis.DAILY_END} b {wis.DASHBOARD_MARKER} c ghp_abcdefghijklmnop")
+        self.assertEqual(section.count(wis.DAILY_START), 1)
+        self.assertEqual(section.count(wis.DAILY_END), 1)
+        self.assertNotIn(wis.DASHBOARD_MARKER, section)
+        self.assertIn("[redacted credential]", section)
+
+    def test_missing_report_is_published_as_incomplete_and_exits_one(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = wis.main(["--daily", str(ROOT / "missing-daily.md"), "--run-date", "2026-10-29", "--run-url", "run"])
+        self.assertEqual(code, 1)
+        self.assertIn("Daily report INCOMPLETE on 2026-10-29: no daily report was produced in this run.", out.getvalue())
+
+    def test_scan_mode_still_requires_its_arguments(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err), self.assertRaises(SystemExit) as stop:
+            wis.main(["--run-url", "run"])
+        self.assertEqual(stop.exception.code, 2)
+        self.assertIn("--reports, --maintainers, --decisions", err.getvalue())
+
+
 def docs_report():
     return report()
 

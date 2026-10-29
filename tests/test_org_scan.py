@@ -27,7 +27,7 @@ WORKFLOW = ROOT / ".github" / "workflows" / "watchdog-org-scan.yml"
 ACTIVE = {".github", "openamr-platform-sw", "openamr-platform-fw", "openamr-platform-hw",
           "openamr-upperbody-sw", "openamr-upperbody-fw", "openamr-upperbody-hw",
           "openamrobot-interfaces", "openamrobot-manipulation", "openamrobot-ui", "openamrobot-comm",
-          "openamrobot-docs", "openamrobot-manifest", "openamrobot-release"}
+          "openamrobot-docs", "openamrobot-embodied-ai", "openamrobot-manifest", "openamrobot-release"}
 
 FAKE_GIT = """#!/bin/bash
 # clone --quiet --depth 1 --branch <b> <url> <dest>; rev-parse prints a fixed SHA
@@ -64,7 +64,7 @@ class RepositoryList(unittest.TestCase):
         data = yaml.safe_load(LIST.read_text(encoding="utf-8"))
         self.assertEqual(data["organization"], "openAMRobot")
         names = [r["name"] for r in data["repositories"]]
-        self.assertEqual(len(names), 14)
+        self.assertEqual(len(names), 15)
         self.assertEqual(len(set(names)), len(names), "duplicate repository")
         self.assertEqual(set(names), ACTIVE)
         for r in data["repositories"]:
@@ -121,10 +121,10 @@ class Workflow(unittest.TestCase):
         # openamrobot-comm fails to clone in the fake: reported BLOCKED, job fails after the summary.
         self.assertEqual(result.code, 1, result.output)
         self.assertIn("| openamrobot-comm | BLOCKED: clone failed | not scanned |", result.summary)
-        self.assertIn("## OpenAMRobot Watchdog organization scan: INCOMPLETE: 13 of 14 repositories scanned", result.summary)
+        self.assertIn("## OpenAMRobot Watchdog organization scan: INCOMPLETE: 14 of 15 repositories scanned", result.summary)
         self.assertIn("BLOCKED repositories were not scanned and are not clean.", result.summary)
         rows = re.findall(r"^\| ([.\w-]+) \| abc1234 \| (\d+) \|$", result.summary, re.M)
-        self.assertEqual(len(rows), 13)
+        self.assertEqual(len(rows), 14)
         self.assertIn(("openamr-platform-sw", "2"), rows)
         self.assertIn("### openamr-platform-sw: 2 finding(s)", result.summary)
         self.assertIn("| COMPUTE | 1 |", result.summary)
@@ -229,8 +229,8 @@ class FailClosed(unittest.TestCase):
             self.assertIn("## OpenAMRobot Watchdog organization scan: COMPLETE", result.summary)
             self.assertNotIn("INCOMPLETE", result.summary)
             self.assertEqual(result.blocked, [])
-            self.assertEqual(len(result.expected), 14)
-            self.assertEqual(len(result.reports), 14)
+            self.assertEqual(len(result.expected), 15)
+            self.assertEqual(len(result.reports), 15)
             code, out = sync(keep)
             self.assertEqual(code, 0, out)
             self.assertIn("complete", out)
@@ -272,11 +272,11 @@ class FailClosed(unittest.TestCase):
         with tempfile.TemporaryDirectory() as keep:
             result = run_scan(fail_clones="", repositories=yaml.safe_dump(data), keep=keep)
             self.assertEqual(result.code, 1, result.output)
-            self.assertIn("Scan INCOMPLETE: repository list could not be generated (13 of 14 entries usable).", result.summary)
-            self.assertEqual(len(result.expected), 14)
+            self.assertIn("Scan INCOMPLETE: repository list could not be generated (14 of 15 entries usable).", result.summary)
+            self.assertEqual(len(result.expected), 15)
             code, out = sync(keep)
             self.assertEqual(code, 1, out)
-            self.assertIn("INCOMPLETE, 0 of 14 repositories scanned", out)
+            self.assertIn("INCOMPLETE, 0 of 15 repositories scanned", out)
             blocked, status = wis.completeness(result.expected, [], [])
             self.assertEqual({b["reason"] for b in blocked}, {"no report produced"})
             self.assertIn("openamr-platform-hw", {b["repository"] for b in blocked})
@@ -290,12 +290,12 @@ class FailClosed(unittest.TestCase):
             self.assertEqual(len(result.blocked), 2)
             self.assertIn("| openamrobot-ui | BLOCKED: watchdog exit 3 | not scanned |", result.summary)
             self.assertIn("| openamrobot-docs | BLOCKED: report enrichment failed | not scanned |", result.summary)
-            self.assertIn("INCOMPLETE: 12 of 14 repositories scanned", result.summary)
-            self.assertEqual(len(result.reports), 12)  # the corrupt report is set aside, not published
+            self.assertIn("INCOMPLETE: 13 of 15 repositories scanned", result.summary)
+            self.assertEqual(len(result.reports), 13)  # the corrupt report is set aside, not published
             self.assertNotIn("openamrobot-docs.json", result.reports)
             code, out = sync(keep)
             self.assertEqual(code, 1, out)
-            self.assertIn("INCOMPLETE, 12 of 14 repositories scanned", out)
+            self.assertIn("INCOMPLETE, 13 of 15 repositories scanned", out)
 
     def test_step_runs_with_errexit_and_pipefail(self):
         data, _ = workflow()

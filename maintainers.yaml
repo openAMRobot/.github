@@ -63,6 +63,7 @@ repositories:
   openamrobot-manipulation: [software-lead]
   openamrobot-ui: [software-lead]
   openamrobot-comm: [software-lead]
+  openamrobot-embodied-ai: [software-lead]
   openamrobot-manifest: [release-owner]
   openamrobot-release: [release-owner]
   openamrobot-docs: [docs-owner]

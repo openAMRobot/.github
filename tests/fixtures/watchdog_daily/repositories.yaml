@@ -1,0 +1,7 @@
+# Fixture repository list for tests/test_watchdog_daily.py (same format as rollout/repositories.yaml).
+organization: openAMRobot
+repositories:
+  - {name: fixture-alpha, default_branch: main, agent_rules: required}
+  - {name: fixture-beta, default_branch: main, agent_rules: required}
+  - {name: fixture-gamma, default_branch: main, agent_rules: required}
+  - {name: fixture-delta, default_branch: main, agent_rules: required}
