@@ -13,6 +13,8 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import check_decisions as cd  # noqa: E402
@@ -288,6 +290,20 @@ class RealRegister(unittest.TestCase):
             self.assertTrue(d["source"]["item"], d["id"])
             self.assertTrue(d["verification"]["human"]["evidence"], d["id"])
 
+    def test_owner_roles_of_16_october(self):
+        # Platform lead decision of 16 October 2026: electrical/safety/firmware and robot-description roles.
+        roles = yaml.safe_load((ROOT / "maintainers.yaml").read_text(encoding="utf-8"))["roles"]
+        self.assertEqual(roles["electrical-owner"]["handle"], "evans-kwashie")
+        self.assertEqual(roles["robot-description-owner"]["handle"], "fridayali")
+        by_id = {d["id"]: d for d in self.decisions}
+        for did in ("ESTOP-SCOPE", "RESET-BUTTON", "CHARGING", "BMS-FAULTS", "MAIN-PROTECTION", "SAFETY-PROCUREMENT"):
+            self.assertEqual(by_id[did]["owner"], "electrical-owner", did)
+        self.assertEqual(by_id["NAV-LIDAR"]["owner"], "robot-description-owner")
+        # Where the platform lead holds the decision, it stays owner; the new role reviews the model evidence.
+        for did in ("NEAR-FIELD-FRAMES", "FRAMES-REP105", "CAMERAS"):
+            self.assertEqual(by_id[did]["owner"], "platform-lead", did)
+            self.assertEqual(by_id[did]["verification"]["human"]["reviewer"], "robot-description-owner", did)
+
     def test_every_entry_has_summary_and_fix_hint(self):
         for d in self.decisions:
             with self.subTest(id=d["id"]):
@@ -380,18 +396,129 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "An uncertified button is fine for prototypes.\n", "x"),
                          ["SAFETY-PROCUREMENT"])
 
+    def test_tof_pitch_is_10_degrees(self):
+        # Alex decision 20 Oct 2026: ToF cliff pitch 10 degrees down; 20 degrees is superseded.
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna is pitched 20 degrees down.\n", "openamrobot-docs"), ["NEAR-FIELD-FRAMES"])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna is pitched 10 degrees down.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna pitch replaced the earlier 20 degree value.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna 10 degree pitch is final.\n", "openamrobot-docs"), ["NEAR-FIELD-FRAMES"])
+        self.assertEqual(self.ids("docs/a.md", "The TF-Luna 10 degree pitch is final after the bench test.\n", "openamrobot-docs"), [])
+
+    def test_shared_base_charger(self):
+        self.assertEqual(self.ids("docs/a.md", "Release 001 charges through a WCM-300 receiver.\n", "openamrobot-docs"), ["SHARED-BASE"])
+        self.assertEqual(self.ids("docs/a.md", "The WCM-300 is the existing unit on the robot today.\n", "openamrobot-docs"), [])
+
+    def test_embodied_ai_repository(self):
+        self.assertEqual(self.ids("docs/a.md", "The recorder lives in openamrobot-interfaces.\n", "openamrobot-interfaces"), ["EMBODIED-AI-REPO"])
+        self.assertEqual(self.ids("docs/a.md", "The recorder does not live in openamrobot-interfaces.\n", "openamrobot-interfaces"), [])
+
+    def test_platform_pin(self):
+        self.assertEqual(self.ids("docs/a.md", "A6 was tested against platform-sw main.\n", "openamr-upperbody-sw"), ["PLATFORM-PIN"])
+        self.assertEqual(self.ids("docs/a.md", "A6 was tested against platform-sw dfd44a5.\n", "openamr-upperbody-sw"), [])
+
+    def test_base_link_height_is_a_frame_value(self):
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertTrue(any("base_link 0.098 m" in v for v in by_id["FRAMES-REP105"]["values"]))
+        self.assertFalse(any("base_link 0.098 m" in v for v in by_id["CAMERAS"]["values"]))
+
     def test_bom_issue_in_force(self):
         self.assertEqual(self.ids("docs/a.md", "The canonical BOM is Issue 6.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "Issue 7.6 is canonical; Issue 6 is superseded.\n", "x"), [])
 
-    def test_bom_issue_7_7_in_force(self):
-        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.2 is the BOM of record.\n",
-                     "BOM Issue 7.3 is canonical.\n", "BOM Issue 7.6 is canonical.\n"):
+    def test_bom_issue_7_10_in_force(self):
+        for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.1 is the BOM of record.\n",
+                     "BOM Issue 7.8 is canonical.\n", "BOM Issue 7.9 is canonical.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
-        for text in ("BOM Issue 7.7 is canonical.\n", "Issue 7.6 was canonical until Issue 7.7 superseded it.\n",
-                     "The earlier canonical BOM was Issue 7.6.\n"):
+        for text in ("BOM Issue 7.10 is canonical.\n", "Issue 7.8 was canonical until Issue 7.10 superseded it.\n",
+                     "The earlier canonical BOM was Issue 7.8.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    # P-03 rev19.2 item 20 (E-01 rev1.1): each check flags the stale wording and accepts a
+    # sentence that labels it as superseded, removed or legacy.
+    def test_wireless_charging_is_2_0(self):
+        repo = "openamrobot-docs"
+        for text in ("Wireless charging (WCM-300) with auto-docking is OpenAMRobot 3.0.\n",
+                     "Wireless charging is deferred to 3.0.\n", "OpenAMRobot 3.0 wireless charging.\n"):
+            expected = ["DOCK-NO-CONTACTS", "SHARED-BASE"] if "WCM-300" in text else ["DOCK-NO-CONTACTS"]
+            self.assertEqual(self.ids("docs/a.md", text, repo), expected, text)
+        for text in ("The TZBOT WCM-500-24 wireless charging path is part of 2.0.\n",
+                     "Wireless charging is 3.0 (superseded by P-03 rev19.2 item 20).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_automotive_relays_are_not_the_2_0_estop(self):
+        for text in ("K1 and K2 are automotive relays.\n", "Use automotive relays for the E-stop contactors.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-PROCUREMENT"], text)
+        for text in ("Automotive relays as K1 and K2 (superseded; v0.0.1 only).\n",
+                     "K1 and K2 are Gigavac GX11CAC contactors.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_edm_variant_is_gate_edm_stop(self):
+        self.assertEqual(self.ids("docs/a.md", "The EDM variant is selected.\n", "x"), ["SAFETY-PROCUREMENT"])
+        self.assertEqual(self.ids("docs/a.md", "The EDM variant is decided at gate EDM-STOP before ordering.\n",
+                                  "x"), [])
+
+    # P-03 rev19.6 item 22 (E-01 rev1.3): Gigavac GX11CAC contactors, linked auxiliaries in the PNOZ reset loop.
+    def test_linked_auxiliary_variant_is_the_gx11cac(self):
+        self.assertEqual(self.ids("docs/a.md", "The EDM variant is selected: Gigavac GX11CAC, BUY-32 pending.\n",
+                                  "x"), [])
+
+    def test_lev100h_is_superseded(self):
+        for text in ("K1 and K2 are TE KILOVAC LEV100H contactors.\n", "Contactor: LEV100 family, normally open.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-PROCUREMENT"], text)
+        for text in ("K1 and K2 were LEV100H (superseded by the Gigavac GX11CAC).\n",
+                     "Historical: TE KILOVAC LEV100H in rev19.2.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_no_separate_k1_k2_firmware_feedback(self):
+        for text in ("K1 and K2 feedback is read by the firmware on two inputs.\n",
+                     "The STM32 monitors K1/K2 feedback.\n", "Contactor feedback goes to an STM32 GPIO.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["SAFETY-CHAIN-IO"], text)
+        for text in ("K1/K2 feedback to the firmware (superseded by P-03 rev19.6 item 22).\n",
+                     "The K1 and K2 auxiliaries sit in the PNOZ reset loop; the firmware reads Y32.\n",
+                     "There is no K1/K2 feedback input to the firmware.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_estop_cuts_actuator_power_only(self):
+        repo = "openamr-platform-hw"
+        for text in ("The E-stop cuts all power to the robot.\n", "Pressing the E-stop shuts down the Jetson.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["ESTOP-SCOPE"], text)
+        for text in ("The E-stop cuts actuator power only; the Jetson stays powered.\n",
+                     "The E-stop cuts all power (superseded, v0.0.1 only).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_single_reset_button(self):
+        repo = "openamr-platform-hw"
+        for text in ("Electronics Reset is separate from the safety RESET.\n",
+                     "A separate electronics reset button reboots the controller.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["RESET-BUTTON"], text)
+        for text in ("There is no separate electronics reset button.\n",
+                     "Electronics reset button (removed in P-03 rev19.2).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_charging_plug_presence_and_wired_inlet_removed(self):
+        repo = "openamr-platform-hw"
+        for text in ("Charging is inhibited by the charge-plug-presence switch.\n", "Plug presence input on the STM32.\n",
+                     "Wired charge inlet PWR-019.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CHARGING"], text)
+        for text in ("Plug-presence switch PWR-020 (removed, superseded by wireless charging).\n",
+                     "Charging uses the TZBOT WCM-500-24 at 28.4 V.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_bms_run_ok_dropped(self):
+        repo = "openamr-platform-fw"
+        self.assertEqual(self.ids("docs/a.md", "The BMS RUN_OK contact (D26) opens on a fault.\n", repo),
+                         ["BMS-FAULTS"])
+        for text in ("RUN_OK (D26) is dropped; faults arrive over CAN2.\n", "RUN_OK contact: legacy, v0.0.1 only.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_main_protection_has_no_circuit_breaker(self):
+        repo = "openamr-platform-hw"
+        for text in ("A 100 A main circuit breaker protects the battery.\n", "Battery output goes to a circuit breaker.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["MAIN-PROTECTION"], text)
+        for text in ("Main fuse F0 110 A Class T, then a lockable disconnect; no circuit breaker.\n",
+                     "Main circuit breaker (superseded by F0 110 A Class T).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_nav_lidar(self):
         repo = "openamr-platform-sw"
@@ -562,9 +689,12 @@ class RealRegister(unittest.TestCase):
 
     def test_near_field_frames_tof_pitch_is_screening(self):
         repo = "openamr-platform-hw"
+        # Alex decision 20 Oct 2026: 20 degrees is superseded; the pitch is 10 degrees down.
         self.assertEqual(self.ids("docs/a.md", "tof_front pitched 20 degrees down, final.\n", repo),
                          ["NEAR-FIELD-FRAMES"])
-        for text in ("tof_front pitched 20 degrees down (screening value until the bench test).\n",
+        self.assertEqual(self.ids("docs/a.md", "tof_front pitched 20 degrees down (screening value until the bench test).\n", repo),
+                         ["NEAR-FIELD-FRAMES"])
+        for text in ("tof_front pitched 10 degrees down (until the bench test).\n",
                      "us_front_left (0.390, +0.130, -0.0066); tof_rear (-0.390, 0, -0.0066, yaw pi).\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
@@ -588,6 +718,49 @@ class RealRegister(unittest.TestCase):
                      "No lift controller exists yet.\n",
                      "Planning groups: arm, arm+lift.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_head_camera_lens_42_mm_ahead(self):
+        # P-03 rev20.0 item 18 (28 Oct 2026): lens 42 mm ahead of the arm mount point, was 22 mm.
+        repo = "openamrobot-docs"
+        for text in ("Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The ZED Mini lens sits 22 mm ahead of the shoulder.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["HEAD-CAMERA-IDENTITY"], text)
+        for text in ("Head-camera lens 0.042 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The lens was 22 mm ahead of the shoulder before the 28 Oct correction.\n",
+                     "Lens 0.022 m ahead (superseded by 42 mm).\n",
+                     "Historical layout: lens 22 mm ahead of the shoulder.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_head_camera_pitch_baseline_30(self):
+        # P-03 rev20.0 items 15 and 17 (28 Oct 2026): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
+        repo = "openamr-upperbody-sw"
+        self.assertEqual(self.ids("docs/a.md", "Head-camera pitch 15 to 35 degrees down, baseline 25 degrees.\n", repo),
+                         ["HEAD-CAMERA-IDENTITY"])
+        for text in ("head_pitch hp15 to hp35, baseline hp25.\n", "Configuration: baseline hp25.\n",
+                     "head_pitch: baseline 25\n",
+                     "`head_pitch` (`hp15` to `hp35` in 5 degree steps, baseline `hp25`).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CONFIG-IDS"], text)
+        for text in ("Head-camera pitch 15 to 35 degrees down, baseline 30 degrees.\n",
+                     "head_pitch hp15 to hp35, baseline hp30.\n",
+                     "head_pitch baseline hp30 (was hp25).\n",
+                     "Head-camera pitch baseline 25 degrees (superseded by 30).\n",
+                     "Historical: head_pitch baseline hp25.\n",
+                     "head_pitch hp25 is one of the five steps.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_second_estop_is_not_the_openarm_kit_button(self):
+        # P-03 rev20.0 item 24: second XB4BS8445 with ZBE-102 on the static lift column replaces the kit button.
+        repo = "openamrobot-docs"
+        for text in ("The OpenArm kit supplies the chest button.\n",
+                     "Chest E-stop: from the OpenArm kit.\n",
+                     "Second E-stop from the OpenArm 2.0 kit.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["SAFETY-PROCUREMENT"], text)
+        for text in ("Second E-stop: Schneider XB4BS8445 with ZBE-102 on the rear face of the static lift column.\n",
+                     "The chest button was from the OpenArm kit.\n",
+                     "Chest E-stop from the OpenArm kit (superseded by P-03 rev20.0 item 24).\n",
+                     "It replaces the OpenArm kit button.\n",
+                     "Historical: the OpenArm kit chest button.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_legacy_label_exempts_compute(self):
         self.assertEqual(self.ids("README.md", "Legacy build: Raspberry Pi 5.\n", "openamr-platform-hw"), [])

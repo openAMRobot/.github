@@ -139,5 +139,64 @@ class HarnessModes(unittest.TestCase):
             self.assertEqual(self.run_step("Decisions of record", 0, enforce=enforce)[0], 0)
 
 
+class MergeMarkers(unittest.TestCase):
+    """The "Reject unresolved merge markers" step, run from the workflow file in a scratch repository."""
+
+    def run_marker_step(self, files):
+        _, steps = load()
+        with tempfile.TemporaryDirectory() as tmp:
+            for rel, text in files.items():
+                path = Path(tmp, rel)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text, encoding="utf-8")
+            git = ["git", "-c", "user.name=test", "-c", "user.email=test@example.invalid", "-C", tmp]
+            subprocess.run(["git", "init", "-q", tmp], check=True)
+            subprocess.run(git + ["add", "-A"], check=True)
+            subprocess.run(git + ["commit", "-q", "-m", "fixture"], check=True)
+            proc = subprocess.run(["bash", "-c", steps["Reject unresolved merge markers"]["run"]], cwd=tmp,
+                                  capture_output=True, text=True)
+            return proc.returncode, proc.stdout + proc.stderr
+
+    VENDORED = ("boards/stm32/X/Drivers/STM32H7xx_HAL_Driver/Src/hal.c",
+                "boards/stm32/X/Drivers/CMSIS/Include/c.h",
+                "boards/stm32/X/Drivers/BSP/STM32H7xx_Nucleo/b.c")
+    PROJECT = ("src/Drivers/BSP/project.c", "src/Drivers/STM32Custom/project.c", "src/real.c")
+    MARKER = "int a;\n=======\nint b;\n"
+
+    def test_vendored_stm32cube_drivers_are_excluded_but_project_code_is_not(self):
+        hal, cmsis, _ = self.VENDORED
+        real = "src/real.c"
+        code, out = self.run_marker_step({
+            hal: "/*\n=======\n  ST documentation rule\n*/\n",
+            cmsis: "/*\n=======\n*/\n",
+            real: self.MARKER,
+        })
+        self.assertEqual(code, 1, out)
+        self.assertIn(real, out)
+        self.assertIn("Unresolved merge-conflict marker detected", out)
+        self.assertNotIn(hal, out)
+        self.assertNotIn(cmsis, out)
+
+    def test_exact_stm32cube_vendor_trees_are_not_reported(self):
+        for path in self.VENDORED:
+            with self.subTest(path=path):
+                code, out = self.run_marker_step({path: self.MARKER, "src/clean.c": "int a;\n"})
+                self.assertEqual(code, 0, out)
+                self.assertNotIn(path, out)
+
+    def test_project_code_is_reported_even_under_a_drivers_directory(self):
+        for path in self.PROJECT:
+            with self.subTest(path=path):
+                code, out = self.run_marker_step({path: self.MARKER})
+                self.assertEqual(code, 1, out)
+                self.assertIn(path, out)
+                self.assertIn("Unresolved merge-conflict marker detected", out)
+
+    def test_repository_without_markers_passes(self):
+        code, out = self.run_marker_step({path: "int a;\n" for path in self.VENDORED + self.PROJECT})
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("Unresolved merge-conflict marker detected", out)
+
+
 if __name__ == "__main__":
     unittest.main()

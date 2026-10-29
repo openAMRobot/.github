@@ -5,8 +5,12 @@ ARG DEBIAN_FRONTEND=noninteractive
 # LiDAR driver policy:
 # Do not install the legacy ros-jazzy-rplidar-ros package in this baseline.
 # OpenAMRobot 2.0 targets RPLIDAR S3 using sllidar_ros2.
-# The current workspace manifest does not pin sllidar_ros2 yet.
-# Driver source integration and hardware validation remain separate work.
+# The S3 source driver is being pinned via openamrobot-manifest PR #18;
+# its installation and hardware validation are separate from this baseline.
+# camera_ros is intentionally retained for the existing robot: the
+# openamrobot_perception/package.xml declares an exec_depend on camera_ros,
+# and its IMX708 real-robot launch runs camera_ros/camera_node.
+# OpenAMRobot 2.0's Gemini 336L/Orbbec path has separate driver integration.
 #
 # Common CI and ROS workspace tooling
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -34,6 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-opennav-docking \
     ros-jazzy-laser-filters \
     ros-jazzy-rviz2 \
+    ros-jazzy-twist-mux \
     ros-jazzy-camera-ros \
     ros-jazzy-joint-state-publisher \
     ros-jazzy-joint-state-publisher-gui \

@@ -1,19 +1,20 @@
 # Active public openAMRobot repositories, the single list the Watchdog organization scan
 # (.github/workflows/watchdog-org-scan.yml) clones and checks on their default branch.
 # Add or remove a repository here only; tests/test_org_scan.py validates this file.
+# agent_rules is required or exempt; exempt entries must include an owner-approved reason.
 organization: openAMRobot
 repositories:
-  - {name: .github, default_branch: main}
-  - {name: openamr-platform-sw, default_branch: main}
-  - {name: openamr-platform-fw, default_branch: main}
-  - {name: openamr-platform-hw, default_branch: main}
-  - {name: openamr-upperbody-sw, default_branch: main}
-  - {name: openamr-upperbody-fw, default_branch: main}
-  - {name: openamr-upperbody-hw, default_branch: main}
-  - {name: openamrobot-interfaces, default_branch: main}
-  - {name: openamrobot-manipulation, default_branch: main}
-  - {name: openamrobot-ui, default_branch: main}
-  - {name: openamrobot-comm, default_branch: main}
-  - {name: openamrobot-docs, default_branch: main}
-  - {name: openamrobot-manifest, default_branch: main}
-  - {name: openamrobot-release, default_branch: main}
+  - {name: .github, default_branch: main, agent_rules: required}
+  - {name: openamr-platform-sw, default_branch: main, agent_rules: required}
+  - {name: openamr-platform-fw, default_branch: main, agent_rules: required}
+  - {name: openamr-platform-hw, default_branch: main, agent_rules: required}
+  - {name: openamr-upperbody-sw, default_branch: main, agent_rules: required}
+  - {name: openamr-upperbody-fw, default_branch: main, agent_rules: required}
+  - {name: openamr-upperbody-hw, default_branch: main, agent_rules: required}
+  - {name: openamrobot-interfaces, default_branch: main, agent_rules: required}
+  - {name: openamrobot-manipulation, default_branch: main, agent_rules: required}
+  - {name: openamrobot-ui, default_branch: main, agent_rules: required}
+  - {name: openamrobot-comm, default_branch: main, agent_rules: required}
+  - {name: openamrobot-docs, default_branch: main, agent_rules: required}
+  - {name: openamrobot-manifest, default_branch: main, agent_rules: required}
+  - {name: openamrobot-release, default_branch: main, agent_rules: required}

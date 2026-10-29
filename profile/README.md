@@ -2,6 +2,14 @@
 
 OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem initiated, operated, and controlled by **Botshare LTD** (Cyprus Company ID HE479056).
 
+> [!IMPORTANT]
+> ### Pre-order OpenAMRobot 2.0 at founder prices
+> DIY kits and assembled robots: **30% off until 15 November 2026**, 25% off 16 to 30 November, 20% off 1 to 31 December. Full payment, price locked, first dispatch April 2027.
+>
+> **[See packages and pre-order on botshare.ai →](https://botshare.ai/openamrobot)**
+
+<img src="nvidia-inception.jpg" alt="Botshare LTD is a member of the NVIDIA Inception Program" height="70"/>
+
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
 
 - mobile manipulation
@@ -33,6 +41,7 @@ The platform is designed not as a fixed product, but as an open and extensible i
 - industrial automation
 - embodied AI research
 - logistics and warehouse robotics
+- grocery and retail order picking (one of our first demonstration use cases)
 - educational platforms
 - teleoperation systems
 - human-robot collaboration
@@ -58,20 +67,25 @@ OpenAMRobot is available as:
 
 # Commercial Options
 
-OpenAMRobot is available in multiple formats depending on your needs.
+OpenAMRobot 2.0 is open for pre-order at founder prices until 31 December 2026. Prices in EUR, excluding VAT, Berlin time. List prices apply from 1 January 2027.
 
-| Offering | Starting Price |
-|----------|---------------:|
-| Mobile Robot Platform - full initial package (components and chassis production), MIT license | **€5,500** |
-| DIY Development Kit - assembled complete mobile robot hardware, electronics, documentation & software package | **€7,000** |
-| Dual-Arm Embodied AI Mobile Robot | **from €13,500** |
-| **Dual-Arm Embodied AI Mobile Robot + Teach-by-Demonstration AI Platform** | **from €25,000** |
+| Package | List | 30% off, to 15 Nov | 25% off, 16 to 30 Nov | 20% off, 1 to 31 Dec |
+|---|---:|---:|---:|---:|
+| **DIY Mobile Platform kit**: complete OpenAMRobot 2.0 base as a parts kit (chassis parts, drivetrain, electronics, compute, sensors), assembled by you | €5,500 | **€3,850** | €4,125 | €4,400 |
+| **Assembled Mobile Platform**: the same base, assembled and tested in Berlin | €7,000 | **€4,900** | €5,250 | €5,600 |
+| **DIY Dual-Arm Manipulator kit**: base parts kit, lift and two OpenArm 2.0 arms, assembled by you | from €12,800 | **from €8,960** | from €9,600 | from €10,240 |
+| **Assembled Dual-Arm Manipulator**: base, lift and two OpenArm 2.0 arms, assembled and tested in Berlin | from €14,800 | **from €10,360** | from €11,100 | from €11,840 |
+| **Premium Embodied AI Training Kit**: assembled dual-arm robot with two OpenArm 2.0 arms, OpenArm KER leader set for teleoperation, and the AI pipelines | from €25,000 | **from €17,500** | from €18,750 | from €20,000 |
 
-### Teach-by-Demonstration AI Platform
+**[Pre-order on botshare.ai →](https://botshare.ai/openamrobot#prices)** · Full payment, price locked, first dispatch April 2027. Refund rules, delivery and VAT are in the [pre-order FAQ](https://botshare.ai/openamrobot#faq).
+
+OpenAMRobot 2.0 is designed for the TZBOT WCM-500-24 wireless charger, which is not included in these packages; every package includes a Daly charger for manual charging. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
+
+### Premium Embodied AI Training Kit
 
 A complete Physical AI development and deployment platform designed to enable **domain experts - not robotics engineers - to teach robots new tasks by demonstration**.
 
-The package combines the Dual-Arm Embodied AI Mobile Robot with the software and AI workflows required for:
+The kit combines the assembled dual-arm robot (two OpenArm 2.0 arms), the OpenArm KER leader set for teleoperation, and the software and AI pipelines required for:
 
 - teleoperation and human task demonstration;
 - demonstration recording and dataset collection;
@@ -115,6 +129,8 @@ Our services include:
 - Corporate training and technical workshops
 
 Whether you need a custom mobile robot, a proof of concept, or a complete production-ready solution, our engineering team can help accelerate your development.
+
+Fixed-scope offers (Technical Review, Engineering Sprint, Discovery Workshop, Build Partner and Platform packages, monthly support): **[botshare.ai/services →](https://botshare.ai/services)**
 
 ---
 ## 🎥 Demo (release v0.0.1)
@@ -440,19 +456,34 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
 
 ---
 
-## Planned releases (next 6 months)
+## Planned releases
+
+### OpenAMRobot 2.0 (in development)
+
+- 20 Nov 2026: v2.0.0-rc.1 pre-release (design, software and manufacturing package)
+- 23 Nov to 18 Dec 2026: physical integration and acceptance testing in Berlin
+- 18 Dec 2026: v2.0.0 final release
+- December 2026: hands-on hackathon with the robot at MotionLab.Berlin
+- Current discussion: https://github.com/orgs/openAMRobot/discussions/27
+
+What 2.0 brings:
+
+- Dual-arm upper body: two OpenArm 2.0 arms (7 DoF each) on a lift, shoulder height 1000 to 1350 mm
+- NVIDIA Jetson Orin NX as the single high-level computer; STM32H723 base controller over micro-ROS
+- Hub-motor drive with fail-safe holding brakes, 25.6 V LiFePO4 battery, wireless charging
+- Safety layer with two E-stops that cut motor power
+- ROS 2, Nav2, MoveIt 2, ros2_control and the browser-based operator UI
+- Embodied AI pipeline: demonstration recording, ACT imitation-learning baseline, evaluation
+
+### OpenAMRobot 3.0 (development cycle starts January 2027)
+
+- Suspension for the hub-motor drive
+- Next steps of the teach-by-demonstration platform (VLA-based training)
+
+### Ongoing
 
 - Carrier PCB (compute + power + sensors)
   - Current discussion: https://github.com/orgs/openAMRobot/discussions/9
-
-- Hub-motor drive; suspension in 3.0
-  - mechanical + control integration
-
-- Robotic arm integration; lift approved in principle for 2.0
-  - mounts
-  - drivers
-  - wiring
-  - examples
 
 - ML-based computer vision
   - object recognition
@@ -473,7 +504,6 @@ Support open-source robotics, ROS 2 development, AI robotics education, and dual
   - embedded systems
   - mechatronics
 
-  
 ---
 
 ## Licensing, ownership, and contributions

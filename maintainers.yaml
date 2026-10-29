@@ -24,6 +24,12 @@ roles:
   docs-owner:
     handle: anandgawai123456-glitch
     covers: documentation site, public extracts
+  electrical-owner:
+    handle: evans-kwashie
+    covers: base controller firmware, electrical and power distribution, safety chain implementation (v0.0.1 first, then 2.0)
+  robot-description-owner:
+    handle: fridayali
+    covers: URDF, base robot model, sensor frames, chassis and panel CAD
 
 review_policy:
   platform-lead-authored:
