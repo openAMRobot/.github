@@ -1,0 +1,9 @@
+{
+  "name": "openamrobot-harness",
+  "version": "0.1.0",
+  "description": "OpenAMRobot engineering skills for Claude Code: ROS 2 testing and code quality, contracts, impact analysis, simulation and model fidelity, dependencies, static analysis, performance, maintainability, firmware review, embodied AI, CI, evidence, safety boundary and the decisions register.",
+  "author": {"name": "OpenAMRobot maintainers"},
+  "homepage": "https://github.com/openAMRobot/.github/tree/main/harness",
+  "license": "MIT",
+  "skills": "./skills/"
+}

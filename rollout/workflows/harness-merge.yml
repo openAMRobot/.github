@@ -1,0 +1,43 @@
+# DESIGN, stage 4 only. Activation needs all of: issue #43 closed; the shared rules
+# block raised to v3 with the tier A merge exception (harness/README.md "Stage 4");
+# a ruleset bypass for the harness App in "pull requests only" mode on each
+# repository with build: true; HARNESS_STAGE=4. Replace <HARNESS_SHA>.
+# The gate is deterministic (tools/harness_merge_gate.py); no AI runs here.
+name: Harness merge gate
+
+on:
+  schedule:
+    - cron: "29 7-19 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-merge
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: vars.HARNESS_ENABLED == 'true' && vars.HARNESS_STAGE == '4'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: <HARNESS_SHA>
+          persist-credentials: false
+      - id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.HARNESS_APP_ID }}
+          private-key: ${{ secrets.HARNESS_APP_PRIVATE_KEY }}
+          owner: openAMRobot
+      - env:
+          GITHUB_TOKEN: ${{ steps.app.outputs.token }}
+          HARNESS_BOT_NAME: ${{ vars.HARNESS_BOT_NAME }}
+        run: |
+          set -euo pipefail
+          python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
+          python3 tools/harness_merge_gate.py --enabled "${{ vars.HARNESS_ENABLED }}" --stage "${{ vars.HARNESS_STAGE }}" --apply \
+            | tee -a "$GITHUB_STEP_SUMMARY"

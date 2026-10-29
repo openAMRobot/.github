@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: e02-stale-quality-documents
+context:
+  scaffold_script: fixture.sh

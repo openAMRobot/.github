@@ -35,6 +35,16 @@ Head SHA:
 
 <!-- None, or each added, removed or upgraded dependency with licence and source. -->
 
+## Decisions impact
+
+<!-- Does this PR state, use or change a value, limit, exclusion or distinction held in
+openAMRobot/.github decisions.yaml (the register)? Tick exactly one and fill it in.
+The evidence check compares your answer with the values your diff touches. -->
+
+- [ ] None: no register value is stated, used or changed.
+- [ ] Consumer: uses or aligns with these entries, unchanged: <IDs>
+- [ ] Change: needs a new or changed decision; change request #<issue> (entry: <ID or NEW>)
+
 ## Safety impact
 
 <!-- None, or: motion / power / battery / actuator / safety I/O / E-stop / brake / contactor /

@@ -25,6 +25,8 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 MARKER = "<!-- openamrobot-pr-evidence -->"
 SECTIONS = ["Work package", "Integration Gate", "Tests", "Evidence", "Not verified", "AI disclosure"]
 SHA = r"\b[0-9a-f]{7,40}\b"
@@ -321,6 +323,13 @@ def main(argv=None):
                    help="combined output of check_decisions.py on the diff")
     p.add_argument("--decisions-status", type=Path,
                    help='JSON status file written by the workflow, e.g. {"exit_code": 1}; required with --decisions-report')
+    p.add_argument("--decisions", type=Path,
+                   help="decisions.yaml; enables the Decisions impact section check (tools/decision_impact.py)")
+    p.add_argument("--files-json", type=Path,
+                   help="PR files as returned by the REST API (with patch); lets the impact check read the diff")
+    p.add_argument("--repository", help="repository name for the register's applies_to matching")
+    p.add_argument("--require-decisions-impact", action="store_true",
+                   help="a missing Decisions impact section fails instead of warning")
     p.add_argument("--output", type=Path, help="write the Markdown summary here")
     p.add_argument("--post", action="store_true", help="create or update the PR comment")
     a = p.parse_args(argv)
@@ -350,6 +359,18 @@ def main(argv=None):
             status = None
         decision_fails, checker_errors = decision_verdict(report, status)
         failures += decision_fails
+    if a.decisions:
+        import decision_impact as di
+        try:
+            register = di.load(a.decisions)
+            files = json.loads(a.files_json.read_text(encoding="utf-8")) if a.files_json else []
+            section = find(sections(pr.get("body") or ""), "Decisions impact")
+            f, w, n = di.evaluate(section, register, files, a.repository, a.require_decisions_impact)
+            failures += f
+            warnings += w
+            notes += n
+        except Exception as exc:  # fails closed like the decisions check
+            checker_errors.append(f"checker error: decisions impact check failed: {exc}")
     summary = render(failures, warnings, notes, pr, checker_errors)
     print(summary)
     if a.output:
