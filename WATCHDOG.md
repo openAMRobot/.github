@@ -298,6 +298,20 @@ back, delete the variable or set it to `dashboard`; issues that already exist st
 first repositories have finished rollout and their owners are ready to work from one issue per
 group. Until then the dashboard alone keeps the organization view in one place.
 
+### Daily report
+
+[watchdog-daily.yml](.github/workflows/watchdog-daily.yml) runs at 04:41 UTC, Monday to Friday,
+and on demand. `tools/watchdog_daily.py` reads the GitHub REST API (no clone, no AI) for every
+repository in [rollout/repositories.yaml](rollout/repositories.yaml): the latest conclusion per
+workflow on the default branch over 7 days and the 7-day green rate, open pull requests (age,
+draft, last update, author), open issues labelled `rc.1` or titled `[rc.1]`, and pull requests
+and issues with no update for 14 days. It writes `daily.json` and a `daily.md` of at most 60
+lines (changes since the previous run first), uploads both as the `watchdog-daily` artifact, and
+replaces only the "Daily" section of the dashboard issue; the Thursday scan keeps that section
+when it rewrites the dashboard. A repository it cannot read is "not measured", never clean, and
+the run is INCOMPLETE and red. To stop it: Actions, Watchdog daily, Disable workflow. An optional
+AI summary of `daily.json` is design only (rollout/workflows/SETUP.md, section 9).
+
 ## Agent-rules adoption policy
 
 `rollout/repositories.yaml` is the authoritative enrollment manifest. Every entry declares `agent_rules: required` or `agent_rules: exempt`. An exempt entry must include `agent_rules_reason`; the Watchdog reports the exemption explicitly. It never treats a missing AGENTS.md as clean merely because the file is absent.
