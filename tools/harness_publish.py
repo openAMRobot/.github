@@ -48,6 +48,15 @@ FOOTER = ("\n\n---\nOpened by the openAMRobot harness ({mission} mission, [run](
           "It stays a draft until the code owner writes adopt, adapt or reject (AGENTS.md \"Agents\").")
 
 
+def coverage_line(policy):
+    """Deterministic coverage statement for public output. Private repositories are never named."""
+    excluded = [e["name"] for e in policy.get("excluded", [])]
+    line = f"Coverage: {len(policy['repositories'])} repositories enrolled"
+    if excluded:
+        line += f"; {len(excluded)} excluded by owner decision (out of scope, not scanned): {', '.join(excluded)}"
+    return line + "."
+
+
 def clip(text, limit):
     text = str(text or "")
     return text if len(text) <= limit else text[:limit - 20] + "\n\n[cut by harness]"
@@ -251,7 +260,7 @@ class Publisher:
                         {x for x in new.get("labels", []) if isinstance(x, str)} & allowed)
         digest = clip((data.get("digest") or "No digest produced.").strip(), 8000)
         stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-        body = f"{digest}\n\n---\nUpdated {stamp} by harness triage ([run]({self.run_url})). Edited in place every weekday."
+        body = f"{digest}\n\n{coverage_line(self.policy)}\n\n---\nUpdated {stamp} by harness triage ([run]({self.run_url})). Edited in place every weekday."
         existing = [i for i in self.gh.paged(f"/repos/{self.org}/.github/issues?state=open&labels=harness&per_page=100")
                     if i["title"] == DIGEST_TITLE]
         if existing:

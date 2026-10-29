@@ -10,13 +10,17 @@ schema_version: 1
 # they can be flipped without a commit. Unset means off.
 switches:
   master: HARNESS_ENABLED          # "true" runs anything at all
-  stage: HARNESS_STAGE             # 1, 2, 3 or 4 (see stages)
+  stage: HARNESS_STAGE             # 0 (unset), 1, 2, 3 or 4 (see stages)
   publish: HARNESS_PUBLISH         # "true" lets the publish step write; otherwise every run is a
                                    # supervised dry run that prints its plan in the job summary
   pause_label: no-ai               # on an issue or PR: agents ignore it
   hold_label: hold                 # on a PR: no automatic merge, agents stop updating it
 
+# HARNESS_PUBLISH unset means a dry run at any stage: a run started by hand (Run workflow)
+# may run any mission whatever the stage, prints its plan and writes nothing; scheduled AI
+# runs are skipped. The stage gates below apply only when HARNESS_PUBLISH is "true".
 stages:
+  0: {name: dry-run, runs: [any mission, started by hand], writes: []}
   1: {name: observe, runs: [collect, triage, audits], writes: [dashboard, issues]}
   2: {name: author, runs: [collect, triage, audits, build], writes: [dashboard, issues, draft-prs]}
   3: {name: review, runs: [collect, triage, audits, build, review], writes: [dashboard, issues, draft-prs, review-comments]}
@@ -250,7 +254,8 @@ labels:
   hold: no automatic merge
 
 # Repositories the organization does not work on (owner decision, 29 Oct 2026). No agent,
-# audit or review ever reads or writes them, and reports never list them as unscanned.
+# audit or review ever reads or writes them. Reports name them as excluded (out of scope),
+# never as clean, compliant or unscanned; the daily digest states this coverage line.
 excluded:
   - {name: openamr, reason: "legacy monorepo snapshot; development moved to the split repositories"}
   - {name: EOD-robot, reason: "archived proof of concept, separate scope"}

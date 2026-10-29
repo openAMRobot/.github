@@ -311,3 +311,57 @@ class Coverage(unittest.TestCase):
             self.assertTrue(list((case / "graders").glob("*.md")), case)
             critical += "critical" in prompt.split("---")[1]
         self.assertEqual(critical, 13, "E01 to E12 and E14 are critical, E13 is the positive control")
+
+
+class RouteGateTest(unittest.TestCase):
+    """Runs the route step of harness-run.yml with bash, so README, policy and workflow agree."""
+
+    def route(self, mission="", schedule="", stage="", publish=""):
+        wf = hl.load_yaml(ROOT / "rollout" / "workflows" / "harness-run.yml")
+        script = wf["jobs"]["route"]["steps"][0]["run"]
+        with tempfile.TemporaryDirectory() as tmp:
+            out, summary = Path(tmp) / "out", Path(tmp) / "summary"
+            env = dict(os.environ, SCHEDULE=schedule, INPUT=mission, STAGE=stage, PUBLISH=publish,
+                       GITHUB_OUTPUT=str(out), GITHUB_STEP_SUMMARY=str(summary))
+            subprocess.run(["bash", "-c", script], env=env, check=True, capture_output=True)
+            return dict(line.split("=", 1) for line in out.read_text().split())
+
+    def test_manual_dry_run_runs_every_supervised_mission_at_any_stage(self):
+        for stage in ("", "0", "1"):
+            for mission, need in (("triage", "1"), ("build", "2"), ("review", "3")):
+                r = self.route(mission=mission, stage=stage)
+                self.assertEqual((r["mission"], r["dry_run"]), (mission, "true"), (stage, mission))
+                self.assertGreaterEqual(int(r["stage"]), int(need))
+
+    def test_scheduled_ai_runs_are_skipped_without_publishing(self):
+        self.assertEqual(self.route(schedule="7 5 * * 1-5", stage="4")["mission"], "none")
+        self.assertEqual(self.route(schedule="52 5 * * *", stage="1")["mission"], "decision-followup")
+
+    def test_stage_gates_apply_when_publishing(self):
+        self.assertEqual(self.route(mission="build", stage="1", publish="true")["mission"], "none")
+        self.assertEqual(self.route(mission="review", stage="2", publish="true")["mission"], "none")
+        r = self.route(mission="triage", stage="1", publish="true")
+        self.assertEqual((r["mission"], r["stage"], r["dry_run"]), ("triage", "1", "false"))
+
+    def test_publish_steps_require_both_switches(self):
+        text = (ROOT / "rollout" / "workflows" / "harness-run.yml").read_text()
+        self.assertEqual(text.count('[ "${PUBLISH:-}" = true ] && [ "${DRY_RUN:-}" = false ] && apply=(--apply)'), 2)
+        self.assertNotIn('[ "${PUBLISH:-}" = true ] && apply=(--apply)', text)
+
+    def test_policy_documents_stage_zero(self):
+        self.assertEqual(POLICY["stages"][0]["writes"], [])
+
+
+class CoreRulesScopeTest(unittest.TestCase):
+    RULES = (ROOT / "harness" / "CORE_RULES.md").read_text()
+
+    def test_contract_rule_coordinates_one_pr_per_repository(self):
+        self.assertIn("one PR per affected repository", self.RULES)
+
+    def test_excluded_repositories_are_named_as_excluded(self):
+        self.assertIn("excluded by owner decision", self.RULES)
+        self.assertIn("never as clean or unscanned", self.RULES)
+
+    def test_revert_test_applies_to_code_changes_only(self):
+        self.assertIn("A code change carries a test that fails on revert", self.RULES)
+        self.assertIn("Read-only work", self.RULES)

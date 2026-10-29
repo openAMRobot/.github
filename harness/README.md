@@ -14,7 +14,7 @@ Three things get connected, in openAMRobot/.github and the private openAMRobot/a
 | The GitHub App **openamrobot-harness** (two secrets) | the only identity that pushes branches, opens draft PRs, comments and labels | create it under the organization's Settings, Developer settings, GitHub Apps. Repository permissions: Contents read and write, Pull requests read and write, Issues read and write, Actions read, Checks read, Metadata read. No Workflows permission (agents never change workflow files) and no organization permissions. Install it on the repositories in `harness/policy.yaml` and on `audits`. Save `HARNESS_APP_ID` and `HARNESS_APP_PRIVATE_KEY` as secrets in openAMRobot/.github and openAMRobot/audits. |
 | Variables | switches you flip without a commit | `HARNESS_ENABLED`, `HARNESS_STAGE`, `HARNESS_PUBLISH`, `HARNESS_EGRESS`, `HARNESS_BOT_NAME`, `HARNESS_BOT_EMAIL` |
 
-Why the order matters: the agent's processes run next to the credential, and a GitHub-hosted runner gives them sudo, so nothing that runs after the agent in the same job is a security boundary. A short-lived, spend-limited credential bounds the damage if a prompt injection ever exfiltrated it; a personal subscription token does not.
+Why the order matters: the agent's processes run next to the credential, and a GitHub-hosted runner gives them sudo, so nothing that runs after the agent in the same job is a security boundary. Federation gives each run a credential that expires within the hour and lives in a spend-limited workspace, which bounds the damage if a prompt injection ever exfiltrated it. A Console API key is spend-limited but long-lived: a stolen key works until it is revoked, so rotate it every quarter and revoke it at once on any suspicion. A personal subscription token is neither.
 
 The official "Claude" GitHub App (used for `@claude` mentions) is not needed. Its permission set is broader than the harness needs, so the harness uses its own App. Claude never sees the App key: only deterministic steps before and after the agent use it.
 
@@ -97,7 +97,7 @@ Prompts are not enforcement. Code that the agent cannot change enforces every ru
 
 | Stage | Turns on | Gate to the next stage |
 |---|---|---|
-| 0 dry run | `HARNESS_PUBLISH` unset: runs started by hand print their plans and write nothing; scheduled AI runs stay off | evaluations pass; three supervised manual runs (triage, one build, one review) with their plans read by the platform lead; the founder's approval comment on #43 |
+| 0 dry run | `HARNESS_PUBLISH` unset: a run started by hand (Run workflow) runs any mission whatever `HARNESS_STAGE` says, prints its plan and writes nothing; scheduled AI runs are skipped. Stage gates apply only once `HARNESS_PUBLISH=true` | evaluations pass; three supervised manual runs (triage, one build, one review) with their plans read by the platform lead; the founder's approval comment on #43 |
 | 1 observe | triage, audits, digest, decision follow-up (`HARNESS_PUBLISH=true`) | one week of useful digests |
 | 2 author | build and register-sync in repositories with `build: true` | evaluations rerun and passing; per repository: the enforcement checklist below, `rollout/verify.sh` passes on main with a real test count, tests run in CI, AGENTS.md v2, STATE.md current; then two weeks with under 30 percent rejected PRs |
 | 3 review | review comments on every PR | four weeks with no reverted harness PR |
@@ -124,7 +124,7 @@ Files and checkers are not enforcement. The platform lead or CI owner confirms i
 3. Create the labels in `harness/policy.yaml` in every enrolled repository.
 4. Copy `rollout/workflows/harness-run.yml` to `.github/workflows/` and `rollout/workflows/harness-register-audit.yml` to `.github/workflows/` of openAMRobot/audits, replace `<HARNESS_SHA>`, review and merge.
 5. Run the behaviour evaluations and attach the JSON to #43.
-6. Set `HARNESS_ENABLED=true` and `HARNESS_STAGE=1` and leave `HARNESS_PUBLISH` unset. Then use Actions, Harness run, Run workflow for mission `triage`, then `build`, then `review`, and read each plan in the job summary.
+6. Set `HARNESS_ENABLED=true` and `HARNESS_STAGE=1` and leave `HARNESS_PUBLISH` unset. Then use Actions, Harness run, Run workflow for mission `triage`, then `build`, then `review`, and read each plan in the job summary. With publishing unset these manual runs ignore the stage gate, so build and review run as dry runs even at stage 1; nothing is written.
 7. Founder approval comment on #43; then set `HARNESS_PUBLISH=true`.
 8. After one week, set `HARNESS_EGRESS=block`.
 
@@ -159,7 +159,7 @@ Seeded from the 29 Oct software plan and the 29 Oct external audit, and kept in 
 
 ## Coverage
 
-Fifteen repositories are enrolled in `harness/policy.yaml` (review and build flags per repository). openamrobot-embodied-ai joins the Watchdog scan with PR #69. The private audits repository runs only the register audit, in its own workflow. Four repositories are excluded by owner decision: openamr, EOD-robot, OpenAMR_UI_dev and OpenAMR_UI_package. No agent reads or writes them, and reports never list them as unscanned. A test checks that every repository has exactly one of these dispositions.
+Fifteen repositories are enrolled in `harness/policy.yaml` (review and build flags per repository). openamrobot-embodied-ai joins the Watchdog scan with PR #69. The private audits repository runs only the register audit, in its own workflow. Four repositories are excluded by owner decision: openamr, EOD-robot, OpenAMR_UI_dev and OpenAMR_UI_package. No agent reads or writes them; reports and the daily digest name them as excluded (out of scope), never as clean or unscanned. A test checks that every repository has exactly one of these dispositions.
 
 ## Files
 

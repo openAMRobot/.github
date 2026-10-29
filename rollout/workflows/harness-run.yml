@@ -75,6 +75,8 @@ jobs:
     timeout-minutes: 5
     outputs:
       mission: ${{ steps.r.outputs.mission }}
+      stage: ${{ steps.r.outputs.stage }}
+      dry_run: ${{ steps.r.outputs.dry_run }}
     steps:
       - id: r
         env:
@@ -105,15 +107,26 @@ jobs:
             *) echo "unknown mission $m"; exit 1 ;;
           esac
           stage="${STAGE:-0}"
+          case "$stage" in 0|1|2|3|4) ;; *) echo "HARNESS_STAGE must be 0 to 4, is $stage"; exit 1 ;; esac
           need=1
           case "$m" in build|register-sync|retro) need=2 ;; review) need=3 ;; esac
-          if [ "$stage" -lt "$need" ]; then echo "mission $m needs stage $need, stage is $stage"; m=none; fi
-          # Dry runs are manual: a scheduled AI run without publishing would repeat the same work.
-          if [ -n "${SCHEDULE:-}" ] && [ "${PUBLISH:-}" != true ] && [ "$m" != decision-followup ] && [ "$m" != none ]; then
-            echo "scheduled $m skipped: HARNESS_PUBLISH is not true (dry runs are started by hand)"; m=none
+          dry=false; [ "${PUBLISH:-}" = true ] || dry=true
+          if [ "$dry" = true ]; then
+            # Dry run: nothing is published. Manual runs may run any mission (stage 0 supervision);
+            # a scheduled AI run without publishing would only repeat the same work, so it is skipped.
+            if [ -n "${SCHEDULE:-}" ] && [ "$m" != decision-followup ]; then
+              echo "scheduled $m skipped: HARNESS_PUBLISH is not true (dry runs are started by hand)"; m=none
+            fi
+            [ "$stage" -lt "$need" ] && stage=$need
+          elif [ "$stage" -lt "$need" ]; then
+            echo "mission $m needs stage $need, stage is $stage"; m=none
           fi
-          echo "mission=$m" >> "$GITHUB_OUTPUT"
-          echo "Mission: $m (stage $stage)" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "mission=$m"
+            echo "stage=$stage"
+            echo "dry_run=$dry"
+          } >> "$GITHUB_OUTPUT"
+          echo "Mission: $m (effective stage $stage, dry run $dry)" >> "$GITHUB_STEP_SUMMARY"
 
   followup:
     needs: route
@@ -138,10 +151,11 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ steps.app.outputs.token }}
           PUBLISH: ${{ vars.HARNESS_PUBLISH }}
+          DRY_RUN: ${{ needs.route.outputs.dry_run }}
         run: |
           set -euo pipefail
           python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
-          apply=(); [ "${PUBLISH:-}" = true ] && apply=(--apply)
+          apply=(); [ "${PUBLISH:-}" = true ] && [ "${DRY_RUN:-}" = false ] && apply=(--apply)
           python3 tools/decision_followup.py --days 3 --workdir "$RUNNER_TEMP/followup" "${apply[@]}" \
             | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -171,7 +185,7 @@ jobs:
           MISSION: ${{ needs.route.outputs.mission }}
           GITHUB_TOKEN: ${{ github.token }}
           HARNESS_ENABLED: ${{ vars.HARNESS_ENABLED }}
-          HARNESS_STAGE: ${{ vars.HARNESS_STAGE }}
+          HARNESS_STAGE: ${{ needs.route.outputs.stage }}
           HARNESS_BOT_NAME: ${{ vars.HARNESS_BOT_NAME }}
         run: |
           set -euo pipefail
@@ -371,13 +385,14 @@ jobs:
           MISSION: ${{ needs.route.outputs.mission }}
           TARGET: ${{ needs.plan.outputs.target }}
           PUBLISH: ${{ vars.HARNESS_PUBLISH }}
+          DRY_RUN: ${{ needs.route.outputs.dry_run }}
           HARNESS_BOT_NAME: ${{ vars.HARNESS_BOT_NAME }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
           mkdir -p out
           python3 -c 'import yaml' 2>/dev/null || python3 -m pip install --user 'PyYAML==6.0.2'
-          apply=(); [ "${PUBLISH:-}" = true ] && apply=(--apply)
+          apply=(); [ "${PUBLISH:-}" = true ] && [ "${DRY_RUN:-}" = false ] && apply=(--apply)
           python3 tools/harness_publish.py --mission "$MISSION" --target "$TARGET" --out out \
             --guard "$RUNNER_TEMP/guard.json" --clone "$RUNNER_TEMP/candidate" \
             --org "$ORG" --run-url "$RUN_URL" "${apply[@]}" | tee -a "$GITHUB_STEP_SUMMARY"

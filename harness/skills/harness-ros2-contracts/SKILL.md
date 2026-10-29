@@ -24,7 +24,7 @@ For every enrolled repository at its default branch:
 Record each in `.harness-out/findings.csv` with columns: id, severity (Blocker, Major, Minor), area, repository, file_to_change, value_a, value_b, decision_of_record, fix. IDs are SW-1000 to SW-1999 (the contracts audit range; the software lead owns them).
 
 ## Changing a contract
-Never in a build mission. A contract change needs a contract change request issue and one PR updating the interface package and every consumer together (AGENTS.md "Contracts"). Agents prepare the hand-over: the consumers list from the graph, the compatibility impact, and tests that would catch a break. Label needs-human:contract.
+Never in a build mission. A contract change needs one approved contract change request issue (software lead) and one PR per affected repository, each linking the request, merged in order: interface package first and backward compatible, then each consumer, then removal of the old form (AGENTS.md "Contracts"; across repositories "one PR" means this coordinated set). Agents prepare the hand-over: the consumers list from the graph, the compatibility impact, and tests that would catch a break. Label needs-human:contract.
 
 ## Jazzy specifics
 Interface type hashes (RIHS01) are visible in `ros2 topic info -v`; a type changed in one repository but not rebuilt in another shows a hash mismatch and the endpoints will not match. Check with a launch test that brings up both sides.

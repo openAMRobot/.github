@@ -251,3 +251,16 @@ class Inputs(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CoverageLineTest(unittest.TestCase):
+    def test_digest_coverage_names_exclusions_and_never_private_repositories(self):
+        import harness_lib as hl
+        import harness_publish as hp
+        policy = hl.load_policy(ROOT)
+        line = hp.coverage_line(policy)
+        for name in ("openamr,", "EOD-robot", "OpenAMR_UI_dev", "OpenAMR_UI_package", "excluded by owner decision"):
+            self.assertIn(name, line)
+        for name in policy.get("private", {}):
+            self.assertNotIn(name, line)
+        self.assertIn(f"{len(policy['repositories'])} repositories enrolled", line)
