@@ -721,7 +721,7 @@ class RealRegister(unittest.TestCase):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_head_camera_lens_42_mm_ahead(self):
-        # P-03 rev20.0 item 18 (28 Oct 2026): lens 42 mm ahead of the arm mount point, was 22 mm.
+        # P-03 rev20.1 item 18 (value of the rev20.0 28 Oct 2026 correction): lens 42 mm ahead of the arm mount point, was 22 mm.
         repo = "openamrobot-docs"
         for text in ("Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
                      "The ZED Mini lens sits 22 mm ahead of the shoulder.\n"):
@@ -733,7 +733,7 @@ class RealRegister(unittest.TestCase):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_head_camera_pitch_baseline_30(self):
-        # P-03 rev20.0 items 15 and 17 (28 Oct 2026): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
+        # P-03 rev20.1 items 15 and 17 (values of the rev20.0 28 Oct 2026 corrections): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
         repo = "openamr-upperbody-sw"
         self.assertEqual(self.ids("docs/a.md", "Head-camera pitch 15 to 35 degrees down, baseline 25 degrees.\n", repo),
                          ["HEAD-CAMERA-IDENTITY"])
@@ -762,6 +762,19 @@ class RealRegister(unittest.TestCase):
                      "It replaces the OpenArm kit button.\n",
                      "Historical: the OpenArm kit chest button.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_p03_rev20_1_is_in_force_and_cited(self):
+        # Owner decision 30 Oct 2026: P-03 rev20.1 is in force; head-camera values stay 30 degrees and hp30.
+        data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(data["in_force"]["source"], "P-03-rev20.1")
+        self.assertIn("P-03-rev20.1", data["sources"])
+        by_id = {d["id"]: d for d in self.decisions}
+        for did in ("HEAD-CAMERA-IDENTITY", "CONFIG-IDS", "OPERATOR-PANEL"):
+            self.assertEqual(by_id[did]["source"]["document"], "P-03-rev20.1", did)
+        self.assertIn("baseline 30 degrees", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
+        self.assertIn("(baseline hp30)", " ".join(by_id["CONFIG-IDS"]["values"]))
+        self.assertTrue(by_id["OPERATOR-PANEL"]["source"]["item"].startswith("item 24"))
+        self.assertIn("ZX80", by_id["OPERATOR-PANEL"]["source"]["item"])
 
     def test_ui_manual_velocity_input_is_proposed_and_not_scanned(self):
         # Alex decision 30 Oct 2026; source PR openamr-platform-sw #90 open, so stored as open (Proposed).

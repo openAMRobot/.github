@@ -53,12 +53,12 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev19.6
-  date: 2026-10-18
+  source: P-03-rev20.1
+  date: 2026-10-30
 
 sources:
   P-03-rev20.1:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.1, with the platform lead's decisions of 30 October 2026 (item 24: operator panel Getac ZX80)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.1, with the platform lead's decisions of 30 October 2026 (the addendum in force; carries the rev20.0 items 15, 17 and 18 head-camera values; item 24: whole chest layout, including the ZX80 operator panel correction of 28 October 2026)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-30:
     title: Platform decision of 30 October 2026 (UI manual velocity input and stop lock, status vocabulary, stop scope, UI Gate A date); change request openAMRobot/.github#72
@@ -67,7 +67,7 @@ sources:
     title: E-01 Safety and Power Distribution Baseline rev1.5 ("E-stop" means only the hardwired buttons)
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.0:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.0, 27 October 2026, with the 28 October 2026 corrections (items 15, 17 and 18: head-camera lens 42 mm ahead of the shoulder, baseline pitch 30 degrees, hp30; item 24: second E-stop on the static lift column)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.0, 27 October 2026, with the 28 October 2026 corrections (earlier revision; superseded by rev20.1 as the addendum in force; items 15, 17 and 18: head-camera lens 42 mm ahead of the shoulder, baseline pitch 30 degrees, hp30; item 24: second E-stop on the static lift column)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-20:
     title: Platform decision of 20 October 2026 (TF-Luna cliff pitch 10 degrees; WCM-500-24 on release 001 and 2.0; embodied-AI repository; platform-sw pin for the combined model)
@@ -92,7 +92,7 @@ sources:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev19.6:
-    title: "OpenAMRobot 2.0 Decision Addendum rev19.6, 18 October 2026 (the addendum in force; item 22: Gigavac GX11CAC contactors and the item 22 controller I/O)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.6, 18 October 2026 (earlier revision; superseded by rev20.1 as the addendum in force; item 22: Gigavac GX11CAC contactors and the item 22 controller I/O)"
     evidence: plan-set document, not held in any repository; cited by item
   E-01-rev1.3:
     title: E-01 Safety and Power Distribution Baseline rev1.3, 18 October 2026 (detail for P-03 rev19.6 item 22)
@@ -670,7 +670,7 @@ decisions:
     unit: none
     date: 2026-10-28
     review_by: 2026-12-09
-    source: {document: P-03-rev20.0, item: "items 15 and 18 (28 Oct 2026 corrections); camera identity per P-03-rev18.7 item 15"}
+    source: {document: P-03-rev20.1, item: "items 15 and 18 (values of the P-03-rev20.0 28 Oct 2026 corrections, unchanged); camera identity per P-03-rev18.7 item 15"}
     supersedes:
       - {value: "lens 0.022 m ahead of and 0.223 m above the arm mount point", source: P-03-rev18.9 item 18}
       - {value: "pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees", source: P-03-rev18.7 item 15}
@@ -682,10 +682,10 @@ decisions:
         message: the head camera is the Stereolabs ZED Mini, SKU ZED-121210 (P-03 rev18.7 item 15)
       - pattern: '(?P<found>\b(?:0\.022 m|22 mm) ahead\b)'
         unless: 'supersed|historical|\bwas\b'
-        message: the head-camera lens is 0.042 m (42 mm) ahead of the arm mount point (P-03 rev20.0 item 18)
+        message: the head-camera lens is 0.042 m (42 mm) ahead of the arm mount point (P-03 rev20.1 item 18)
       - pattern: '(?P<found>\b(?:head[- ]camera|ZED Mini)\b[^\n]{0,60}\bpitch\b[^\n]{0,40}\bbaseline:?\s*25\b(?!\s*mm))'
         unless: 'supersed|historical|\bwas\b'
-        message: the head-camera baseline pitch is 30 degrees down (P-03 rev20.0 item 15)
+        message: the head-camera baseline pitch is 30 degrees down (P-03 rev20.1 item 15)
     verification:
       machine: another ZED model (ZED 2, ZED 2i, ZED X, ZED X Mini) without a superseded or legacy label; the lens 0.022 m or 22 mm ahead; a head-camera pitch baseline of 25 degrees
       human: {reviewer: platform-lead, evidence: supplier SKU on the OpenArm 2.0 set and the lift-carriage mount drawing with the pitch steps}
@@ -1279,7 +1279,7 @@ decisions:
     unit: none
     date: 2026-10-28
     review_by: 2026-12-09
-    source: {document: P-03-rev20.0, item: "item 17 (28 Oct 2026 corrections: head_pitch baseline hp30); column, base_plate and base_tilt per P-03-rev18.9 items 17 and 18"}
+    source: {document: P-03-rev20.1, item: "item 17 (head_pitch baseline hp30, value of the P-03-rev20.0 28 Oct 2026 corrections, unchanged); column, base_plate and base_tilt per P-03-rev18.9 items 17 and 18"}
     supersedes:
       - {value: "head_pitch hp15, hp20, hp25, hp30, hp35 (baseline hp25)", source: P-03-rev18.9 item 17}
       - {value: "mast_id (mast_1300 to mast_1450)", source: P-03-rev18.2 shoulder height}
@@ -1290,7 +1290,7 @@ decisions:
         message: mast_id is replaced by the column, base_plate, head_pitch and base_tilt IDs (P-03 rev18.9 item 17)
       - pattern: '(?P<found>\bhead_pitch\b[^\n]{0,60}\bbaseline:?\s*[`"]?(?:hp)?25\b|\bbaseline:?\s*[`"]?hp25\b)'
         unless: 'supersed|historical|\bwas\b'
-        message: the head_pitch baseline is hp30 (P-03 rev20.0 item 17)
+        message: the head_pitch baseline is hp30 (P-03 rev20.1 item 17)
     verification:
       machine: mast_id used as a current configuration ID; a head_pitch baseline of hp25
       human: {reviewer: software-lead, evidence: configuration hash inputs and dataset metadata carrying the four IDs}
@@ -1437,9 +1437,9 @@ decisions:
     status: recorded
     value: Getac ZX80, 8 inch, 1920 x 1200, landscape
     unit: none
-    date: 2026-10-30
-    review_by: 2026-12-11
-    source: {document: P-03-rev20.1, item: item 24}
+    date: 2026-10-28
+    review_by: 2026-12-09
+    source: {document: P-03-rev20.1, item: "item 24 (whole chest layout, including the ZX80 correction of 28 Oct 2026)"}
     supersedes:
       - {value: Getac ZX10, source: "earlier panel selection, not held in this register; replaced by P-03-rev20.1 item 24"}
     applies_to:
