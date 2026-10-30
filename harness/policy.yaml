@@ -1,0 +1,291 @@
+# Harness policy: the single machine-readable rule set for every AI agent run
+# in the openAMRobot organization. Read by tools/harness_select.py (what may run),
+# harness/claude/hooks/guard_tool.py (what an agent may touch while it runs) and
+# tools/harness_guard.py (what a finished change may contain). harness/README.md
+# explains it for people. A change to this file needs the platform lead (safety
+# boundaries, tiers) or the CI owner (budgets, schedule) as code-owner reviewer.
+schema_version: 1
+
+# Master switches. Both live as repository variables in openAMRobot/.github so
+# they can be flipped without a commit. Unset means off.
+switches:
+  master: HARNESS_ENABLED          # "true" runs anything at all
+  stage: HARNESS_STAGE             # 0 (unset), 1, 2, 3 or 4 (see stages)
+  publish: HARNESS_PUBLISH         # "true" lets the publish step write; otherwise every run is a
+                                   # supervised dry run that prints its plan in the job summary
+  pause_label: no-ai               # on an issue or PR: agents ignore it
+  hold_label: hold                 # on a PR: no automatic merge, agents stop updating it
+
+# HARNESS_PUBLISH unset means a dry run at any stage: a run started by hand (Run workflow)
+# may run any mission whatever the stage, prints its plan and writes nothing; scheduled AI
+# runs are skipped. The stage gates below apply only when HARNESS_PUBLISH is "true".
+stages:
+  0: {name: dry-run, runs: [any mission, started by hand], writes: []}
+  1: {name: observe, runs: [collect, triage, audits], writes: [dashboard, issues]}
+  2: {name: author, runs: [collect, triage, audits, build], writes: [dashboard, issues, draft-prs]}
+  3: {name: review, runs: [collect, triage, audits, build, review], writes: [dashboard, issues, draft-prs, review-comments]}
+  4: {name: merge-tier-a, runs: [collect, triage, audits, build, review, merge], writes: [dashboard, issues, draft-prs, review-comments, merge-tier-a]}
+
+# Autonomy tiers. A change takes the highest tier of any path it touches.
+#   A: agent authors; merges automatically in stage 4 after every gate passes and the
+#      veto window ends; before stage 4 the owner merges with one click.
+#   B: agent authors a draft; the code owner adopts, adapts or rejects.
+#   C: agent may only write tests in new files, reviews, analysis and issues.
+#      A person writes the change. Two human approvals including the platform lead.
+#   D: no agent change at all, not even a test file inside it.
+tiers:
+  A:
+    description: tests, docs and lint-only changes outside protected paths
+    paths:
+      - "**/test/**"
+      - "**/tests/**"
+      - "**/test_*.py"
+      - "**/*_test.py"
+      - "**/*.md"
+      - "docs/**"
+    conditions:
+      - no line removed from an existing test except a renamed or moved test
+      - no new skip, xfail or importorskip
+      - executed test count does not fall
+      - no dependency manifest changed
+  B:
+    description: source, configuration, launch, build and CI of non-safety code
+    default: true
+  C:
+    description: safety, motion arbitration, firmware, hardware, contracts, robot model limits
+    paths:
+      # maintainers.yaml safety_paths are always included at run time.
+      - "**/*twist_mux*"
+      - "**/*collision_monitor*"
+      - "**/*velocity_smoother*"
+      - "**/openamrobot_docking/**"
+      - "**/openamrobot_nav2/launch/navigation_launch.py"
+      - "**/openamrobot_nav2/config/nav2_params.yaml"
+      - "**/ros2_control*.xacro"
+      - "**/*joint_limits*.yaml"
+      - "**/*controllers*.yaml"
+      - "**/openamrobot_policy_runner/**"
+      - "**/Joystick.jsx"
+      - "**/StatusBar.jsx"
+      - "**/robotActions.js"
+      - "firmware/**"
+      - "boards/**"
+      - "**/*.ioc"
+      - "**/*.msg"
+      - "**/*.srv"
+      - "**/*.action"
+    repositories:
+      # Every path in these repositories is tier C.
+      - openamr-platform-fw
+      - openamr-upperbody-fw
+      - openamr-platform-hw
+      - openamr-upperbody-hw
+  D:
+    description: governance, register, licences, harness and agent configuration
+    paths:
+      - "decisions.yaml"
+      - "maintainers.yaml"
+      - "**/CODEOWNERS"
+      - "LICENSE*"
+      - "LICENSING.md"
+      - "NOTICE*"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - ".claude/**"
+      - ".claude-plugin/**"
+      - ".harness/**"
+      - "harness/**"
+      - "agent-rules/**"
+      - ".github/workflows/**"        # a workflow edited on a branch runs with that repository's secrets
+      - ".github/actions/**"
+
+# Files whose change counts as a dependency change (tier B at least, and a
+# Dependencies section in the PR body).
+dependency_manifests:
+  - "**/package.xml"
+  - "**/requirements*.txt"
+  - "**/pyproject.toml"
+  - "**/setup.py"
+  - "**/setup.cfg"
+  - "**/package.json"
+  - "**/package-lock.json"
+  - "**/*.repos"
+  - "**/CMakeLists.txt"
+
+# Commands an agent may never run (matched as substrings after whitespace
+# normalisation by guard_tool.py). The agent has no push credential anyway.
+# One word (curl) or a flag (--no-verify) matches as a whole shell token; a phrase
+# (git push) matches at a command boundary. Interpreters can still open sockets,
+# which is why egress is also limited by harden-runner and no credential is present.
+blocked_commands:
+  - "git push"
+  - "git remote"
+  - "git config --global"
+  - "git reset --hard origin"
+  - "--no-verify"
+  - "git apply"            # agents edit files with the Edit tool; a patch could touch anything
+  - "git am"
+  - "patch"
+  - "--no-sign-off"
+  - "gh"
+  - "curl"
+  - "wget"
+  - "ssh"
+  - "scp"
+  - "nc"
+  - "ncat"
+  - "socat"
+  - "telnet"
+  - "printenv"
+  - "rm -rf /"
+  - "chmod -R 777"
+  - "candump"
+  - "cansend"
+  - "st-flash"
+  - "openocd"
+  - "pio run -t upload"   # building firmware is fine; flashing never
+  - "--target upload"
+  - "dfu-util"
+
+# Budgets, counted in runs, turns and minutes. No money figures in repositories.
+budgets:
+  build:
+    runs_per_weekday: 4
+    max_turns: 80
+    timeout_minutes: 50
+    open_ai_prs_per_repository: 2
+    open_ai_prs_organization: 8
+    attempts_per_issue: 2           # then the issue gets needs-human:stuck
+  review:
+    reviews_per_day: 40
+    max_turns: 25
+    timeout_minutes: 15
+  triage:
+    max_turns: 30
+    timeout_minutes: 15
+  audit:
+    max_turns: 120
+    timeout_minutes: 60
+  retro:
+    max_turns: 60
+    timeout_minutes: 30
+  on_usage_limit: stop the run, mark it budget-exhausted, no retry before the next slot
+
+# Schedule, UTC. Minutes are off the hour on purpose.
+schedule:
+  collect:  "41 4 * * 1-5"
+  triage:   "7 5 * * 1-5"
+  build:    ["37 5 * * 1-5", "37 8 * * 1-5", "37 11 * * 1-5", "37 14 * * 1-5"]
+  review:   "*/30 6-20 * * *"
+  sim_analysis: "47 4 * * *"       # after the nightly simulation in each repository
+  audits:
+    dependencies: "23 3 * * 1"      # Monday
+    contracts:    "23 3 * * 2"      # Tuesday
+    impact:       "23 3 * * 3"      # Wednesday
+    performance:  "23 3 * * 5"      # Friday
+    maintainability: "53 3 * * 5"   # Friday
+  retro:    "17 15 * * 5"           # Friday
+  decision_followup: "52 5 * * *"   # deterministic: merged PRs with a register change, consumer issues
+  register_sync: "22 6 * * 1-5"     # drafts the register PR for an approved change request
+  register_audit: "23 3 * * 4"      # Thursday, before the Watchdog scan; runs in openAMRobot/audits
+
+# Missions: what each run does, its prompt file and its highest write.
+missions:
+  collect:         {kind: deterministic, writes: artifact}
+  triage:          {prompt: harness/missions/triage.md, writes: labels-and-issues}
+  build:           {prompt: harness/missions/build.md, writes: draft-pr}
+  review:          {prompt: harness/missions/review.md, writes: review-comment}
+  sim-analysis:    {prompt: harness/missions/sim-analysis.md, writes: issues}
+  dependencies:    {prompt: harness/missions/audit-dependencies.md, writes: issues}
+  contracts:       {prompt: harness/missions/audit-contracts.md, writes: issues}
+  impact:          {prompt: harness/missions/audit-impact.md, writes: issues}
+  performance:     {prompt: harness/missions/audit-performance.md, writes: issues}
+  maintainability: {prompt: harness/missions/audit-maintainability.md, writes: issues}
+  retro:           {prompt: harness/missions/retro.md, writes: draft-pr-to-harness}
+  decision-followup: {kind: deterministic, writes: labels-comments-and-consumer-issues}
+  register-audit:  {prompt: harness/missions/register-audit.md, writes: issues, runs_in: audits}
+  register-sync:
+    prompt: harness/missions/register-sync.md
+    writes: draft-pr-to-register
+    repository: .github
+    # The only exception to tier D. Only from a change request the platform lead
+    # labelled decision-approved (tools/harness_select.py verifies who added the label).
+    allow_paths:
+      - "decisions.yaml"
+      - "tests/test_check_decisions.py"
+      - "tests/fixtures/**"
+
+# When an agent must stop and hand over to a person. Each trigger opens or
+# updates one issue labelled needs-human plus the sub-label, in the repository
+# concerned, and the run ends without a change.
+escalation:
+  register:  the register in_force source differs from harness/baseline.yaml, or a needed value is missing or open in decisions.yaml
+  safety:    the right fix touches a tier C or D path
+  contract:  the fix needs a message, service, action, topic, parameter or launch argument change
+  decision:  two or more reasonable options that are costly to reverse, or sources contradict
+  hardware:  the evidence needs HIL, a bench or the physical robot
+  stuck:     two attempts on the same issue failed, or the verify command fails on main before any change
+  flaky:     a test changes result across three identical runs
+  security:  a secret, credential, vulnerability or licence conflict is found
+
+# Labels the harness creates and uses.
+labels:
+  ai-ready: an issue the build mission may take
+  ai-generated: a PR authored by the harness
+  "tier:A": tests, docs, lint only
+  "tier:B": non-safety code, owner adopts
+  "tier:C": person writes the change
+  needs-human: a person must act; the sub-label says why
+  "needs-human:register": register or baseline
+  "needs-human:safety": safety or tier C/D path
+  "needs-human:contract": contract change request needed
+  "needs-human:decision": an owner decision
+  "needs-human:hardware": bench, HIL or physical test
+  "needs-human:stuck": the harness failed twice
+  "needs-human:flaky": flaky test
+  "needs-human:security": security or licence
+  harness: a mistake of the harness itself (existing label)
+  harness-followup: an issue found by a harness run, waiting for triage
+  decision-approved: the platform lead approved this change request; the register PR may be drafted
+  register-update-needed: a merged PR depends on this register change
+  register-pr-open: the register PR for this request is open
+  register-change: a PR that changes decisions.yaml
+  no-ai: agents ignore this issue or PR
+  hold: no automatic merge
+
+# Repositories the organization does not work on (owner decision, 29 Oct 2026). No agent,
+# audit or review ever reads or writes them. Reports name them as excluded (out of scope),
+# never as clean, compliant or unscanned; the daily digest states this coverage line.
+excluded:
+  - {name: openamr, reason: "legacy monorepo snapshot; development moved to the split repositories"}
+  - {name: EOD-robot, reason: "archived proof of concept, separate scope"}
+  - {name: OpenAMR_UI_dev, reason: "archived, superseded by openamrobot-ui"}
+  - {name: OpenAMR_UI_package, reason: "archived, superseded by openamrobot-ui"}
+
+# Private repositories: never cloned by public runs, never named in public output.
+private:
+  audits: {missions: [register-audit], note: "audit evidence and document snapshots; its own workflow and artifacts"}
+
+# Repository enrolment. review: the review mission comments on its PRs (read only).
+# build: the build mission may open draft PRs there. Every repository verifies with
+# the organization script `rollout/verify.sh` (per-repository overrides in its
+# .openamrobot/verify.env), which reports executed test counts in summary.json; the
+# guard compares base and head counts. build becomes true only when every stage 2
+# prerequisite in harness/README.md is met; the CI owner flips it in a reviewed PR.
+# ros: the ROS 2 distribution the runner installs.
+repositories:
+  .github:                  {review: true,  build: false}
+  openamrobot-interfaces:   {review: true,  build: false, ros: jazzy}
+  openamrobot-manifest:     {review: true,  build: true}
+  openamr-platform-sw:      {review: true,  build: false, ros: jazzy}
+  openamrobot-embodied-ai:  {review: true,  build: false, ros: jazzy}
+  openamr-upperbody-sw:     {review: true,  build: false, ros: jazzy}
+  openamrobot-manipulation: {review: true,  build: false, ros: jazzy}
+  openamrobot-ui:           {review: true,  build: false}
+  openamrobot-comm:         {review: true,  build: false}
+  openamrobot-docs:         {review: true,  build: false}
+  openamrobot-release:      {review: true,  build: false}
+  openamr-platform-fw:      {review: true,  build: false}
+  openamr-upperbody-fw:     {review: true,  build: false}
+  openamr-platform-hw:      {review: false, build: false}
+  openamr-upperbody-hw:     {review: false, build: false}

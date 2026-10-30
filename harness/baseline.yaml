@@ -1,0 +1,37 @@
+# Which revisions of the detailed engineering documents the register must agree with.
+#
+# Precedence (owner decision, 29 Oct 2026): openAMRobot/.github decisions.yaml is the
+# primary register of current decisions. The Drive documents below are the detailed
+# specifications and evidence; they must say the same thing. A decision changes as one
+# paired, owner-approved bundle: register entry, document revision, consumers.
+#
+# The platform lead updates this file in the same week a controlling revision is issued.
+# tools/harness_select.py compares `p03` with decisions.yaml in_force.source: while they
+# differ, register and documents are out of sync, the selector skips every issue that
+# names a register entry, and triage keeps one needs-human:register issue open. This file
+# names revisions only, never values.
+schema_version: 1
+declared_by: platform-lead
+date: 2026-10-28
+p03: P-03-rev20.0          # Decision Addendum, 27 Oct 2026 with the 28 Oct corrections
+e01: E-01-rev1.5           # Safety and Power Distribution
+m01: M-01-rev19.6          # Mechanical CAD Work Package
+bom: "7.14"                # BOM issue named canonical by P-03 rev20.0
+use_case_1: rev18.5        # Use_Case_1 requirements
+# Plain-text snapshots for the weekly register audit, in the private openAMRobot/audits
+# repository (documents are never copied into a public repository). harness/README.md
+# "Document snapshots" says how to make one. Empty until the first snapshot is pushed.
+snapshots:
+  repository: audits
+  branch: baseline
+  files: []                # e.g. {document: P-03-rev20.0, path: baseline/P-03-rev20.0.txt, sha256: <hash>}
+stale:                     # documents known to trail the baseline; agents must not use them for values
+  - {document: P-02-rev19.2, reason: "names P-03 rev19.7 and BOM 7.10"}
+  - {document: D-02-rev18.2, reason: "names P-03 rev18.5 and BOM 7.3; process rules still apply"}
+  - {document: Q-01-rev18.3, reason: "old hardware parameters; validation ladder still applies"}
+  - {document: 00_Context_for_Claude, reason: "current summary, but its key-files list and milestone list are older"}
+gates:                     # release dates triage prioritises against
+  gate_a: 2026-11-06
+  rc1: 2026-11-20
+  integration: [2026-11-23, 2026-12-18]
+  v2_0_0: 2026-12-18

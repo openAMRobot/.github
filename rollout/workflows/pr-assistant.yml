@@ -89,4 +89,6 @@ jobs:
             --changed-files changed_all.txt --maintainers harness/maintainers.yaml \
             --reviews reviews.json --commit-messages commit-messages.txt --root pr-head --decisions-report decisions.txt \
             --decisions-status decisions-status.json \
+            --decisions harness/decisions.yaml --files-json files.json \
+            --repository "${{ github.event.repository.name }}" \
             --output "$GITHUB_STEP_SUMMARY" --post

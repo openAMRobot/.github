@@ -1,0 +1,12 @@
+{
+  "name": "openamrobot",
+  "owner": {"name": "OpenAMRobot maintainers"},
+  "metadata": {"description": "Claude Code plugins of the openAMRobot organization."},
+  "plugins": [
+    {
+      "name": "openamrobot-harness",
+      "source": "./harness",
+      "description": "The same skills the harness agents use, for people working with Claude Code locally."
+    }
+  ]
+}
