@@ -7,6 +7,7 @@ document.
 import contextlib
 import io
 import os
+import re
 import sys
 import tempfile
 import unittest
@@ -760,6 +761,73 @@ class RealRegister(unittest.TestCase):
                      "Chest E-stop from the OpenArm kit (superseded by P-03 rev20.0 item 24).\n",
                      "It replaces the OpenArm kit button.\n",
                      "Historical: the OpenArm kit chest button.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_ui_manual_velocity_input_is_proposed_and_not_scanned(self):
+        # Alex decision 30 Oct 2026; source PR openamr-platform-sw #90 open, so stored as open (Proposed).
+        by_id = {d["id"]: d for d in self.decisions}
+        entry = by_id["UI-MANUAL-VELOCITY-INPUT"]
+        self.assertEqual(entry["status"], "open")
+        self.assertTrue(entry["title"].startswith("Proposed:"))
+        bad = ("The UI publishes geometry_msgs/Twist on /ui/cmd_vel.\n",
+               "Call /safety/stop_lock_engage again to release the lock.\n",
+               "/safety/stop_lock uses best_effort QoS.\n")
+        good = ("The UI publishes geometry_msgs/TwistStamped on /ui/cmd_vel.\n",
+                "/safety/stop_lock_engage engages; /safety/stop_lock_release releases.\n",
+                "/safety/stop_lock is reliable and transient local.\n",
+                "/ui/cmd_vel is not geometry_msgs/Twist.\n")
+        for text in bad:
+            self.assertEqual(self.ids("docs/a.md", text, "openamrobot-ui"), [], text)
+            self.assertTrue(any(re.search(c["pattern"], text, re.IGNORECASE)
+                                and not re.search(c.get("unless") or "$^", text, re.IGNORECASE)
+                                for c in entry["check"]), text)
+        for text in good:
+            self.assertFalse(any(re.search(c["pattern"], text, re.IGNORECASE)
+                                 and not re.search(c.get("unless") or "$^", text, re.IGNORECASE)
+                                 for c in entry["check"]), text)
+
+    def test_safety_stopped_comes_only_from_the_hardwired_chain(self):
+        # Alex decision 30 Oct 2026: status vocabulary.
+        repo = "openamrobot-ui"
+        for text in ("Set SAFETY_STOPPED when /safety/stop_lock is true.\n",
+                     "A heartbeat timeout raises SAFETY_STOPPED.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["STATUS-VOCABULARY"], text)
+        for text in ("SAFETY_STOPPED comes only from the hardwired chain diagnostic.\n",
+                     "The stop lock shows STOPPED (SOFTWARE), not SAFETY_STOPPED.\n",
+                     "Robot states: READY, EXECUTING, WAITING, BLOCKED, RECOVERING, NEEDS_ASSISTANCE, SAFETY_STOPPED, FAULTED.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_software_stop_is_base_only_and_not_an_estop(self):
+        # Alex decision 30 Oct 2026 and E-01 rev1.5: E-stop means only the hardwired buttons.
+        repo = "openamrobot-ui"
+        for text in ("Press the software E-stop on the panel.\n",
+                     "The UI E-stop halts the robot.\n",
+                     "Stop (software) halts the base, both arms and the lift.\n",
+                     "Stop (software) is a safety function.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["STOP-SCOPE"], text)
+        for text in ("Stop (software), base-only: stops base motion.\n",
+                     "Target: Stop (software) will cover base, arms and lift.\n",
+                     "Stop (software) is a functional stop, not a safety function.\n",
+                     "There is no software E-stop; E-stop means the hardwired buttons.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_operator_panel_is_the_getac_zx80(self):
+        # P-03 rev20.1 item 24: Getac ZX80, 8 inch, 1920 x 1200, landscape; supersedes ZX10.
+        repo = "openamrobot-ui"
+        for text in ("Operator panel: Getac ZX10.\n", "Layout for the ZX80 in portrait.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["OPERATOR-PANEL"], text)
+        for text in ("Operator panel: Getac ZX80, 8 inch, 1920 x 1200, landscape.\n",
+                     "The ZX10 was replaced by the ZX80.\n",
+                     "Getac ZX10 (superseded).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_ui_gate_a_is_6_november(self):
+        # Alex decision 30 Oct 2026: full UI Gate A on 6 November 2026; 30 October was partial (A1).
+        repo = "openamrobot-docs"
+        self.assertEqual(self.ids("docs/a.md", "UI Gate A passed on 30 October 2026.\n", repo), ["UI-GATE-A"])
+        for text in ("Full UI Gate A on 6 November 2026.\n",
+                     "30 October 2026: partial UI Gate A result (A1).\n",
+                     "Gate A (Teensy, MPU6500) test log of 30 October 2026.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_legacy_label_exempts_compute(self):
