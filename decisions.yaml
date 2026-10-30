@@ -57,6 +57,9 @@ in_force:
   date: 2026-10-18
 
 sources:
+  P-03-rev20.1:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.1, 30 October 2026 (item 25: decisions D1 to D4 on the lift and adapter-plate datums; D7: platform-sw pin 131e500 for the combined model)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.0:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.0, 27 October 2026, with the 28 October 2026 corrections (items 15, 17 and 18: head-camera lens 42 mm ahead of the shoulder, baseline pitch 30 degrees, hp30; item 24: second E-stop on the static lift column)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
@@ -1015,12 +1018,14 @@ decisions:
     kind: configuration
     status: recorded
     values:
-      - the combined robot model in openamr-upperbody-sw is tested against one pinned platform-sw commit (dfd44a5 on 20 Oct 2026)
+      - the combined robot model in openamr-upperbody-sw is tested against one pinned platform-sw commit (131e500fc4e5afc9f648cbd7dbf5b416280761fb, the 2.0 base, on 30 Oct 2026)
       - the pin moves only together with a full A6/A7 rerun on the new commit, and every evidence report records the platform-sw SHA it used
     unit: none
-    date: 2026-10-20
+    date: 2026-10-30
     review_by: 2026-12-01
-    source: {document: Alex decision 2026-10-20, item: "platform-sw pin for the combined model (requested by the combined-model owner)"}
+    source: {document: P-03-rev20.1, item: "item 25 D7; validated by openamr-upperbody-sw PR #21 (A6 793 executed / 0 failed, A7 246 executed / 0 failed at a0f7dd6)"}
+    supersedes:
+      - {value: "the combined robot model is tested against one pinned platform-sw commit (dfd44a5 on 20 Oct 2026)", source: Alex decision 2026-10-20}
     applies_to:
       repositories: ["openamr-upperbody-sw"]
       files: ["**/*.md"]
