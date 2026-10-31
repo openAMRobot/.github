@@ -53,20 +53,45 @@ def test_names(lines):
     return names
 
 
-def diff_lines(root, base):
-    """Per file: (added lines, removed lines)."""
-    out, current, previous = {}, None, None
-    for line in git(root, "diff", "--unified=0", "--no-color", "--no-renames", f"{base}..HEAD").splitlines():
-        if line.startswith("--- "):
-            previous = None if line.endswith("/dev/null") else line[6:]
-        elif line.startswith("+++ "):
-            current = previous if line.endswith("/dev/null") else line[6:]
-            out.setdefault(current, ([], []))
-        elif current and line.startswith("+") and not line.startswith("+++"):
-            out[current][0].append(line[1:])
-        elif current and line.startswith("-") and not line.startswith("---"):
-            out[current][1].append(line[1:])
+def git_bytes(root, *args):
+    return subprocess.run(["git", "-C", str(root), *args], check=True,
+                          capture_output=True).stdout
+
+
+def changed_paths(root, base, head="HEAD"):
+    """Parse actual Git paths; textual name-status output quotes unsafe names."""
+    raw = git_bytes(root, "diff", "--name-status", "-z", "--no-renames",
+                    f"{base}..{head}")
+    fields = raw.split(b"\0")
+    if fields[-1] != b"" or len(fields[:-1]) % 2:
+        raise ValueError("malformed NUL-delimited git name-status output")
+    return [(fields[i].decode("utf-8", errors="strict"),
+             fields[i + 1].decode("utf-8", errors="strict"))
+            for i in range(0, len(fields) - 1, 2)]
+
+
+def diff_lines(root, base, paths, head="HEAD"):
+    """Per-file text diffs using real path arguments, not quoted patch headers."""
+    out = {}
+    for path in paths:
+        added, removed = [], []
+        patch = git(root, "diff", "--unified=0", "--no-color", "--no-renames",
+                    f"{base}..{head}", "--", path)
+        in_hunk = False
+        for line in patch.splitlines():
+            if line.startswith("@@ "):
+                in_hunk = True
+            elif in_hunk and line.startswith("+"):
+                added.append(line[1:])
+            elif in_hunk and line.startswith("-"):
+                removed.append(line[1:])
+        out[path] = (added, removed)
     return out
+
+
+def existed_at(root, commit, path):
+    return subprocess.run(["git", "-C", str(root), "cat-file", "-e",
+                           f"{commit}:{path}"], capture_output=True).returncode == 0
 
 
 def run(args):
@@ -79,8 +104,7 @@ def run(args):
     if dirty:
         failures.append(f"uncommitted changes left in the worktree: {dirty[:5]}")
 
-    changes = [l.split("\t") for l in git(root, "diff", "--name-status", "--no-renames",
-                                          f"{args.base}..HEAD").splitlines() if l]
+    changes = changed_paths(root, args.base)
     if not changes:
         failures.append("no change was committed")
     tiers, files_changed = [], []
@@ -104,9 +128,6 @@ def run(args):
                 failures.append(f"{path}: tier C, a person writes this change ({status_code})")
         tiers.append(tier)
     tier = hl.highest(tiers)
-    if args.max_tier and hl.TIER_ORDER[tier] > hl.TIER_ORDER[args.max_tier]:
-        notes.append(f"change is tier {tier}, above the issue's tier {args.max_tier}; labelled tier {tier}")
-
     body = Path(args.pr_body).read_text(encoding="utf-8") if args.pr_body and Path(args.pr_body).exists() else ""
     manifests = [p for p in files_changed if hl.matches(p, policy.get("dependency_manifests", []))]
     if manifests:
@@ -114,7 +135,15 @@ def run(args):
         if not re.search(r"^#+\s*Dependencies", body, re.M | re.I):
             failures.append(f"dependency manifest changed ({', '.join(manifests)}) without a Dependencies section")
 
-    per_file = diff_lines(root, args.base)
+    per_file = diff_lines(root, args.base, files_changed)
+    # Removing lines from an existing test is not an A-tier change, even
+    # when its function name and overall executed test count remain unchanged.
+    edited_tests = [path for path, (_, removed) in per_file.items()
+                    if removed and hl.is_test_path(path) and existed_at(root, args.base, path)]
+    if edited_tests:
+        tier = hl.highest([tier, "B"])
+        notes.append("existing test lines removed; needs tier B owner review: " +
+                     ", ".join(edited_tests[:5]))
     added_total = removed_total = 0
     removed_tests, added_tests = set(), set()
     for path, (added, removed) in per_file.items():
@@ -140,10 +169,40 @@ def run(args):
         if line.startswith("-\t-\t"):
             failures.append(f"{line.split(chr(9))[-1]}: binary file")
 
-    for sha in git(root, "rev-list", f"{args.base}..HEAD").split():
+    # Publish transfers the original bundle, including intermediate commits.
+    # The final net diff is insufficient: unsafe blobs and forbidden path edits
+    # can still be present in reachable commit history after later reverts.
+    for sha in git(root, "rev-list", "--reverse", f"{args.base}..HEAD").split():
         message = git(root, "log", "-1", "--format=%B", sha)
         if not re.search(r"^Signed-off-by: .+ <.+>$", message, re.M):
             failures.append(f"commit {sha[:9]} has no Signed-off-by line")
+        ancestry = git(root, "rev-list", "--parents", "-n", "1", sha).split()
+        if len(ancestry) != 2:
+            failures.append(f"commit {sha[:9]} is a merge/root commit; agent bundles require linear history")
+            continue
+        parent = ancestry[1]
+        intermediate = changed_paths(root, parent, sha)
+        for status_code, path in intermediate:
+            path_tier = hl.tier_of(path, args.repository, policy)
+            if path.startswith((".harness-out", ".harness/")):
+                failures.append(f"commit {sha[:9]}: forbidden harness scratch file {path}")
+            elif path_tier == "D" and not hl.mission_allows(path, args.repository, policy, args.mission):
+                failures.append(f"commit {sha[:9]}: tier D path touched: {path}")
+            elif path_tier == "C" and not (status_code == "A" and hl.is_test_path(path)):
+                failures.append(f"commit {sha[:9]}: tier C path touched: {path}")
+        for path, (added, _) in diff_lines(root, parent, [p for _, p in intermediate], sha).items():
+            for line in added:
+                if SECRET.search(line):
+                    failures.append(f"commit {sha[:9]}: secret-like string in {path}")
+                if SKIP.search(line) and not ISSUE_REF.search(line):
+                    failures.append(f"commit {sha[:9]}: untracked test skip in {path}")
+            binary = git(root, "diff", "--numstat", f"{parent}..{sha}", "--", path)
+            if binary.startswith("-\t-\t"):
+                failures.append(f"commit {sha[:9]}: binary file in history: {path}")
+
+    # Include tier promotions from both dependencies and test-line removals.
+    if args.max_tier and hl.TIER_ORDER[tier] > hl.TIER_ORDER[args.max_tier]:
+        failures.append(f"change is tier {tier}, above selected issue's maximum tier {args.max_tier}; escalate to owner")
 
     if args.tests_before is not None and args.tests_after is not None:
         if args.tests_after < args.tests_before:
