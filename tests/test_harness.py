@@ -192,7 +192,8 @@ class Guard(unittest.TestCase):
         self.assertEqual(self.check()[0], 1)
         self.write("ros2/src/pkg/test/test_skip.py", f"import pytest\n{marker}(reason='needs sim, #88')\ndef test_s():\n    pass\n")
         self.commit("skip with issue")
-        self.assertEqual(self.check()[0], 0)
+        # The original untracked marker remains in the bundled commit history.
+        self.assertEqual(self.check()[0], 1)
 
     def test_removed_test_fails(self):
         self.write("ros2/src/pkg/test/test_node.py", "# emptied\n")
@@ -229,6 +230,73 @@ class Guard(unittest.TestCase):
 
     def test_no_change_fails(self):
         self.assertEqual(self.check()[0], 1)
+
+    def test_guard_rejects_git_quoted_protected_path(self):
+        # Git quotes a literal tab unless --name-status -z is used.
+        self.write("harness/probe\t.md", "forbidden protected file\n")
+        self.commit("add protected path with tab")
+        code, report = self.check()
+        self.assertEqual(code, 1, report)
+        self.assertIn("harness/probe\t.md", report["files"])
+        self.assertIn("tier D", " ".join(report["failures"]))
+
+    def test_tier_ceiling_is_enforced_and_permitted_tiers_pass(self):
+        self.write("ros2/src/pkg/pkg/node.py", "def f():\n    return 2\n")
+        self.commit("change source")
+        code, report = self.check("--max-tier", "A")
+        self.assertEqual(code, 1)
+        self.assertIn("maximum tier A", " ".join(report["failures"]))
+        self.assertEqual(self.check("--max-tier", "B")[0], 0)
+
+    def test_clean_tier_a_change_below_ceiling(self):
+        self.write("ros2/src/pkg/test/test_more.py", "def test_g():\n    assert True\n")
+        self.commit("new test")
+        self.assertEqual(self.check("--max-tier", "A")[0], 0)
+
+    def test_removing_assertion_from_existing_test_demotes_tier_a(self):
+        # Existing test function is still present and test counts can be flat.
+        self.write("ros2/src/pkg/test/test_node.py", "def test_f():\n    x = 1\n")
+        self.commit("weaken a test")
+        code, report = self.check("--tests-before", "1", "--tests-after", "1",
+                                  "--max-tier", "A")
+        self.assertEqual(code, 1, report)
+        self.assertEqual(report["tier"], "B")
+        self.assertIn("maximum tier A", " ".join(report["failures"]))
+
+    def test_intermediate_committed_secret_rejected_even_when_removed(self):
+        # Synthetic secret only: this object remains reachable in the bundle.
+        path = "ros2/src/pkg/pkg/temp_key.py"
+        self.write(path, "TOKEN = 'ghp_" + "A" * 36 + "'\n")
+        self.commit("temporary token")
+        (self.repo / path).unlink()
+        self.write("ros2/src/pkg/test/test_more.py", "def test_g():\n    assert True\n")
+        self.commit("remove token and add test")
+        code, report = self.check("--max-tier", "A")
+        self.assertEqual(code, 1, report)
+        self.assertIn("secret-like string", " ".join(report["failures"]))
+
+    def test_intermediate_protected_edit_rejected_when_reverted(self):
+        path = "harness/temporary-policy.md"
+        self.write(path, "protected\n")
+        self.commit("touch protected path")
+        (self.repo / path).unlink()
+        self.write("ros2/src/pkg/test/test_more.py", "def test_g():\n    assert True\n")
+        self.commit("remove protected path and add test")
+        code, report = self.check()
+        self.assertEqual(code, 1, report)
+        self.assertIn("tier D path touched", " ".join(report["failures"]))
+
+    def test_untracked_skip_in_original_commit_is_not_sanitized_by_fixup(self):
+        path = "ros2/src/pkg/test/test_skipped.py"
+        marker = "@pytest.mark." + "skip"
+        self.write(path, f"import pytest\n{marker}(reason='later')\ndef test_x():\n    pass\n")
+        self.commit("untracked skip")
+        self.write(path, f"import pytest\n{marker}(reason='tracking #102')\ndef test_x():\n    pass\n")
+        self.commit("document skip")
+        code, report = self.check()
+        self.assertEqual(code, 1)
+        self.assertIn("untracked test skip", " ".join(report["failures"]))
+
 
 
 class Select(unittest.TestCase):
