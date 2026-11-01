@@ -59,8 +59,8 @@ tiers:
       - "**/*collision_monitor*"
       - "**/*velocity_smoother*"
       - "**/openamrobot_docking/**"
-      - "**/openamrobot_nav2/launch/navigation_launch.py"
-      - "**/openamrobot_nav2/config/nav2_params.yaml"
+      - "**/openamrobot_nav2/launch/**"      # every Nav2 launch file (localization, SLAM, sim bringup too)
+      - "**/openamrobot_nav2/config/**"      # every Nav2 parameter file
       - "**/ros2_control*.xacro"
       - "**/*joint_limits*.yaml"
       - "**/*controllers*.yaml"
@@ -98,6 +98,8 @@ tiers:
       - "agent-rules/**"
       - ".github/workflows/**"        # a workflow edited on a branch runs with that repository's secrets
       - ".github/actions/**"
+      - ".openamrobot/**"               # verify.env is sourced by rollout/verify.sh: it defines the test gate
+      - "tools/verify.sh"               # a repository's own gate; verify.sh delegates to it
 
 # Files whose change counts as a dependency change (tier B at least, and a
 # Dependencies section in the PR body).
@@ -137,6 +139,7 @@ blocked_commands:
   - "socat"
   - "telnet"
   - "printenv"
+  - "sudo"                 # the runner user has sudo; nothing an agent does needs it
   - "rm -rf /"
   - "chmod -R 777"
   - "candump"

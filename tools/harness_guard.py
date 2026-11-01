@@ -34,6 +34,11 @@ SKIP = re.compile(r"(pytest\.mark\.(skip|skipif|xfail)|pytest\.(skip|xfail|impor
 ISSUE_REF = re.compile(r"(#\d+|issues/\d+)")
 TEST_DEF = re.compile(r"^\s*(async\s+)?def\s+(test_\w+)|^\s*TEST(_F|_P)?\(\s*(\w+)\s*,\s*(\w+)|"
                       r"^\s*(it|test)\(\s*['\"]([^'\"]+)")
+INTERFACE_FILE = re.compile(r"\.(msg|srv|action|idl)$")
+# A committed script or build rule that writes interface files at build time: the .msg never
+# appears in the diff, so the tier C check on paths cannot see it.
+INTERFACE_LITERAL = re.compile(r"""[\w/.-]+\.(?:msg|srv|action|idl)['"]|rosidl_generate_interfaces""")
+WRITE_CALL = re.compile(r"""\.write_text\(|\.write\(|open\([^)]*['"][wa]|\bfile\(\s*WRITE|>\s*\S+\.(?:msg|srv|action|idl)\b""")
 SECRET = re.compile(r"(AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|sk-ant-[A-Za-z0-9_-]{20,}|"
                     r"-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[baprs]-[A-Za-z0-9-]{10,})")
 
@@ -121,7 +126,7 @@ def run(args):
         elif tier == "D":
             failures.append(f"{path}: tier D, agents never change it")
         elif tier == "C":
-            if status_code == "A" and hl.is_test_path(path):
+            if status_code == "A" and hl.is_test_path(path) and not INTERFACE_FILE.search(path):
                 tier = "A"
                 notes.append(f"{path}: new test file for a tier C area")
             else:
@@ -156,6 +161,12 @@ def run(args):
                 failures.append(f"{path}: secret-like string added")
         removed_tests |= test_names(removed)
         added_tests |= test_names(added)
+    for path, (added, _) in per_file.items():
+        text = "\n".join(added)
+        if not INTERFACE_FILE.search(path) and INTERFACE_LITERAL.search(text) and (
+                WRITE_CALL.search(text) or "rosidl_generate_interfaces" in text):
+            failures.append(f"{path}: generates or declares interface files (.msg, .srv, .action); "
+                            "interfaces are tier C and change only through a contract change request")
     lost = sorted(removed_tests - added_tests)
     if lost:
         failures.append(f"test functions removed: {', '.join(lost[:10])}")
@@ -189,7 +200,8 @@ def run(args):
                 failures.append(f"commit {sha[:9]}: forbidden harness scratch file {path}")
             elif path_tier == "D" and not hl.mission_allows(path, args.repository, policy, args.mission):
                 failures.append(f"commit {sha[:9]}: tier D path touched: {path}")
-            elif path_tier == "C" and not (status_code == "A" and hl.is_test_path(path)):
+            elif path_tier == "C" and not (status_code == "A" and hl.is_test_path(path)
+                                           and not INTERFACE_FILE.search(path)):
                 failures.append(f"commit {sha[:9]}: tier C path touched: {path}")
             # Same promotions as the net diff: an allowed tier D mission path and a
             # dependency manifest are B, a new test file in a tier C area is A.
