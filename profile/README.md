@@ -79,7 +79,7 @@ OpenAMRobot 2.0 is open for pre-order at founder prices until 31 December 2026. 
 
 **[Pre-order on botshare.ai →](https://botshare.ai/openamrobot#prices)** · Full payment, price locked, first dispatch April 2027. Refund rules, delivery and VAT are in the [pre-order FAQ](https://botshare.ai/openamrobot#faq).
 
-OpenAMRobot 2.0 is designed for the TZBOT WCM-500-24 wireless charger, which is not included in these packages; every package includes a Daly charger for manual charging. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
+OpenAMRobot 2.0 is designed for the TZBOT WCM-500-24 wireless charger, which is not included in these packages; every package includes a Daly charger for bench charging only, with the E-stop pressed. Batteries are not included; each robot is built for the specified LiFePO4 pack, sourced locally by the buyer. Delivery is at the buyer's cost.
 
 ### Premium Embodied AI Training Kit
 
