@@ -22,20 +22,14 @@ name: Harness run
 on:
   schedule:
     - cron: "7 5 * * 1-5"       # triage
-    - cron: "37 5 * * 1-5"      # build slot 1
-    - cron: "37 8 * * 1-5"      # build slot 2
-    - cron: "37 11 * * 1-5"     # build slot 3
-    - cron: "37 14 * * 1-5"     # build slot 4
-    - cron: "*/30 6-20 * * *"   # review sweep
-    - cron: "47 4 * * *"        # sim-analysis
+    - cron: "37 5 * * 1-5"      # build slot 1 (stage 2)
+    - cron: "37 11 * * 1-5"     # build slot 2 (stage 2)
+    - cron: "0 6-20/2 * * 1-5"  # review sweep (stage 3)
+    - cron: "47 4 * * *"        # sim-analysis (only with a nightly producer)
     - cron: "52 5 * * *"        # decision follow-up (deterministic)
-    - cron: "22 6 * * 1-5"      # register-sync
-    - cron: "23 3 * * 1"        # dependencies audit
-    - cron: "23 3 * * 2"        # contracts audit
-    - cron: "23 3 * * 3"        # impact audit
-    - cron: "23 3 * * 5"        # performance audit
-    - cron: "53 3 * * 5"        # maintainability audit
-    - cron: "17 15 * * 5"       # retro
+    - cron: "22 6 * * 1-5"      # register-sync (stage 2)
+    - cron: "23 3 * * 1"        # weekly audit, rotating: dependencies, contracts, impact, maintainability, performance
+    - cron: "17 15 * * 5"       # retro, first Friday of the month
   workflow_dispatch:
     inputs:
       mission:
@@ -89,26 +83,31 @@ jobs:
           case "${SCHEDULE:-}" in
             "7 5 * * 1-5") m=triage ;;
             "37 "*" * * 1-5") m=build ;;
-            "*/30 6-20 * * *") m=review ;;
+            "0 6-20/2 * * 1-5") m=review ;;
             "47 4 * * *") m=sim-analysis ;;
             "52 5 * * *") m=decision-followup ;;
             "22 6 * * 1-5") m=register-sync ;;
-            "23 3 * * 1") m=dependencies ;;
-            "23 3 * * 2") m=contracts ;;
-            "23 3 * * 3") m=impact ;;
-            "23 3 * * 5") m=performance ;;
-            "53 3 * * 5") m=maintainability ;;
-            "17 15 * * 5") m=retro ;;
+            "23 3 * * 1")
+              # One audit a week (budget plan "starter"), rotating by ISO week number.
+              week=$(date -u -d "${HARNESS_NOW:-now}" +%V | sed 's/^0//')
+              rotation=(dependencies contracts impact maintainability performance)
+              m=${rotation[$((week % 5))]} ;;
+            "17 15 * * 5")
+              # Retro on the first Friday of the month only.
+              day=$(date -u -d "${HARNESS_NOW:-now}" +%d | sed 's/^0//')
+              if [ "$day" -le 7 ]; then m=retro; else echo "retro runs on the first Friday only"; m=none; fi ;;
             "") m="$INPUT" ;;
             *) echo "unknown schedule $SCHEDULE"; exit 1 ;;
           esac
           case "$m" in
+            none) ;;
             triage|build|review|register-sync|decision-followup|sim-analysis|dependencies|contracts|impact|performance|maintainability|retro) ;;
             *) echo "unknown mission $m"; exit 1 ;;
           esac
           stage="${STAGE:-0}"
           case "$stage" in 0|1|2|3|4) ;; *) echo "HARNESS_STAGE must be 0 to 4, is $stage"; exit 1 ;; esac
-          need=1
+          need=0
+          [ "$m" = none ] || need=1
           case "$m" in build|register-sync|retro) need=2 ;; review) need=3 ;; esac
           dry=false; [ "${PUBLISH:-}" = true ] || dry=true
           if [ "$dry" = true ]; then
@@ -206,8 +205,10 @@ jobs:
               echo '{"run": true}' > select.json ;;
           esac
           python3 -c 'import json;d=json.load(open("select.json"));print("NO SAFE TASK: " + d.get("reason", "") if not d["run"] else "selected: " + json.dumps(d))' >> "$GITHUB_STEP_SUMMARY"
-          echo "run=$(python3 -c 'import json;print(str(json.load(open("select.json"))["run"]).lower())')" >> "$GITHUB_OUTPUT"
-          echo "target=$(python3 -c 'import json;print(json.dumps(json.load(open("select.json"))))')" >> "$GITHUB_OUTPUT"
+          {
+            echo "run=$(python3 -c 'import json;print(str(json.load(open("select.json"))["run"]).lower())')"
+            echo "target=$(python3 -c 'import json;print(json.dumps(json.load(open("select.json"))))')"
+          } >> "$GITHUB_OUTPUT"
           # Turn and minute limits come from harness/policy.yaml budgets, not from this file.
           python3 tools/harness_budget.py --mission "$MISSION" >> "$GITHUB_OUTPUT"
 

@@ -12,8 +12,9 @@ Two passes, each idempotent (hidden markers prevent duplicate comments and issue
    that changed are found by comparing the file before and after the merge; every
    enrolled repository is scanned with tools/check_decisions.py for those entries,
    and each repository with findings gets one consumer-update issue listing the
-   lines. The issue is ai-ready (tier A when every file is tier A, else tier B)
-   unless a line is in a tier C or D path, which makes it needs-human:safety.
+   lines. The issue is needs-human:triage (tier A when every file is tier A, else tier B)
+   until a maintainer confirms it as ai-ready; a line in a tier C or D path makes it
+   needs-human:safety instead.
 
   decision_followup.py [--days N] [--org ORG] [--workdir DIR] [--apply]
 Without --apply it prints the plan and writes nothing.
@@ -149,11 +150,11 @@ def consumer_issue(policy, repository, findings, ids, pr):
         lines.append(f"- ... and {len(findings) - MAX_LINES} more")
     tiers = {hl.tier_of(f["file"], repository, policy) for f in findings}
     tier = hl.highest(list(tiers))
-    labels = ["harness-followup", "register-update-needed"]
-    if tier in ("C", "D"):
-        labels += ["needs-human", "needs-human:safety"]
-    else:
-        labels += ["ai-ready", f"tier:{tier}"]
+    # Text matches are evidence of a consumer, not proof (audit 2026-11-01 P8: every planned
+    # line for item 26 was history or provenance text). A maintainer confirms the issue by
+    # replacing needs-human:triage with ai-ready; only then may the build mission take it.
+    labels = ["harness-followup", "register-update-needed", "needs-human", f"tier:{tier}"]
+    labels.append("needs-human:safety" if tier in ("C", "D") else "needs-human:triage")
     body = "\n".join([
         MARK_CONSUMERS.format(number=pr["number"], repository=repository),
         f"The register change {pr['html_url']} changed {', '.join(ids)}. These lines in this repository still "
@@ -161,7 +162,8 @@ def consumer_issue(policy, repository, findings, ids, pr):
         "Fix each line to the current register value, or label kept history with `decision-allow: <ID> <reason>`.",
         "Acceptance: check_decisions.py reports 0 contradictions for these entries in this repository.",
         "Tier C or D lines are changed by a person." if tier in ("C", "D") else
-        "The harness may take this issue (ai-ready); the code owner adopts the draft PR."])
+        "A maintainer confirms which lines are real consumers (history and provenance text are not), "
+        "then replaces the label needs-human:triage with ai-ready; the harness takes the issue after that."])
     return {"title": f"[register] update consumers of {', '.join(ids)[:120]}", "body": body, "labels": labels}
 
 

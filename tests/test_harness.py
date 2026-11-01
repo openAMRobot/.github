@@ -450,13 +450,13 @@ class Coverage(unittest.TestCase):
 class RouteGateTest(unittest.TestCase):
     """Runs the route step of harness-run.yml with bash, so README, policy and workflow agree."""
 
-    def route(self, mission="", schedule="", stage="", publish=""):
+    def route(self, mission="", schedule="", stage="", publish="", now=""):
         wf = hl.load_yaml(ROOT / "rollout" / "workflows" / "harness-run.yml")
         script = wf["jobs"]["route"]["steps"][0]["run"]
         with tempfile.TemporaryDirectory() as tmp:
             out, summary = Path(tmp) / "out", Path(tmp) / "summary"
             env = dict(os.environ, SCHEDULE=schedule, INPUT=mission, STAGE=stage, PUBLISH=publish,
-                       GITHUB_OUTPUT=str(out), GITHUB_STEP_SUMMARY=str(summary))
+                       HARNESS_NOW=now, GITHUB_OUTPUT=str(out), GITHUB_STEP_SUMMARY=str(summary))
             subprocess.run(["bash", "-c", script], env=env, check=True, capture_output=True)
             return dict(line.split("=", 1) for line in out.read_text().split())
 
@@ -466,6 +466,26 @@ class RouteGateTest(unittest.TestCase):
                 r = self.route(mission=mission, stage=stage)
                 self.assertEqual((r["mission"], r["dry_run"]), (mission, "true"), (stage, mission))
                 self.assertGreaterEqual(int(r["stage"]), int(need))
+
+    def test_one_audit_a_week_rotates_and_retro_is_monthly(self):
+        # Budget plan "starter" (1 Nov 2026): one audit per week by ISO week number, retro on the
+        # first Friday of the month only.
+        seen = {self.route(schedule="23 3 * * 1", stage="1", publish="true", now=f"2026-11-{day:02d}")["mission"]
+                for day in (2, 9, 16, 23, 30)}
+        self.assertEqual(seen, {"dependencies", "contracts", "impact", "maintainability", "performance"})
+        self.assertEqual(self.route(schedule="17 15 * * 5", stage="2", publish="true", now="2026-11-06")["mission"], "retro")
+        self.assertEqual(self.route(schedule="17 15 * * 5", stage="2", publish="true", now="2026-11-13")["mission"], "none")
+        crons = {c["cron"] for c in hl.load_yaml(ROOT / "rollout" / "workflows" / "harness-run.yml")[True]["schedule"]}
+        self.assertEqual(sum(1 for c in crons if c.startswith("23 3 ")), 1, "one audit cron, not five")
+
+    def test_stage_one_schedule_fits_the_weekly_turn_ceiling(self):
+        budgets = POLICY["budgets"]
+        weekly = (5 * budgets["triage"]["max_turns"]            # triage on weekdays
+                  + budgets["audit"]["max_turns"]               # one rotating audit
+                  + budgets["audit"]["max_turns"]               # register audit in openAMRobot/audits
+                  + budgets["retro"]["max_turns"] / 4)          # monthly retro
+        self.assertLessEqual(weekly, budgets["weekly_turn_ceiling"], weekly)
+        self.assertEqual(budgets["plan"], "starter")
 
     def test_scheduled_ai_runs_are_skipped_without_publishing(self):
         self.assertEqual(self.route(schedule="7 5 * * 1-5", stage="4")["mission"], "none")
@@ -499,3 +519,35 @@ class CoreRulesScopeTest(unittest.TestCase):
     def test_revert_test_applies_to_code_changes_only(self):
         self.assertIn("A code change carries a test that fails on revert", self.RULES)
         self.assertIn("Read-only work", self.RULES)
+
+
+class AuditAHookAndSelect(unittest.TestCase):
+    """Audit 2026-11-01 (run A) cases, kept against the run B implementation."""
+
+    def test_bash_bypasses_found_by_the_audit_are_blocked(self):
+        hook = Hook("test_bad_input_fails_closed")
+        project = tempfile.mkdtemp()
+        Path(project, "ros2/src/openamrobot_docking").mkdir(parents=True)
+        Path(project, ".github/workflows").mkdir(parents=True)
+        for command in ["/usr/bin/cur? -s https://example.com",
+                        "git -c alias.p=push p origin HEAD",
+                        "git -c core.hooksPath=/tmp/h commit -s -m x",
+                        "git --config-env=core.hooksPath=X commit -s -m x",
+                        "pushd ros2/src/openamrobot_docking && echo x > dock.py",
+                        "find .github/workflows -name '*.yml' -exec sed -i s/a/b/ {} +",
+                        "find ros2/src/openamrobot_docking -delete"]:
+            self.assertEqual(hook.run_hook("Bash", {"command": command}, project=project)[0], 2, command)
+        for command in ["find . -name '*.py' -exec grep -n x {} +", "git -C ros2 status",
+                        "git commit -s -m 'test: x'", "pushd build && cmake .. ; popd"]:
+            self.assertEqual(hook.run_hook("Bash", {"command": command}, project=project)[0], 0, command)
+
+    def test_work_a_person_holds_is_not_selected(self):
+        s = Select("test_register_drift_blocks_value_tasks")
+        human = {"number": 19, "repository": "openamrobot-manifest", "state": "open", "labels": [],
+                 "title": "fix(ci): validate advertised Git branch-tip pins (#12)", "body": ""}
+        self.assertFalse(s.pick([s.issue(12)], [human])["run"])
+        fixes = dict(human, title="ci: pins", body="Fixes #12")
+        self.assertFalse(s.pick([s.issue(12)], [fixes])["run"])
+        assigned = dict(s.issue(13), assignees=[{"login": "someone"}])
+        self.assertFalse(s.pick([assigned])["run"])
+        self.assertTrue(s.pick([s.issue(14)], [human])["run"], "an unrelated PR blocks nothing")

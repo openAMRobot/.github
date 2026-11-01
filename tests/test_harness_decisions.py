@@ -233,7 +233,8 @@ class Followup(unittest.TestCase):
     def test_consumer_issue_tiers(self):
         pr = merged_pr(5, "", ".github")
         docs = dfu.consumer_issue(POLICY, "openamr-platform-sw", [{"file": "README.md", "line": 3, "id": "COMPUTE", "found": "Pi"}], ["COMPUTE"], pr)
-        self.assertIn("ai-ready", docs["labels"])
+        self.assertNotIn("ai-ready", docs["labels"], "a text match is not a confirmed consumer")
+        self.assertIn("needs-human:triage", docs["labels"])
         self.assertIn("tier:A", docs["labels"])
         safety = dfu.consumer_issue(POLICY, "openamr-platform-sw", [{"file": "ros2/src/openamrobot_docking/a.yaml", "line": 1, "id": "X", "found": "y"}], ["X"], pr)
         self.assertIn("needs-human:safety", safety["labels"])

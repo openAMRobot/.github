@@ -89,6 +89,9 @@ def check_bash(command, project, repository, policy, read_only, mission=""):
     for words in subcommands(command):
         if words and re.search(r"[$`]", words[0]):
             block("the command name is built from a variable or a substitution; write it plainly")
+        if words and re.search(r"[*?\[]", words[0]):
+            # /usr/bin/cur? expands to curl after the blocked-command check (audit 2026-11-01 P3).
+            block("the command name contains a glob pattern; write it plainly")
         words = unwrap(words)
         if words and os.path.basename(words[0]) == "git" and any(
                 w == "-c" or w.startswith("--config-env") for w in words[1:]):
@@ -141,6 +144,9 @@ def unwrap(words):
         else:
             break
     return words
+FIND_EXEC = {"-exec", "-execdir", "-ok", "-okdir"}
+WRITING = {"sed", "rm", "rmdir", "mv", "cp", "tee", "truncate", "ln", "install", "touch", "chmod", "chown",
+           "unlink", "shred", "dd", "perl", "python", "python3", "node", "ruby", "bash", "sh", "patch", "git", "xargs"}
 INTERPRETERS = {"python", "python3", "node", "perl", "ruby", "bash", "sh"}
 # Paths that build and test tools write everywhere, also in read-only missions.
 SCRATCH = re.compile(r"^(?:build|install|log|\.verification|\.pytest_cache)(?:/|$)|(?:^|/)__pycache__(?:/|$)")
@@ -201,10 +207,22 @@ def write_targets(command):
                 for inner in write_targets(clean[position]):
                     add(inner)
             continue
-        if cmd == "find" and any(w in ("-exec", "-execdir", "-delete", "-ok", "-okdir", "-fprint") for w in clean):
-            # The files find hands to -exec or -delete are not known here: judge its first root.
-            roots = [w for w in clean[1:] if not w.startswith(("-", "(", "!"))]
-            add(roots[0] if roots else ".")
+        if cmd == "find":
+            # find ROOTS ... -exec sed -i ... {} + writes below every root (audit 2026-11-01 P3);
+            # a read-only -exec (grep, cat) writes nothing.
+            roots = []
+            for w in clean[1:]:
+                if w.startswith("-") or w in ("!", "("):
+                    break
+                roots.append(w)
+            inner = []
+            for j, w in enumerate(clean):
+                if w in FIND_EXEC:
+                    inner = clean[j + 1:]
+                    break
+            if "-delete" in clean or "-fprint" in clean or (inner and os.path.basename(inner[0]) in WRITING):
+                for root in roots or ["."]:
+                    add(root)
             continue
         if cmd in ("cd", "pushd"):
             cwd = os.path.join(cwd, args[0]) if args else ""

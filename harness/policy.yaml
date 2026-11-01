@@ -167,9 +167,16 @@ blocked_commands:
   - "dfu-util"
 
 # Budgets, counted in runs, turns and minutes. No money figures in repositories.
+# plan "starter" (owner decision, 1 Nov 2026): the Claude Console workspace carries a hard
+# monthly spend limit; the schedule below is sized so that the sum of max_turns of every
+# scheduled AI run in a week stays under weekly_turn_ceiling at the current stage
+# (tests/test_harness.py checks the sum for stage 1). Raising the plan means raising the
+# ceiling, the schedule and the Console limit together, in one reviewed PR.
 budgets:
+  plan: starter
+  weekly_turn_ceiling: 300        # stage 1: triage 5 x 20, one audit 60, register audit 60, retro 60 / 4
   build:
-    runs_per_weekday: 4
+    runs_per_weekday: 2
     max_turns: 80
     timeout_minutes: 50
     open_ai_prs_per_repository: 2
@@ -180,11 +187,11 @@ budgets:
     max_turns: 25
     timeout_minutes: 15
   triage:
-    max_turns: 30
+    max_turns: 20
     timeout_minutes: 15
   audit:
-    max_turns: 120
-    timeout_minutes: 60
+    max_turns: 60
+    timeout_minutes: 40
   retro:
     max_turns: 60
     timeout_minutes: 30
@@ -197,16 +204,13 @@ budgets:
 schedule:
   collect:  "41 4 * * 1-5"
   triage:   "7 5 * * 1-5"
-  build:    ["37 5 * * 1-5", "37 8 * * 1-5", "37 11 * * 1-5", "37 14 * * 1-5"]
-  review:   "*/30 6-20 * * *"
-  sim_analysis: "47 4 * * *"       # after the nightly simulation in each repository
-  audits:
-    dependencies: "23 3 * * 1"      # Monday
-    contracts:    "23 3 * * 2"      # Tuesday
-    impact:       "23 3 * * 3"      # Wednesday
-    performance:  "23 3 * * 5"      # Friday
-    maintainability: "53 3 * * 5"   # Friday
-  retro:    "17 15 * * 5"           # Friday
+  build:    ["37 5 * * 1-5", "37 11 * * 1-5"]
+  review:   "0 6-20/2 * * 1-5"      # every two hours on weekdays; stage 3 only
+  sim_analysis: "47 4 * * *"       # runs only when simulation.nightly names a producer
+  audits:                           # one audit per week, Monday, rotating by ISO week number
+    rotation: [dependencies, contracts, impact, maintainability, performance]
+    cron: "23 3 * * 1"
+  retro:    "17 15 * * 5"           # first Friday of the month only (route checks the day)
   decision_followup: "52 5 * * *"   # deterministic: merged PRs with a register change, consumer issues
   register_sync: "22 6 * * 1-5"     # drafts the register PR for an approved change request
   register_audit: "23 3 * * 4"      # Thursday, before the Watchdog scan; runs in openAMRobot/audits
@@ -263,6 +267,7 @@ labels:
   "needs-human:contract": contract change request needed
   "needs-human:decision": an owner decision
   "needs-human:hardware": bench, HIL or physical test
+  "needs-human:triage": a maintainer confirms the finding (consumer issues from text matches)
   "needs-human:stuck": the harness failed twice
   "needs-human:flaky": flaky test
   "needs-human:security": security or licence

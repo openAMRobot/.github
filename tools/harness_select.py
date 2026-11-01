@@ -95,6 +95,8 @@ def select(policy, root, issues, pulls, enabled, stage):
             why = "repository has its limit of open ai-generated PRs"
         elif (repo, issue["number"]) in taken:
             why = "an open PR already covers it"
+        elif issue.get("assignees"):
+            why = "assigned to a person"
         elif sum(1 for n in names if n.startswith("ai-attempt:")) >= budget["attempts_per_issue"]:
             why = "attempt limit reached"
         elif drift and ids & set(re.findall(r"\b[A-Z][A-Z0-9]{2,}(?:-[A-Z0-9]+)*\b", (issue.get("title") or "") + " " + (issue.get("body") or ""))):
