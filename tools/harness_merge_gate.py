@@ -6,7 +6,9 @@ A PR qualifies only when ALL hold:
   - its repository has build: true in harness/policy.yaml and is not a tier C repository;
   - every changed file is tier A by harness_lib.tier_of (re-checked here, not trusted from the label);
   - a harness review comment exists for the current head SHA with verdict=pass tier=A;
-  - every check run on the head SHA completed with success, neutral or skipped, and at least one ran;
+  - every required check (policy merge_gate.required_checks, per repository or default) ran on the
+    head SHA and concluded success; other check runs may be success, neutral or skipped; every
+    commit status on the head SHA is success and none is pending;
   - the head commit is older than the veto window (24 hours) and the PR has no review requesting changes.
 It prints the decisions; with --apply it marks the PR ready and squash-merges it
 with the harness App. Anything that fails a condition stays for a person.
@@ -32,7 +34,15 @@ def parse_time(text):
     return dt.datetime.fromisoformat(text.replace("Z", "+00:00"))
 
 
-def decide(pr, files, comments, checks, reviews, head_commit_time, repository, policy, now, bot=None):
+def required_checks(policy, repository):
+    """Names of the check runs that must execute and succeed before an automatic merge."""
+    gate = policy.get("merge_gate", {})
+    per_repo = gate.get("required_checks", {})
+    return list(per_repo.get(repository, per_repo.get("default", [])))
+
+
+def decide(pr, files, comments, checks, reviews, head_commit_time, repository, policy, now, bot=None,
+           statuses=None):
     bot = bot if bot is not None else hl.bot_login()
     labels = {l["name"] for l in pr.get("labels", [])}
     reasons = []
@@ -51,10 +61,22 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     if not any(m["head"] == head and m["verdict"] == "pass" and m["tier"] == "A" for m in passes):
         reasons.append("no passing tier A harness review for the head SHA")
     runs = checks.get("check_runs", [])
-    if not runs:
-        reasons.append("no check ran on the head SHA")
-    elif any(r.get("status") != "completed" or r.get("conclusion") not in OK_CONCLUSIONS for r in runs):
+    required = required_checks(policy, repository)
+    if not required:
+        reasons.append("no required verification checks configured for this repository")
+    for name in required:
+        # A reusable workflow reports "<caller job> / <job>"; both spellings count.
+        named = [r for r in runs if r.get("name") == name or str(r.get("name", "")).endswith(" / " + name)]
+        if not any(r.get("status") == "completed" and r.get("conclusion") == "success" for r in named):
+            reasons.append(f"required check {name} did not run and succeed on the head SHA")
+    if any(r.get("status") != "completed" or r.get("conclusion") not in OK_CONCLUSIONS for r in runs):
         reasons.append("a check is pending or not green")
+    if statuses is None:
+        reasons.append("commit statuses were not read")
+    else:
+        # The combined state reads "pending" when no status exists at all, so judge each status.
+        if any(s.get("state") != "success" for s in statuses.get("statuses", [])):
+            reasons.append("a commit status is pending or not green")
     if any(r.get("state") == "CHANGES_REQUESTED" for r in reviews):
         reasons.append("a reviewer requested changes")
     if now - head_commit_time < dt.timedelta(hours=VETO_HOURS):
@@ -88,7 +110,8 @@ def main(argv=None):
                              gh.paged(f"{base}/issues/{number}/comments?per_page=100"),
                              gh.get(f"{base}/commits/{head}/check-runs?per_page=100"),
                              gh.paged(f"{base}/pulls/{number}/reviews?per_page=100"),
-                             parse_time(commit["commit"]["committer"]["date"]), repository, policy, now)
+                             parse_time(commit["commit"]["committer"]["date"]), repository, policy, now,
+                             statuses=gh.get(f"{base}/commits/{head}/status"))
             print(json.dumps({"repository": repository, "pr": number, "merge": not reasons, "reasons": reasons}))
             if reasons or not args.apply:
                 continue

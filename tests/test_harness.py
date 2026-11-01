@@ -248,6 +248,31 @@ class Guard(unittest.TestCase):
         self.assertIn("maximum tier A", " ".join(report["failures"]))
         self.assertEqual(self.check("--max-tier", "B")[0], 0)
 
+    def test_tier_ceiling_applies_to_every_published_commit(self):
+        # Review of #76: a tier B source edit reverted in a later commit leaves a
+        # test-only net diff, but both commits are transferred by the bundle.
+        self.write("ros2/src/pkg/pkg/node.py", "def f():\n    return 2\n")
+        self.commit("edit source")
+        self.write("ros2/src/pkg/pkg/node.py", "def f():\n    return 1\n")
+        self.write("ros2/src/pkg/test/test_new.py", "def test_new():\n    assert True\n")
+        self.commit("revert source, add test")
+        self.assertEqual(self.git("diff", "--name-only", f"{self.base}..HEAD").split(),
+                         ["ros2/src/pkg/test/test_new.py"], "net diff is test-only")
+        code, report = self.check("--max-tier", "A")
+        self.assertEqual(code, 1, report)
+        self.assertEqual(report["tier"], "B")
+        self.assertIn("maximum tier A", " ".join(report["failures"]))
+        self.assertEqual(self.check("--max-tier", "B")[0], 0)
+
+    def test_test_line_removal_in_an_earlier_commit_counts_for_the_ceiling(self):
+        self.write("ros2/src/pkg/test/test_node.py", "def test_f():\n    x = 1\n")
+        self.commit("weaken a test")
+        self.write("ros2/src/pkg/test/test_node.py", "def test_f():\n    assert True\n")
+        self.commit("restore it")
+        code, report = self.check("--max-tier", "A")
+        self.assertEqual(code, 1, report)
+        self.assertEqual(report["tier"], "B")
+
     def test_clean_tier_a_change_below_ceiling(self):
         self.write("ros2/src/pkg/test/test_more.py", "def test_g():\n    assert True\n")
         self.commit("new test")

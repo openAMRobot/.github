@@ -207,13 +207,17 @@ class ReviewQueue(unittest.TestCase):
 class MergeGate(unittest.TestCase):
     now = dt.datetime(2026, 11, 2, 12, tzinfo=dt.timezone.utc)
 
+    @staticmethod
+    def check_run(name, conclusion="success", status="completed"):
+        return {"name": name, "status": status, "conclusion": conclusion}
+
     def args(self, **over):
         pr = {"labels": [{"name": "ai-generated"}, {"name": "tier:A"}], "head": {"sha": HEAD}}
         values = dict(pr=pr, files=[{"filename": "tests/test_x.py"}],
                       comments=[{"user": BOT_USER, "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}],
-                      checks={"check_runs": [{"status": "completed", "conclusion": "success"}]}, reviews=[],
+                      checks={"check_runs": [self.check_run("quality/test"), self.check_run("quality/pr-evidence")]}, reviews=[],
                       head_commit_time=self.now - dt.timedelta(hours=30), repository="openamrobot-manifest",
-                      policy=POLICY, now=self.now, bot=BOT)
+                      policy=POLICY, now=self.now, bot=BOT, statuses={"state": "pending", "statuses": []})
         values.update(over)
         return values
 
@@ -232,6 +236,34 @@ class MergeGate(unittest.TestCase):
                  dict(pr={"labels": [{"name": "ai-generated"}, {"name": "tier:A"}, {"name": "hold"}], "head": {"sha": HEAD}})]
         for case in cases:
             self.assertTrue(gate.decide(**self.args(**case)), case)
+
+    def test_required_verification_must_execute_and_succeed(self):
+        r = self.check_run
+        blocked = {
+            "all skipped": [r("quality/test", "skipped"), r("quality/pr-evidence", "skipped")],
+            "all neutral": [r("quality/test", "neutral"), r("quality/pr-evidence", "neutral")],
+            "missing required verifier": [r("quality/pr-evidence"), r("lint")],
+            "required pending": [r("quality/test", None, "in_progress"), r("quality/pr-evidence")],
+            "optional failure": [r("quality/test"), r("quality/pr-evidence"), r("lint", "failure")],
+        }
+        for label, runs in blocked.items():
+            self.assertTrue(gate.decide(**self.args(checks={"check_runs": runs})), label)
+        mixed = [r("repository-quality / quality/test", "skipped"), r("quality/test"),
+                 r("quality/pr-evidence"), r("optional-docs", "skipped")]
+        self.assertEqual(gate.decide(**self.args(checks={"check_runs": mixed})), [],
+                         "required checks succeeded; a skipped reusable duplicate and an optional skip are allowed")
+
+    def test_commit_statuses_are_independent_evidence(self):
+        for statuses in (None, {"state": "pending", "statuses": [{"context": "cla", "state": "pending"}]},
+                         {"state": "failure", "statuses": [{"context": "DCO", "state": "failure"}]}):
+            self.assertTrue(gate.decide(**self.args(statuses=statuses)), statuses)
+        ok = {"state": "success", "statuses": [{"context": "DCO", "state": "success"}]}
+        self.assertEqual(gate.decide(**self.args(statuses=ok)), [])
+
+    def test_no_required_checks_configured_blocks(self):
+        policy = dict(POLICY, merge_gate={"required_checks": {}})
+        self.assertIn("no required verification checks configured for this repository",
+                      gate.decide(**self.args(policy=policy)))
 
 
 class Inputs(unittest.TestCase):

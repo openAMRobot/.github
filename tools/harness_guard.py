@@ -182,6 +182,7 @@ def run(args):
             continue
         parent = ancestry[1]
         intermediate = changed_paths(root, parent, sha)
+        commit_tiers = []
         for status_code, path in intermediate:
             path_tier = hl.tier_of(path, args.repository, policy)
             if path.startswith((".harness-out", ".harness/")):
@@ -190,7 +191,24 @@ def run(args):
                 failures.append(f"commit {sha[:9]}: tier D path touched: {path}")
             elif path_tier == "C" and not (status_code == "A" and hl.is_test_path(path)):
                 failures.append(f"commit {sha[:9]}: tier C path touched: {path}")
-        for path, (added, _) in diff_lines(root, parent, [p for _, p in intermediate], sha).items():
+            # Same promotions as the net diff: an allowed tier D mission path and a
+            # dependency manifest are B, a new test file in a tier C area is A.
+            if path_tier == "D":
+                path_tier = "B"
+            elif path_tier == "C":
+                path_tier = "A"
+            if hl.matches(path, policy.get("dependency_manifests", [])):
+                path_tier = hl.highest([path_tier, "B"])
+            commit_tiers.append(path_tier)
+        commit_diff = diff_lines(root, parent, [p for _, p in intermediate], sha)
+        if any(removed and hl.is_test_path(path) and existed_at(root, parent, path)
+               for path, (_, removed) in commit_diff.items()):
+            commit_tiers.append("B")
+        commit_tier = hl.highest(commit_tiers) if commit_tiers else "A"
+        if hl.TIER_ORDER[commit_tier] > hl.TIER_ORDER[tier]:
+            notes.append(f"commit {sha[:9]} is tier {commit_tier}; the change is labelled tier {commit_tier}")
+            tier = commit_tier
+        for path, (added, _) in commit_diff.items():
             for line in added:
                 if SECRET.search(line):
                     failures.append(f"commit {sha[:9]}: secret-like string in {path}")
@@ -200,7 +218,8 @@ def run(args):
             if binary.startswith("-\t-\t"):
                 failures.append(f"commit {sha[:9]}: binary file in history: {path}")
 
-    # Include tier promotions from both dependencies and test-line removals.
+    # The ceiling applies to the net change and to every commit the publisher transfers,
+    # including tier promotions from dependencies and test-line removals.
     if args.max_tier and hl.TIER_ORDER[tier] > hl.TIER_ORDER[args.max_tier]:
         failures.append(f"change is tier {tier}, above selected issue's maximum tier {args.max_tier}; escalate to owner")
 
