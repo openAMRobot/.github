@@ -427,13 +427,20 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "BOM per P-03 rev18.1 line 7.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
         self.assertEqual(self.ids("docs/a.md", "Issue 7.6 is canonical; Issue 6 is superseded.\n", "x"), [])
 
-    def test_bom_issue_7_10_in_force(self):
+    # P-03 rev20.2 item 26: BOM Issue 7.14 is canonical; Issue 7.10 and 7.11 are retired.
+    def test_bom_issue_7_14_in_force(self):
         for text in ("The canonical BOM is Issue 7.\n", "BOM Issue 7.1 is the BOM of record.\n",
-                     "BOM Issue 7.8 is canonical.\n", "BOM Issue 7.9 is canonical.\n"):
+                     "BOM Issue 7.8 is canonical.\n", "BOM Issue 7.9 is canonical.\n",
+                     "BOM Issue 7.10 is canonical.\n", "BOM Issue 7.11 is the BOM in force.\n",
+                     "The canonical BOM is Issue 7.11.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["BOM-ISSUE-IN-FORCE"], text)
-        for text in ("BOM Issue 7.10 is canonical.\n", "Issue 7.8 was canonical until Issue 7.10 superseded it.\n",
-                     "The earlier canonical BOM was Issue 7.8.\n"):
+        for text in ("BOM Issue 7.14 is canonical.\n", "Issue 7.10 was canonical until Issue 7.14 superseded it.\n",
+                     "The earlier canonical BOM was Issue 7.11.\n", "The canonical BOM is Issue 7.14.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        retired = [s["value"] for s in by_id["BOM-ISSUE-IN-FORCE"]["supersedes"]]
+        self.assertIn("Issue 7.10", retired)
+        self.assertIn("Issue 7.11", retired)
 
     # P-03 rev19.2 item 20 (E-01 rev1.1): each check flags the stale wording and accepts a
     # sentence that labels it as superseded, removed or legacy.
@@ -644,9 +651,62 @@ class RealRegister(unittest.TestCase):
 
     def test_icm42688p_is_the_2_0_imu(self):
         for text in ("The ICM-42688-P is selected as the OpenAMRobot 2.0 IMU.\n",
-                     "ICM-42688-P (MIKROE-4237, SPI) is the baseline IMU; WHO_AM_I 0x47 at boot.\n"):
+                     "ICM-42688-P (TDK EV_ICM-42688-P, SPI4) is the baseline IMU; WHO_AM_I 0x47 at boot.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
         self.assertEqual(self.ids("docs/a.md", "The Gate A IMU is the MPU6050.\n", "x"), ["BASE-CONTROLLER-GATES"])
+
+    # P-03 rev20.2 item 26: the TDK EV_ICM-42688-P replaces the MIKROE-4237 board.
+    def test_mikroe_4237_is_superseded(self):
+        for text in ("ICM-42688-P (MIKROE-4237, SPI) is the baseline IMU.\n", "IMU board: MIKROE-4237 on SPI4.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["BASE-CONTROLLER-GATES"], text)
+        for text in ("MIKROE-4237 is superseded by the TDK EV_ICM-42688-P.\n",
+                     "The EV_ICM-42688-P replaces the MIKROE-4237 (same sensor).\n",
+                     "Historical: the IMU was on a MIKROE-4237.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+        # Robot-description files are covered by FRAMES-REP105, without a duplicate finding.
+        self.assertEqual(self.ids("urdf/base.urdf.xacro", "<!-- imu_link: ICM-42688-P on MIKROE-4237 -->\n"),
+                         ["FRAMES-REP105"])
+        self.assertEqual(self.ids("urdf/base.urdf.xacro", "<!-- imu_link: EV_ICM-42688-P (replaces MIKROE-4237) -->\n"), [])
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertTrue(any("EV_ICM-42688-P" in v for v in by_id["FRAMES-REP105"]["values"]))
+        self.assertTrue(any("SPI4" in v and "EV_ICM-42688-P" in v for v in by_id["BASE-CONTROLLER-GATES"]["values"]))
+
+    # P-03 rev20.2 item 26: values recorded without a new pattern.
+    def test_rev20_2_values_in_force(self):
+        data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(data["in_force"], {"source": "P-03-rev20.2", "date": cd.as_date("2026-11-01")})
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertTrue(any("DDR-240B-24" in v and "F-LIFT 15 A" in v for v in by_id["POWER-RAILS"]["values"]))
+        self.assertTrue(any("6 Nm holding" in v for v in by_id["DRIVETRAIN"]["values"]))
+        self.assertNotIn("pending", by_id["DRIVETRAIN"]["fix_hint"])
+        self.assertTrue(any("holding test on the delivered unit" in v for v in by_id["LIFT"]["values"]))
+        self.assertIn("not a configuration ID", by_id["CONFIG-IDS"]["note"])
+        for did in ("BOM-ISSUE-IN-FORCE", "FRAMES-REP105", "BASE-CONTROLLER-GATES", "DRIVETRAIN", "LIFT"):
+            self.assertTrue(by_id[did]["supersedes"], did)
+        self.assertEqual((by_id["COMPONENT-AVAILABILITY"]["kind"], by_id["COMPONENT-AVAILABILITY"]["owner"]),
+                         ("limit", "platform-lead"))
+        self.assertEqual(by_id["TABLET-MOUNT"]["kind"], "configuration")
+
+    def test_component_availability(self):
+        for name in ("docs/BOM.md", "hw/procurement/parts.yaml", "bom/bom_2_0.yml"):
+            self.assertEqual(self.ids(name, "PSU-01 single-source part, selected.\n", "x"),
+                             ["COMPONENT-AVAILABILITY"], name)
+        for text in ("PSU-01 single-source part, named option next to PSU-02 (second-sourced).\n",
+                     "Selected: PSU-02; single-source alternative PSU-01 as an option.\n",
+                     "PSU-01 is single-source and not selected.\n"):
+            self.assertEqual(self.ids("docs/BOM.md", text, "x"), [], text)
+        # Outside BOM and procurement files the rule is not scanned.
+        self.assertEqual(self.ids("docs/a.md", "PSU-01 single-source part, selected.\n", "x"), [])
+
+    def test_tablet_mount(self):
+        for text in ("The ZX80 tablet default position is portrait.\n",
+                     "Portrait is the default for the tablet mount.\n",
+                     "The tablet position is a configuration ID.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["TABLET-MOUNT"], text)
+        for text in ("The ZX80 tablet default position is landscape; portrait is the second locked position.\n",
+                     "Tablet mount: landscape (default, 234 x 149.8 mm) or portrait (149.8 x 234 mm).\n",
+                     "The tablet position is a mount setting, not a configuration ID.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
     def test_mpu6050_explanatory_gate_a_text_is_accepted(self):
         # Text explaining why the Gate A chip is not an MPU6050 is not a finding.
@@ -763,10 +823,11 @@ class RealRegister(unittest.TestCase):
                      "Historical: the OpenArm kit chest button.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
-    def test_p03_rev20_1_is_in_force_and_cited(self):
-        # Owner decision 30 Oct 2026: P-03 rev20.1 is in force; head-camera values stay 30 degrees and hp30.
+    def test_p03_rev20_1_values_are_cited(self):
+        # Owner decision 30 Oct 2026: P-03 rev20.1 values stay cited (30 degrees, hp30, ZX80 panel);
+        # P-03 rev20.2 is in force from 1 Nov 2026 (test_rev20_2_values_in_force).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(data["in_force"]["source"], "P-03-rev20.1")
+        self.assertEqual(data["in_force"]["source"], "P-03-rev20.2")
         self.assertIn("P-03-rev20.1", data["sources"])
         by_id = {d["id"]: d for d in self.decisions}
         for did in ("HEAD-CAMERA-IDENTITY", "CONFIG-IDS", "OPERATOR-PANEL"):
@@ -825,14 +886,32 @@ class RealRegister(unittest.TestCase):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
     def test_operator_panel_is_the_getac_zx80(self):
-        # P-03 rev20.1 item 24: Getac ZX80, 8 inch, 1920 x 1200, landscape; supersedes ZX10.
+        # P-03 rev20.1 item 24: Getac ZX80, 8 inch, 1920 x 1200; supersedes ZX10.
         repo = "openamrobot-ui"
-        for text in ("Operator panel: Getac ZX10.\n", "Layout for the ZX80 in portrait.\n"):
-            self.assertEqual(self.ids("docs/a.md", text, repo), ["OPERATOR-PANEL"], text)
+        self.assertEqual(self.ids("docs/a.md", "Operator panel: Getac ZX10.\n", repo), ["OPERATOR-PANEL"])
         for text in ("Operator panel: Getac ZX80, 8 inch, 1920 x 1200, landscape.\n",
                      "The ZX10 was replaced by the ZX80.\n",
                      "Getac ZX10 (superseded).\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertIn("landscape by default with a portrait second position", by_id["OPERATOR-PANEL"]["value"])
+
+    def test_zx80_portrait_second_position_versus_default(self):
+        # P-03 rev20.2 item 26: portrait is the second locked position; only portrait as the default is flagged.
+        repo = "openamrobot-ui"
+        second = ("Layout for the ZX80 in portrait.\n",
+                  "ZX80: landscape by default; portrait is the second locked position.\n",
+                  "The ZX80 rotates to portrait (second locked position, 149.8 x 234 mm).\n")
+        default = ("The ZX80 default orientation is portrait.\n",
+                   "Layout for the ZX80 in portrait by default.\n",
+                   "Portrait is the default for the ZX80.\n")
+        for text in second:
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+            self.assertEqual(self.ids("src/layout.ts", "// " + text, repo), [], text)
+        for text in default:
+            # One finding per line: TABLET-MOUNT in text files, OPERATOR-PANEL in UI code.
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["TABLET-MOUNT"], text)
+            self.assertEqual(self.ids("src/layout.ts", "// " + text, repo), ["OPERATOR-PANEL"], text)
 
     def test_ui_gate_a_is_6_november(self):
         # Alex decision 30 Oct 2026: full UI Gate A on 6 November 2026; 30 October was partial (A1).
