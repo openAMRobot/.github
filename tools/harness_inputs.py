@@ -66,6 +66,13 @@ def open_issues(gh, org, policy):
     return out
 
 
+def open_pulls(gh, org, repo):
+    return [{"number": p["number"], "title": p["title"], "draft": p.get("draft", False),
+             "head": (p.get("head") or {}).get("ref"), "author": (p.get("user") or {}).get("login"),
+             "updated_at": p.get("updated_at"), "body": (p.get("body") or "")[:3000]}
+            for p in gh.paged(f"/repos/{org}/{repo}/pulls?state=open&per_page=100")]
+
+
 def recent_runs(gh, org, days=7):
     since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).strftime("%Y-%m-%d")
     runs = gh.paged(f"/repos/{org}/.github/actions/workflows/harness-run.yml/runs?created=>={since}&per_page=100", limit=300)
@@ -167,6 +174,9 @@ def collect(mission, target, workspace, org, gh, policy):
         repo, number = target["repository"], target["issue"]
         write(inp / "issue.json", safe(gh.get, f"/repos/{org}/{repo}/issues/{number}"))
         write(inp / "issue-comments.json", safe(gh.paged, f"/repos/{org}/{repo}/issues/{number}/comments?per_page=100"))
+        # The agent has no gh or curl; without this list it cannot fill the Integration Gate
+        # (overlapping PRs and branches) that AGENTS.md requires.
+        write(inp / "open-pulls.json", safe(open_pulls, gh, org, repo))
     elif mission == "review":
         repo, number = target["repository"], target["pr"]
         write(inp / "pr.json", safe(gh.get, f"/repos/{org}/{repo}/pulls/{number}"))

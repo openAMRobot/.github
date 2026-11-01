@@ -70,6 +70,14 @@ def select(policy, root, issues, pulls, enabled, stage):
         m = re.match(r"^(?:ai|register)/(\d+)-", ((p.get("head") or {}).get("ref") or ""))
         if m and p.get("state", "open") == "open":
             taken.add((p["repository"], int(m.group(1))))
+    # Any open PR, by a person too, that names the issue in its title or links it in its body
+    # already works on it; a harness PR would duplicate that work (audit 2026-11-01, P1).
+    for p in pulls:
+        if p.get("state", "open") != "open":
+            continue
+        text = (p.get("title") or "") + "\n" + (p.get("body") or "")
+        for number in re.findall(r"(?:\(#(\d+)\)|\b(?:closes|fixes|resolves|refs|addresses)\s+#(\d+))", text, re.I):
+            taken.add((p["repository"], int(number[0] or number[1])))
 
     candidates, skipped = [], []
     for issue in issues:
@@ -86,7 +94,7 @@ def select(policy, root, issues, pulls, enabled, stage):
         elif per_repo.get(repo, 0) >= budget["open_ai_prs_per_repository"]:
             why = "repository has its limit of open ai-generated PRs"
         elif (repo, issue["number"]) in taken:
-            why = "an open ai-generated PR already covers it"
+            why = "an open PR already covers it"
         elif sum(1 for n in names if n.startswith("ai-attempt:")) >= budget["attempts_per_issue"]:
             why = "attempt limit reached"
         elif drift and ids & set(re.findall(r"\b[A-Z][A-Z0-9]{2,}(?:-[A-Z0-9]+)*\b", (issue.get("title") or "") + " " + (issue.get("body") or ""))):
