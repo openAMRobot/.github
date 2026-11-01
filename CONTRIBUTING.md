@@ -54,6 +54,12 @@ are in [AGENTS.md](AGENTS.md).
 - Do not change E-stop, brake, contactor, watchdog, motor-enable or charge-inhibit logic
   unless the platform lead has agreed it in the issue; such changes need two human reviewers.
 
+**Hardware and procurement.** Every part in a BOM or procurement list must be available from
+stock at two or more independent suppliers. A single-source part may appear only as a named
+option next to a second-sourced alternative, and a part with no stock is not selected. The rule
+is recorded as COMPONENT-AVAILABILITY in [decisions.yaml](decisions.yaml) (P-03 rev20.2 item
+26). The automated check reads wording only; the reviewer checks the supplier columns.
+
 ## 4. Open a draft pull request
 
 Open the PR as a **draft** and fill in every section of the template: work package,
