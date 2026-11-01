@@ -22,7 +22,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 |---|---|---|---|
 | #77 | #78 (claude/optimistic-sagan-oqc2lu) | draft, rebased on ed98001 | owner review of the P-03 rev20.2 item 26 values and the OPERATOR-PANEL portrait change |
 | P-03 rev20.1 | #73 | merged as ed98001 (2026-11-01) | none; its OPERATOR-PANEL portrait check is narrowed in #78 |
-| PLATFORM-PIN | #74 | open, not merged (2026-11-01) | touches decisions.yaml; rebase after whichever merges first |
+| PLATFORM-PIN | #74 | pin 131e500fc4e5afc9f648cbd7dbf5b416280761fb (2.0 base, P-03 rev20.1 item 25 D7), validated by openamr-upperbody-sw #21; merged with this PR (2026-11-01) | none; touches decisions.yaml only |
 
 ## Decisions this repository implements
 
