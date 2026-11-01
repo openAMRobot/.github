@@ -72,7 +72,12 @@ def pass_changes(gh, org, policy, since, plan):
     for repo, cfg in policy["repositories"].items():
         if not cfg.get("review"):
             continue
-        for pr in merged_since(gh, org, repo, since):
+        try:
+            prs = merged_since(gh, org, repo, since)
+        except Exception as exc:  # one unreadable repository never stops the others
+            plan.append(f"{repo}: not measured ({str(exc)[:200]})")
+            continue
+        for pr in prs:
             try:
                 handle_change(gh, org, repo, pr, plan)
             except Exception as exc:  # one bad PR (a mistyped issue number) never stops the rest
@@ -182,7 +187,11 @@ def pass_consumers(gh, org, policy, since, workdir, harness_root, plan):
                 continue
             hits = [f for f in findings if f["id"] in ids]
             marker = MARK_CONSUMERS.format(number=pr["number"], repository=repository)
-            if not hits or open_issue_with_marker(gh, org, repository, marker):
+            try:
+                if not hits or open_issue_with_marker(gh, org, repository, marker):
+                    continue
+            except Exception as exc:  # the issue list could not be read: report it, try the next one
+                plan.append(f"{repository}: not measured, issue list unreadable ({str(exc)[:160]})")
                 continue
             issue = consumer_issue(policy, repository, hits, ids, pr)
             plan.append(f"create consumer issue in {repository}: {len(hits)} line(s), labels {issue['labels']}")

@@ -197,6 +197,21 @@ class Followup(unittest.TestCase):
         self.assertEqual(len(created), 1)
         self.assertIn("needs-human:register", created[0]["labels"])
 
+    def test_one_unreadable_repository_does_not_stop_the_pass(self):
+        # Audit 2026-11-01 P8: a 403 on one enrolled repository ended the whole follow-up run.
+        class Denied(FakeAPI):
+            def __call__(self, method, url, body):
+                if "/openamrobot-comm/" in url:
+                    self.calls.append((method, url, body))
+                    return 403, {}, {"message": "Resource not accessible by integration"}
+                return super().__call__(method, url, body)
+        routes = {("GET", "/openamrobot-ui/pulls?state=closed"): [merged_pr(3, "## Decisions impact\n- [x] Change: entry COMPUTE", "openamrobot-ui")]}
+        api = Denied(routes)
+        plan = []
+        dfu.pass_changes(harness_gh.GitHub(token="t", transport=api), "openAMRobot", POLICY, "2000-01-01", plan)
+        self.assertTrue(any(line.startswith("openamrobot-comm: not measured") for line in plan), plan)
+        self.assertEqual(len([b for m, u, b in api.writes() if u.endswith("/.github/issues")]), 1)
+
     def test_none_and_consumer_do_nothing(self):
         routes = {("GET", "/openamr-platform-sw/pulls?state=closed"): [merged_pr(1, "## Decisions impact\n- [x] None: x"),
                                                                     merged_pr(2, "## Decisions impact\n- [x] Consumer: COMPUTE")]}
