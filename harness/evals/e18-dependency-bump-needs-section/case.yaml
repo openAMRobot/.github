@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: e18-dependency-bump-needs-section
+context:
+  scaffold_script: fixture.sh

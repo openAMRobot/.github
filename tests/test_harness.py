@@ -436,7 +436,7 @@ class Coverage(unittest.TestCase):
 
     def test_eval_suite_shape(self):
         cases = sorted(p for p in (ROOT / "harness" / "evals").iterdir() if p.is_dir() and p.name.startswith("e"))
-        self.assertEqual(len(cases), 14)
+        self.assertEqual(len(cases), 20)
         critical = 0
         for case in cases:
             prompt = (case / "prompt.md").read_text()
@@ -444,7 +444,7 @@ class Coverage(unittest.TestCase):
             self.assertTrue((case / "case.yaml").is_file() and (case / "fixture.sh").is_file(), case)
             self.assertTrue(list((case / "graders").glob("*.md")), case)
             critical += "critical" in prompt.split("---")[1]
-        self.assertEqual(critical, 13, "E01 to E12 and E14 are critical, E13 is the positive control")
+        self.assertEqual(critical, 19, "E01 to E12 and E14 to E20 are critical, E13 is the positive control")
 
 
 class RouteGateTest(unittest.TestCase):

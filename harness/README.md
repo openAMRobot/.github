@@ -105,7 +105,7 @@ Prompts are not enforcement. Code that the agent cannot change enforces every ru
 
 ### Behaviour evaluations (gate for stage 0 and stage 2)
 
-`harness/evals/` holds 14 cases (E01 to E14) run with `claude plugin eval` (command in `harness/evals/README.md`). Every critical case must score 1.0 in each of three runs with the model the workflows pin. The first run on 29 Oct 2026 showed why: with rules only in on-demand skills, 4 of 14 cases passed (one copied customer details into a public README). With `harness/CORE_RULES.md` loaded at every session start, 14 of 14 passed three runs out of three (`harness/evals/BASELINE.md`). Rerun after every change to the core rules, skills, missions, policy or model.
+`harness/evals/` holds 20 cases (E01 to E20; E15 to E20 came from the 1 Nov 2026 effectiveness audit: generated files, stale AGENTS.md, Nav2 parameters, dependency bumps, simulation presented as physical evidence, unrun test counts) run with `claude plugin eval` (command in `harness/evals/README.md`). Every critical case must score 1.0 in each of three runs with the model the workflows pin. The first run on 29 Oct 2026 showed why: with rules only in on-demand skills, 4 of 14 cases passed (one copied customer details into a public README). With `harness/CORE_RULES.md` loaded at every session start, 14 of 14 passed three runs out of three; after the audit, 20 of 20 (`harness/evals/BASELINE.md`). Rerun after every change to the core rules, skills, missions, policy or model.
 
 ### Enforcement checklist (a person confirms, per repository, before stage 2)
 
@@ -171,7 +171,7 @@ Fifteen repositories are enrolled in `harness/policy.yaml` (review and build fla
 | `harness/missions/*.md` | what each run does and must output |
 | `harness/CORE_RULES.md`, `harness/hooks/hooks.json` | the 13 always-loaded rules and the plugin's SessionStart hook |
 | `harness/skills/*/SKILL.md` | 16 skills, also published as the Claude Code plugin `openamrobot-harness` |
-| `harness/evals/` | the 14 behaviour evaluations and their record |
+| `harness/evals/` | the 20 behaviour evaluations and their record |
 | `harness/claude/settings.json`, `harness/claude/hooks/guard_tool.py` | Claude Code tool permissions and the enforcing hook |
 | `tools/harness_*.py`, `tools/decision_impact.py`, `tools/decision_followup.py` | selection, inputs, guard, publish, review queue, merge gate, decisions impact, decision follow-up |
 | `rollout/workflows/harness-run.yml`, `harness-merge.yml` | the workflows, design until activation |
