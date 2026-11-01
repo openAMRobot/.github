@@ -22,6 +22,14 @@ concurrency:
 env:
   HARNESS_REF: <HARNESS_SHA>
   ORG: openAMRobot
+  # Same egress policy as harness-run.yml: audit mode first, then HARNESS_EGRESS=block.
+  EGRESS: ${{ vars.HARNESS_EGRESS || 'audit' }}
+  ALLOWED: >-
+    api.anthropic.com:443 statsig.anthropic.com:443 sentry.io:443
+    github.com:443 api.github.com:443 codeload.github.com:443 objects.githubusercontent.com:443
+    raw.githubusercontent.com:443 results-receiver.actions.githubusercontent.com:443
+    pipelines.actions.githubusercontent.com:443 *.blob.core.windows.net:443
+    pypi.org:443 files.pythonhosted.org:443
 
 jobs:
   audit:
@@ -29,6 +37,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     steps:
+      - uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: ${{ env.EGRESS }}
+          allowed-endpoints: ${{ env.ALLOWED }}
       - name: Workspace (the harness repository at the pin, read only clones, snapshots)
         run: |
           set -euo pipefail

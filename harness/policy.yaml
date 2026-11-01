@@ -172,6 +172,9 @@ budgets:
   retro:
     max_turns: 60
     timeout_minutes: 30
+  register_sync:
+    max_turns: 60
+    timeout_minutes: 30
   on_usage_limit: stop the run, mark it budget-exhausted, no retry before the next slot
 
 # Schedule, UTC. Minutes are off the hour on purpose.
