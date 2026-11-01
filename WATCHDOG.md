@@ -160,6 +160,11 @@ identical to the register.
 | CONFIG-IDS | recorded | *mast_id is replaced by the column, base_plate, head_pitch and base_tilt IDs*: `supersed (superseded, supersedes)`, `replac`, `historical`, `legacy`, `no longer`<br>*the head_pitch baseline is hp30*: `supersed (superseded, supersedes)`, `historical`, `was` |
 | NO-SUSPENSION | recorded | `3.0`, `no`, `not fitted`, `without` |
 | DRIVE-TRACK | open | not scanned until the decision is taken |
+| UI-MANUAL-VELOCITY-INPUT | open | not scanned until the decision is taken |
+| STATUS-VOCABULARY | recorded | `not`, `never`, `only`, `hardwired`, `STOPPED \(SOFTWARE\)` |
+| STOP-SCOPE | recorded | *E-stop means only the hardwired buttons; the UI control is Stop (software), a functional stop*: `not`, `never`, `no`, `supersed (superseded, supersedes)`, `historical`<br>*Stop (software) covers base motion only today and is labelled base-only*: `target`, `planned`, `future`, `will`, `not`, `base[- ]only`<br>*Stop (software) is a functional stop, not a safety function*: `not`, `never`, `functional` |
+| OPERATOR-PANEL | recorded | *the operator panel is the Getac ZX80, 8 inch, 1920 x 1200, landscape*: `supersed (superseded, supersedes)`, `replac`, `historical`, `earlier`, `previous`, `was`<br>*the ZX80 operator panel is used in landscape*: `not`, `never` |
+| UI-GATE-A | recorded | `partial`, `A1`, `supersed (superseded, supersedes)`, `historical`, `was`, `6 Nov` |
 <!-- END ACCEPTED WORDS -->
 
 ## Approved public contacts

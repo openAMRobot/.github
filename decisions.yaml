@@ -53,12 +53,21 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev19.6
-  date: 2026-10-18
+  source: P-03-rev20.1
+  date: 2026-10-30
 
 sources:
+  P-03-rev20.1:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.1, with the platform lead's decisions of 30 October 2026 (the addendum in force; carries the rev20.0 items 15, 17 and 18 head-camera values; item 24: whole chest layout, including the ZX80 operator panel correction of 28 October 2026)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  Alex decision 2026-10-30:
+    title: Platform decision of 30 October 2026 (UI manual velocity input and stop lock, status vocabulary, stop scope, UI Gate A date); change request openAMRobot/.github#72
+    evidence: decision record, not held in any repository; provenance only, CI never reads it; recorded with P-03 rev20.1
+  E-01-rev1.5:
+    title: E-01 Safety and Power Distribution Baseline rev1.5 ("E-stop" means only the hardwired buttons)
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.0:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.0, 27 October 2026, with the 28 October 2026 corrections (items 15, 17 and 18: head-camera lens 42 mm ahead of the shoulder, baseline pitch 30 degrees, hp30; item 24: second E-stop on the static lift column)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.0, 27 October 2026, with the 28 October 2026 corrections (earlier revision; superseded by rev20.1 as the addendum in force; items 15, 17 and 18: head-camera lens 42 mm ahead of the shoulder, baseline pitch 30 degrees, hp30; item 24: second E-stop on the static lift column)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-10-20:
     title: Platform decision of 20 October 2026 (TF-Luna cliff pitch 10 degrees; WCM-500-24 on release 001 and 2.0; embodied-AI repository; platform-sw pin for the combined model)
@@ -83,7 +92,7 @@ sources:
     title: P-03 Decision Addendum, revision 18.4 (earlier revision)
     evidence: plan-set document, not held in any repository; cited by item
   P-03-rev19.6:
-    title: "OpenAMRobot 2.0 Decision Addendum rev19.6, 18 October 2026 (the addendum in force; item 22: Gigavac GX11CAC contactors and the item 22 controller I/O)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev19.6, 18 October 2026 (earlier revision; superseded by rev20.1 as the addendum in force; item 22: Gigavac GX11CAC contactors and the item 22 controller I/O)"
     evidence: plan-set document, not held in any repository; cited by item
   E-01-rev1.3:
     title: E-01 Safety and Power Distribution Baseline rev1.3, 18 October 2026 (detail for P-03 rev19.6 item 22)
@@ -661,7 +670,7 @@ decisions:
     unit: none
     date: 2026-10-28
     review_by: 2026-12-09
-    source: {document: P-03-rev20.0, item: "items 15 and 18 (28 Oct 2026 corrections); camera identity per P-03-rev18.7 item 15"}
+    source: {document: P-03-rev20.1, item: "items 15 and 18 (values of the P-03-rev20.0 28 Oct 2026 corrections, unchanged); camera identity per P-03-rev18.7 item 15"}
     supersedes:
       - {value: "lens 0.022 m ahead of and 0.223 m above the arm mount point", source: P-03-rev18.9 item 18}
       - {value: "pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees", source: P-03-rev18.7 item 15}
@@ -673,10 +682,10 @@ decisions:
         message: the head camera is the Stereolabs ZED Mini, SKU ZED-121210 (P-03 rev18.7 item 15)
       - pattern: '(?P<found>\b(?:0\.022 m|22 mm) ahead\b)'
         unless: 'supersed|historical|\bwas\b'
-        message: the head-camera lens is 0.042 m (42 mm) ahead of the arm mount point (P-03 rev20.0 item 18)
+        message: the head-camera lens is 0.042 m (42 mm) ahead of the arm mount point (P-03 rev20.1 item 18)
       - pattern: '(?P<found>\b(?:head[- ]camera|ZED Mini)\b[^\n]{0,60}\bpitch\b[^\n]{0,40}\bbaseline:?\s*25\b(?!\s*mm))'
         unless: 'supersed|historical|\bwas\b'
-        message: the head-camera baseline pitch is 30 degrees down (P-03 rev20.0 item 15)
+        message: the head-camera baseline pitch is 30 degrees down (P-03 rev20.1 item 15)
     verification:
       machine: another ZED model (ZED 2, ZED 2i, ZED X, ZED X Mini) without a superseded or legacy label; the lens 0.022 m or 22 mm ahead; a head-camera pitch baseline of 25 degrees
       human: {reviewer: platform-lead, evidence: supplier SKU on the OpenArm 2.0 set and the lift-carriage mount drawing with the pitch steps}
@@ -1270,7 +1279,7 @@ decisions:
     unit: none
     date: 2026-10-28
     review_by: 2026-12-09
-    source: {document: P-03-rev20.0, item: "item 17 (28 Oct 2026 corrections: head_pitch baseline hp30); column, base_plate and base_tilt per P-03-rev18.9 items 17 and 18"}
+    source: {document: P-03-rev20.1, item: "item 17 (head_pitch baseline hp30, value of the P-03-rev20.0 28 Oct 2026 corrections, unchanged); column, base_plate and base_tilt per P-03-rev18.9 items 17 and 18"}
     supersedes:
       - {value: "head_pitch hp15, hp20, hp25, hp30, hp35 (baseline hp25)", source: P-03-rev18.9 item 17}
       - {value: "mast_id (mast_1300 to mast_1450)", source: P-03-rev18.2 shoulder height}
@@ -1281,7 +1290,7 @@ decisions:
         message: mast_id is replaced by the column, base_plate, head_pitch and base_tilt IDs (P-03 rev18.9 item 17)
       - pattern: '(?P<found>\bhead_pitch\b[^\n]{0,60}\bbaseline:?\s*[`"]?(?:hp)?25\b|\bbaseline:?\s*[`"]?hp25\b)'
         unless: 'supersed|historical|\bwas\b'
-        message: the head_pitch baseline is hp30 (P-03 rev20.0 item 17)
+        message: the head_pitch baseline is hp30 (P-03 rev20.1 item 17)
     verification:
       machine: mast_id used as a current configuration ID; a head_pitch baseline of hp25
       human: {reviewer: software-lead, evidence: configuration hash inputs and dataset metadata carrying the four IDs}
@@ -1326,4 +1335,150 @@ decisions:
     verification:
       machine: none while open
       human: {reviewer: platform-lead, evidence: final hub-motor bracket design}
+    owner: platform-lead
+
+  - id: UI-MANUAL-VELOCITY-INPUT
+    title: "Proposed: UI manual velocity input and stop lock interface (source PR openamr-platform-sw #90 still open)"
+    summary: "Proposed: /ui/cmd_vel TwistStamped into twist_mux manual; /safety/stop_lock released only by stop_lock_release."
+    fix_hint: "Not scanned while Proposed; use /ui/cmd_vel (TwistStamped) and release the lock only via /safety/stop_lock_release."
+    kind: configuration
+    status: open
+    values:
+      - "Proposed until openamr-platform-sw #90 (head 710c98bc) merges and the owner accepts it; stored as status open because the schema has no Proposed status"
+      - UI manual velocity input /ui/cmd_vel, geometry_msgs/TwistStamped, into the twist_mux manual input
+      - stop lock state /safety/stop_lock, std_msgs/Bool, QoS reliable and transient local
+      - engaged by /safety/stop_lock_engage and released only by /safety/stop_lock_release, both std_srvs/Trigger
+    unit: none
+    date: 2026-10-30
+    review_by: 2026-12-11
+    source: {document: Alex decision 2026-10-30, item: "UI manual velocity input and stop lock; implementation openamr-platform-sw #90 head 710c98bc (open); P-03-rev20.1"}
+    applies_to:
+      repositories: ["openamrobot-ui", "openamr-platform-sw", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js"]
+    check:
+      - pattern: '(?P<found>/ui/cmd_vel\b[^\n]{0,60}\bgeometry_msgs/(?:msg/)?Twist\b|\bgeometry_msgs/(?:msg/)?Twist\b[^\n]{0,60}/ui/cmd_vel\b)'
+        unless: 'supersed|historical|legacy|\bnot\b|\bwas\b'
+        message: /ui/cmd_vel carries geometry_msgs/TwistStamped, not unstamped Twist (Alex decision 2026-10-30)
+      - pattern: '(?P<found>/safety/stop_lock_engage\b[^\n]{0,60}\breleas\w*|\breleas\w*[^\n]{0,60}/safety/stop_lock_engage\b)'
+        unless: 'stop_lock_release|\bonly\b|\bnot\b|never'
+        message: the stop lock is released only by /safety/stop_lock_release (Alex decision 2026-10-30)
+      - pattern: '(?P<found>/safety/stop_lock\b(?!_)[^\n]{0,60}\b(?:best[ _-]?effort|volatile)\b)'
+        unless: '\bnot\b|never|supersed'
+        message: /safety/stop_lock is reliable and transient local (Alex decision 2026-10-30)
+    verification:
+      machine: none while open; when recorded, unstamped Twist on /ui/cmd_vel, the engage service described as releasing the lock, a best-effort or volatile /safety/stop_lock
+      human: {reviewer: software-lead, evidence: "merged openamr-platform-sw #90 with ros2 topic info -v showing /safety/stop_lock reliable and transient local, and the UI publishing TwistStamped on /ui/cmd_vel into the twist_mux manual input"}
+    owner: software-lead
+
+  - id: STATUS-VOCABULARY
+    title: Robot status and UI presentation state vocabulary
+    summary: "8 robot states; SAFETY_STOPPED only from the hardwired chain; UI adds DISCONNECTED, UNKNOWN, STALE, STOPPED (SOFTWARE)."
+    fix_hint: "Derive SAFETY_STOPPED only from the hardwired chain diagnostic; show a software stop as STOPPED (SOFTWARE)."
+    kind: distinction
+    status: recorded
+    values:
+      - robot states READY, EXECUTING, WAITING, BLOCKED, RECOVERING, NEEDS_ASSISTANCE, SAFETY_STOPPED, FAULTED
+      - UI presentation states DISCONNECTED, UNKNOWN, STALE, STOPPED (SOFTWARE); the UI derives them and they are not robot states
+      - SAFETY_STOPPED comes only from the hardwired safety chain's diagnostic signal, never from the software stop, the stop lock, a watchdog or a timeout
+    unit: none
+    date: 2026-10-30
+    review_by: 2026-12-11
+    source: {document: Alex decision 2026-10-30, item: "status vocabulary; P-03-rev20.1"}
+    applies_to:
+      repositories: ["openamrobot-ui", "openamr-platform-sw", "openamr-upperbody-sw", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js"]
+    check:
+      - pattern: '(?P<found>\bSAFETY_STOPPED\b[^\n]{0,60}\b(?:stop_lock|software stop|Stop \(software\)|watchdog|timeout|heartbeat)\b|\b(?:stop_lock|software stop|Stop \(software\)|watchdog|timeout|heartbeat)\b[^\n]{0,60}\bSAFETY_STOPPED\b)'
+        unless: '\bnot\b|never|\bonly\b|hardwired|STOPPED \(SOFTWARE\)'
+        message: SAFETY_STOPPED comes only from the hardwired chain's diagnostic signal; a software stop is shown as STOPPED (SOFTWARE) (Alex decision 2026-10-30)
+    verification:
+      machine: SAFETY_STOPPED derived from the stop lock, a software stop, a watchdog, a timeout or a heartbeat
+      human: {reviewer: platform-lead, evidence: "status mapping source in platform-sw and the UI showing SAFETY_STOPPED driven only by the hardwired chain diagnostic input; the hardwired safety-chain test record, never a software PASS"}
+    owner: platform-lead
+
+  - id: STOP-SCOPE
+    title: Software stop scope and the meaning of E-stop
+    summary: "Stop (software) is a robot-side functional stop, base-only today; E-stop means only the hardwired buttons."
+    fix_hint: "Label the software stop Stop (software), base-only; keep E-stop for the hardwired buttons only."
+    kind: distinction
+    status: recorded
+    values:
+      - "\"Stop (software)\" is a robot-side functional stop, not a safety function"
+      - today it covers base motion only and is labelled base-only
+      - "target: one robot-side stop for base, arms and lift, designed by the platform lead and the safety owner (not yet designed)"
+      - "\"E-stop\" means only the hardwired buttons (E-01 rev1.5); see ESTOP-SCOPE and SAFETY-PROCUREMENT"
+    unit: none
+    date: 2026-10-30
+    review_by: 2026-12-11
+    source: {document: Alex decision 2026-10-30, item: "stop scope; E-stop meaning per E-01-rev1.5; P-03-rev20.1"}
+    applies_to:
+      repositories: ["openamrobot-ui", "openamr-platform-sw", "openamr-upperbody-sw", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.ts", "**/*.tsx", "**/*.js"]
+    check:
+      - pattern: '(?P<found>\b(?:software|soft|UI|virtual|on-?screen|panel|app)[ -]E-?stop\b)'
+        unless: '\bnot\b|never|\bno\b|supersed|historical'
+        message: E-stop means only the hardwired buttons; the UI control is Stop (software), a functional stop (E-01 rev1.5)
+      - pattern: '(?P<found>\bStop \(software\)[^\n]{0,60}\b(?:arms?|lift|whole robot|all motion)\b)'
+        unless: 'target|planned|future|\bwill\b|\bnot\b|base[- ]only'
+        message: Stop (software) covers base motion only today and is labelled base-only (Alex decision 2026-10-30)
+      - pattern: '(?P<found>\bStop \(software\)[^\n]{0,40}\bsafety (?:stop|function|rated|evidence)\b)'
+        unless: '\bnot\b|never|functional'
+        message: Stop (software) is a functional stop, not a safety function (Alex decision 2026-10-30)
+    verification:
+      machine: a software, UI, virtual or panel E-stop; Stop (software) claimed to stop arms or lift today; Stop (software) called a safety stop or function
+      human: {reviewer: platform-lead, evidence: "UI label showing Stop (software), base-only; platform-sw stop handling covering base motion; the hardwired safety-chain test record for the E-stop buttons"}
+    owner: platform-lead
+
+  - id: OPERATOR-PANEL
+    title: Operator panel
+    summary: "Operator panel: Getac ZX80, 8 inch, 1920 x 1200, landscape."
+    fix_hint: "Name the Getac ZX80 (8 inch, 1920 x 1200, landscape); label ZX10 material as superseded."
+    kind: value
+    status: recorded
+    value: Getac ZX80, 8 inch, 1920 x 1200, landscape
+    unit: none
+    date: 2026-10-28
+    review_by: 2026-12-09
+    source: {document: P-03-rev20.1, item: "item 24 (whole chest layout, including the ZX80 correction of 28 Oct 2026)"}
+    supersedes:
+      - {value: Getac ZX10, source: "earlier panel selection, not held in this register; replaced by P-03-rev20.1 item 24"}
+    applies_to:
+      repositories: ["openamrobot-ui", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.json", "**/*.ts", "**/*.tsx", "**/*.css"]
+    check:
+      - pattern: '(?P<found>\bZX10\b)'
+        unless: 'supersed|replac|historical|earlier|previous|\bwas\b'
+        message: the operator panel is the Getac ZX80, 8 inch, 1920 x 1200, landscape (P-03 rev20.1 item 24)
+      - pattern: '(?P<found>\bZX80\b[^\n]{0,60}\bportrait\b|\bportrait\b[^\n]{0,60}\bZX80\b)'
+        unless: '\bnot\b|never'
+        message: the ZX80 operator panel is used in landscape (P-03 rev20.1 item 24)
+    verification:
+      machine: ZX10 without a superseded label; the ZX80 in portrait
+      human: {reviewer: software-lead, evidence: UI layout screenshots on the ZX80 at 1920 x 1200 landscape}
+    owner: platform-lead
+
+  - id: UI-GATE-A
+    title: UI Gate A date (a UI milestone; not the hardware Gate A, Teensy and MPU6500)
+    summary: "Full UI Gate A on 6 November 2026; 30 October 2026 was the partial A1 result."
+    fix_hint: "Give the full UI Gate A as 6 November 2026; call the 30 October result partial (A1)."
+    kind: value
+    status: recorded
+    values:
+      - full UI Gate A on 6 November 2026
+      - 30 October 2026 was the partial A1 result, not the full UI Gate A
+      - UI Gate A is an openamrobot-ui milestone; it is distinct from the hardware Gate A (Teensy, MPU6500) in BASE-CONTROLLER-GATES
+    unit: none
+    date: 2026-10-30
+    review_by: 2026-12-11
+    source: {document: Alex decision 2026-10-30, item: "UI Gate A date; P-03-rev20.1"}
+    applies_to:
+      repositories: ["openamrobot-ui", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\bUI Gate A\b[^\n]{0,60}\b30 Oct(?:ober)?\b|\b30 Oct(?:ober)?\b[^\n]{0,60}\bUI Gate A\b)'
+        unless: 'partial|\bA1\b|supersed|historical|\bwas\b|6 Nov'
+        message: the full UI Gate A is on 6 November 2026; 30 October 2026 was the partial A1 result (Alex decision 2026-10-30)
+    verification:
+      machine: the full UI Gate A dated 30 October without a partial or A1 label
+      human: {reviewer: software-lead, evidence: UI Gate A test record dated 6 November 2026 and the A1 partial result of 30 October 2026}
     owner: platform-lead
