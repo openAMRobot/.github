@@ -23,7 +23,7 @@ OpenAMRobot combines:
 
 - autonomous mobile robotics
 - dual-arm manipulation
-- a lift for the arms, approved in principle for OpenAMRobot 2.0 (release gates still open): DOLD Hexalift V4 350 mm, shoulder 1000 to 1350 mm, lift base plate centre or +50 mm, arm profile 180 mm ahead of the column axis
+- a lift for the arms, approved in principle for OpenAMRobot 2.0 (release gates still open): DOLD Hexalift V4 350 mm, shoulder 1000 to 1350 mm, lift base plate centre or +50 mm, arm mount point 180 mm ahead of the column axis
 - AI-based perception
 - wearable embodied AI data collection
 - ROS 2 software infrastructure
@@ -470,7 +470,7 @@ What 2.0 brings:
 
 - Dual-arm upper body: two OpenArm 2.0 arms (7 DoF each) on a lift, shoulder height 1000 to 1350 mm
 - NVIDIA Jetson Orin NX as the single high-level computer; STM32H723 base controller over micro-ROS
-- Hub-motor drive with fail-safe holding brakes, 25.6 V LiFePO4 battery, wireless charging
+- Hub-motor drive with holding brakes (fail-safe behaviour still needs verification evidence), 25.6 V LiFePO4 battery, wireless charging
 - Safety layer with two E-stops that cut motor power
 - ROS 2, Nav2, MoveIt 2, ros2_control and the browser-based operator UI
 - Embodied AI pipeline: demonstration recording, ACT imitation-learning baseline, evaluation
