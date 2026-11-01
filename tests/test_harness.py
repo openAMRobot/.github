@@ -181,6 +181,27 @@ class Guard(unittest.TestCase):
                                "--base", self.base, "--harness-root", str(ROOT), *extra])
         return code, json.loads(out.getvalue())
 
+    def test_evidence_flag_rejects_a_pr_body_without_evidence(self):
+        # Audit 2026-11-01 P1: a pr.md holding only a title passed the guard and became a draft PR.
+        self.write("ros2/src/pkg/test/test_more.py", "def test_g():\n    assert 1 == 1\n")
+        self.commit("test: add g")
+        body = Path(tempfile.mkdtemp()) / "pr.md"
+        body.write_text("# test: add g\n", encoding="utf-8")
+        code, report = self.check("--pr-body", str(body), "--evidence")
+        self.assertEqual(code, 1)
+        self.assertTrue(any(f.startswith("PR body: Missing section: Tests") for f in report["failures"]), report)
+        head = self.git("rev-parse", "HEAD").strip()
+        body.write_text("\n".join([
+            "# test: add g", "## Work package", "Issue #5, one regression test.",
+            "## Integration Gate", "No overlapping PR; nothing reused.",
+            "## Tests", "Ran 2 tests: 2 passed. Revert run: test_g fails without the change.",
+            "## Evidence", f"Base SHA: {self.base}", f"Head SHA: {head}", "```", "python3 -m pytest -q", "```",
+            "## Not verified", "No ROS build; next step: CI quality/test.",
+            "## AI disclosure", "Claude Code via the openAMRobot harness, build mission, wrote the test.",
+            ""]), encoding="utf-8")
+        code, report = self.check("--pr-body", str(body), "--evidence")
+        self.assertEqual(code, 0, report["failures"])
+
     def test_clean_test_change_passes_as_tier_a(self):
         self.write("ros2/src/pkg/test/test_more.py", "def test_g():\n    assert 1 == 1\n")
         self.commit("test: more")

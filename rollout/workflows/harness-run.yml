@@ -379,7 +379,7 @@ jobs:
           before=$(v out/verify-base.json); after=$(v out/verify-head.json)
           counts=(); [ -n "$before" ] && [ -n "$after" ] && counts=(--tests-before "$before" --tests-after "$after")
           python3 tools/harness_guard.py --repo-root "$clone" --repository "$REPO" --base "$BASE" \
-            --harness-root . --pr-body out/pr.md --mission "$MISSION" "${counts[@]}" \
+            --harness-root . --pr-body out/pr.md --evidence --mission "$MISSION" "${counts[@]}" \
             --max-tier "$(python3 -c 'import json,os;print(json.loads(os.environ["TARGET"]).get("tier","B"))')" \
             --report "$RUNNER_TEMP/guard.json" | tee -a "$GITHUB_STEP_SUMMARY" || true
       - name: App token

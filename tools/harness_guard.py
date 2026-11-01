@@ -241,6 +241,17 @@ def run(args):
         if args.tests_after == 0:
             failures.append("zero tests executed")
 
+    if args.evidence:
+        # The PR body must pass the same section rules as quality/pr-evidence, so a draft PR is
+        # never opened with an evidence-free body (audit 2026-11-01 P1).
+        import check_pr_evidence as cpe
+        maintainers = hl.load_yaml(Path(args.harness_root) / "maintainers.yaml")
+        head = git(root, "rev-parse", "HEAD").strip()
+        pr = {"body": body, "draft": True, "head": {"sha": head}, "user": {"login": hl.bot_login()}}
+        evidence_failures, _, _ = cpe.evaluate(pr, files_changed, maintainers,
+                                               has_state=(root / "STATE.md").exists())
+        failures.extend(f"PR body: {f}" for f in evidence_failures)
+
     if any(p.startswith(".github/workflows/") for p in files_changed):
         import check_workflow_policy as cwp
         for finding in cwp.records(root):
@@ -267,6 +278,8 @@ def main(argv=None):
     parser.add_argument("--tests-after", type=int)
     parser.add_argument("--max-tier", choices=["A", "B", "C"])
     parser.add_argument("--mission", default="build")
+    parser.add_argument("--evidence", action="store_true",
+                        help="also apply tools/check_pr_evidence.py section rules to --pr-body")
     parser.add_argument("--report")
     return run(parser.parse_args(argv))
 
