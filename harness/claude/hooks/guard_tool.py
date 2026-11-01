@@ -23,9 +23,6 @@ import harness_lib as hl  # noqa: E402
 
 WRITE_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
 OUTPUT_DIR = ".harness-out"
-WRITE_VERBS = re.compile(r"(>>?|\btee\b|\bsed\s+-i|\bmv\b|\bcp\b|\brm\b|\btruncate\b|\bpatch\b|\bln\b|"
-                         r"\bgit\s+apply\b|\bgit\s+checkout\b|\bgit\s+restore\b|\bperl\s+-pi|"
-                         r"\bpython3?\s+-c\b|\bnode\s+-e\b|\bdd\b|\binstall\b)")
 READ_ONLY_BLOCK = re.compile(r"\bgit\s+(commit|add|stash|rebase|merge|cherry-pick|reset)\b")
 
 
@@ -92,6 +89,16 @@ def check_bash(command, project, repository, policy, read_only, mission=""):
     for words in subcommands(command):
         if words and re.search(r"[$`]", words[0]):
             block("the command name is built from a variable or a substitution; write it plainly")
+        words = unwrap(words)
+        if words and os.path.basename(words[0]) == "git" and any(
+                w == "-c" or w.startswith("--config-env") for w in words[1:]):
+            # git -c can set core.hooksPath (code on commit) or user.name/user.email
+            # (an invented DCO identity); the workflow configures git before the agent.
+            block("git -c and --config-env are not allowed; the harness configures git")
+        if words and os.path.basename(words[0]) in SHELLS and "-c" in words[1:]:
+            inner = words[words.index("-c") + 1:words.index("-c") + 2]
+            if inner:
+                check_bash(inner[0], project, repository, policy, read_only, mission)
     for target in write_targets(command):
         rel, absolute = relative(target, project)
         if rel is None or rel in (".", "") or rel == OUTPUT_DIR or rel.startswith(OUTPUT_DIR + "/"):
@@ -110,6 +117,30 @@ def check_bash(command, project, repository, policy, read_only, mission=""):
 PATH_LITERAL = re.compile(r"""['"]([^'"\s]*[/.][^'"\s]*)['"]""")
 ALL_ARGS = {"rm", "rmdir", "truncate", "ln", "install", "touch", "mkdir", "chmod", "chown", "unlink", "shred"}
 SEPARATORS = {";", "&&", "||", "|", "&", "\n", "(", ")", "|&"}
+# Commands that run another command: the wrapped command is judged, not the wrapper.
+WRAPPERS = {"sudo", "doas", "env", "nice", "nohup", "timeout", "command", "exec", "time", "stdbuf", "xargs"}
+WRAPPER_VALUE_OPTIONS = {"-n", "-u", "-g", "-s", "-k", "-I", "-L", "-P", "-d", "-C"}
+SHELLS = {"sh", "bash", "dash", "zsh", "ksh"}
+ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=.*")
+
+
+def unwrap(words):
+    """Drop wrapper commands (sudo, env VAR=1, timeout 5, xargs -0, ...) and leading
+    VAR=value assignments, so `sudo tee x` is judged as `tee x`."""
+    words = list(words)
+    while words:
+        head = os.path.basename(words[0])
+        if ASSIGNMENT.fullmatch(words[0]):
+            words = words[1:]
+        elif head in WRAPPERS:
+            words = words[1:]
+            while words and (words[0].startswith("-") or ASSIGNMENT.fullmatch(words[0])):
+                words = words[2:] if words[0] in WRAPPER_VALUE_OPTIONS else words[1:]
+            if head == "timeout" and words and re.fullmatch(r"[\d.]+[smhd]?", words[0]):
+                words = words[1:]
+        else:
+            break
+    return words
 INTERPRETERS = {"python", "python3", "node", "perl", "ruby", "bash", "sh"}
 # Paths that build and test tools write everywhere, also in read-only missions.
 SCRATCH = re.compile(r"^(?:build|install|log|\.verification|\.pytest_cache)(?:/|$)|(?:^|/)__pycache__(?:/|$)")
@@ -160,10 +191,22 @@ def write_targets(command):
                 continue
             clean.append(word)
             i += 1
+        clean = unwrap(clean)
         if not clean:
             continue
         cmd, args = os.path.basename(clean[0]), [w for w in clean[1:] if not w.startswith("-")]
-        if cmd == "cd":
+        if cmd in SHELLS and "-c" in clean[1:]:
+            position = clean.index("-c") + 1
+            if position < len(clean):
+                for inner in write_targets(clean[position]):
+                    add(inner)
+            continue
+        if cmd == "find" and any(w in ("-exec", "-execdir", "-delete", "-ok", "-okdir", "-fprint") for w in clean):
+            # The files find hands to -exec or -delete are not known here: judge its first root.
+            roots = [w for w in clean[1:] if not w.startswith(("-", "(", "!"))]
+            add(roots[0] if roots else ".")
+            continue
+        if cmd in ("cd", "pushd"):
             cwd = os.path.join(cwd, args[0]) if args else ""
         elif cmd in ALL_ARGS:
             for a in args:
