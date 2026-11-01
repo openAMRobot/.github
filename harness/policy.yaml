@@ -65,6 +65,22 @@ tiers:
       - "**/*joint_limits*.yaml"
       - "**/*controllers*.yaml"
       - "**/openamrobot_policy_runner/**"
+      # Robot model and simulation: every frame, pose, mass, inertia, limit and contact value
+      # (CORE_RULES rule 4). An agent adds tests in new files; a person changes the model.
+      - "**/*.xacro"
+      - "**/*.urdf"
+      - "**/*.srdf"
+      - "**/*.sdf"
+      - "**/urdf/**"
+      - "**/worlds/**"
+      - "**/meshes/**"
+      - "**/datums.yaml"
+      - "**/upstream_pins.yaml"
+      - "**/*_cartesian_limits.yaml"
+      # Launch files: launch argument names and defaults are contracts (AGENTS.md "Contracts").
+      - "**/launch/**"
+      - "**/*.launch.py"
+      - "**/*_launch.py"
       - "**/Joystick.jsx"
       - "**/StatusBar.jsx"
       - "**/robotActions.js"

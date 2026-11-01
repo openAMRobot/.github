@@ -83,6 +83,26 @@ class Tiers(unittest.TestCase):
         self.assertEqual(self.tier(".github/CODEOWNERS"), "D")
         self.assertEqual(self.tier(".claude/settings.json"), "D")
 
+    def test_robot_model_simulation_and_launch_files_are_tier_c(self):
+        # Audit 2026-11-01 P2 and P9: these passed the guard as tier B.
+        ub = "openamr-upperbody-sw"
+        for path, repo in [
+                ("ros2/src/openamrobot_bringup/launch/real_bringup.launch.py", "openamr-platform-sw"),
+                ("ros2/src/openamrobot_nav2/launch/sim_bringup_launch.py", "openamr-platform-sw"),
+                ("ros2/src/openamrobot_description/urdf/gazebo_control.xacro", "openamr-platform-sw"),
+                ("ros2/src/openamrobot_description/urdf/robot.sdf", "openamr-platform-sw"),
+                ("ros2/src/openamrobot_upperbody_description/urdf/upper_sensors.xacro", ub),
+                ("ros2/src/openamrobot_upperbody_description/config/datums.yaml", ub),
+                ("ros2/src/openamrobot_upperbody_description/config/upstream_pins.yaml", ub),
+                ("ros2/src/openamrobot_upperbody_gazebo/worlds/empty.sdf", ub),
+                ("ros2/src/openamrobot_upperbody_moveit/config/openamrobot.srdf", ub),
+                ("ros2/src/openamrobot_upperbody_moveit/config/pilz_cartesian_limits.yaml", ub)]:
+            self.assertEqual(self.tier(path, repo), "C", path)
+        # New tests next to the model stay open to agents.
+        self.assertEqual(self.tier("ros2/src/openamrobot_upperbody_description/test/test_new.py", ub), "A")
+        self.assertTrue(hl.allowed_write("ros2/src/openamrobot_upperbody_description/test/test_new.py", ub, POLICY, False)[0])
+        self.assertEqual(self.tier("ros2/src/openamrobot_upperbody_moveit/openamrobot_upperbody_moveit/acm_derive.py", ub), "B")
+
     def test_tier_c_allows_only_new_test_files(self):
         self.assertTrue(hl.allowed_write("ros2/src/openamrobot_docking/test/test_new.py", "openamr-platform-sw", POLICY, False)[0])
         self.assertFalse(hl.allowed_write("ros2/src/openamrobot_docking/test/test_old.py", "openamr-platform-sw", POLICY, True)[0])
