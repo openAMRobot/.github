@@ -9,18 +9,19 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 - Type and lifecycle: governance, active
 - Readiness: not recorded
 - Owner role: platform-lead (decisions.yaml); ci-owner (tools/, workflows)
-- Verification: `bash rollout/verify.sh`, `python3 tools/check_decisions.py --decisions decisions.yaml --maintainers maintainers.yaml --validate-only`, `python3 tools/check_agent_rules.py --canonical agent-rules/SHARED_RULES.md --file AGENTS.md`; last PASS on main not recorded here (file added 2026-11-01; branch rebased on ed98001)
+- Verification: `bash rollout/verify.sh`, `python3 tools/check_decisions.py --decisions decisions.yaml --maintainers maintainers.yaml --validate-only`, `python3 tools/check_agent_rules.py --canonical agent-rules/SHARED_RULES.md --file AGENTS.md`; last PASS on main 1678735 (2026-11-01): verify.sh 289 tests, 0 skipped; validate-only exit 0; agent rules PASS (v2)
 
 ## Register in force
 
-- `in_force`: P-03-rev20.2, 2026-11-01 (change request #77); on main ed98001 (#73 merged) it is P-03-rev20.1, 2026-10-30
+- `in_force`: P-03-rev20.2, 2026-11-01 (change request #77), on main since 1678735 (#78 merged)
 - Canonical BOM: Issue 7.14 (BOM-ISSUE-IN-FORCE), from 2026-11-01
 
 ## Current work
 
 | Work package | Branch or PR | Status | Next step |
 |---|---|---|---|
-| #77 | #78 (claude/optimistic-sagan-oqc2lu) | draft, rebased on ed98001 | owner review of the P-03 rev20.2 item 26 values and the OPERATOR-PANEL portrait change |
+| #77 | #78 | merged as 1678735 (2026-11-01) | none |
+| Repository alignment audit (1 Nov 2026) | audit/2026-11-01, AUDIT-2026-11-01.md | draft | owner decisions on the class C, D and E findings; fix PRs per repository linked in the report |
 | P-03 rev20.1 | #73 | merged as ed98001 (2026-11-01) | none; its OPERATOR-PANEL portrait check is narrowed in #78 |
 | PLATFORM-PIN | #74 | open, not merged (2026-11-01) | touches decisions.yaml; rebase after whichever merges first |
 
@@ -36,4 +37,4 @@ This repository holds the register (decisions.yaml) and its checkers; it impleme
 ## Not verified
 
 - Register values against the P-03 rev20.2 source document (held outside any repository), since 2026-11-01
-- Scans of consumer repositories against the new patterns, since 2026-11-01
+- BOM Issue 7.14 content against the register (the 2026-11-01 audit read only its metadata)
