@@ -87,7 +87,10 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     # The veto clock starts when GitHub first recorded the current head: the earliest harness review
     # comment for this head SHA (GitHub sets created_at; a new push gets a new comment). The commit's
     # committer date is only a lower bound, since an author can backdate it.
-    seen = [parse_time(c["created_at"]) for c in head_passes if c.get("created_at")]
+    # The publisher edits one review comment in place for every new head, so created_at can belong
+    # to an earlier head; updated_at is when GitHub stored the marker for this head. Use the later one.
+    seen = [max(parse_time(t) for t in (c.get("created_at"), c.get("updated_at")) if t)
+            for c in head_passes if c.get("created_at") or c.get("updated_at")]
     if not seen:
         reasons.append("veto window: no GitHub timestamp for the current head")
     else:
