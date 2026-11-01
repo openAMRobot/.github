@@ -72,7 +72,7 @@ The register audit runs in openAMRobot/audits itself, reads the snapshots from i
 
 | Tier | What | Who writes | Who merges |
 |---|---|---|---|
-| A | tests, docs, lint-only, outside protected paths | agent | the code owner; from stage 4 the merge gate after a passing review, green checks and a 24 h veto window |
+| A | tests, docs, lint-only, outside protected paths | agent | the code owner; from stage 4 the merge gate after a passing review, green checks and a 24 h veto window counted from the time GitHub recorded the current head (the harness review comment), never from the commit date |
 | B | non-safety source, configuration, launch, build scripts | agent | the code owner |
 | C | E-stop, brake, contactor, watchdog, motor enable, charge inhibit, `*safety*`, twist_mux, velocity_smoother, collision_monitor, docking, Nav2 launch and parameters, ros2_control limits, the policy runner, UI stop and motion, all firmware and hardware repositories, every .msg, .srv and .action | a person; the agent adds tests in new files and reviews | two people including the platform lead |
 | D | register, maintainers, CODEOWNERS, licences, AGENTS.md, CLAUDE.md, `.claude/`, workflow files, the harness itself | a person; the one exception is register-sync, which may draft decisions.yaml and its tests from an approved request | the owner |

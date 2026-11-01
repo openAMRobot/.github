@@ -213,8 +213,10 @@ class MergeGate(unittest.TestCase):
 
     def args(self, **over):
         pr = {"labels": [{"name": "ai-generated"}, {"name": "tier:A"}], "head": {"sha": HEAD}}
+        seen = (self.now - dt.timedelta(hours=30)).isoformat()
         values = dict(pr=pr, files=[{"filename": "tests/test_x.py"}],
-                      comments=[{"user": BOT_USER, "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}],
+                      comments=[{"user": BOT_USER, "created_at": seen,
+                                 "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}],
                       checks={"check_runs": [self.check_run("quality/test"), self.check_run("quality/pr-evidence")]}, reviews=[],
                       head_commit_time=self.now - dt.timedelta(hours=30), repository="openamrobot-manifest",
                       policy=POLICY, now=self.now, bot=BOT, statuses={"state": "pending", "statuses": []})
@@ -236,6 +238,23 @@ class MergeGate(unittest.TestCase):
                  dict(pr={"labels": [{"name": "ai-generated"}, {"name": "tier:A"}, {"name": "hold"}], "head": {"sha": HEAD}})]
         for case in cases:
             self.assertTrue(gate.decide(**self.args(**case)), case)
+
+    def test_veto_window_uses_github_time_not_committer_date(self):
+        # Review of 4b9258d: a backdated committer date must not shorten the human veto window.
+        fresh = (self.now - dt.timedelta(minutes=42)).isoformat()
+        comments = [{"user": BOT_USER, "created_at": fresh,
+                     "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}]
+        reasons = gate.decide(**self.args(comments=comments, head_commit_time=self.now - dt.timedelta(days=3)))
+        self.assertTrue(any(r.startswith("veto window") for r in reasons), reasons)
+        # Without any GitHub timestamp for the head the gate stays closed.
+        comments = [{"user": BOT_USER, "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}]
+        self.assertTrue(gate.decide(**self.args(comments=comments, head_commit_time=self.now - dt.timedelta(days=3))))
+        # A committer date in the future is still a lower bound: the later of the two counts.
+        old_seen = (self.now - dt.timedelta(hours=30)).isoformat()
+        comments = [{"user": BOT_USER, "created_at": old_seen,
+                     "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}]
+        self.assertTrue(gate.decide(**self.args(comments=comments, head_commit_time=self.now - dt.timedelta(hours=1))))
+        self.assertEqual(gate.decide(**self.args(comments=comments, head_commit_time=None)), [])
 
     def test_required_verification_must_execute_and_succeed(self):
         r = self.check_run

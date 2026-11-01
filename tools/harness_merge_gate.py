@@ -9,7 +9,10 @@ A PR qualifies only when ALL hold:
   - every required check (policy merge_gate.required_checks, per repository or default) ran on the
     head SHA and concluded success; other check runs may be success, neutral or skipped; every
     commit status on the head SHA is success and none is pending;
-  - the head commit is older than the veto window (24 hours) and the PR has no review requesting changes.
+  - the veto window (24 hours) has passed since GitHub first saw the current head: measured from the
+    creation time of the harness review comment for that head SHA, a GitHub-set timestamp written after
+    every push, never from the commit's own committer date, which the author controls;
+    and the PR has no review requesting changes.
 It prints the decisions; with --apply it marks the PR ready and squash-merges it
 with the harness App. Anything that fails a condition stays for a person.
 """
@@ -57,8 +60,10 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     if bad or not files:
         reasons.append(f"files above tier A: {bad[:5]}" if bad else "no files")
     head = pr["head"]["sha"]
-    passes = [m for m in (PASS.match(c.get("body") or "") for c in comments if hl.is_harness_comment(c, bot)) if m]
-    if not any(m["head"] == head and m["verdict"] == "pass" and m["tier"] == "A" for m in passes):
+    passes = [(m, c) for m, c in ((PASS.match(c.get("body") or ""), c) for c in comments
+                                  if hl.is_harness_comment(c, bot)) if m]
+    head_passes = [c for m, c in passes if m["head"] == head and m["verdict"] == "pass" and m["tier"] == "A"]
+    if not head_passes:
         reasons.append("no passing tier A harness review for the head SHA")
     runs = checks.get("check_runs", [])
     required = required_checks(policy, repository)
@@ -79,8 +84,16 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
             reasons.append("a commit status is pending or not green")
     if any(r.get("state") == "CHANGES_REQUESTED" for r in reviews):
         reasons.append("a reviewer requested changes")
-    if now - head_commit_time < dt.timedelta(hours=VETO_HOURS):
-        reasons.append(f"veto window: head commit younger than {VETO_HOURS} h")
+    # The veto clock starts when GitHub first recorded the current head: the earliest harness review
+    # comment for this head SHA (GitHub sets created_at; a new push gets a new comment). The commit's
+    # committer date is only a lower bound, since an author can backdate it.
+    seen = [parse_time(c["created_at"]) for c in head_passes if c.get("created_at")]
+    if not seen:
+        reasons.append("veto window: no GitHub timestamp for the current head")
+    else:
+        start = max([min(seen), head_commit_time] if head_commit_time else [min(seen)])
+        if now - start < dt.timedelta(hours=VETO_HOURS):
+            reasons.append(f"veto window: current head seen less than {VETO_HOURS} h ago")
     return reasons
 
 
