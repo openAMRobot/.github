@@ -65,7 +65,7 @@ ROS 2 based mobile manipulation platform.
 - Mobile Base
 - Depth Cameras
 - RGB Cameras
-- 3D LiDAR
+- Navigation LiDAR (SLAMTEC RPLIDAR S3, S3M1-R2)
 - IMU Sensors
 
 ### Capabilities
@@ -106,7 +106,7 @@ Vision
 # Compute Architecture
 
 ## Low-Level Control
-- STM32 / Teensy / MCU
+- STM32H723ZG base controller (2.0); Teensy only in the Gate A legacy configuration and as the release fallback
 - Motors
 - Encoders
 - Safety I/O

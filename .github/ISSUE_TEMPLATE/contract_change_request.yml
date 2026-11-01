@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Use this form before changing a contract consumed by another repository, node, service, tool, or operator surface:
-        messages, services, actions, schemas, topic names, launch argument names and configuration IDs (for example mast_1350).
+        messages, services, actions, schemas, topic names, launch argument names and configuration IDs (for example base_plate bp050).
         The change lands in one PR that updates the contract package and every consumer together; that PR links this issue
         in its Work package section.
 
@@ -41,7 +41,7 @@ body:
     attributes:
       label: Decisions register entry
       description: The decisions.yaml ID this request changes, or "none" for a contract that is not a recorded decision.
-      placeholder: "MAST-INSTALL-HEIGHT / none"
+      placeholder: "LIFT / none"
     validations:
       required: true
 
