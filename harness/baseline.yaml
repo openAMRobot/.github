@@ -12,11 +12,11 @@
 # names revisions only, never values.
 schema_version: 1
 declared_by: platform-lead
-date: 2026-10-28
-p03: P-03-rev20.0          # Decision Addendum, 27 Oct 2026 with the 28 Oct corrections
-e01: E-01-rev1.5           # Safety and Power Distribution
-m01: M-01-rev19.6          # Mechanical CAD Work Package
-bom: "7.14"                # BOM issue named canonical by P-03 rev20.0
+date: 2026-11-01
+p03: P-03-rev20.2          # Decision Addendum, 1 Nov 2026 (item 26)
+e01: E-01-rev1.6           # Safety and Power Distribution
+m01: M-01-rev19.7          # Mechanical CAD Work Package
+bom: "7.14"                # BOM issue named canonical by P-03 rev20.2 (27 Oct 2026, with the 1 Nov changes)
 use_case_1: rev18.5        # Use_Case_1 requirements
 # Plain-text snapshots for the weekly register audit, in the private openAMRobot/audits
 # repository (documents are never copied into a public repository). harness/README.md
@@ -24,7 +24,7 @@ use_case_1: rev18.5        # Use_Case_1 requirements
 snapshots:
   repository: audits
   branch: baseline
-  files: []                # e.g. {document: P-03-rev20.0, path: baseline/P-03-rev20.0.txt, sha256: <hash>}
+  files: []                # e.g. {document: P-03-rev20.2, path: baseline/P-03-rev20.2.txt, sha256: <hash>}
 stale:                     # documents known to trail the baseline; agents must not use them for values
   - {document: P-02-rev19.2, reason: "names P-03 rev19.7 and BOM 7.10"}
   - {document: D-02-rev18.2, reason: "names P-03 rev18.5 and BOM 7.3; process rules still apply"}

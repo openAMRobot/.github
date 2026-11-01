@@ -48,13 +48,13 @@ decisions.yaml is the primary register (owner decision, 29 Oct 2026). The Drive 
 6. **Consumers follow automatically.** The decision follow-up compares decisions.yaml before and after the merge and scans every repository for the changed entries. It opens one consumer issue per repository: ai-ready for tier A and B lines, needs-human:safety for tier C. Build missions fix them, and the Thursday Watchdog scan confirms.
 7. **Weekly audit.** The register audit compares the register with every repository (including values the check patterns miss) and with the document snapshots. Mismatches become REG findings for the platform lead, kept in the private audits repository when they quote a document.
 
-While decisions.yaml `in_force` differs from `baseline.yaml` `p03`, register and documents are out of sync. Build missions skip every issue that names a register entry, and the digest shows the mismatch first. Today the register says P-03 rev19.6 and the baseline says P-03 rev20.0.
+While decisions.yaml `in_force` differs from `baseline.yaml` `p03`, register and documents are out of sync. Build missions skip every issue that names a register entry, and the digest shows the mismatch first. On 1 Nov 2026 both say P-03 rev20.2. The register still lists E-01 rev1.5 as its newest E-01 source while the baseline names E-01 rev1.6; the register audit reports that until the register records it.
 
 ### Document snapshots
 
 CI never reads Drive. For the weekly register audit, the platform lead (or a Claude session with the Google Drive connector) exports each controlling document as plain text when a revision is issued:
 
-1. Export the Google Doc as plain text (File, Download, Plain text), named `P-03-rev20.0.txt` (the same for E-01, M-01 and the Use_Case_1 requirements).
+1. Export the Google Doc as plain text (File, Download, Plain text), named `P-03-rev20.2.txt` (the same for E-01, M-01 and the Use_Case_1 requirements).
 2. Commit it to branch `baseline` of openAMRobot/audits under `baseline/`.
 3. Add `{document, path, sha256}` (sha256 of the file) to `snapshots.files` in `harness/baseline.yaml`, and update the revision fields, in one reviewed PR.
 
@@ -151,7 +151,7 @@ Metrics (digest daily, retro weekly) measure value, not volume: defects found an
 
 Seeded from the 29 Oct software plan and the 29 Oct external audit, and kept in step with open PRs:
 
-1. Register reconciliation to P-03 rev20.0 and BOM 7.14 (human; the register-sync mission drafts it once the request is approved).
+1. Register follow-up to P-03 rev20.2 item 26 and E-01 rev1.6 (the register reached rev20.2 with #73 and #78; remaining entries go through change requests, which the register-sync mission drafts once approved).
 2. openamrobot-manifest: once the owner decides the workspace boundary in issue #8, a regression check that the chosen entry point discovers the intended package set and rejects duplicate package names.
 3. openamrobot-interfaces: negative compatibility tests for the type-hash gate after PR #29 settles.
 4. openamr-platform-sw: review PR #101 (it enables `verify: true` for #98; do not duplicate it), then the test items PSW-03, PSW-08 and PSW-15 from PR #103.
