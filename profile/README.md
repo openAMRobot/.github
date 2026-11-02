@@ -6,7 +6,7 @@ OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem i
 
 An open-source mobile base with a 350 mm lift and two [OpenArm](https://github.com/enactic/openarm) 2.0 arms, combined in one URDF with MoveIt and Gazebo.
 
-**[Explore the model](https://github.com/openAMRobot/openamr-upperbody-sw)** · **[See the roadmap](https://docs.openamrobot.ai/assets/roadmap/)** · **[Packages and integration sprint](https://botshare.ai/openamrobot?utm_source=github&utm_medium=org#products)**
+**[Explore the 3D model](https://docs.openamrobot.ai/assets/roadmap/robot.html)** · **[Combined model (URDF, MoveIt, Gazebo)](https://github.com/openAMRobot/openamr-upperbody-sw)** · **[See the roadmap](https://docs.openamrobot.ai/assets/roadmap/)** · **[Pre-order and packages](https://botshare.ai/openamrobot?utm_source=github&utm_medium=org#products)**
 
 > [!IMPORTANT]
 > ### Pre-order OpenAMRobot 2.0 at founder prices
