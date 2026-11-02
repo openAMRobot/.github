@@ -513,6 +513,52 @@ class RealRegister(unittest.TestCase):
                      "Charging uses the TZBOT WCM-500-24 at 28.4 V.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
 
+    # Alex decision 2026-11-02: manual SB50 charging with the Daly charger at any time; wireless prepared.
+    def test_daly_charger_is_not_bench_only(self):
+        repo = "openamr-platform-hw"
+        for text in ("The Daly 28.4 V / 20 A charger is bench only.\n",
+                     "Bench-only charging with the Daly PWR-005.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CHARGING"], text)
+        for text in ("Manual charging through SB50 with the Daly 28.4 V / 20 A charger at any time.\n",
+                     "The Daly charger was bench only (superseded on 2 Nov 2026).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        values = " ".join(by_id["CHARGING"]["values"])
+        for phrase in ("prepared in OpenAMRobot 2.0", "170 x 150 x 52 mm", "bottom 50 mm above the floor",
+                       "KCHG", "installed physically later", "available at any time", "turns 180 degrees"):
+            self.assertIn(phrase, values)
+        self.assertIn("turns 180 degrees", by_id["DOCK-NO-CONTACTS"]["value"])
+
+    def test_battery_in_two_trays(self):
+        for text in ("Battery: a single row of 8 cells across the robot.\n",
+                     "The 8 LF105 cells across the robot at the rear.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), ["BATTERY-PLACEMENT"], text)
+        for text in ("8 x LF105 in two removable trays of 4 cells in the rear side pockets, joined by PWR-018.\n",
+                     "The single row of 8 cells was replaced by two trays.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
+
+    def test_2026_11_02_values_recorded(self):
+        data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertIn("Alex decision 2026-11-02", data["sources"])
+        self.assertIn("to be entered in P-03", data["in_force"]["note"])
+        by_id = {d["id"]: d for d in self.decisions}
+        changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
+                   "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
+        for did in changed:
+            self.assertEqual(by_id[did]["source"]["document"], "Alex decision 2026-11-02", did)
+            self.assertEqual(by_id[did]["date"], cd.as_date("2026-11-02"), did)
+            self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
+        lift = " ".join(by_id["LIFT"]["values"])
+        for phrase in ("verified in simulation", "IME12-04BNSZC0S", "120 / 295 / 470 mm",
+                       "425 x 100 x 10 mm, 6082-T6", "centre-frame arch"):
+            self.assertIn(phrase, lift)
+        self.assertNotIn("lift approved in principle", by_id["LIFT"]["values"])
+        self.assertTrue(any("wheel radius 0.100 m" in v and "2 mm tyre compression" in v
+                            for v in by_id["FRAMES-REP105"]["values"]))
+        tablet = " ".join(by_id["TABLET-MOUNT"]["values"])
+        for phrase in ("40 mm lower", "10 mm below the Getac bottom edge", "no rotation and no landscape"):
+            self.assertIn(phrase, tablet)
+
     def test_bms_run_ok_dropped(self):
         repo = "openamr-platform-fw"
         self.assertEqual(self.ids("docs/a.md", "The BMS RUN_OK contact (D26) opens on a fault.\n", repo),
@@ -674,7 +720,7 @@ class RealRegister(unittest.TestCase):
     # P-03 rev20.2 item 26: values recorded without a new pattern.
     def test_rev20_2_values_in_force(self):
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(data["in_force"], {"source": "P-03-rev20.2", "date": cd.as_date("2026-11-01")})
+        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.2", cd.as_date("2026-11-01")))
         by_id = {d["id"]: d for d in self.decisions}
         self.assertTrue(any("DDR-240B-24" in v and "F-LIFT 15 A" in v for v in by_id["POWER-RAILS"]["values"]))
         self.assertTrue(any("6 Nm holding" in v for v in by_id["DRIVETRAIN"]["values"]))
@@ -698,13 +744,16 @@ class RealRegister(unittest.TestCase):
         # Outside BOM and procurement files the rule is not scanned.
         self.assertEqual(self.ids("docs/a.md", "PSU-01 single-source part, selected.\n", "x"), [])
 
+    # Alex decision 2026-11-02: ZX80 portrait only on a fixed mount; no rotation, no landscape.
     def test_tablet_mount(self):
-        for text in ("The ZX80 tablet default position is portrait.\n",
-                     "Portrait is the default for the tablet mount.\n",
+        for text in ("The ZX80 tablet default position is landscape.\n",
+                     "Tablet mount: landscape (default, 234 x 149.8 mm) or portrait (149.8 x 234 mm).\n",
+                     "The ZX80 sits on a rotatable mount.\n",
                      "The tablet position is a configuration ID.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), ["TABLET-MOUNT"], text)
-        for text in ("The ZX80 tablet default position is landscape; portrait is the second locked position.\n",
-                     "Tablet mount: landscape (default, 234 x 149.8 mm) or portrait (149.8 x 234 mm).\n",
+        for text in ("The ZX80 tablet is in portrait (149.8 x 234 mm) on a fixed mount.\n",
+                     "The ZX80 tablet has no landscape position and no rotation.\n",
+                     "The rotatable mount with a landscape default is superseded.\n",
                      "The tablet position is a mount setting, not a configuration ID.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
@@ -780,17 +829,21 @@ class RealRegister(unittest.TestCase):
                      "Planning groups: arm, arm+lift.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
-    def test_head_camera_lens_42_mm_ahead(self):
-        # P-03 rev20.1 item 18 (value of the rev20.0 28 Oct 2026 correction): lens 42 mm ahead of the arm mount point, was 22 mm.
+    def test_head_camera_lens_57_mm_ahead(self):
+        # Alex decision 2026-11-02: lens 57 mm ahead of the arm mount point, was 42 mm (P-03 rev20.1 item 18), before that 22 mm.
         repo = "openamrobot-docs"
         for text in ("Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
-                     "The ZED Mini lens sits 22 mm ahead of the shoulder.\n"):
+                     "The ZED Mini lens sits 22 mm ahead of the shoulder.\n",
+                     "Head-camera lens 0.042 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The ZED Mini lens sits 42 mm ahead of the arm mount.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), ["HEAD-CAMERA-IDENTITY"], text)
-        for text in ("Head-camera lens 0.042 m ahead of and 0.223 m above the arm mount point.\n",
-                     "The lens was 22 mm ahead of the shoulder before the 28 Oct correction.\n",
-                     "Lens 0.022 m ahead (superseded by 42 mm).\n",
+        for text in ("Head-camera lens 0.057 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The lens was 42 mm ahead of the arm mount before the 2 Nov decision.\n",
+                     "Lens 0.042 m ahead (superseded by 57 mm).\n",
                      "Historical layout: lens 22 mm ahead of the shoulder.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertIn("lens 0.057 m ahead of and 0.223 m above", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
 
     def test_head_camera_pitch_baseline_30(self):
         # P-03 rev20.1 items 15 and 17 (values of the rev20.0 28 Oct 2026 corrections): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
@@ -816,12 +869,24 @@ class RealRegister(unittest.TestCase):
                      "Chest E-stop: from the OpenArm kit.\n",
                      "Second E-stop from the OpenArm 2.0 kit.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), ["SAFETY-PROCUREMENT"], text)
-        for text in ("Second E-stop: Schneider XB4BS8445 with ZBE-102 on the rear face of the static lift column.\n",
+        for text in ("Second E-stop: Schneider XB4BS8445 with ZBE-102 on top of the moving adapter plate, button up.\n",
                      "The chest button was from the OpenArm kit.\n",
                      "Chest E-stop from the OpenArm kit (superseded by P-03 rev20.0 item 24).\n",
                      "It replaces the OpenArm kit button.\n",
                      "Historical: the OpenArm kit chest button.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+
+    def test_second_estop_on_the_adapter_plate(self):
+        # Alex decision 2026-11-02: second E-stop on top of the moving adapter plate; no longer on the static column.
+        repo = "openamrobot-docs"
+        for text in ("Second E-stop: Schneider XB4BS8445 with ZBE-102 on the rear face of the static lift column.\n",
+                     "The E-stop on the static column, close to its upper edge.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["SAFETY-PROCUREMENT"], text)
+        for text in ("Second E-stop on the adapter plate, behind the arm post; no longer on the static column.\n",
+                     "The second E-stop was on the static lift column (superseded).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        self.assertIn("0.90 / 1.08 / 1.25 m", " ".join(by_id["SAFETY-PROCUREMENT"]["values"]))
 
     def test_p03_rev20_1_values_are_cited(self):
         # Owner decision 30 Oct 2026: P-03 rev20.1 values stay cited (30 degrees, hp30, ZX80 panel);
@@ -830,11 +895,14 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(data["in_force"]["source"], "P-03-rev20.2")
         self.assertIn("P-03-rev20.1", data["sources"])
         by_id = {d["id"]: d for d in self.decisions}
-        for did in ("HEAD-CAMERA-IDENTITY", "CONFIG-IDS", "OPERATOR-PANEL"):
-            self.assertEqual(by_id[did]["source"]["document"], "P-03-rev20.1", did)
+        self.assertEqual(by_id["CONFIG-IDS"]["source"]["document"], "P-03-rev20.1")
+        # Alex decision 2026-11-02 is the primary source; the rev20.1 values stay cited in the item.
+        for did in ("HEAD-CAMERA-IDENTITY", "OPERATOR-PANEL"):
+            self.assertEqual(by_id[did]["source"]["document"], "Alex decision 2026-11-02", did)
+            self.assertIn("P-03-rev20.1", by_id[did]["source"]["item"], did)
         self.assertIn("baseline 30 degrees", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
         self.assertIn("(baseline hp30)", " ".join(by_id["CONFIG-IDS"]["values"]))
-        self.assertTrue(by_id["OPERATOR-PANEL"]["source"]["item"].startswith("item 24"))
+        self.assertIn("item 24", by_id["OPERATOR-PANEL"]["source"]["item"])
         self.assertIn("ZX80", by_id["OPERATOR-PANEL"]["source"]["item"])
 
     def test_ui_manual_velocity_input_is_proposed_and_not_scanned(self):
@@ -889,26 +957,27 @@ class RealRegister(unittest.TestCase):
         # P-03 rev20.1 item 24: Getac ZX80, 8 inch, 1920 x 1200; supersedes ZX10.
         repo = "openamrobot-ui"
         self.assertEqual(self.ids("docs/a.md", "Operator panel: Getac ZX10.\n", repo), ["OPERATOR-PANEL"])
-        for text in ("Operator panel: Getac ZX80, 8 inch, 1920 x 1200, landscape.\n",
+        for text in ("Operator panel: Getac ZX80, 8 inch, 1920 x 1200, portrait.\n",
                      "The ZX10 was replaced by the ZX80.\n",
                      "Getac ZX10 (superseded).\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         by_id = {d["id"]: d for d in self.decisions}
-        self.assertIn("landscape by default with a portrait second position", by_id["OPERATOR-PANEL"]["value"])
+        self.assertIn("portrait only (149.8 mm wide x 234 mm tall) on a fixed mount", by_id["OPERATOR-PANEL"]["value"])
 
-    def test_zx80_portrait_second_position_versus_default(self):
-        # P-03 rev20.2 item 26: portrait is the second locked position; only portrait as the default is flagged.
+    def test_zx80_portrait_only_no_landscape(self):
+        # Alex decision 2026-11-02: portrait only on a fixed mount; landscape or rotation presented as current is flagged.
         repo = "openamrobot-ui"
-        second = ("Layout for the ZX80 in portrait.\n",
-                  "ZX80: landscape by default; portrait is the second locked position.\n",
-                  "The ZX80 rotates to portrait (second locked position, 149.8 x 234 mm).\n")
-        default = ("The ZX80 default orientation is portrait.\n",
-                   "Layout for the ZX80 in portrait by default.\n",
-                   "Portrait is the default for the ZX80.\n")
-        for text in second:
+        good = ("Layout for the ZX80 in portrait.\n",
+                "The ZX80 default orientation is portrait.\n",
+                "ZX80: portrait only, no landscape position.\n",
+                "The ZX80 landscape default was superseded on 2 Nov 2026.\n")
+        bad = ("ZX80: landscape by default; portrait is the second locked position.\n",
+               "Layout for the ZX80 in landscape.\n",
+               "The ZX80 rotating mount locks in two positions.\n")
+        for text in good:
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
             self.assertEqual(self.ids("src/layout.ts", "// " + text, repo), [], text)
-        for text in default:
+        for text in bad:
             # One finding per line: TABLET-MOUNT in text files, OPERATOR-PANEL in UI code.
             self.assertEqual(self.ids("docs/a.md", text, repo), ["TABLET-MOUNT"], text)
             self.assertEqual(self.ids("src/layout.ts", "// " + text, repo), ["OPERATOR-PANEL"], text)
