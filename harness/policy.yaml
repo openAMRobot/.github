@@ -267,7 +267,7 @@ labels:
   "needs-human:contract": contract change request needed
   "needs-human:decision": an owner decision
   "needs-human:hardware": bench, HIL or physical test
-  "needs-human:triage": a maintainer confirms the finding (consumer issues from text matches)
+  "needs-human:triage": a maintainer confirms the finding (consumer issues from text matches), then removes needs-human and needs-human:triage and adds ai-ready
   "needs-human:stuck": the harness failed twice
   "needs-human:flaky": flaky test
   "needs-human:security": security or licence

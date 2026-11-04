@@ -152,7 +152,8 @@ def consumer_issue(policy, repository, findings, ids, pr):
     tier = hl.highest(list(tiers))
     # Text matches are evidence of a consumer, not proof (audit 2026-11-01 P8: every planned
     # line for item 26 was history or provenance text). A maintainer confirms the issue by
-    # replacing needs-human:triage with ai-ready; only then may the build mission take it.
+    # removing needs-human and needs-human:triage and adding ai-ready; only then may the build
+    # mission take it (harness_select rejects every label starting with needs-human).
     labels = ["harness-followup", "register-update-needed", "needs-human", f"tier:{tier}"]
     labels.append("needs-human:safety" if tier in ("C", "D") else "needs-human:triage")
     body = "\n".join([
@@ -163,7 +164,8 @@ def consumer_issue(policy, repository, findings, ids, pr):
         "Acceptance: check_decisions.py reports 0 contradictions for these entries in this repository.",
         "Tier C or D lines are changed by a person." if tier in ("C", "D") else
         "A maintainer confirms which lines are real consumers (history and provenance text are not), "
-        "then replaces the label needs-human:triage with ai-ready; the harness takes the issue after that."])
+        "then removes both labels needs-human and needs-human:triage and adds ai-ready; the harness "
+        "takes the issue after that (any needs-human label keeps it out of the build queue)."])
     return {"title": f"[register] update consumers of {', '.join(ids)[:120]}", "body": body, "labels": labels}
 
 

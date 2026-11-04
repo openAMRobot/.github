@@ -240,6 +240,25 @@ class Followup(unittest.TestCase):
         self.assertIn("needs-human:safety", safety["labels"])
         self.assertNotIn("ai-ready", safety["labels"])
 
+    def test_consumer_issue_handoff_instruction_unblocks_the_selector(self):
+        # Review finding 5 (4 Nov 2026): the issue told the maintainer to replace
+        # needs-human:triage with ai-ready, but the umbrella needs-human stayed and the
+        # selector rejects every needs-human label, so the handoff could never work.
+        policy = json.loads(json.dumps(POLICY))
+        policy["repositories"]["openamr-platform-sw"]["build"] = True
+        issue = dfu.consumer_issue(policy, "openamr-platform-sw",
+                                   [{"file": "README.md", "line": 3, "id": "COMPUTE", "found": "Pi"}], ["COMPUTE"],
+                                   merged_pr(5, "", ".github"))
+        self.assertIn("removes both labels needs-human and needs-human:triage and adds ai-ready", issue["body"])
+        self.assertNotIn("replaces the label needs-human:triage with ai-ready", issue["body"])
+        # Following the instruction leaves no needs-human label and the build selector takes it.
+        names = [n for n in issue["labels"] if n not in ("needs-human", "needs-human:triage")] + ["ai-ready"]
+        candidate = {"repository": "openamr-platform-sw", "number": 5, "state": "open", "title": "t", "body": "",
+                     "labels": [{"name": n} for n in names]}
+        result = sel.select(policy, ROOT, [candidate], [], True, 2)
+        self.assertTrue(result["run"], result)
+        self.assertEqual((result["repository"], result["issue"]), ("openamr-platform-sw", 5))
+
 
 class RegisterSync(unittest.TestCase):
     lead = hl.load_yaml(ROOT / "maintainers.yaml")["roles"]["platform-lead"]["handle"]
