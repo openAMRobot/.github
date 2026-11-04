@@ -23,8 +23,9 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 | #77 | #78 (claude/optimistic-sagan-oqc2lu) | draft, rebased on ed98001 | owner review of the P-03 rev20.2 item 26 values and the OPERATOR-PANEL portrait change |
 | P-03 rev20.1 | #73 | merged as ed98001 (2026-11-01) | none; its OPERATOR-PANEL portrait check is narrowed in #78 |
 | harness | #70 (harness/autopilot-2026-10-30) | in review, f4e0837 plus review fixes 5 | owner review of the six review fixes, then merge |
-| Profile 2.0 block | #81 (claude/bold-franklin-qu0f6i) | ready for review (2026-11-02); four links incl. 3D model viewer | owner review; LIFT register wording "approved in principle" goes to a separate contract change request |
-| #83 | decisions/2026-11-02 | draft PR, based on a9e229e | owner review of the 2 Nov 2026 values (CHARGING, DOCK-NO-CONTACTS, OPERATOR-PANEL, TABLET-MOUNT, HEAD-CAMERA-IDENTITY, SAFETY-PROCUREMENT, BATTERY-PLACEMENT, LIFT, FRAMES-REP105); electrical owner reviews the SAFETY-PROCUREMENT position; unblocks openamrobot-docs #68 |
+| Profile 2.0 block | #81 | merged as d99264a (2026-11-04) | none; the LIFT register wording was already updated in #84 |
+| Decisions of 3 Nov 2026 | this PR (decisions/2026-11-03) | ready for review (2026-11-04) | owner review: K1/K2 GX11CAC decided, rear power module, BMS side gap, FB-A/FB-B, receiver 15 mm gap, flag rod guide |
+| #83 | #84 | merged as 5ed600e (2026-11-02) | none; the 2 Nov 2026 values are in force |
 | PLATFORM-PIN | #74 | pin 131e500fc4e5afc9f648cbd7dbf5b416280761fb (2.0 base, P-03 rev20.1 item 25 D7), validated by openamr-upperbody-sw #21; merged with this PR (2026-11-01) | none; touches decisions.yaml only |
 
 ## Decisions this repository implements
