@@ -100,16 +100,26 @@ class RegisterAuditBudgetAndStage(unittest.TestCase):
 
 
 class ConcurrencyPerMission(unittest.TestCase):
-    def test_agent_and_publish_serialise_on_the_routed_mission(self):
-        # Review finding 6 (4 Nov 2026): the workflow group used the cron expression for scheduled
-        # runs and the input for manual runs, so two build runs could take the same issue.
+    # Route step mapping, mirrored by the workflow-level group expression.
+    MISSION_OF = {"7 5 * * 1-5": "triage", "37 5 * * 1-5": "build", "37 11 * * 1-5": "build",
+                  "0 6-20/2 * * 1-5": "review", "47 4 * * *": "sim-analysis", "52 5 * * *": "decision-followup",
+                  "22 6 * * 1-5": "register-sync", "23 3 * * 1": "audit", "17 15 * * 5": "retro"}
+
+    def test_group_is_the_mission_for_scheduled_and_manual_runs(self):
+        # Review finding 6 (4 Nov 2026): the group was the raw cron for scheduled runs and the
+        # input for manual ones, so two build runs could take the same issue.
         wf = hl.load_yaml(RUN)
-        self.assertNotIn("concurrency", wf, "no trigger-based group at workflow level")
+        group = wf["concurrency"]["group"]
+        self.assertFalse(wf["concurrency"]["cancel-in-progress"])
+        crons = [entry["cron"] for entry in wf[True]["schedule"]]
+        self.assertEqual(set(crons), set(self.MISSION_OF), "every cron in the workflow is mapped here")
+        for cron in crons:
+            self.assertIn(f"github.event.schedule == '{cron}' && '{self.MISSION_OF[cron]}'", group, cron)
+        self.assertIn("|| inputs.mission", group)
+        self.assertNotIn("github.event.schedule ||", group, "no bare fallback to the raw cron")
+        self.assertNotIn("github.event.schedule }}", group)
         for name in ("agent", "publish"):
-            group = wf["jobs"][name]["concurrency"]["group"]
-            self.assertIn("needs.route.outputs.mission", group, name)
-            self.assertNotIn("github.event.schedule", group, name)
-            self.assertFalse(wf["jobs"][name]["concurrency"]["cancel-in-progress"], name)
+            self.assertNotIn("concurrency", wf["jobs"][name], "the workflow-level group covers both jobs")
 
 
 class RegisterAuditEgress(unittest.TestCase):

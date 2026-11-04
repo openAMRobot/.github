@@ -28,6 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness_gh  # noqa: E402
 import harness_lib as hl  # noqa: E402
+import harness_select as hs  # noqa: E402
 import sync_audit_issues as sai  # noqa: E402
 
 ESCALATIONS = {"stuck", "safety", "contract", "register", "decision", "hardware", "flaky", "security"}
@@ -164,6 +165,14 @@ class Publisher:
             title = clip(title, 200)
             suffix = f"-{self.run_id}" if self.run_id else ""
             branch = f"{'register' if mission == 'register-sync' else 'ai'}/{number}-{slug(title)}{suffix}"
+            if mission == "build":
+                # Re-check the selection against the live issue and open PRs right before the
+                # branch and PR exist: another run (manual next to scheduled) may have claimed the
+                # issue since the plan job selected it.
+                claimed = self.claimed_by_another_run(repo, number, f"ai-attempt:{attempt}")
+                if claimed:
+                    self.plan.append(f"issue claimed by another run: {claimed}; no branch, no PR")
+                    return
             self.act(f"push {repo} {branch}", self.push_bundle, repo, branch)
             pr = self.act(f"draft PR {repo}: {title}", self.gh.post, f"/repos/{self.org}/{repo}/pulls",
                           {"title": title, "head": branch, "base": self.default_branch(repo) if self.apply else "main",
@@ -195,6 +204,19 @@ class Publisher:
                                       f"Found by the harness while working on {repo}#{number} ({run}). "
                                       "Triage decides whether an agent or a person takes it.",
                                       {"harness-followup"})
+
+    def claimed_by_another_run(self, repo, number, own_attempt_label):
+        """The selector's eligibility predicate on the live issue and the repository's open PRs;
+        a string says why the issue is no longer ours, None means it still is. Our own attempt
+        label, added at the start of this publish, does not count."""
+        issue = self.gh.get(f"/repos/{self.org}/{repo}/issues/{number}")
+        names = {l["name"] for l in issue.get("labels", [])} - {own_attempt_label}
+        live = dict(issue, repository=repo, number=number, labels=sorted(names))
+        if "ai-ready" not in names or live.get("state", "open") != "open":
+            return "no longer an open ai-ready issue"
+        pulls = [dict(p, repository=repo) for p in self.gh.paged(f"/repos/{self.org}/{repo}/pulls?state=open&per_page=100")]
+        open_ai = sum(1 for p in pulls if "ai-generated" in hs.labels(p))
+        return hs.ineligible(live, hs.taken_issues(pulls), open_ai, self.policy["budgets"]["build"])
 
     def default_branch(self, repo):
         return self.gh.get(f"/repos/{self.org}/{repo}")["default_branch"]

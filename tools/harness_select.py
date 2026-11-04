@@ -47,6 +47,48 @@ def linked_issue(pr):
     return int(m.group(1)) if m else None
 
 
+def taken_issues(pulls):
+    """(repository, issue) pairs an open PR already works on: a harness PR linking the issue, a
+    branch named for it, or any PR (by a person too) naming it in its title or body."""
+    taken = set()
+    for p in pulls:
+        if p.get("state", "open") != "open":
+            continue
+        if "ai-generated" in labels(p) and linked_issue(p):
+            taken.add((p["repository"], linked_issue(p)))
+        m = re.match(r"^(?:ai|register)/(\d+)-", ((p.get("head") or {}).get("ref") or ""))
+        if m:
+            taken.add((p["repository"], int(m.group(1))))
+        # Audit 2026-11-01, P1: a person's PR on the issue means a harness PR would duplicate it.
+        text = (p.get("title") or "") + "\n" + (p.get("body") or "")
+        for number in re.findall(r"(?:\(#(\d+)\)|\b(?:closes|fixes|resolves|refs|addresses)\s+#(\d+))", text, re.I):
+            taken.add((p["repository"], int(number[0] or number[1])))
+    return taken
+
+
+def ineligible(issue, taken, open_in_repo, budget, drift_ids=(), in_force="", p03=""):
+    """Why an ai-ready issue may not be built now, or None. Shared by the selector and by the
+    publisher, which re-checks right before it writes (re-review 4 Nov 2026: two runs could
+    select the same issue; the selector only sees a claim once a PR or label is published)."""
+    names = labels(issue)
+    if names & {"no-ai", "hold"} or any(n.startswith("needs-human") for n in names):
+        return "paused or waiting for a person"
+    if "tier:C" in names:
+        return "tier C: a person writes it"
+    if open_in_repo >= budget["open_ai_prs_per_repository"]:
+        return "repository has its limit of open ai-generated PRs"
+    if (issue["repository"], issue["number"]) in taken:
+        return "an open PR already covers it"
+    if issue.get("assignees"):
+        return "assigned to a person"
+    if sum(1 for n in names if n.startswith("ai-attempt:")) >= budget["attempts_per_issue"]:
+        return "attempt limit reached"
+    text = (issue.get("title") or "") + " " + (issue.get("body") or "")
+    if drift_ids and set(drift_ids) & set(re.findall(r"\b[A-Z][A-Z0-9]{2,}(?:-[A-Z0-9]+)*\b", text)):
+        return f"names a register entry while the register ({in_force}) trails the baseline ({p03})"
+    return None
+
+
 def select(policy, root, issues, pulls, enabled, stage):
     if not enabled:
         return {"run": False, "reason": "HARNESS_ENABLED is not true"}
@@ -65,19 +107,7 @@ def select(policy, root, issues, pulls, enabled, stage):
     per_repo = {}
     for p in open_ai:
         per_repo[p["repository"]] = per_repo.get(p["repository"], 0) + 1
-    taken = {(p["repository"], linked_issue(p)) for p in open_ai}
-    for p in pulls:  # a branch named for the issue is taken even if the body lost its link
-        m = re.match(r"^(?:ai|register)/(\d+)-", ((p.get("head") or {}).get("ref") or ""))
-        if m and p.get("state", "open") == "open":
-            taken.add((p["repository"], int(m.group(1))))
-    # Any open PR, by a person too, that names the issue in its title or links it in its body
-    # already works on it; a harness PR would duplicate that work (audit 2026-11-01, P1).
-    for p in pulls:
-        if p.get("state", "open") != "open":
-            continue
-        text = (p.get("title") or "") + "\n" + (p.get("body") or "")
-        for number in re.findall(r"(?:\(#(\d+)\)|\b(?:closes|fixes|resolves|refs|addresses)\s+#(\d+))", text, re.I):
-            taken.add((p["repository"], int(number[0] or number[1])))
+    taken = taken_issues(pulls)
 
     candidates, skipped = [], []
     for issue in issues:
@@ -86,21 +116,8 @@ def select(policy, root, issues, pulls, enabled, stage):
             continue
         if "ai-ready" not in names:
             continue
-        why = None
-        if names & {"no-ai", "hold"} or any(n.startswith("needs-human") for n in names):
-            why = "paused or waiting for a person"
-        elif "tier:C" in names:
-            why = "tier C: a person writes it"
-        elif per_repo.get(repo, 0) >= budget["open_ai_prs_per_repository"]:
-            why = "repository has its limit of open ai-generated PRs"
-        elif (repo, issue["number"]) in taken:
-            why = "an open PR already covers it"
-        elif issue.get("assignees"):
-            why = "assigned to a person"
-        elif sum(1 for n in names if n.startswith("ai-attempt:")) >= budget["attempts_per_issue"]:
-            why = "attempt limit reached"
-        elif drift and ids & set(re.findall(r"\b[A-Z][A-Z0-9]{2,}(?:-[A-Z0-9]+)*\b", (issue.get("title") or "") + " " + (issue.get("body") or ""))):
-            why = f"names a register entry while the register ({in_force}) trails the baseline ({p03})"
+        why = ineligible(issue, taken, per_repo.get(repo, 0), budget,
+                         drift_ids=ids if drift else set(), in_force=in_force, p03=p03)
         if why:
             skipped.append({"repository": repo, "issue": issue["number"], "reason": why})
             continue

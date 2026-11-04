@@ -44,9 +44,24 @@ on:
 permissions:
   contents: read
 
-# Concurrency is per routed mission on the agent and publish jobs (below), not per trigger: a
-# group built from the cron expression let a manual build and a scheduled build select the same
-# issue at the same time (review finding 6, 4 Nov 2026).
+# One group per mission for both triggers (review finding 6 and its re-review, 4 Nov 2026): the
+# expression maps every cron above to its mission, as the route step does, and a manual run uses
+# its input, so a manual build and a scheduled build never run side by side. The publisher also
+# re-checks the selected issue right before it writes (tools/harness_publish.py).
+concurrency:
+  group: >-
+    harness-${{
+      github.event.schedule == '7 5 * * 1-5' && 'triage'
+      || github.event.schedule == '37 5 * * 1-5' && 'build'
+      || github.event.schedule == '37 11 * * 1-5' && 'build'
+      || github.event.schedule == '0 6-20/2 * * 1-5' && 'review'
+      || github.event.schedule == '47 4 * * *' && 'sim-analysis'
+      || github.event.schedule == '52 5 * * *' && 'decision-followup'
+      || github.event.schedule == '22 6 * * 1-5' && 'register-sync'
+      || github.event.schedule == '23 3 * * 1' && 'audit'
+      || github.event.schedule == '17 15 * * 5' && 'retro'
+      || inputs.mission }}
+  cancel-in-progress: false
 
 env:
   HARNESS_REF: <HARNESS_SHA>
@@ -216,9 +231,6 @@ jobs:
   agent:
     needs: [route, plan]
     if: needs.plan.outputs.run == 'true'
-    concurrency:
-      group: harness-${{ needs.route.outputs.mission }}
-      cancel-in-progress: false
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -346,9 +358,6 @@ jobs:
     needs: [route, plan, agent]
     # Runs even when the agent failed, so a failed attempt is still counted and reported.
     if: always() && needs.plan.outputs.run == 'true'
-    concurrency:
-      group: harness-${{ needs.route.outputs.mission }}
-      cancel-in-progress: false
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

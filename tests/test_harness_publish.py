@@ -16,6 +16,7 @@ import harness_lib as hl  # noqa: E402
 import harness_merge_gate as gate  # noqa: E402
 import harness_publish as pub  # noqa: E402
 import harness_review_queue as rq  # noqa: E402
+import harness_select as sel  # noqa: E402
 
 POLICY = hl.load_policy(ROOT)
 HEAD = "a" * 40
@@ -71,6 +72,27 @@ class Build(unittest.TestCase):
         labels = [b["labels"] for m, u, b in posts if u.endswith("/issues/99/labels")][0]
         self.assertEqual(set(labels), {"ai-generated", "tier:A"})
         self.assertIn(["ai-attempt:1"], [b["labels"] for m, u, b in posts if u.endswith("/issues/5/labels")])
+
+    def test_publish_refuses_an_issue_claimed_since_selection(self):
+        # Re-review of d602381 (4 Nov 2026): eligible when selected; before publishing, an open PR
+        # on the issue (another run, or a person) appears, and the publisher writes no branch or PR.
+        out = tempfile.mkdtemp()
+        # The fake matches routes in order by substring, so the pulls route goes first.
+        routes = {("GET", "/openamrobot-manifest/pulls?state=open"): [
+            {"number": 7, "state": "open", "title": "fix: manifest parser", "body": "Closes #5",
+             "labels": [{"name": "ai-generated"}], "head": {"ref": "ai/5-other-run-41"}}], **self.issue}
+        p, api = publisher(routes, out, self.target, {
+            "result.json": {"status": "done"}, "guard.json": {"result": "PASS", "tier": "A"},
+            "pr.md": "# test: cover manifest parser\n\n## Summary\nx\n"})
+        live = {"repository": "openamrobot-manifest", "number": 5, "state": "open", "labels": [{"name": "ai-ready"}]}
+        self.assertIsNone(sel.ineligible(live, set(), 0, POLICY["budgets"]["build"]), "eligible at selection")
+        plan = p.run("build")
+        self.assertTrue(any(line.startswith("issue claimed by another run") for line in plan), plan)
+        self.assertFalse(any(u.endswith("/pulls") for m, u, b in api.writes()))
+        self.assertFalse(any(line.startswith("pushed ") for line in plan))
+        # Own attempt label does not count: with no competing PR the same inputs publish.
+        p2, api2 = publisher(dict(self.issue), out, self.target, {})
+        self.assertTrue(any(u.endswith("/pulls") for m, u, b in (p2.run("build"), api2.writes())[1]))
 
     def test_guard_fail_comments_and_never_pushes(self):
         out = tempfile.mkdtemp()
