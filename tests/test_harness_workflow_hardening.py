@@ -83,6 +83,22 @@ class ProjectClaudeConfig(unittest.TestCase):
             self.assertEqual(g("status", "--porcelain"), "")
 
 
+class RegisterAuditBudgetAndStage(unittest.TestCase):
+    def test_register_audit_workflow_follows_the_audit_budget_and_the_stage(self):
+        # Review finding 4 (4 Nov 2026): 120 turns hard-coded against budgets.audit 60 / 40,
+        # no step timeout, and no HARNESS_STAGE check, so stage 0 with publishing on ran it.
+        turns, minutes = harness_budget.budget(POLICY, "register-audit")
+        job = hl.load_yaml(AUDIT)["jobs"]["audit"]
+        agent = step(job, "Agent")
+        self.assertIn(f"--max-turns {turns}", agent["with"]["claude_args"])
+        self.assertNotIn("--max-turns 120", agent["with"]["claude_args"])
+        self.assertEqual(agent.get("timeout-minutes"), minutes)
+        self.assertGreaterEqual(job["timeout-minutes"], minutes + 5)
+        self.assertLessEqual(job["timeout-minutes"], 60)
+        self.assertIn("HARNESS_STAGE", job["if"])
+        self.assertIn("HARNESS_PUBLISH == 'true' && fromJSON(vars.HARNESS_STAGE || '0') >= 1", job["if"])
+
+
 class RegisterAuditEgress(unittest.TestCase):
     def test_register_audit_job_limits_egress_first(self):
         first = hl.load_yaml(AUDIT)["jobs"]["audit"]["steps"][0]
