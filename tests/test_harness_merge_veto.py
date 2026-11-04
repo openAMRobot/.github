@@ -24,7 +24,8 @@ def decide(comment, commit_time):
     checks = {"check_runs": [{"name": n, "status": "completed", "conclusion": "success"}
                              for n in ("quality/test", "quality/pr-evidence")]}
     return gate.decide(pr, [{"filename": "tests/test_x.py"}], [comment], checks, [], commit_time,
-                       "openamrobot-manifest", policy, NOW, bot=BOT, statuses={"statuses": []})
+                       "openamrobot-manifest", policy, NOW, bot=BOT,
+                       statuses={"state": "success", "statuses": [{"context": "DCO", "state": "success"}]})
 
 
 def comment(created, updated):

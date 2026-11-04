@@ -9,7 +9,8 @@ A PR qualifies only when ALL hold:
   - a harness review comment exists for the current head SHA with verdict=pass tier=A;
   - every required check (policy merge_gate.required_checks, per repository or default) ran on the
     head SHA and concluded success; other check runs may be success, neutral or skipped; every
-    commit status on the head SHA is success and none is pending;
+    commit status on the head SHA is success and none is pending, and every context named in
+    policy merge_gate.required_statuses (per repository or default) is present and success;
   - the veto window (24 hours) has passed since GitHub first saw the current head: measured from the
     creation time of the harness review comment for that head SHA, a GitHub-set timestamp written after
     every push, never from the commit's own committer date, which the author controls;
@@ -38,11 +39,12 @@ def parse_time(text):
     return dt.datetime.fromisoformat(text.replace("Z", "+00:00"))
 
 
-def required_checks(policy, repository):
-    """Names of the check runs that must execute and succeed before an automatic merge."""
+def required_checks(policy, repository, key="required_checks"):
+    """Names of the check runs (or, with key required_statuses, the commit status contexts)
+    that must exist and succeed before an automatic merge."""
     gate = policy.get("merge_gate", {})
-    per_repo = gate.get("required_checks", {})
-    return list(per_repo.get(repository, per_repo.get("default", [])))
+    per_repo = gate.get(key, {}) or {}
+    return list(per_repo.get(repository, per_repo.get("default", [])) or [])
 
 
 def decide(pr, files, comments, checks, reviews, head_commit_time, repository, policy, now, bot=None,
@@ -90,9 +92,18 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     if statuses is None:
         reasons.append("commit statuses were not read")
     else:
-        # The combined state reads "pending" when no status exists at all, so judge each status.
-        if any(s.get("state") != "success" for s in statuses.get("statuses", [])):
+        # The combined state reads "pending" when no status exists at all, so judge each status;
+        # with at least one status the combined state must be success as well.
+        posted = statuses.get("statuses", []) or []
+        if any(s.get("state") != "success" for s in posted):
             reasons.append("a commit status is pending or not green")
+        if posted and statuses.get("state") != "success":
+            reasons.append("the combined commit status is not success")
+        # An empty list cannot be told from a required context not yet posted, so policy names
+        # the contexts that must be present (merge_gate.required_statuses).
+        for context in required_checks(policy, repository, "required_statuses"):
+            if not any(s.get("context") == context and s.get("state") == "success" for s in posted):
+                reasons.append(f"required commit status {context} is missing or not success on the head SHA")
     if any(r.get("state") == "CHANGES_REQUESTED" for r in reviews):
         reasons.append("a reviewer requested changes")
     # The veto clock starts when GitHub first recorded the current head: the earliest harness review

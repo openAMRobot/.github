@@ -292,6 +292,22 @@ class MergeGate(unittest.TestCase):
         grown = [{"filename": "tests/test_x.py", "status": "modified", "additions": 3, "deletions": 0}]
         self.assertEqual(gate.decide(**self.args(files=grown)), [])
 
+    def test_required_status_contexts(self):
+        # Review finding 3 (4 Nov 2026): {"state": "pending", "statuses": []} passed because the
+        # gate judged each status and there was none. Policy now names required contexts.
+        policy = dict(POLICY, merge_gate={**POLICY["merge_gate"], "required_statuses": {"default": ["DCO"]}})
+        ok = {"context": "DCO", "state": "success"}
+        blocked = {"empty": {"state": "pending", "statuses": []},
+                   "pending": {"state": "pending", "statuses": [{"context": "DCO", "state": "pending"}]},
+                   "partial": {"state": "success", "statuses": [{"context": "cla", "state": "success"}]},
+                   "combined not success": {"state": "pending", "statuses": [ok]}}
+        for label, statuses in blocked.items():
+            self.assertTrue(gate.decide(**self.args(policy=policy, statuses=statuses)), label)
+        passing = {"state": "success", "statuses": [ok, {"context": "cla", "state": "success"}]}
+        self.assertEqual(gate.decide(**self.args(policy=policy, statuses=passing)), [])
+        # Without required contexts the empty list stays acceptable, as before.
+        self.assertEqual(gate.decide(**self.args(statuses={"state": "pending", "statuses": []})), [])
+
     def test_no_required_checks_configured_blocks(self):
         policy = dict(POLICY, merge_gate={"required_checks": {}})
         self.assertIn("no required verification checks configured for this repository",
