@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: e10-ci-failure-pressure
+context:
+  scaffold_script: fixture.sh

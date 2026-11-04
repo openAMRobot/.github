@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+"""Check a finished agent change before anything is pushed.
+
+Runs after the agent step, outside the agent, on the target checkout. It fails
+(exit 1) when the change breaks harness/policy.yaml; the workflow then deletes
+the branch and reports the reason on the issue. It writes a JSON report.
+
+  harness_guard.py --repo-root PATH --repository NAME --base SHA
+                   [--pr-body FILE] [--tests-before N --tests-after M]
+                   [--max-tier A|B] [--report FILE]
+
+Checks: clean worktree; nothing committed under .harness-out/; no tier D path;
+tier C only as new test files; dependency manifest changes need a Dependencies
+section; added skip/xfail/importorskip name an issue; no removed test function;
+size limits; DCO sign-off on every commit; no binary files; no secret-like
+strings; executed test count does not fall; live workflows stay pinned.
+"""
+import argparse
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import harness_lib as hl  # noqa: E402
+
+MAX_FILES = 25
+MAX_CHANGED_LINES = 800
+# Same markers as rollout/verify.sh, plus unittest expectedFailure (launch_testing's
+# expected-failure form). Character classes keep this line from matching verify.sh itself.
+SKIP = re.compile(r"(pytest\.mark\.(skip|skipif|xfail)|pytest\.(skip|xfail|importorskip)\(|unittest\.skip|"
+                  r"self\.skipTest\(|expectedFailur[e]|\b(it|test|describe)\.skip\(|\bxit\(|GTEST_SKI[P])")
+ISSUE_REF = re.compile(r"(#\d+|issues/\d+)")
+TEST_DEF = re.compile(r"^\s*(async\s+)?def\s+(test_\w+)|^\s*TEST(_F|_P)?\(\s*(\w+)\s*,\s*(\w+)|"
+                      r"^\s*(it|test)\(\s*['\"]([^'\"]+)")
+INTERFACE_FILE = re.compile(r"\.(msg|srv|action|idl)$")
+# A committed script or build rule that writes interface files at build time: the .msg never
+# appears in the diff, so the tier C check on paths cannot see it.
+INTERFACE_LITERAL = re.compile(r"""[\w/.-]+\.(?:msg|srv|action|idl)['"]|rosidl_generate_interfaces""")
+WRITE_CALL = re.compile(r"""\.write_text\(|\.write\(|open\([^)]*['"][wa]|\bfile\(\s*WRITE|>\s*\S+\.(?:msg|srv|action|idl)\b""")
+SECRET = re.compile(r"(AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|sk-ant-[A-Za-z0-9_-]{20,}|"
+                    r"-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[baprs]-[A-Za-z0-9-]{10,})")
+
+
+def git(root, *args):
+    return subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True,
+                          text=True).stdout
+
+
+def test_names(lines):
+    names = set()
+    for line in lines:
+        m = TEST_DEF.match(line)
+        if m:
+            names.add(next(g for g in (m.group(2), m.group(5) and f"{m.group(4)}.{m.group(5)}",
+                                       m.group(7)) if g))
+    return names
+
+
+def git_bytes(root, *args):
+    return subprocess.run(["git", "-C", str(root), *args], check=True,
+                          capture_output=True).stdout
+
+
+def changed_paths(root, base, head="HEAD"):
+    """Parse actual Git paths; textual name-status output quotes unsafe names."""
+    raw = git_bytes(root, "diff", "--name-status", "-z", "--no-renames",
+                    f"{base}..{head}")
+    fields = raw.split(b"\0")
+    if fields[-1] != b"" or len(fields[:-1]) % 2:
+        raise ValueError("malformed NUL-delimited git name-status output")
+    return [(fields[i].decode("utf-8", errors="strict"),
+             fields[i + 1].decode("utf-8", errors="strict"))
+            for i in range(0, len(fields) - 1, 2)]
+
+
+def diff_lines(root, base, paths, head="HEAD"):
+    """Per-file text diffs using real path arguments, not quoted patch headers."""
+    out = {}
+    for path in paths:
+        added, removed = [], []
+        patch = git(root, "diff", "--unified=0", "--no-color", "--no-renames",
+                    f"{base}..{head}", "--", path)
+        in_hunk = False
+        for line in patch.splitlines():
+            if line.startswith("@@ "):
+                in_hunk = True
+            elif in_hunk and line.startswith("+"):
+                added.append(line[1:])
+            elif in_hunk and line.startswith("-"):
+                removed.append(line[1:])
+        out[path] = (added, removed)
+    return out
+
+
+def existed_at(root, commit, path):
+    return subprocess.run(["git", "-C", str(root), "cat-file", "-e",
+                           f"{commit}:{path}"], capture_output=True).returncode == 0
+
+
+def run(args):
+    root = Path(args.repo_root).resolve()
+    policy = hl.load_policy(Path(args.harness_root))
+    failures, notes = [], []
+
+    status = git(root, "status", "--porcelain", "--untracked-files=normal")
+    dirty = [l for l in status.splitlines() if not l[3:].startswith((".harness", ".claude/skills/harness-"))]
+    if dirty:
+        failures.append(f"uncommitted changes left in the worktree: {dirty[:5]}")
+
+    changes = changed_paths(root, args.base)
+    if not changes:
+        failures.append("no change was committed")
+    tiers, files_changed = [], []
+    for status_code, *paths in changes:
+        path = paths[-1]
+        files_changed.append(path)
+        if path.startswith(".harness-out") or path.startswith(".harness/"):
+            failures.append(f"{path}: harness working files must not be committed")
+            continue
+        tier = hl.tier_of(path, args.repository, policy)
+        if tier == "D" and hl.mission_allows(path, args.repository, policy, args.mission):
+            tier = "B"
+            notes.append(f"{path}: tier D, allowed for the {args.mission} mission")
+        elif tier == "D":
+            failures.append(f"{path}: tier D, agents never change it")
+        elif tier == "C":
+            if status_code == "A" and hl.is_test_path(path) and not INTERFACE_FILE.search(path):
+                tier = "A"
+                notes.append(f"{path}: new test file for a tier C area")
+            else:
+                failures.append(f"{path}: tier C, a person writes this change ({status_code})")
+        tiers.append(tier)
+    tier = hl.highest(tiers)
+    body = Path(args.pr_body).read_text(encoding="utf-8") if args.pr_body and Path(args.pr_body).exists() else ""
+    manifests = [p for p in files_changed if hl.matches(p, policy.get("dependency_manifests", []))]
+    if manifests:
+        tier = hl.highest([tier, "B"])
+        if not re.search(r"^#+\s*Dependencies", body, re.M | re.I):
+            failures.append(f"dependency manifest changed ({', '.join(manifests)}) without a Dependencies section")
+
+    per_file = diff_lines(root, args.base, files_changed)
+    # Removing lines from an existing test is not an A-tier change, even
+    # when its function name and overall executed test count remain unchanged.
+    edited_tests = [path for path, (_, removed) in per_file.items()
+                    if removed and hl.is_test_path(path) and existed_at(root, args.base, path)]
+    if edited_tests:
+        tier = hl.highest([tier, "B"])
+        notes.append("existing test lines removed; needs tier B owner review: " +
+                     ", ".join(edited_tests[:5]))
+    added_total = removed_total = 0
+    removed_tests, added_tests = set(), set()
+    for path, (added, removed) in per_file.items():
+        added_total += len(added)
+        removed_total += len(removed)
+        for line in added:
+            if SKIP.search(line) and not ISSUE_REF.search(line):
+                failures.append(f"{path}: skip or xfail without a tracking issue on the same line: {line.strip()[:120]}")
+            if SECRET.search(line):
+                failures.append(f"{path}: secret-like string added")
+        removed_tests |= test_names(removed)
+        added_tests |= test_names(added)
+    for path, (added, _) in per_file.items():
+        text = "\n".join(added)
+        if not INTERFACE_FILE.search(path) and INTERFACE_LITERAL.search(text) and (
+                WRITE_CALL.search(text) or "rosidl_generate_interfaces" in text):
+            failures.append(f"{path}: generates or declares interface files (.msg, .srv, .action); "
+                            "interfaces are tier C and change only through a contract change request")
+    lost = sorted(removed_tests - added_tests)
+    if lost:
+        failures.append(f"test functions removed: {', '.join(lost[:10])}")
+    if len(files_changed) > MAX_FILES:
+        failures.append(f"{len(files_changed)} files changed, limit {MAX_FILES}: split the task")
+    if added_total + removed_total > MAX_CHANGED_LINES:
+        failures.append(f"{added_total + removed_total} lines changed, limit {MAX_CHANGED_LINES}: split the task")
+
+    numstat = git(root, "diff", "--numstat", f"{args.base}..HEAD").splitlines()
+    for line in numstat:
+        if line.startswith("-\t-\t"):
+            failures.append(f"{line.split(chr(9))[-1]}: binary file")
+
+    # Publish transfers the original bundle, including intermediate commits.
+    # The final net diff is insufficient: unsafe blobs and forbidden path edits
+    # can still be present in reachable commit history after later reverts.
+    for sha in git(root, "rev-list", "--reverse", f"{args.base}..HEAD").split():
+        message = git(root, "log", "-1", "--format=%B", sha)
+        if not re.search(r"^Signed-off-by: .+ <.+>$", message, re.M):
+            failures.append(f"commit {sha[:9]} has no Signed-off-by line")
+        ancestry = git(root, "rev-list", "--parents", "-n", "1", sha).split()
+        if len(ancestry) != 2:
+            failures.append(f"commit {sha[:9]} is a merge/root commit; agent bundles require linear history")
+            continue
+        parent = ancestry[1]
+        intermediate = changed_paths(root, parent, sha)
+        commit_tiers = []
+        for status_code, path in intermediate:
+            path_tier = hl.tier_of(path, args.repository, policy)
+            if path.startswith((".harness-out", ".harness/")):
+                failures.append(f"commit {sha[:9]}: forbidden harness scratch file {path}")
+            elif path_tier == "D" and not hl.mission_allows(path, args.repository, policy, args.mission):
+                failures.append(f"commit {sha[:9]}: tier D path touched: {path}")
+            elif path_tier == "C" and not (status_code == "A" and hl.is_test_path(path)
+                                           and not INTERFACE_FILE.search(path)):
+                failures.append(f"commit {sha[:9]}: tier C path touched: {path}")
+            # Same promotions as the net diff: an allowed tier D mission path and a
+            # dependency manifest are B, a new test file in a tier C area is A.
+            if path_tier == "D":
+                path_tier = "B"
+            elif path_tier == "C":
+                path_tier = "A"
+            if hl.matches(path, policy.get("dependency_manifests", [])):
+                path_tier = hl.highest([path_tier, "B"])
+            commit_tiers.append(path_tier)
+        commit_diff = diff_lines(root, parent, [p for _, p in intermediate], sha)
+        if any(removed and hl.is_test_path(path) and existed_at(root, parent, path)
+               for path, (_, removed) in commit_diff.items()):
+            commit_tiers.append("B")
+        commit_tier = hl.highest(commit_tiers) if commit_tiers else "A"
+        if hl.TIER_ORDER[commit_tier] > hl.TIER_ORDER[tier]:
+            notes.append(f"commit {sha[:9]} is tier {commit_tier}; the change is labelled tier {commit_tier}")
+            tier = commit_tier
+        for path, (added, _) in commit_diff.items():
+            for line in added:
+                if SECRET.search(line):
+                    failures.append(f"commit {sha[:9]}: secret-like string in {path}")
+                if SKIP.search(line) and not ISSUE_REF.search(line):
+                    failures.append(f"commit {sha[:9]}: untracked test skip in {path}")
+            binary = git(root, "diff", "--numstat", f"{parent}..{sha}", "--", path)
+            if binary.startswith("-\t-\t"):
+                failures.append(f"commit {sha[:9]}: binary file in history: {path}")
+
+    # The ceiling applies to the net change and to every commit the publisher transfers,
+    # including tier promotions from dependencies and test-line removals.
+    if args.max_tier and hl.TIER_ORDER[tier] > hl.TIER_ORDER[args.max_tier]:
+        failures.append(f"change is tier {tier}, above selected issue's maximum tier {args.max_tier}; escalate to owner")
+
+    if args.tests_before is not None and args.tests_after is not None:
+        if args.tests_after < args.tests_before:
+            failures.append(f"executed tests fell from {args.tests_before} to {args.tests_after}")
+        if args.tests_after == 0:
+            failures.append("zero tests executed")
+
+    if args.evidence:
+        # The PR body must pass the same section rules as quality/pr-evidence, so a draft PR is
+        # never opened with an evidence-free body (audit 2026-11-01 P1).
+        import check_pr_evidence as cpe
+        maintainers = hl.load_yaml(Path(args.harness_root) / "maintainers.yaml")
+        head = git(root, "rev-parse", "HEAD").strip()
+        pr = {"body": body, "draft": True, "head": {"sha": head}, "user": {"login": hl.bot_login()}}
+        evidence_failures, _, _ = cpe.evaluate(pr, files_changed, maintainers,
+                                               has_state=(root / "STATE.md").exists())
+        failures.extend(f"PR body: {f}" for f in evidence_failures)
+
+    if any(p.startswith(".github/workflows/") for p in files_changed):
+        import check_workflow_policy as cwp
+        for finding in cwp.records(root):
+            if finding["file"] in files_changed:
+                failures.append(f"{finding['file']}:{finding['line']}: {finding['text']}")
+
+    report = {"result": "FAIL" if failures else "PASS", "tier": tier, "files": files_changed,
+              "lines_added": added_total, "lines_removed": removed_total,
+              "failures": failures, "notes": notes}
+    if args.report:
+        Path(args.report).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=2))
+    return 1 if failures else 0
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--repo-root", required=True)
+    parser.add_argument("--repository", required=True)
+    parser.add_argument("--base", required=True)
+    parser.add_argument("--harness-root", default=str(hl.ROOT))
+    parser.add_argument("--pr-body")
+    parser.add_argument("--tests-before", type=int)
+    parser.add_argument("--tests-after", type=int)
+    parser.add_argument("--max-tier", choices=["A", "B", "C"])
+    parser.add_argument("--mission", default="build")
+    parser.add_argument("--evidence", action="store_true",
+                        help="also apply tools/check_pr_evidence.py section rules to --pr-body")
+    parser.add_argument("--report")
+    return run(parser.parse_args(argv))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -49,6 +49,7 @@ audit_prefixes:
   CI: ci-owner
   PR: ci-owner
   DOC: docs-owner
+  REG: platform-lead
 
 # Owner role per repository, used by docs-sync and the rollout CODEOWNERS proposal.
 repositories:

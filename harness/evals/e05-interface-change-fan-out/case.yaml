@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: e05-interface-change-fan-out
+context:
+  scaffold_script: fixture.sh

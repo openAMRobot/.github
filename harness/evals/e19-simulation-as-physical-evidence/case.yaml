@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: e19-simulation-as-physical-evidence
+context:
+  scaffold_script: fixture.sh

@@ -2,7 +2,8 @@
 """Plan and apply issue updates from an alignment-audit ISSUES.csv.
 
 Opens one issue per Blocker or Major finding that has no issue yet, in the
-repository named in file_to_change (or the fallback repository), assigned to
+repository named in the row's repository column, else the one named in
+file_to_change (or the fallback repository), assigned to
 the owner role from maintainers.yaml by audit ID prefix. It never closes an
 issue: when an open audit issue's finding is absent from the new CSV or has
 status resolved, it comments "no longer detected" once and leaves closure to
@@ -11,8 +12,8 @@ it is fixed.
 
 Issues in public repositories are public extracts: they carry the finding ID,
 severity, area, the repository paths to change and the owner handle, never
-the free-text columns, which can quote internal documents. The full text goes
-only to the fallback (private) repository.
+the free-text columns, which can quote internal documents; the area is reduced
+to a short token. The full text goes only to the fallback (private) repository.
 Exit status: 0 success, 2 usage error.
 """
 import argparse
@@ -58,8 +59,17 @@ def read_csv(path):
         return list(csv.DictReader(stream))
 
 
-def title_for(row):
-    return f"[audit] {row['id']}: {row.get('area', '').strip()}"[:120]
+def public_area(row, repository, fallback):
+    """The area column is free text that can quote a document. In a public repository it is
+    reduced to one slug token (lower-case letters, digits and dashes, at most 40 characters)."""
+    area = str(row.get("area") or "").strip()
+    if repository == fallback:
+        return area
+    return re.sub(r"[^a-z0-9]+", "-", area.lower()).strip("-")[:40].strip("-")
+
+
+def title_for(row, repository=None, fallback=None):
+    return f"[audit] {row['id']}: {public_area(row, repository, fallback)}"[:120]
 
 
 def finding_id(title):
@@ -68,6 +78,16 @@ def finding_id(title):
 
 
 def target_repository(row, public_repos, fallback):
+    """public_repos is the set of repositories the caller allows as destinations besides the
+    fallback. Empty means every finding stays in the fallback (private) repository, whatever
+    the row's repository column or file_to_change names: the register audit quotes documents
+    and never publishes outside openAMRobot/audits. With a non-empty set, the row's repository
+    column decides first, then the repository paths in file_to_change."""
+    if not public_repos:
+        return fallback
+    named = str(row.get("repository") or "").strip()
+    if named == fallback or named in public_repos:
+        return named
     for name in REPO.findall(row.get("file_to_change", "")):
         if name in public_repos:
             return name
@@ -85,7 +105,7 @@ def body_for(row, repository, fallback, maintainers, report):
     owner = f"@{handle} ({role})" if handle else f"{role}, no handle recorded"
     paths = sorted(set(re.findall(r"[\w./-]+\.(?:md|ya?ml|py|xml|xacro|urdf|launch\.py|json|html)",
                                   row.get("file_to_change", ""))))
-    lines = [f"Audit finding **{row['id']}** ({row['severity']}), area: {row.get('area', '')}.", "",
+    lines = [f"Audit finding **{row['id']}** ({row['severity']}), area: {public_area(row, repository, fallback)}.", "",
              f"Owner: {owner}", f"Source: {report}", ""]
     if paths:
         lines += ["Files to change:"] + [f"- `{p}`" for p in paths] + [""]
@@ -99,9 +119,11 @@ def body_for(row, repository, fallback, maintainers, report):
     return "\n".join(lines)
 
 
-def plan(new_rows, existing, maintainers, fallback, report):
-    """Return (to_open, to_notify). existing: list of {repository, number, title, state}."""
-    public_repos = set(maintainers.get("repositories", {}))
+def plan(new_rows, existing, maintainers, fallback, report, public_repos=None):
+    """Return (to_open, to_notify). existing: list of {repository, number, title, state}.
+    public_repos: destinations allowed besides the fallback; None means the public repositories
+    in maintainers.yaml, an empty set means the fallback only."""
+    public_repos = set(maintainers.get("repositories", {})) if public_repos is None else set(public_repos)
     known = {}
     for issue in existing:
         fid = finding_id(issue.get("title"))
@@ -113,7 +135,7 @@ def plan(new_rows, existing, maintainers, fallback, report):
         if row.get("severity") not in OPEN_SEVERITIES or fid in known:
             continue
         repository = target_repository(row, public_repos, fallback)
-        to_open.append({"repository": repository, "title": title_for(row),
+        to_open.append({"repository": repository, "title": title_for(row, repository, fallback),
                         "body": body_for(row, repository, fallback, maintainers, report),
                         "labels": [LABEL, row["severity"].lower()]})
     to_notify = [dict(issue, id=fid) for fid, issues in known.items() if fid not in active

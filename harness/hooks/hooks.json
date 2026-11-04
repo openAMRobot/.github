@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {"type": "command", "command": "cat \"${CLAUDE_PLUGIN_ROOT}/CORE_RULES.md\""}
+        ]
+      }
+    ]
+  }
+}
