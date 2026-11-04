@@ -127,7 +127,7 @@ class Triage(unittest.TestCase):
         p.run("triage")
         writes = api.writes()
         labelled = [set(b["labels"]) for m, u, b in writes if u.endswith("/issues/3/labels")][0]
-        self.assertEqual(labelled, {"ai-ready", "tier:A", "rc.1"})
+        self.assertEqual(labelled, {"ai-ready", "rc.1"}, "tier:A comes from the guard, never from triage")
         self.assertFalse(any("needs-human" in u for m, u, b in writes if m == "DELETE"))
         self.assertFalse(any("not-a-repo" in u for m, u, b in writes))
         created = [b for m, u, b in writes if m == "POST" and u.endswith("/openamrobot-manifest/issues")]
@@ -278,6 +278,19 @@ class MergeGate(unittest.TestCase):
             self.assertTrue(gate.decide(**self.args(statuses=statuses)), statuses)
         ok = {"state": "success", "statuses": [{"context": "DCO", "state": "success"}]}
         self.assertEqual(gate.decide(**self.args(statuses=ok)), [])
+
+    def test_tier_b_label_and_removed_test_lines_block(self):
+        # Review finding 2 (4 Nov 2026): the guard labelled a PR tier B for removed test lines,
+        # triage added tier:A, and the gate recomputed the tier from file names only.
+        both = {"labels": [{"name": "ai-generated"}, {"name": "tier:B"}, {"name": "tier:A"}], "head": {"sha": HEAD}}
+        trimmed = [{"filename": "tests/test_x.py", "status": "modified", "additions": 1, "deletions": 2}]
+        reasons = gate.decide(**self.args(pr=both, files=trimmed))
+        self.assertIn("a tier B, C or D label is present", reasons)
+        self.assertTrue(any(r.startswith("existing test lines removed") for r in reasons), reasons)
+        added = [{"filename": "tests/test_new.py", "status": "added", "additions": 30, "deletions": 0}]
+        self.assertEqual(gate.decide(**self.args(files=added)), [])
+        grown = [{"filename": "tests/test_x.py", "status": "modified", "additions": 3, "deletions": 0}]
+        self.assertEqual(gate.decide(**self.args(files=grown)), [])
 
     def test_no_required_checks_configured_blocks(self):
         policy = dict(POLICY, merge_gate={"required_checks": {}})

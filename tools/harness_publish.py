@@ -87,7 +87,8 @@ def slug(text):
 def allowed_labels(policy):
     names = set(policy["labels"]) | {"gate-a", "rc.1", "v2.0.0", "harness-followup"}
     names |= {f"priority:p{i}" for i in range(4)}
-    return names - {"ai-generated", "hold", "no-ai"}
+    # tier:A is set by the guard from the diff; triage never promotes a change to tier A.
+    return names - {"ai-generated", "hold", "no-ai", "tier:A"}
 
 
 def as_int(value):

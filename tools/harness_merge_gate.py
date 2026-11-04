@@ -2,9 +2,10 @@
 """Stage 4: decide which tier A harness PRs may be merged automatically.
 
 A PR qualifies only when ALL hold:
-  - labels ai-generated and tier:A, and none of hold, no-ai, needs-human*;
+  - labels ai-generated and tier:A, and none of tier:B, tier:C, tier:D, hold, no-ai, needs-human*;
   - its repository has build: true in harness/policy.yaml and is not a tier C repository;
-  - every changed file is tier A by harness_lib.tier_of (re-checked here, not trusted from the label);
+  - every changed file is tier A by harness_lib.tier_of (re-checked here, not trusted from the label),
+    and no existing test file lost lines (pulls/files deletions);
   - a harness review comment exists for the current head SHA with verdict=pass tier=A;
   - every required check (policy merge_gate.required_checks, per repository or default) ran on the
     head SHA and concluded success; other check runs may be success, neutral or skipped; every
@@ -51,6 +52,10 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     reasons = []
     if not {"ai-generated", "tier:A"} <= labels:
         reasons.append("not an ai-generated tier A PR")
+    # The guard labels a PR tier B when it removes lines from an existing test; a later tier:A
+    # label (triage, a person) never cancels that. Both labels present means a person decides.
+    if labels & {"tier:B", "tier:C", "tier:D"}:
+        reasons.append("a tier B, C or D label is present")
     if labels & {"hold", "no-ai"} or any(n.startswith("needs-human") for n in labels):
         reasons.append("held or waiting for a person")
     cfg = policy["repositories"].get(repository, {})
@@ -59,6 +64,12 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     bad = [f["filename"] for f in files if hl.tier_of(f["filename"], repository, policy) != "A"]
     if bad or not files:
         reasons.append(f"files above tier A: {bad[:5]}" if bad else "no files")
+    # Same rule as harness_guard: removed lines in an existing test file are not tier A, whatever
+    # the labels say. pulls/files reports deletions and status for every changed file.
+    trimmed = [f["filename"] for f in files if hl.is_test_path(f.get("filename", ""))
+               and f.get("status") != "added" and (f.get("deletions") or 0) > 0]
+    if trimmed:
+        reasons.append(f"existing test lines removed: {trimmed[:5]}")
     head = pr["head"]["sha"]
     passes = [(m, c) for m, c in ((PASS.match(c.get("body") or ""), c) for c in comments
                                   if hl.is_harness_comment(c, bot)) if m]
