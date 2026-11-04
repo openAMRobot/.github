@@ -2,6 +2,12 @@
 
 OpenAMRobot is an open, modular, and affordable embodied AI robotics ecosystem initiated, operated, and controlled by **Botshare LTD** (Cyprus Company ID HE479056).
 
+### New: OpenAMRobot 2.0 with OpenArm 2.0
+
+An open-source mobile base with a 350 mm lift and two [OpenArm](https://github.com/enactic/openarm) 2.0 arms, combined in one URDF with MoveIt and Gazebo.
+
+**[Explore the 3D model](https://docs.openamrobot.ai/assets/roadmap/robot.html)** · **[Combined model (URDF, MoveIt, Gazebo)](https://github.com/openAMRobot/openamr-upperbody-sw)** · **[See the roadmap](https://docs.openamrobot.ai/assets/roadmap/)** · **[Pre-order and packages](https://botshare.ai/openamrobot?utm_source=github&utm_medium=org#products)**
+
 > [!IMPORTANT]
 > ### Pre-order OpenAMRobot 2.0 at founder prices
 > DIY kits and assembled robots: **30% off until 15 November 2026**, 25% off 16 to 30 November, 20% off 1 to 31 December. Full payment, price locked, first dispatch April 2027.
@@ -23,7 +29,7 @@ OpenAMRobot combines:
 
 - autonomous mobile robotics
 - dual-arm manipulation
-- a lift for the arms, approved in principle for OpenAMRobot 2.0 (release gates still open): DOLD Hexalift V4 350 mm, shoulder 1000 to 1350 mm, lift base plate centre or +50 mm, arm profile 180 mm ahead of the column axis
+- a lift for the arms for OpenAMRobot 2.0: the combined model including the lift is implemented and verified in simulation; physical hardware build and acceptance are in progress (release gates still open). DOLD Hexalift V4 350 mm, shoulder 1000 to 1350 mm, lift base plate centre or +50 mm, arm profile 180 mm ahead of the column axis
 - AI-based perception
 - wearable embodied AI data collection
 - ROS 2 software infrastructure
@@ -180,9 +186,9 @@ openAMRobot/
 ├── openamr-platform-sw       # AMR ROS 2: sim, nav2, docking, control, drivers, perception
 ├── openamr-platform-fw       # AMR firmware: motor/sensor bridges, safety I/O
 ├── openamr-platform-hw       # AMR mechanical, electrical, CAD, BOM
-├── openamr-upperbody-sw      # arm + lift (approved in principle), MoveIt, bringup
+├── openamr-upperbody-sw      # arm + lift (verified in simulation), MoveIt, bringup
 ├── openamr-upperbody-fw      # end-effector, safety I/O
-├── openamr-upperbody-hw      # lift (approved in principle), plates, wiring, BOM
+├── openamr-upperbody-hw      # lift (hardware build in progress), plates, wiring, BOM
 
 ```
 
@@ -193,9 +199,9 @@ openAMRobot/
 | [`openamr-platform-sw`](https://github.com/openAMRobot/openamr-platform-sw) | ROS 2 software: simulation, navigation, docking, drivers, perception, bringup |
 | [`openamr-platform-fw`](https://github.com/openAMRobot/openamr-platform-fw) | Embedded firmware, microcontroller systems, motor interfaces, hardware communication |
 | [`openamr-platform-hw`](https://github.com/openAMRobot/openamr-platform-hw) | CAD, chassis, electrical, BOMs, manufacturing files, mechatronics |
-| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + lift (approved in principle), MoveIt on the combined model, bringup |
+| [`openamr-upperbody-sw`](https://github.com/openAMRobot/openamr-upperbody-sw) | Arm + lift (combined model verified in simulation; hardware build and acceptance in progress), MoveIt on the combined model, bringup |
 | [`openamr-upperbody-fw`](https://github.com/openAMRobot/openamr-upperbody-fw) | End-effector, upper-body safety I/O |
-| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Lift (approved in principle), mounting plates, wiring, BOM |
+| [`openamr-upperbody-hw`](https://github.com/openAMRobot/openamr-upperbody-hw) | Lift (physical hardware build and acceptance in progress), mounting plates, wiring, BOM |
 | [`openamrobot-manipulation`](https://github.com/openAMRobot/openamrobot-manipulation) | Arm framework: manipulation server, Device Package format, arms (OpenArm 2.0 primary, LeRobot SO-101 fixture) |
 | [`openamrobot-interfaces`](https://github.com/openAMRobot/openamrobot-interfaces) | Shared ROS 2 messages, services, actions, schemas, interface contracts |
 | [`openamrobot-comm`](https://github.com/openAMRobot/openamrobot-comm) | APIs, middleware, telemetry, transport protocols, interoperability |

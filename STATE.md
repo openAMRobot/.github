@@ -13,7 +13,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 
 ## Register in force
 
-- `in_force`: P-03-rev20.2, 2026-11-01 (change request #77); on main ed98001 (#73 merged) it is P-03-rev20.1, 2026-10-30
+- `in_force`: P-03-rev20.2, 2026-11-01 (change request #77, merged 1678735); unchanged by the owner decisions of 2 Nov 2026, which carry a note that they are to be entered in P-03
 - Canonical BOM: Issue 7.14 (BOM-ISSUE-IN-FORCE), from 2026-11-01
 
 ## Current work
@@ -22,8 +22,10 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 |---|---|---|---|
 | #77 | #78 (claude/optimistic-sagan-oqc2lu) | draft, rebased on ed98001 | owner review of the P-03 rev20.2 item 26 values and the OPERATOR-PANEL portrait change |
 | P-03 rev20.1 | #73 | merged as ed98001 (2026-11-01) | none; its OPERATOR-PANEL portrait check is narrowed in #78 |
-| PLATFORM-PIN | #74 | merged on main as a9e229e | none |
 | harness | #70 (harness/autopilot-2026-10-30) | in review, f4e0837 plus review fixes 5 | owner review of the six review fixes, then merge |
+| Profile 2.0 block | #81 (claude/bold-franklin-qu0f6i) | ready for review (2026-11-02); four links incl. 3D model viewer | owner review; LIFT register wording "approved in principle" goes to a separate contract change request |
+| #83 | decisions/2026-11-02 | draft PR, based on a9e229e | owner review of the 2 Nov 2026 values (CHARGING, DOCK-NO-CONTACTS, OPERATOR-PANEL, TABLET-MOUNT, HEAD-CAMERA-IDENTITY, SAFETY-PROCUREMENT, BATTERY-PLACEMENT, LIFT, FRAMES-REP105); electrical owner reviews the SAFETY-PROCUREMENT position; unblocks openamrobot-docs #68 |
+| PLATFORM-PIN | #74 | pin 131e500fc4e5afc9f648cbd7dbf5b416280761fb (2.0 base, P-03 rev20.1 item 25 D7), validated by openamr-upperbody-sw #21; merged with this PR (2026-11-01) | none; touches decisions.yaml only |
 
 ## Decisions this repository implements
 
@@ -31,10 +33,11 @@ This repository holds the register (decisions.yaml) and its checkers; it impleme
 
 ## Known gaps
 
-- Safety-path register updates (precharge fitted, K1/K2 decision 2 Nov 2026) left to the electrical owner; SAFETY-PROCUREMENT and SAFETY-CHAIN-IO unchanged since 71c439e
+- Safety-path register updates (precharge fitted, K1/K2 decision 2 Nov 2026) left to the electrical owner; SAFETY-CHAIN-IO unchanged since 71c439e; SAFETY-PROCUREMENT changes only the second E-stop position (#83, 2026-11-02)
 - "Chest E-stop" wording retirement (P-03 rev20.2 item 26) not recorded; it belongs to SAFETY-PROCUREMENT
 
 ## Not verified
 
 - Register values against the P-03 rev20.2 source document (held outside any repository), since 2026-11-01
 - Scans of consumer repositories against the new patterns, since 2026-11-01
+- Register values of 2 Nov 2026 against the owner's decision record and P-03 (not yet entered there), since 2026-11-02
