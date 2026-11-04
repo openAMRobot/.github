@@ -63,6 +63,24 @@ class Plan(unittest.TestCase):
         self.assertEqual(to_open[0]["repository"], "audits")
         self.assertIn("synthetic private quote", to_open[0]["body"])
 
+    def test_repository_column_wins_over_paths_in_file_to_change(self):
+        # Review finding 1 (4 Nov 2026): a register-audit row with repository=audits named a
+        # public repository in file_to_change and was published there with its document quote.
+        quote = "quote: 'internal doc says lift 400mm' <x>"
+        private = row("REG-1001", target="openamr-platform-sw/config/nav.yaml and decisions.yaml",
+                      repository="audits", area=quote)
+        public = row("REG-1002", target="openamr-platform-sw/config/nav.yaml", repository="openamr-platform-sw",
+                     area=quote)
+        unknown = row("REG-1003", target="openamr-platform-sw/config/nav.yaml", repository="not-a-repo", area="nav")
+        to_open, _ = self.run_plan([private, public, unknown])
+        self.assertEqual([i["repository"] for i in to_open], ["audits", "openamr-platform-sw", "openamr-platform-sw"])
+        self.assertIn(quote, to_open[0]["title"])
+        for text in (to_open[1]["title"], to_open[1]["body"]):
+            self.assertNotIn(quote, text)
+            self.assertNotIn("<x>", text)
+        token = to_open[1]["title"].split(": ", 1)[1]
+        self.assertRegex(token, r"^[a-z0-9-]{1,40}$")
+
     def test_existing_issue_is_not_duplicated(self):
         self.assertEqual(self.run_plan([row("ELE-901", "Blocker")], [issue("openamr-platform-sw", 5, "ELE-901")]), ([], []))
 
