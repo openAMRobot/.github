@@ -67,6 +67,9 @@ sources:
   P-03-rev20.1:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.1, with the platform lead's decisions of 30 October 2026 (earlier revision; superseded by rev20.2 as the addendum in force; carries the rev20.0 items 15, 17 and 18 head-camera values; item 24: whole chest layout, including the ZX80 operator panel correction of 28 October 2026)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  Alex decision 2026-11-03:
+    title: Platform decision of 3 November 2026 (rear power module per the rear power owner's layout report rev 2 with busbars; BMS in the right side gap; FB-A Blue Sea 5046 and FB-B SafetyHub 150; K1/K2 option A GX11CAC decided, option B rejected on fit; 15 mm gap above the wireless-charging receiver with non-metal parts within 20 mm; flag rod guide on the static column), modelled in openamrobot-docs #71
+    evidence: decision record and the rear power owner's layout report rev 2 (3 Nov 2026), not held in any repository; provenance only, CI never reads it; to be entered in P-03 (in_force stays P-03-rev20.2)
   Alex decision 2026-11-02:
     title: Platform decision of 2 November 2026 (wireless charging prepared in 2.0 with the receiver installed later, manual SB50 charging, docking approach; ZX80 portrait only on a fixed mount; head camera 57 mm; second E-stop on the adapter plate; battery trays; lift sensors, adapter plate and base plate; tyre compression); change request openAMRobot/.github#83
     evidence: decision record, not held in any repository; provenance only, CI never reads it; to be entered in P-03 (in_force stays P-03-rev20.2)
@@ -442,13 +445,16 @@ decisions:
     status: recorded
     values:
       - 8 x EVE LF105 LiFePO4 cells, 8S, 25.6 V, 105 Ah, in two removable trays of 4 cells in the rear side pockets, joined by the keyed main connector PWR-018
-      - BMS and power distribution on a plate above the wireless-charging receiver position (see CHARGING)
+      - "rear power module above the wireless-charging receiver position (see CHARGING): F0 (Blue Sea 5007100 holder with the 5112 110 A fuse) across the plate front next to pack +; QS1 (BS-6004B) through the rear panel; BUS+ (PWR-017), K1, K2 and FB-B in one line; short stud-to-stud links as insulated copper busbars"
+      - "BMS (Daly M-series 8S 150 A, catalogue outline 164 x 66 x 21 mm, to verify on the delivered order code) on edge in the gap between the pack - tray (right) and the right side wall; serviced through the removable right side panel"
+      - "FB-B (SAFE bus) is the Blue Sea 7748 SafetyHub 150: F-TRAC 40 A, F-ARM-L 30 A, F-ARM-R 30 A (MIDI), F-LIFT 15 A (ATO); FB-A (BAT bus) is a Blue Sea 5046 8-way blade block: F-J401 10 A, F-5V 5 A, F-24V 7.5 A, on a shelf above K1/K2, fuses up"
       - nothing on top of the cells
     unit: none
-    date: 2026-11-02
-    review_by: 2026-12-14
-    source: {document: Alex decision 2026-11-02, item: "battery trays in the rear side pockets; pack per P-03-rev18.7 item 9"}
+    date: 2026-11-03
+    review_by: 2026-12-15
+    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; battery trays in the rear side pockets; rear power module per the rear power owner's layout report rev 2 (3 Nov 2026), modelled in openamrobot-docs #71; pack per P-03-rev18.7 item 9"}
     supersedes:
+      - {value: "BMS and power distribution on a plate above the wireless-charging receiver position", source: "Alex decision 2026-11-02; refined by the rear power owner's layout report rev 2 (3 Nov 2026)"}
       - {value: "One 8S1P EVE LF105 LiFePO4 pack, 25.6 V, 105 Ah, a single row of 8 cells across the robot, placed as close to the rear edge as practical while preserving enclosure, service and safety clearances", source: "P-03-rev18.7 item 9; replaced by Alex decision 2026-11-02"}
       - {value: fit the existing battery bay first, source: P-00-rev18.1 txt 77}
       - {value: centred at 25 percent of the robot length from the rear, source: P-03-rev18.2 battery}
@@ -853,12 +859,13 @@ decisions:
       - "exactly two E-stops; base front Schneider XB4BS8445 with one ZBE-102 block; second Schneider XB4BS8445 with ZBE-102 on top of the moving adapter plate, centred, behind the arm post, button up (about 0.90 / 1.08 / 1.25 m above the floor at L1000 / L1175 / L1350); no longer on the static column"
       - dual channel into a Pilz PNOZ s3 24 V DC (750103) with monitored manual reset
       - K1 and K2 Gigavac GX11CAC (150 A, 24 V coil with internal suppression), normally open, in series; each with one SPST-NC auxiliary, mechanically linked, in the PNOZ reset loop
+      - "K1/K2 decided: Gigavac GX11CAC (option A); the industrial contactors of option B (Schneider LC1D80BD, 186 mm deep; Siemens 3RT2045, 152 mm deep) are rejected because they do not fit under the cover above the rear power plate (about 165 mm)"
       - ordering (BUY-32) is gated on the GX11CAC datasheet checks
       - CTL-004 is bench-only until an installed solution is qualified (P-03-rev18.1 item 5, unchanged)
     unit: none
-    date: 2026-11-02
-    review_by: 2026-12-14
-    source: {document: Alex decision 2026-11-02, item: "second E-stop position on the moving adapter plate; contactors per P-03-rev19.6 item 22; E-stops and PNOZ per P-03-rev19.2 items 5 and 20; detail in E-01-rev1.3"}
+    date: 2026-11-03
+    review_by: 2026-12-15
+    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; second E-stop position on the moving adapter plate; K1/K2 option A decided 3 Nov 2026 on the rear power owner's layout report rev 2 (option B does not fit the plate height); contactors per P-03-rev19.6 item 22; E-stops and PNOZ per P-03-rev19.2 items 5 and 20; detail in E-01-rev1.3"}
     supersedes:
       - {value: "second E-stop: Schneider XB4BS8445 with ZBE-102 on the rear face of the static lift column, close to its upper edge (placeholder position until M-09)", source: "P-03-rev20.0 item 24; replaced by Alex decision 2026-11-02"}
       - {value: "second E-stop: chest button from the OpenArm kit", source: "P-03-rev19.2 items 5 and 20; replaced by P-03-rev20.0 item 24"}
@@ -984,15 +991,16 @@ decisions:
       - "receiver (170 x 150 x 52 mm, TZBOT manual V2.5) position reserved at the rear panel on the centre line, bottom 50 mm above the floor, with the base-sheet cut-out"
       - SB50 connector, F-CHG 30 A charge branch, KCHG charge relay and the start and fault lines are designed and wired
       - the receiver unit is installed physically later
+      - "the receiver sits in the base-sheet cut-out, flush with the bottom surface, and takes 50 mm of the inside height; parts may sit above it with a 15 mm gap; within 20 mm of the receiver only non-metal parts (TZBOT metal-free margin, to verify with TZBOT)"
       - the release 001 build uses the same WCM-500-24 path (SHARED-BASE, Alex decision 20 Oct 2026); the WCM-300 on the release 001 robot today is an existing unit, not the design
       - the charge relay NC contact opens the PNOZ supply, so actuators cannot be enabled while charging and a RESET is needed after
       - wired inlet PWR-019 and plug-presence switch PWR-020 are removed
       - manual charging through the SB50 connector with the Daly 28.4 V / 20 A charger (PWR-005) is available at any time
       - docking for wireless charging approaches the station, turns 180 degrees and reverses onto the transmitter (see DOCK-NO-CONTACTS)
     unit: none
-    date: 2026-11-02
-    review_by: 2026-12-14
-    source: {document: Alex decision 2026-11-02, item: "wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
+    date: 2026-11-03
+    review_by: 2026-12-15
+    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
     supersedes:
       - {value: "TZBOT WCM-500-24 wireless charger is the 2.0 charging path; receiver, SB50 connector, F-CHG 30 A, charge relay and fault input are designed in", source: "P-03-rev19.2 item 20; refined by Alex decision 2026-11-02 (prepared and wired, receiver installed later)"}
       - {value: "Daly 28.4 V / 20 A charger (PWR-005) is bench only, through the same SB50 connector with the E-stop pressed", source: "P-03-rev19.2 item 20; replaced by Alex decision 2026-11-02"}
@@ -1253,14 +1261,15 @@ decisions:
       - lift base plate on the centre-frame arch, with a doubler or through-bolts with a backing plate on the arch top sheet
       - "lift stop sensors: 3 x SICK IME12-04BNSZC0S on the rear face of the static column at z 120 / 295 / 470 mm above the column base"
       - "flag rod bolted to a rear extension of a one-piece adapter plate (425 x 100 x 10 mm, 6082-T6); supersedes the rear-flush rule (P-03 rev20.1 item 25 D2)"
+      - "flag rod second support: an open U-ring guide (PTFE liner) on the head of the static column, open toward the stop sensors and the flag; the rod slides in it over the full travel"
       - lift motion only in the stowed or carry safe pose with the base stopped
       - hold-and-move limits 0.05 m/s (drawer reversal) and 0.3 m/s (carrying)
       - "DOLD written confirmation received 14 Oct 2026: 800 N held with power off"
       - "release gates: the holding test on the delivered unit after an E-stop during motion and after power loss, supplier CAD, weighed mass, the CAN3 lift interface and the F2S rerun"
     unit: none
-    date: 2026-11-02
-    review_by: 2026-12-14
-    source: {document: Alex decision 2026-11-02, item: "lift status, stop sensors, adapter plate and base plate; DOLD confirmation of 14 Oct 2026 and holding-test release gate per P-03-rev20.2 item 26; lift, motion rules and other release gates per P-03-rev18.9 items 6, 8, 14, 15, 16 and 18"}
+    date: 2026-11-03
+    review_by: 2026-12-15
+    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; flag rod guide 3 Nov 2026 (openamrobot-docs #71); lift status, stop sensors, adapter plate and base plate; DOLD confirmation of 14 Oct 2026 and holding-test release gate per P-03-rev20.2 item 26; lift, motion rules and other release gates per P-03-rev18.9 items 6, 8, 14, 15, 16 and 18"}
     supersedes:
       - {value: "lift approved in principle", source: "P-03-rev18.9; replaced by Alex decision 2026-11-02 (verified in simulation, hardware build and acceptance in progress)"}
       - {value: "adapter plate flush with the rear of the column (rear-flush rule)", source: "P-03-rev20.1 item 25 D2; replaced by Alex decision 2026-11-02 (rear extension carrying the flag rod)"}

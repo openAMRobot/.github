@@ -544,9 +544,11 @@ class RealRegister(unittest.TestCase):
         by_id = {d["id"]: d for d in self.decisions}
         changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
                    "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
+        refined_3_nov = ("CHARGING", "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT")  # Alex decision 2026-11-03
         for did in changed:
-            self.assertEqual(by_id[did]["source"]["document"], "Alex decision 2026-11-02", did)
-            self.assertEqual(by_id[did]["date"], cd.as_date("2026-11-02"), did)
+            day = "2026-11-03" if did in refined_3_nov else "2026-11-02"
+            self.assertEqual(by_id[did]["source"]["document"], "Alex decision " + day, did)
+            self.assertEqual(by_id[did]["date"], cd.as_date(day), did)
             self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
         lift = " ".join(by_id["LIFT"]["values"])
         for phrase in ("verified in simulation", "IME12-04BNSZC0S", "120 / 295 / 470 mm",
@@ -558,6 +560,19 @@ class RealRegister(unittest.TestCase):
         tablet = " ".join(by_id["TABLET-MOUNT"]["values"])
         for phrase in ("40 mm lower", "10 mm below the Getac bottom edge", "no rotation and no landscape"):
             self.assertIn(phrase, tablet)
+
+    def test_2026_11_03_values_recorded(self):
+        data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertIn("Alex decision 2026-11-03", data["sources"])
+        by_id = {d["id"]: d for d in self.decisions}
+        safety = " ".join(by_id["SAFETY-PROCUREMENT"]["values"])
+        for phrase in ("K1/K2 decided: Gigavac GX11CAC", "LC1D80BD", "3RT2045", "do not fit"):
+            self.assertIn(phrase, safety)
+        battery = " ".join(by_id["BATTERY-PLACEMENT"]["values"])
+        for phrase in ("164 x 66 x 21 mm", "right side wall", "SafetyHub 150", "Blue Sea 5046", "busbars", "nothing on top of the cells"):
+            self.assertIn(phrase, battery)
+        self.assertIn("15 mm gap", " ".join(by_id["CHARGING"]["values"]))
+        self.assertIn("open U-ring guide", " ".join(by_id["LIFT"]["values"]))
 
     def test_bms_run_ok_dropped(self):
         repo = "openamr-platform-fw"
