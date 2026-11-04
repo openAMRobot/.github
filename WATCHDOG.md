@@ -326,9 +326,10 @@ Only after step (e) does a finding block a merge.
 ## Status of the AI workflows
 
 The example AI workflows in `rollout/workflows/` (docs sync, weekly audit, monthly retro) are
-**design only**. They stay inactive until
-[issue #43](https://github.com/openAMRobot/.github/issues/43) is closed with its activation
-evidence. The Watchdog itself uses no AI.
+**design only**. They stay inactive until the founder writes an explicit approval comment on
+[issue #43](https://github.com/openAMRobot/.github/issues/43) after its activation evidence
+(harness/README.md "Activation"); closing #43 is not authorization by itself. The Watchdog
+itself uses no AI.
 
 ## FAQ
 

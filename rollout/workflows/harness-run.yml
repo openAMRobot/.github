@@ -1,4 +1,5 @@
-# DESIGN until issue #43 closes (WATCHDOG.md "Status of the AI workflows").
+# DESIGN (WATCHDOG.md "Status of the AI workflows"): only the founder's explicit approval
+# comment on issue #43 activates it; closing #43 is not authorization by itself.
 # Activation (harness/README.md "Activation"): copy to .github/workflows/harness-run.yml in
 # openAMRobot/.github, replace <HARNESS_SHA> with the merge SHA of the harness PR, add the
 # secrets and variables below.

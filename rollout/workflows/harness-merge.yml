@@ -1,4 +1,5 @@
-# DESIGN, stage 4 only. Activation needs all of: issue #43 closed; the shared rules
+# DESIGN, stage 4 only. Activation needs all of: the founder's explicit approval comment
+# on issue #43 (closing #43 is not authorization by itself); the shared rules
 # block raised to v3 with the tier A merge exception (harness/README.md "Stage 4");
 # a ruleset bypass for the harness App in "pull requests only" mode on each
 # repository with build: true; HARNESS_STAGE=4. Replace <HARNESS_SHA>.

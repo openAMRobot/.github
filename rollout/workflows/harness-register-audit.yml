@@ -1,4 +1,6 @@
-# DESIGN until issue #43 closes. For the PRIVATE repository openAMRobot/audits (copy to
+# DESIGN: activation is the founder's explicit approval comment on issue #43 (harness/README.md
+# "Activation"); closing #43 is not authorization by itself.
+# For the PRIVATE repository openAMRobot/audits (copy to
 # .github/workflows/harness-register-audit.yml there): the register audit quotes private
 # documents, so it runs where its artifacts and issues stay private. Replace <HARNESS_SHA>.
 # Secrets in openAMRobot/audits: CLAUDE_CODE_OAUTH_TOKEN (or ANTHROPIC_API_KEY),
