@@ -43,9 +43,9 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: harness-${{ github.event.schedule || inputs.mission }}
-  cancel-in-progress: false
+# Concurrency is per routed mission on the agent and publish jobs (below), not per trigger: a
+# group built from the cron expression let a manual build and a scheduled build select the same
+# issue at the same time (review finding 6, 4 Nov 2026).
 
 env:
   HARNESS_REF: <HARNESS_SHA>
@@ -215,6 +215,9 @@ jobs:
   agent:
     needs: [route, plan]
     if: needs.plan.outputs.run == 'true'
+    concurrency:
+      group: harness-${{ needs.route.outputs.mission }}
+      cancel-in-progress: false
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -342,6 +345,9 @@ jobs:
     needs: [route, plan, agent]
     # Runs even when the agent failed, so a failed attempt is still counted and reported.
     if: always() && needs.plan.outputs.run == 'true'
+    concurrency:
+      group: harness-${{ needs.route.outputs.mission }}
+      cancel-in-progress: false
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

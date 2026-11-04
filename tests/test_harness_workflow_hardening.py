@@ -99,6 +99,19 @@ class RegisterAuditBudgetAndStage(unittest.TestCase):
         self.assertIn("HARNESS_PUBLISH == 'true' && fromJSON(vars.HARNESS_STAGE || '0') >= 1", job["if"])
 
 
+class ConcurrencyPerMission(unittest.TestCase):
+    def test_agent_and_publish_serialise_on_the_routed_mission(self):
+        # Review finding 6 (4 Nov 2026): the workflow group used the cron expression for scheduled
+        # runs and the input for manual runs, so two build runs could take the same issue.
+        wf = hl.load_yaml(RUN)
+        self.assertNotIn("concurrency", wf, "no trigger-based group at workflow level")
+        for name in ("agent", "publish"):
+            group = wf["jobs"][name]["concurrency"]["group"]
+            self.assertIn("needs.route.outputs.mission", group, name)
+            self.assertNotIn("github.event.schedule", group, name)
+            self.assertFalse(wf["jobs"][name]["concurrency"]["cancel-in-progress"], name)
+
+
 class RegisterAuditEgress(unittest.TestCase):
     def test_register_audit_job_limits_egress_first(self):
         first = hl.load_yaml(AUDIT)["jobs"]["audit"]["steps"][0]
