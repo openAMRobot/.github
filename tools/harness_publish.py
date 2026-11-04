@@ -283,7 +283,11 @@ class Publisher:
         existing = [{"repository": i["repository_url"].rsplit("/", 1)[-1], "number": i["number"],
                      "title": i["title"], "state": i["state"]} for i in self.gh.paged(query)]
         existing = [e for e in existing if in_range(sai.finding_id(e["title"]), mission)]
-        to_open, to_notify = sai.plan(rows, existing, maintainers, "audits", f"harness {mission} {self.run_url}")
+        # The register audit quotes private documents: its findings stay in openAMRobot/audits,
+        # whatever a row names (re-review 4 Nov 2026). Other audits may route to public repositories.
+        destinations = set() if mission == "register-audit" else None
+        to_open, to_notify = sai.plan(rows, existing, maintainers, "audits", f"harness {mission} {self.run_url}",
+                                      public_repos=destinations)
         for issue in to_open:
             self.act(f"create {issue['repository']}: {issue['title']}", self.gh.post,
                      f"/repos/{self.org}/{issue['repository']}/issues",

@@ -153,6 +153,20 @@ class Audit(unittest.TestCase):
         self.assertTrue(any("/issues/4/comments" in u for u in urls))
         self.assertFalse(any("/issues/5/comments" in u for u in urls), "other audits' findings are left alone")
 
+    def test_register_audit_publishes_only_to_the_private_audits_repository(self):
+        # Re-review of d602381 (4 Nov 2026): the register audit quotes documents; a row that names
+        # a public repository (column or path) still becomes an issue in audits only.
+        out = tempfile.mkdtemp()
+        Path(out, "findings.csv").write_text(
+            "id,severity,area,repository,file_to_change,value_a,value_b,decision_of_record,fix\n"
+            "REG-1001,Major,quote 'doc',openamr-platform-sw,openamr-platform-sw/config/nav.yaml,a,b,,fix it\n"
+            "REG-1002,Blocker,topics,audits,decisions.yaml,a,b,,fix it\n", encoding="utf-8")
+        p, api = publisher({("GET", "/search/issues"): {"items": []}}, out, {}, {})
+        p.run("register-audit")
+        posts = [u for m, u, b in api.writes() if m == "POST"]
+        self.assertEqual(len(posts), 2)
+        self.assertTrue(all(u.endswith("/openAMRobot/audits/issues") for u in posts), posts)
+
 
 class TriageValidation(unittest.TestCase):
     def test_bad_items_are_skipped_and_the_digest_still_written(self):

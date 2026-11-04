@@ -78,8 +78,13 @@ def finding_id(title):
 
 
 def target_repository(row, public_repos, fallback):
-    """The row's repository column decides first: the fallback (private) repository or a public
-    one it names. Only a row without a usable column falls back to the paths in file_to_change."""
+    """public_repos is the set of repositories the caller allows as destinations besides the
+    fallback. Empty means every finding stays in the fallback (private) repository, whatever
+    the row's repository column or file_to_change names: the register audit quotes documents
+    and never publishes outside openAMRobot/audits. With a non-empty set, the row's repository
+    column decides first, then the repository paths in file_to_change."""
+    if not public_repos:
+        return fallback
     named = str(row.get("repository") or "").strip()
     if named == fallback or named in public_repos:
         return named
@@ -114,9 +119,11 @@ def body_for(row, repository, fallback, maintainers, report):
     return "\n".join(lines)
 
 
-def plan(new_rows, existing, maintainers, fallback, report):
-    """Return (to_open, to_notify). existing: list of {repository, number, title, state}."""
-    public_repos = set(maintainers.get("repositories", {}))
+def plan(new_rows, existing, maintainers, fallback, report, public_repos=None):
+    """Return (to_open, to_notify). existing: list of {repository, number, title, state}.
+    public_repos: destinations allowed besides the fallback; None means the public repositories
+    in maintainers.yaml, an empty set means the fallback only."""
+    public_repos = set(maintainers.get("repositories", {})) if public_repos is None else set(public_repos)
     known = {}
     for issue in existing:
         fid = finding_id(issue.get("title"))

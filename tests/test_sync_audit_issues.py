@@ -81,6 +81,20 @@ class Plan(unittest.TestCase):
         token = to_open[1]["title"].split(": ", 1)[1]
         self.assertRegex(token, r"^[a-z0-9-]{1,40}$")
 
+    def test_fallback_only_mode_never_leaves_the_private_repository(self):
+        # Re-review of d602381 (4 Nov 2026): a register-audit row naming a public repository, in
+        # its repository column or in file_to_change, must still land in audits with its text.
+        rows = [row("REG-1001", target="openamr-platform-sw/config/nav.yaml", repository="openamr-platform-sw", area="q 'x'"),
+                row("REG-1002", target="openamr-platform-sw/config/nav.yaml and decisions.yaml", repository="audits"),
+                row("REG-1003", target="openamrobot-docs docs/a.md", repository=""),
+                row("REG-1004", target="decisions.yaml", repository="not-a-repo")]
+        to_open, _ = sai.plan(rows, [], MAINTAINERS, "audits", "harness register-audit run", public_repos=set())
+        self.assertEqual({i["repository"] for i in to_open}, {"audits"})
+        self.assertEqual(len(to_open), 4)
+        self.assertIn("q 'x'", to_open[0]["title"])
+        self.assertIn("`openamr-platform-sw/config/nav.yaml`", to_open[0]["body"])
+        self.assertIn("synthetic private quote", to_open[0]["body"])
+
     def test_existing_issue_is_not_duplicated(self):
         self.assertEqual(self.run_plan([row("ELE-901", "Blocker")], [issue("openamr-platform-sw", 5, "ELE-901")]), ([], []))
 
