@@ -22,7 +22,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 |---|---|---|---|
 | #77 | #78 (claude/optimistic-sagan-oqc2lu) | draft, rebased on ed98001 | owner review of the P-03 rev20.2 item 26 values and the OPERATOR-PANEL portrait change |
 | P-03 rev20.1 | #73 | merged as ed98001 (2026-11-01) | none; its OPERATOR-PANEL portrait check is narrowed in #78 |
-| harness | #70 (harness/autopilot-2026-10-30) | in review, f4e0837 plus review fixes 5 | owner review of the six review fixes, then merge |
+| harness activation | this PR | run workflow copied, pinned to 7175860 | founder approval on #43 |
 | Profile 2.0 block | #81 | merged as d99264a (2026-11-04) | none; the LIFT register wording was already updated in #84 |
 | Decisions of 3 Nov 2026 | this PR (decisions/2026-11-03) | ready for review (2026-11-04) | owner review: K1/K2 GX11CAC decided, rear power module, BMS side gap, FB-A/FB-B, receiver 15 mm gap, flag rod guide |
 | #83 | #84 | merged as 5ed600e (2026-11-02) | none; the 2 Nov 2026 values are in force |
