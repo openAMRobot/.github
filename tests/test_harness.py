@@ -27,6 +27,13 @@ class Policy(unittest.TestCase):
         baseline = hl.load_yaml(ROOT / "harness" / "baseline.yaml")
         self.assertTrue(baseline["p03"].startswith("P-03-rev"))
 
+    def test_every_build_repository_names_its_required_status_contexts(self):
+        # The merge gate fails closed on an empty required_statuses entry (review finding 3).
+        statuses = POLICY["merge_gate"]["required_statuses"]
+        for name, cfg in POLICY["repositories"].items():
+            if cfg.get("build"):
+                self.assertTrue(statuses.get(name), f"{name} has build: true but no required_statuses entry")
+
     def test_settings_grant_the_tools_automation_mode_needs(self):
         # In automation mode (a prompt input) Claude Code has no shell or edit tools unless
         # settings allow them; the PreToolUse hook is what narrows them.

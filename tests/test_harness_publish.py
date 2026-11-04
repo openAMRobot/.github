@@ -219,7 +219,9 @@ class MergeGate(unittest.TestCase):
                                  "body": f"<!-- harness-review head={HEAD} verdict=pass tier=A -->"}],
                       checks={"check_runs": [self.check_run("quality/test"), self.check_run("quality/pr-evidence")]}, reviews=[],
                       head_commit_time=self.now - dt.timedelta(hours=30), repository="openamrobot-manifest",
-                      policy=POLICY, now=self.now, bot=BOT, statuses={"state": "pending", "statuses": []})
+                      policy=POLICY, now=self.now, bot=BOT,
+                      statuses={"state": "success", "statuses": [{"context": "DCO", "state": "success"},
+                                                                 {"context": "license/cla", "state": "success"}]})
         values.update(over)
         return values
 
@@ -276,7 +278,7 @@ class MergeGate(unittest.TestCase):
         for statuses in (None, {"state": "pending", "statuses": [{"context": "cla", "state": "pending"}]},
                          {"state": "failure", "statuses": [{"context": "DCO", "state": "failure"}]}):
             self.assertTrue(gate.decide(**self.args(statuses=statuses)), statuses)
-        ok = {"state": "success", "statuses": [{"context": "DCO", "state": "success"}]}
+        ok = {"state": "success", "statuses": [{"context": "DCO", "state": "success"}, {"context": "license/cla", "state": "success"}]}
         self.assertEqual(gate.decide(**self.args(statuses=ok)), [])
 
     def test_tier_b_label_and_removed_test_lines_block(self):
@@ -292,21 +294,24 @@ class MergeGate(unittest.TestCase):
         grown = [{"filename": "tests/test_x.py", "status": "modified", "additions": 3, "deletions": 0}]
         self.assertEqual(gate.decide(**self.args(files=grown)), [])
 
-    def test_required_status_contexts(self):
-        # Review finding 3 (4 Nov 2026): {"state": "pending", "statuses": []} passed because the
-        # gate judged each status and there was none. Policy now names required contexts.
-        policy = dict(POLICY, merge_gate={**POLICY["merge_gate"], "required_statuses": {"default": ["DCO"]}})
-        ok = {"context": "DCO", "state": "success"}
+    def test_required_status_contexts_fail_closed_with_the_shipped_policy(self):
+        # Review finding 3 (4 Nov 2026): {"state": "pending", "statuses": []} passed. The shipped
+        # policy names the contexts for openamrobot-manifest; the gate fails closed without them.
+        dco, cla = {"context": "DCO", "state": "success"}, {"context": "license/cla", "state": "success"}
         blocked = {"empty": {"state": "pending", "statuses": []},
-                   "pending": {"state": "pending", "statuses": [{"context": "DCO", "state": "pending"}]},
-                   "partial": {"state": "success", "statuses": [{"context": "cla", "state": "success"}]},
-                   "combined not success": {"state": "pending", "statuses": [ok]}}
+                   "combined pending": {"state": "pending", "statuses": [dco, cla]},
+                   "cla missing": {"state": "success", "statuses": [dco]},
+                   "cla pending": {"state": "pending", "statuses": [dco, {"context": "license/cla", "state": "pending"}]}}
         for label, statuses in blocked.items():
-            self.assertTrue(gate.decide(**self.args(policy=policy, statuses=statuses)), label)
-        passing = {"state": "success", "statuses": [ok, {"context": "cla", "state": "success"}]}
-        self.assertEqual(gate.decide(**self.args(policy=policy, statuses=passing)), [])
-        # Without required contexts the empty list stays acceptable, as before.
-        self.assertEqual(gate.decide(**self.args(statuses={"state": "pending", "statuses": []})), [])
+            self.assertTrue(gate.decide(**self.args(statuses=statuses)), label)
+        self.assertEqual(gate.decide(**self.args(statuses={"state": "success", "statuses": [dco, cla]})), [])
+        # A repository without an entry is rejected with the configured reason, whatever is posted.
+        policy = json.loads(json.dumps(POLICY))
+        policy["repositories"]["openamrobot-docs"] = {"build": True, "ros": ""}
+        reasons = gate.decide(**self.args(repository="openamrobot-docs", policy=policy,
+                                          files=[{"filename": "docs/a.md"}],
+                                          statuses={"state": "success", "statuses": [dco, cla]}))
+        self.assertIn("no required status contexts configured for openamrobot-docs", reasons)
 
     def test_no_required_checks_configured_blocks(self):
         policy = dict(POLICY, merge_gate={"required_checks": {}})

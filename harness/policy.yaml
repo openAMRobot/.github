@@ -284,13 +284,17 @@ labels:
 # tools/harness_merge_gate.py may merge a tier A PR; skipped or neutral runs never count
 # for them. Per repository, or default. Commit statuses must all be success as well, and
 # the status contexts named in required_statuses must be present on the head SHA with
-# state success (an empty status list reads as combined state "pending" and would otherwise
-# pass; review finding 3, 4 Nov 2026). Empty means no context is required.
+# state success and the combined state must be success (an empty status list reads as
+# combined state "pending"; review finding 3, 4 Nov 2026). The gate fails closed: a
+# repository whose entry is empty never merges automatically, so every repository with
+# build: true names its contexts (tests/test_harness.py checks this). The contexts are the
+# required commit statuses seen on that repository's PRs (checked in the browser, 4 Nov 2026).
 merge_gate:
   required_checks:
     default: [quality/test, quality/pr-evidence]
   required_statuses:
     default: []
+    openamrobot-manifest: ["DCO", "license/cla"]
 
 # Repositories the organization does not work on (owner decision, 29 Oct 2026). No agent,
 # audit or review ever reads or writes them. Reports name them as excluded (out of scope),

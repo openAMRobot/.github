@@ -9,8 +9,9 @@ A PR qualifies only when ALL hold:
   - a harness review comment exists for the current head SHA with verdict=pass tier=A;
   - every required check (policy merge_gate.required_checks, per repository or default) ran on the
     head SHA and concluded success; other check runs may be success, neutral or skipped; every
-    commit status on the head SHA is success and none is pending, and every context named in
-    policy merge_gate.required_statuses (per repository or default) is present and success;
+    commit status on the head SHA is success, the combined state is success, and every context
+    named in policy merge_gate.required_statuses for the repository is present and success (a
+    repository without a non-empty entry never merges automatically);
   - the veto window (24 hours) has passed since GitHub first saw the current head: measured from the
     creation time of the harness review comment for that head SHA, a GitHub-set timestamp written after
     every push, never from the commit's own committer date, which the author controls;
@@ -92,16 +93,19 @@ def decide(pr, files, comments, checks, reviews, head_commit_time, repository, p
     if statuses is None:
         reasons.append("commit statuses were not read")
     else:
-        # The combined state reads "pending" when no status exists at all, so judge each status;
-        # with at least one status the combined state must be success as well.
+        # Fail closed: the combined state must be success. With no status posted at all GitHub
+        # reports "pending", and that is not evidence either.
         posted = statuses.get("statuses", []) or []
+        if statuses.get("state") != "success":
+            reasons.append("the combined commit status is not success")
         if any(s.get("state") != "success" for s in posted):
             reasons.append("a commit status is pending or not green")
-        if posted and statuses.get("state") != "success":
-            reasons.append("the combined commit status is not success")
-        # An empty list cannot be told from a required context not yet posted, so policy names
-        # the contexts that must be present (merge_gate.required_statuses).
-        for context in required_checks(policy, repository, "required_statuses"):
+        # An enrolled repository names the status contexts that are its evidence
+        # (merge_gate.required_statuses); every one must be present with state success.
+        contexts = required_checks(policy, repository, "required_statuses")
+        if not contexts:
+            reasons.append(f"no required status contexts configured for {repository}")
+        for context in contexts:
             if not any(s.get("context") == context and s.get("state") == "success" for s in posted):
                 reasons.append(f"required commit status {context} is missing or not success on the head SHA")
     if any(r.get("state") == "CHANGES_REQUESTED" for r in reviews):
