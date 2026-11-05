@@ -28,6 +28,8 @@ is a rollout step (rollout/README.md), not a present fact.
 | `repository-quality.yml` in this repository (`quality/test`, harness checks) | (a) once merged; never run on GitHub yet | Its commands ran locally |
 | `pr-assistant.yml` | (b) | Its two checker commands ran locally; the workflow never ran |
 | `.github/workflows/watchdog-org-scan.yml` + `tools/watchdog_issue_sync.py` | (a) in the harness repository | Thursday 14:00 Europe/Berlin organization scan, central dashboard (the only issue written while `WATCHDOG_ISSUE_MODE` is unset), stable grouped issue deduplication in `groups` mode, redaction, no-longer-detected comments, re-opening of reappearing findings and blocked-scan behavior are covered by tests; it never edits `decisions.yaml` or product repositories |
+| `.github/workflows/watchdog-daily.yml` + `tools/watchdog_daily.py` + `watchdog_issue_sync.py --daily` | (a) in the harness repository once merged; never run on GitHub yet | Weekday 04:41 UTC report of CI, open PRs, rc.1 issues and stale items into the dashboard's Daily section; unit tests with recorded API fixtures; one local run in the authoring session with a token that could read only openAMRobot/.github |
+| `watchdog-daily-summary.yml` | (b), design only | Never run; activation in section 9 |
 | `docs-sync-caller.yml`, `docs-sync.yml` | (b), design only | Never run |
 | `monthly-retro.yml` | (b), design only | Never run |
 | Two human approvals on safety paths | (c) enforced by a ruleset, section 6 | `check_pr_evidence.py` only reports "safety path touched, two human approvals required" and whether reviewers are requested; it does not count approvals as a gate |
@@ -70,7 +72,7 @@ human-reviewed PR; the Action only creates a review issue and never rewrites the
 
 | Secret | Scope | Used by |
 |---|---|---|
-| `ANTHROPIC_API_KEY` (or `CLAUDE_CODE_OAUTH_TOKEN`, then change the input name) | audits, openamrobot-docs, .github | weekly audit, docs sync, monthly retro |
+| `ANTHROPIC_API_KEY` (or `CLAUDE_CODE_OAUTH_TOKEN`, then change the input name) | audits, openamrobot-docs, .github | weekly audit, docs sync, monthly retro, Watchdog daily AI summary |
 | `AUDIT_APP_ID`, `AUDIT_APP_PRIVATE_KEY` | audits | weekly audit issue sync |
 | `DOCS_SYNC_APP_ID`, `DOCS_SYNC_APP_PRIVATE_KEY` | organization secret, product repositories | docs sync sender |
 | `RETRO_APP_ID`, `RETRO_APP_PRIVATE_KEY` | .github | monthly retro |
@@ -165,3 +167,27 @@ reconciliation comment is not an approval.
 Fill the empty handles in `maintainers.yaml` (ci-owner, release-owner, docs-owner) once the people confirm
 their GitHub accounts and join the organization. Until then, automation names the role and
 mentions nobody.
+
+## 9. Watchdog daily AI summary (design only)
+
+`rollout/workflows/watchdog-daily-summary.yml` is stage 1 of the AI audit plan: after each run of
+the deterministic "Watchdog daily" workflow it reads that run's `daily.json` only, with
+`anthropics/claude-code-action` v1.0.264 (pinned at `8c3fd987fa6a6b2654f69275e323d08207fcd36c`),
+`--max-turns 15` and the tools Read, Grep and Glob only, and writes a short summary to its own
+job summary. It posts nothing to issues or pull requests. It stays off until
+[issue #43](https://github.com/openAMRobot/.github/issues/43) is closed with its activation
+evidence.
+
+Activation, in this order, by the organization owner:
+
+1. Close issue #43 with its evidence: the chosen authentication mode (section 3) and the manual
+   disposable-branch test.
+2. Add the secret `ANTHROPIC_API_KEY` to `openAMRobot/.github` (section 3).
+3. If actions are allow-listed (section 5), allow `anthropics/claude-code-action` v1.0.264 at the
+   SHA above.
+4. Copy the file to `.github/workflows/watchdog-daily-summary.yml` in a reviewed PR; the
+   workflow-policy check must pass on it.
+5. Set the repository variable `AI_STAGE_1_ENABLED` to `true` (Settings, Secrets and variables,
+   Actions, Variables), then run "Watchdog daily" once from Actions and read the summary job.
+
+To stop it: delete the variable or set it to any other value; the job is then skipped.
