@@ -583,7 +583,7 @@ class RealRegister(unittest.TestCase):
         refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
         for did in changed:
             day = "2026-11-08" if did in refined_8_nov else "2026-11-03" if did in refined_3_nov else "2026-11-02"
-            doc = "P-03-rev20.4" if did in refined_8_nov else "Alex decision " + day
+            doc = ("P-03-rev20.5" if did == "CHARGING" else "P-03-rev20.4") if did in refined_8_nov else "Alex decision " + day
             self.assertEqual(by_id[did]["source"]["document"], doc, did)
             self.assertEqual(by_id[did]["date"], cd.as_date(day), did)
             self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
