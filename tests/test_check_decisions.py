@@ -559,7 +559,7 @@ class RealRegister(unittest.TestCase):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         by_id = {d["id"]: d for d in self.decisions}
         values = " ".join(by_id["CHARGING"]["values"])
-        for phrase in ("prepared in OpenAMRobot 2.0", "170 x 150 x 52 mm", "bottom 50 mm above the floor",
+        for phrase in ("prepared in OpenAMRobot 2.0", "170 x 150 x 52 mm", "bottom 2 mm below the base sheet (about 50 mm above the floor)",
                        "KCHG", "installed physically later", "available at any time", "turns 180 degrees"):
             self.assertIn(phrase, values)
         self.assertIn("turns 180 degrees", by_id["DOCK-NO-CONTACTS"]["value"])
@@ -572,6 +572,25 @@ class RealRegister(unittest.TestCase):
                      "The single row of 8 cells was replaced by two trays.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_2026_11_08_baseline_checks(self):
+        # P-03 rev20.6 item 30 (decision baseline of 8 Nov 2026): new and changed patterns
+        cases = [
+            ("config/ekf.yaml", "    imu0: /imu/data\n", "openamr-platform-sw", ["IMU-TOPIC-OWNERSHIP"]),
+            ("config/ekf.yaml", "    imu0: /imu/data_raw\n", "openamr-platform-sw", []),
+            ("docs/a.md", "The 2.0 compute is the Jetson Orin NX 16 GB on a reComputer Robotics J401.\n", "x", ["COMPUTE"]),
+            ("docs/a.md", "Jetson Orin NX 8 GB on the Robotics 104 (was 16 GB on the Robotics J401).\n", "x", []),
+            ("docs/a.md", "The foot is fixed with four screws on a 224 x 40 mm pattern.\n", "x", ["LIFT"]),
+            ("docs/a.md", "The foot is fixed through the 260 x 30 mm tabs; 224 x 40 mm is DOLD-internal.\n", "x", []),
+            ("docs/a.md", "Stop sensors IME12-04BNSZC0S, PNP 24 V.\n", "openamr-upperbody-fw", ["UPPERBODY-CONTROLLER"]),
+            ("docs/a.md", "Stop sensors IME12-04BNSZC0S, NPN NO, 10 to 30 V.\n", "openamr-upperbody-fw", []),
+            ("docs/a.md", "Build 1 uses a 0.3 m/s cap.\n", "x", ["SPEED-CEILING"]),
+            ("docs/a.md", "Resume restarts the last goal.\n", "openamr-platform-sw", ["STOP-RELEASE"]),
+            ("docs/a.md", "Resume never restarts the last goal; the operator sends a new goal.\n", "openamr-platform-sw", []),
+            ("docs/a.md", "A reconnect resumes motion.\n", "openamr-platform-sw", ["UI-LINK-LOSS"]),
+        ]
+        for name, text, repo, want in cases:
+            self.assertEqual(self.ids(name, text, repo), want, text)
+
     def test_2026_11_02_values_recorded(self):
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
         self.assertIn("Alex decision 2026-11-02", data["sources"])
@@ -580,8 +599,8 @@ class RealRegister(unittest.TestCase):
         changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
                    "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
         refined_3_nov = ("SAFETY-PROCUREMENT", "BATTERY-PLACEMENT")  # Alex decision 2026-11-03
-        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING", "LIFT")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
-        doc_8_nov = {"CHARGING": "P-03-rev20.5", "LIFT": "P-03-rev20.6"}   # item 29 and item 30 A3 of the same day
+        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING", "LIFT")  # P-03 rev20.4 item 28 to rev20.6 item 30 (8 Nov 2026)
+        doc_8_nov = {"CHARGING": "P-03-rev20.5", "LIFT": "P-03-rev20.6"}  # LIFT: D-20 and D-21 (rev20.6 item 30)
         for did in changed:
             day = "2026-11-08" if did in refined_8_nov else "2026-11-03" if did in refined_3_nov else "2026-11-02"
             doc = doc_8_nov.get(did, "P-03-rev20.4") if did in refined_8_nov else "Alex decision " + day
@@ -590,8 +609,14 @@ class RealRegister(unittest.TestCase):
             self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
         lift = " ".join(by_id["LIFT"]["values"])
         for phrase in ("verified in simulation", "IME12-04BNSZC0S", "120 / 295 / 470 mm",
-                       "425 x 100 x 10 mm, 6082-T6", "centre-frame arch"):
+                       "425 x 100 x 10 mm, 6082-T6", "centre-frame arch", "260 x 30 mm", "DIN 7984 M8 x 14",
+                       "224 x 40 mm pattern is DOLD-internal", "350 x 140 x 10 mm", "NPN, normally open"):
             self.assertIn(phrase, lift)
+        self.assertEqual(by_id["COMPUTE"]["source"]["document"], "P-03-rev20.5")
+        self.assertIn("Orin NX 8 GB", by_id["COMPUTE"]["value"])
+        self.assertIn("the EKF reads /imu/data_raw directly", " ".join(by_id["IMU-TOPIC-OWNERSHIP"]["values"]))
+        for did in ("STOP-RELEASE", "UI-LINK-LOSS", "UPPERBODY-CONTROLLER", "MASS-LEDGER"):
+            self.assertEqual(by_id[did]["source"]["document"], "P-03-rev20.6", did)
         self.assertNotIn("lift approved in principle", by_id["LIFT"]["values"])
         self.assertTrue(any("wheel radius 0.100 m" in v and "2 mm tyre compression" in v
                             for v in by_id["FRAMES-REP105"]["values"]))
@@ -788,9 +813,9 @@ class RealRegister(unittest.TestCase):
 
     # P-03 rev20.2 item 26: values recorded without a new pattern.
     def test_rev20_2_values_in_force(self):
-        # P-03 rev20.2 values stay; P-03 rev20.4 (8 Nov 2026) is the addendum in force (item 28 enters the 2, 3 and 8 Nov decisions).
+        # P-03 rev20.2 values stay; P-03 rev20.6 (8 Nov 2026) is the addendum in force (item 30: Build 1 decision baseline).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.4", cd.as_date("2026-11-08")))
+        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.6", cd.as_date("2026-11-08")))
         by_id = {d["id"]: d for d in self.decisions}
         self.assertTrue(any("DDR-240B-24" in v and "F-LIFT 15 A" in v for v in by_id["POWER-RAILS"]["values"]))
         self.assertTrue(any("6 Nm holding" in v for v in by_id["DRIVETRAIN"]["values"]))
@@ -964,7 +989,7 @@ class RealRegister(unittest.TestCase):
         # Owner decision 30 Oct 2026: P-03 rev20.1 values stay cited (30 degrees, hp30, ZX80 panel);
         # P-03 rev20.2 is in force from 1 Nov 2026 (test_rev20_2_values_in_force).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(data["in_force"]["source"], "P-03-rev20.4")
+        self.assertEqual(data["in_force"]["source"], "P-03-rev20.6")
         self.assertIn("P-03-rev20.1", data["sources"])
         by_id = {d["id"]: d for d in self.decisions}
         self.assertEqual(by_id["CONFIG-IDS"]["source"]["document"], "P-03-rev20.1")

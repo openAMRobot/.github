@@ -13,7 +13,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 
 ## Register in force
 
-- `in_force`: P-03-rev20.4, 2026-11-08 (branch decisions/2026-11-08-owner-decisions); P-03 rev20.4 item 28 enters the owner decisions of 2, 3 and 8 Nov 2026. P-03-rev20.2 was in force from 2026-11-01 (change request #77, merged 1678735)
+- `in_force`: P-03-rev20.6, 2026-11-08 (branch decisions/2026-11-08-owner-decisions); P-03 rev20.6 item 30 records the Build 1 decision baseline of 8 Nov 2026 (D-01 to D-34); rev20.4 item 28 and rev20.5 item 29 enter the owner decisions of 2, 3 and 8 Nov 2026. P-03-rev20.2 was in force from 2026-11-01 (change request #77, merged 1678735)
 - Canonical BOM: Issue 7.14 (BOM-ISSUE-IN-FORCE), from 2026-11-01
 
 ## Current work
