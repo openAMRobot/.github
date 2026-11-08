@@ -998,17 +998,21 @@ decisions:
       - "receiver (170 x 150 x 52 mm, about 1.5 kg, TZBOT manual V2.5) position reserved at the rear panel on the centre line, bottom 50 mm above the floor, with the base-sheet cut-out; the 240 x 210 x 65 mm, 5 kg envelope is withdrawn"
       - SB50 connector, F-CHG 30 A charge branch, KCHG charge relay and the start and fault lines are designed and wired
       - the receiver unit is installed physically later
-      - "the receiver sits in the base-sheet cut-out, flush with the bottom surface, and takes 50 mm of the inside height; parts may sit above it with a 15 mm gap; no metal within 15 mm of any side of the receiver (P-03 rev20.4 item 28; the TZBOT manual asks 20 mm)"
+      - "charging air gap 20 +-10 mm between the floor transmitter and the receiver (TZBOT manual V2.5): it sets the receiver height above the floor and does not change the enclosure or the chassis"
+      - "no metal within 20 mm of the receiver sides (TZBOT manual V2.5, Figure 4, A >= 2 cm): the receiver sits in a plastic frame screwed to the steel base sheet that gives exactly 20 mm on every side (not above or below); the receiver is screwed or otherwise fixed in the frame; first iteration 3D printed, designed by Cuma"
+      - "the receiver sits in the base-sheet cut-out (receiver plus the 20 mm frame), flush with the bottom surface, and takes 50 mm of the inside height"
+      - "parts above the receiver sit 15 mm above its top (owner decision 8 Nov 2026; TZBOT recommends 20 mm); the 15 mm applies above the receiver only, never to its sides"
       - the release 001 build uses the same WCM-500-24 path (SHARED-BASE, Alex decision 20 Oct 2026); the WCM-300 on the release 001 robot today is an existing unit, not the design
       - the charge relay NC contact opens the PNOZ supply, so actuators cannot be enabled while charging and a RESET is needed after
       - wired inlet PWR-019 and plug-presence switch PWR-020 are removed
       - manual charging through the SB50 connector with the Daly 28.4 V / 20 A charger (PWR-005) is available at any time
       - docking for wireless charging approaches the station, turns 180 degrees and reverses onto the transmitter (see DOCK-NO-CONTACTS)
     unit: none
-    date: 2026-11-03
+    date: 2026-11-08
     review_by: 2026-12-15
-    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
+    source: {document: P-03-rev20.4, item: "item 28 (owner decision 8 Nov 2026): receiver frame 20 mm on the sides, 15 mm above; builds on the decisions of 2 and 3 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
     supersedes:
+      - {value: "no metal within 15 mm of any side of the receiver", source: "P-03-rev20.4 item 28 first entry (8 Nov 2026); replaced the same day by the 20 mm plastic frame on the sides and 15 mm above"}
       - {value: "TZBOT WCM-500-24 wireless charger is the 2.0 charging path; receiver, SB50 connector, F-CHG 30 A, charge relay and fault input are designed in", source: "P-03-rev19.2 item 20; refined by Alex decision 2026-11-02 (prepared and wired, receiver installed later)"}
       - {value: "Daly 28.4 V / 20 A charger (PWR-005) is bench only, through the same SB50 connector with the E-stop pressed", source: "P-03-rev19.2 item 20; replaced by Alex decision 2026-11-02"}
       - {value: "manual wired charging via PWR-019 with independent charge-plug-presence inhibition", source: P-03-rev18.1 item 3 line 11}
@@ -1016,6 +1020,9 @@ decisions:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
     check:
+      - pattern: '(?P<found>\bno metal within 15 mm\b|\b15 mm (?:offset )?from any side\b|\bwithin 15 mm of any side\b)'
+        unless: supersed|historical|\bwas\b|earlier|previous|replaced
+        message: no metal within 20 mm of the receiver sides (plastic frame); 15 mm applies above the receiver only (P-03 rev20.4 item 28)
       - pattern: '(?P<found>\b(?:charge[- ])?plug[- ]presence\b)'
         unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|without'
         message: the plug-presence switch PWR-020 is removed; charging is the TZBOT wireless path (P-03 rev19.2 item 20)
@@ -1597,28 +1604,34 @@ decisions:
     owner: platform-lead
 
   - id: WIRING-ROUTING
-    title: Base wiring stays inside the enclosure; nothing in the slot under the cover skirt
-    summary: "Base cables inside the enclosure, fixed on the deck or panels; no cable or tie in the cover slot (214 to 232 mm)."
-    fix_hint: "Route the cable inside the base, fixed on the deck or a panel, below the slot; never through the cover slot."
+    title: Base wiring stays inside the enclosure; nothing in the slot under the cover
+    summary: "Base cables inside, fixed; nothing in the slot (214 to 232 mm) or on a panel edge; two openings beside the lift."
+    fix_hint: "Route it inside the base, fixed on the deck or a panel, off the slot and panel edges; lift cables via the two openings."
     kind: exclusion
     status: recorded
     values:
-      - "every base cable runs inside the base enclosure, laid and fixed on the deck where possible, otherwise fixed on the side panels or the structure"
-      - "axis-aligned runs with 45 and 90 degree transitions; no hanging or loose cable and no cable over a component"
-      - "no cable and no tie in the slot between the base panels (top 214 mm above the floor) and the cover skirt (232 mm), nor within 50 mm inside it: the LiDAR looks out through it and it is visible"
-      - "upper-body cables run in sleeving and in the lift energy chain"
+      - "the slot is the gap between the lower edge of the top cover (232 mm above the floor) and the upper edges of the side, front and rear panels (214 mm)"
+      - "no cable, busbar or tie in the slot, and none on or over a panel upper edge, all around the robot; on the left, right and front sides also nothing within 50 mm inside the slot (the LiDAR looks out through the front, and the slot is visible)"
+      - "at the rear (no LiDAR) parts inside the base may rise above the slot level and their cables may leave at the top and run down inside, clear of the rear panel edge; no part touches the cover"
+      - "every base cable runs inside the base enclosure, laid and fixed on the deck where possible, otherwise fixed on the side panels or the structure, or into a component where needed"
+      - "axis-aligned runs with 45 and 90 degree transitions; no hanging, flying or loose cable and no cable over a component"
+      - "upper-body cables enter the base only through two openings left and right of the lift, near the middle of the platform length (left: power, right: signal), each with an edge grommet; above the base they run in sleeving and in the lift energy chain"
+      - "appearance is wire routing and fixing only: the chassis and the cover do not change"
     unit: mm
     date: 2026-11-08
     review_by: 2026-12-20
-    source: {document: P-03-rev20.4, item: "item 28 (owner rules of 3 and 8 Nov 2026); geometry in openamrobot-docs facts.yaml cover_slot and harness.py keep-outs"}
+    source: {document: P-03-rev20.4, item: "item 28 (owner rules of 3 and 8 Nov 2026); geometry in openamrobot-docs facts.yaml cover_slot, harness.py keep-outs and the two lift cable openings"}
     applies_to: {repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
-      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?)\b[^\n]{0,40}\b(?:through|in|along|via) the (?:cover |side |front |rear )?slot\b)'
-        unless: '\bno\b|\bnot\b|never|keep[- ]out|supersed|historical|\bwas\b|electronics bracket|centre-bracket|arch side|T-slot|edge trim|slot zone|mast'
-        message: no cable runs in the slot between the base panels and the cover skirt (P-03 rev20.4 item 28)
+      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:cover |side |front |rear |panel )?slot\b(?!\s+(?:in|of|on)\s+the\s+(?!cover\b|panels?\b|base\b)[a-z][a-z-]*))'
+        unless: '\bno\b|\bnot\b|never|keep[- ]out|supersed|historical|\bwas\b'
+        message: no cable or busbar runs in the slot between the panel upper edges and the cover (P-03 rev20.4 item 28)
+      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?)\b[^\n]{0,40}\b(?:on|over|along) the (?:upper|top) edges? of the (?:side|front|rear) panels?)'
+        unless: '\bno\b|\bnot\b|never|supersed|historical|\bwas\b'
+        message: no cable lies on or over a panel upper edge (P-03 rev20.4 item 28)
     verification:
-      machine: text routing a cable, harness or wire through or along the cover slot
-      human: {reviewer: platform-lead, evidence: "harness_routes.json keep-outs cover_slot_* in openamrobot-docs and the bench harness mock-up photos"}
+      machine: text routing a cable, busbar or wire through or along the slot, or on a panel upper edge
+      human: {reviewer: platform-lead, evidence: "harness_routes.json keep-outs cover_slot_* and the lift cable openings in openamrobot-docs, and the bench harness mock-up photos"}
     owner: platform-lead
 
   - id: TABLET-MOUNT
