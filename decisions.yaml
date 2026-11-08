@@ -61,6 +61,9 @@ sources:
   P-03-rev20.4:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.4, 8 November 2026 (the addendum in force; item 27: K1/K2 GX11CAC under a sourcing exception, 4 Nov; item 28: owner decisions of 2, 3 and 8 Nov 2026: two battery trays, rear power module, K1/K2 without the Siemens fallback, receiver 15 mm offset, second E-stop on the adapter plate, fixed portrait ZX80 55 mm lower, head camera 60 mm, DOLD supplier CAD, arch backing plate, wiring rules)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  P-03-rev20.5:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.5, 8 November 2026 (item 29: owner decisions of 8 Nov 2026, among them the receiver plastic frame, 20 mm on the sides and 15 mm above, the cable keep-out at the slot band without an inward band, and the two lift cable openings)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-11-08:
     title: Platform decision of 8 November 2026 (ZX80 15 mm lower again, head camera 60 mm, receiver 15 mm offset from any side, DOLD supplier CAD dimensions, arch backing plate, no cable in the slot between the base panels and the cover skirt); entered in P-03 rev20.4 item 28
     evidence: decision record, not held in any repository; provenance only, CI never reads it
@@ -1010,9 +1013,9 @@ decisions:
     unit: none
     date: 2026-11-08
     review_by: 2026-12-15
-    source: {document: P-03-rev20.4, item: "item 28 (owner decision 8 Nov 2026): receiver frame 20 mm on the sides, 15 mm above; builds on the decisions of 2 and 3 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
+    source: {document: P-03-rev20.5, item: "item 29 (owner decision 8 Nov 2026, supersedes item 28 on the receiver): receiver frame 20 mm on the sides, 15 mm above; builds on the decisions of 2 and 3 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
     supersedes:
-      - {value: "no metal within 15 mm of any side of the receiver", source: "P-03-rev20.4 item 28 first entry (8 Nov 2026); replaced the same day by the 20 mm plastic frame on the sides and 15 mm above"}
+      - {value: "no metal within 15 mm of any side of the receiver", source: "P-03-rev20.4 item 28 (8 Nov 2026); replaced by P-03-rev20.5 item 29 the same day: the 20 mm plastic frame on the sides and 15 mm above"}
       - {value: "TZBOT WCM-500-24 wireless charger is the 2.0 charging path; receiver, SB50 connector, F-CHG 30 A, charge relay and fault input are designed in", source: "P-03-rev19.2 item 20; refined by Alex decision 2026-11-02 (prepared and wired, receiver installed later)"}
       - {value: "Daly 28.4 V / 20 A charger (PWR-005) is bench only, through the same SB50 connector with the E-stop pressed", source: "P-03-rev19.2 item 20; replaced by Alex decision 2026-11-02"}
       - {value: "manual wired charging via PWR-019 with independent charge-plug-presence inhibition", source: P-03-rev18.1 item 3 line 11}
@@ -1022,7 +1025,7 @@ decisions:
     check:
       - pattern: '(?P<found>\bno metal within 15 mm\b|\b15 mm (?:offset )?from any side\b|\bwithin 15 mm of any side\b)'
         unless: supersed|historical|\bwas\b|earlier|previous|replaced
-        message: no metal within 20 mm of the receiver sides (plastic frame); 15 mm applies above the receiver only (P-03 rev20.4 item 28)
+        message: no metal within 20 mm of the receiver sides (plastic frame); 15 mm applies above the receiver only (P-03 rev20.5 item 29)
       - pattern: '(?P<found>\b(?:charge[- ])?plug[- ]presence\b)'
         unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|without'
         message: the plug-presence switch PWR-020 is removed; charging is the TZBOT wireless path (P-03 rev19.2 item 20)
@@ -1611,7 +1614,7 @@ decisions:
     status: recorded
     values:
       - "the slot is the gap between the lower edge of the top cover (232 mm above the floor) and the upper edges of the side, front and rear panels (214 mm)"
-      - "no cable, busbar or tie in the slot, and none on or over a panel upper edge, all around the robot; on the left, right and front sides also nothing within 50 mm inside the slot (the LiDAR looks out through the front, and the slot is visible)"
+      - "no cable, busbar or tie in the slot band, and none on or over a panel upper edge (the side-panel top flanges included), all around the robot; there is no inward band (the LiDAR looks out through the front, and the slot is visible)"
       - "at the rear (no LiDAR) parts inside the base may rise above the slot level and their cables may leave at the top and run down inside, clear of the rear panel edge; no part touches the cover"
       - "every base cable runs inside the base enclosure, laid and fixed on the deck where possible, otherwise fixed on the side panels or the structure, or into a component where needed"
       - "axis-aligned runs with 45 and 90 degree transitions; no hanging, flying or loose cable and no cable over a component"
@@ -1620,15 +1623,17 @@ decisions:
     unit: mm
     date: 2026-11-08
     review_by: 2026-12-20
-    source: {document: P-03-rev20.4, item: "item 28 (owner rules of 3 and 8 Nov 2026); geometry in openamrobot-docs facts.yaml cover_slot, harness.py keep-outs and the two lift cable openings"}
+    source: {document: P-03-rev20.5, item: "item 29 (owner rules of 3 and 8 Nov 2026; supersedes the item 28 slot wording); geometry in openamrobot-docs facts.yaml cover_slot, harness.py keep-outs and the two lift cable openings"}
+    supersedes:
+      - {value: "no cable or tie within 50 mm inside the slot", source: "P-03-rev20.4 item 28; replaced by P-03-rev20.5 item 29 (8 Nov 2026): no inward band"}
     applies_to: {repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:cover |side |front |rear |panel )?slot\b(?!\s+(?:in|of|on)\s+the\s+(?!cover\b|panels?\b|base\b)[a-z][a-z-]*))'
         unless: '\bno\b|\bnot\b|never|keep[- ]out|supersed|historical|\bwas\b'
-        message: no cable or busbar runs in the slot between the panel upper edges and the cover (P-03 rev20.4 item 28)
+        message: no cable or busbar runs in the slot between the panel upper edges and the cover (P-03 rev20.5 item 29)
       - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?)\b[^\n]{0,40}\b(?:on|over|along) the (?:upper|top) edges? of the (?:side|front|rear) panels?)'
         unless: '\bno\b|\bnot\b|never|supersed|historical|\bwas\b'
-        message: no cable lies on or over a panel upper edge (P-03 rev20.4 item 28)
+        message: no cable lies on or over a panel upper edge (P-03 rev20.5 item 29)
     verification:
       machine: text routing a cable, busbar or wire through or along the slot, or on a panel upper edge
       human: {reviewer: platform-lead, evidence: "harness_routes.json keep-outs cover_slot_* and the lift cable openings in openamrobot-docs, and the bench harness mock-up photos"}
