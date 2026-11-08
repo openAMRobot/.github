@@ -397,6 +397,13 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "An uncertified button is fine for prototypes.\n", "x"),
                          ["SAFETY-PROCUREMENT"])
 
+    def test_wiring_not_in_the_cover_slot(self):
+        # P-03 rev20.4 item 28 (8 Nov 2026): no cable in the slot between the base panels and the cover skirt.
+        self.assertEqual(self.ids("docs/a.md", "The side trunk cable runs along the cover slot to the rear.\n", "openamrobot-docs"), ["WIRING-ROUTING"])
+        self.assertEqual(self.ids("docs/a.md", "No cable runs in the cover slot.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "The motor leads pass through the slot in the electronics bracket.\n", "openamrobot-docs"), [])
+        self.assertEqual(self.ids("docs/a.md", "Sleeve P-clips sit in the T-slot of the static column.\n", "openamrobot-docs"), [])
+
     def test_tof_pitch_is_10_degrees(self):
         # Alex decision 20 Oct 2026: ToF cliff pitch 10 degrees down; 20 degrees is superseded.
         self.assertEqual(self.ids("docs/a.md", "The TF-Luna is pitched 20 degrees down.\n", "openamrobot-docs"), ["NEAR-FIELD-FRAMES"])
@@ -540,14 +547,16 @@ class RealRegister(unittest.TestCase):
     def test_2026_11_02_values_recorded(self):
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
         self.assertIn("Alex decision 2026-11-02", data["sources"])
-        self.assertIn("to be entered in P-03", data["in_force"]["note"])
+        self.assertIn("P-03 rev20.4 item 28", data["in_force"]["note"])
         by_id = {d["id"]: d for d in self.decisions}
         changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
                    "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
         refined_3_nov = ("CHARGING", "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT")  # Alex decision 2026-11-03
+        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
         for did in changed:
-            day = "2026-11-03" if did in refined_3_nov else "2026-11-02"
-            self.assertEqual(by_id[did]["source"]["document"], "Alex decision " + day, did)
+            day = "2026-11-08" if did in refined_8_nov else "2026-11-03" if did in refined_3_nov else "2026-11-02"
+            doc = "P-03-rev20.4" if did in refined_8_nov else "Alex decision " + day
+            self.assertEqual(by_id[did]["source"]["document"], doc, did)
             self.assertEqual(by_id[did]["date"], cd.as_date(day), did)
             self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
         lift = " ".join(by_id["LIFT"]["values"])
@@ -558,7 +567,7 @@ class RealRegister(unittest.TestCase):
         self.assertTrue(any("wheel radius 0.100 m" in v and "2 mm tyre compression" in v
                             for v in by_id["FRAMES-REP105"]["values"]))
         tablet = " ".join(by_id["TABLET-MOUNT"]["values"])
-        for phrase in ("40 mm lower", "10 mm below the Getac bottom edge", "no rotation and no landscape"):
+        for phrase in ("55 mm lower", "40 mm on 2 Nov 2026", "10 mm below the Getac bottom edge", "no rotation and no landscape"):
             self.assertIn(phrase, tablet)
 
     def test_2026_11_03_values_recorded(self):
@@ -734,8 +743,9 @@ class RealRegister(unittest.TestCase):
 
     # P-03 rev20.2 item 26: values recorded without a new pattern.
     def test_rev20_2_values_in_force(self):
+        # P-03 rev20.2 values stay; P-03 rev20.4 (8 Nov 2026) is the addendum in force (item 28 enters the 2, 3 and 8 Nov decisions).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.2", cd.as_date("2026-11-01")))
+        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.4", cd.as_date("2026-11-08")))
         by_id = {d["id"]: d for d in self.decisions}
         self.assertTrue(any("DDR-240B-24" in v and "F-LIFT 15 A" in v for v in by_id["POWER-RAILS"]["values"]))
         self.assertTrue(any("6 Nm holding" in v for v in by_id["DRIVETRAIN"]["values"]))
@@ -844,21 +854,23 @@ class RealRegister(unittest.TestCase):
                      "Planning groups: arm, arm+lift.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
-    def test_head_camera_lens_57_mm_ahead(self):
-        # Alex decision 2026-11-02: lens 57 mm ahead of the arm mount point, was 42 mm (P-03 rev20.1 item 18), before that 22 mm.
+    def test_head_camera_lens_60_mm_ahead(self):
+        # P-03 rev20.4 item 28 (8 Nov 2026): lens 60 mm ahead of the arm mount point; 57 mm on 2 Nov, 42 mm in P-03 rev20.1 item 18, 22 mm before.
         repo = "openamrobot-docs"
-        for text in ("Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
+        for text in ("Head-camera lens 0.057 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The ZED Mini lens sits 57 mm ahead of the arm mount.\n",
+                     "Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
                      "The ZED Mini lens sits 22 mm ahead of the shoulder.\n",
                      "Head-camera lens 0.042 m ahead of and 0.223 m above the arm mount point.\n",
                      "The ZED Mini lens sits 42 mm ahead of the arm mount.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), ["HEAD-CAMERA-IDENTITY"], text)
-        for text in ("Head-camera lens 0.057 m ahead of and 0.223 m above the arm mount point.\n",
-                     "The lens was 42 mm ahead of the arm mount before the 2 Nov decision.\n",
-                     "Lens 0.042 m ahead (superseded by 57 mm).\n",
+        for text in ("Head-camera lens 0.060 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The lens was 57 mm ahead of the arm mount before the 8 Nov decision.\n",
+                     "Lens 0.042 m ahead (superseded by 60 mm).\n",
                      "Historical layout: lens 22 mm ahead of the shoulder.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         by_id = {d["id"]: d for d in self.decisions}
-        self.assertIn("lens 0.057 m ahead of and 0.223 m above", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
+        self.assertIn("lens 0.060 m ahead of and 0.223 m above", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
 
     def test_head_camera_pitch_baseline_30(self):
         # P-03 rev20.1 items 15 and 17 (values of the rev20.0 28 Oct 2026 corrections): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
@@ -907,13 +919,14 @@ class RealRegister(unittest.TestCase):
         # Owner decision 30 Oct 2026: P-03 rev20.1 values stay cited (30 degrees, hp30, ZX80 panel);
         # P-03 rev20.2 is in force from 1 Nov 2026 (test_rev20_2_values_in_force).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(data["in_force"]["source"], "P-03-rev20.2")
+        self.assertEqual(data["in_force"]["source"], "P-03-rev20.4")
         self.assertIn("P-03-rev20.1", data["sources"])
         by_id = {d["id"]: d for d in self.decisions}
         self.assertEqual(by_id["CONFIG-IDS"]["source"]["document"], "P-03-rev20.1")
         # Alex decision 2026-11-02 is the primary source; the rev20.1 values stay cited in the item.
+        expected = {"HEAD-CAMERA-IDENTITY": "P-03-rev20.4", "OPERATOR-PANEL": "Alex decision 2026-11-02"}
         for did in ("HEAD-CAMERA-IDENTITY", "OPERATOR-PANEL"):
-            self.assertEqual(by_id[did]["source"]["document"], "Alex decision 2026-11-02", did)
+            self.assertEqual(by_id[did]["source"]["document"], expected[did], did)
             self.assertIn("P-03-rev20.1", by_id[did]["source"]["item"], did)
         self.assertIn("baseline 30 degrees", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
         self.assertIn("(baseline hp30)", " ".join(by_id["CONFIG-IDS"]["values"]))
