@@ -428,7 +428,7 @@ class RealRegister(unittest.TestCase):
                      "The 15 mm from any side was replaced by the 20 mm plastic frame.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         values = " ".join({d["id"]: d for d in self.decisions}["CHARGING"]["values"])
-        for phrase in ("20 +-10 mm", "within 20 mm of the receiver sides", "plastic frame screwed to the steel base sheet", "designed by Cuma",
+        for phrase in ("20 +-10 mm", "within 20 mm of the receiver sides", "plastic frame screwed to the steel base sheet", "designed by the mechanical owner",
                        "15 mm above its top"):
             self.assertIn(phrase, values)
 
