@@ -579,11 +579,12 @@ class RealRegister(unittest.TestCase):
         by_id = {d["id"]: d for d in self.decisions}
         changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
                    "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
-        refined_3_nov = ("SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT")  # Alex decision 2026-11-03
-        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
+        refined_3_nov = ("SAFETY-PROCUREMENT", "BATTERY-PLACEMENT")  # Alex decision 2026-11-03
+        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING", "LIFT")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
+        doc_8_nov = {"CHARGING": "P-03-rev20.5", "LIFT": "P-03-rev20.6"}   # item 29 and item 30 A3 of the same day
         for did in changed:
             day = "2026-11-08" if did in refined_8_nov else "2026-11-03" if did in refined_3_nov else "2026-11-02"
-            doc = ("P-03-rev20.5" if did == "CHARGING" else "P-03-rev20.4") if did in refined_8_nov else "Alex decision " + day
+            doc = doc_8_nov.get(did, "P-03-rev20.4") if did in refined_8_nov else "Alex decision " + day
             self.assertEqual(by_id[did]["source"]["document"], doc, did)
             self.assertEqual(by_id[did]["date"], cd.as_date(day), did)
             self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
@@ -610,6 +611,22 @@ class RealRegister(unittest.TestCase):
             self.assertIn(phrase, battery)
         self.assertIn("15 mm above its top", " ".join(by_id["CHARGING"]["values"]))   # 3 Nov gap above the receiver, kept on 8 Nov
         self.assertIn("open U-ring guide", " ".join(by_id["LIFT"]["values"]))
+
+    def test_2026_11_08_item_30_values_recorded(self):
+        """P-03 rev20.6 item 30: D-20 lift fixing, D-21 backing plate (LIFT) and D-01 compute (COMPUTE)."""
+        data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertIn("P-03-rev20.6", data["sources"])
+        by_id = {d["id"]: d for d in self.decisions}
+        lift = " ".join(by_id["LIFT"]["values"])
+        for phrase in ("260 x 30 mm", "DIN 7984 M8 x 14", "tapped in MEC-019", "350 x 140 x 10 mm", "internal to the DOLD assembly",
+                       "laser-cut tapped steel plate", "press-in nuts"):
+            self.assertIn(phrase, lift)
+        self.assertNotIn("four fixing screws on a 224 x 40 mm pattern", lift)
+        self.assertTrue(any("224 x 40 mm" in s_["value"] for s_ in by_id["LIFT"]["supersedes"]))
+        compute = by_id["COMPUTE"]
+        self.assertIn("Orin NX 8 GB", compute["value"])
+        self.assertIn("Robotics 104", compute["value"])
+        self.assertTrue(any("Orin NX 16 GB" in s_["value"] for s_ in compute["supersedes"]))
 
     def test_bms_run_ok_dropped(self):
         repo = "openamr-platform-fw"
