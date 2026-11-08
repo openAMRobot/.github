@@ -398,11 +398,39 @@ class RealRegister(unittest.TestCase):
                          ["SAFETY-PROCUREMENT"])
 
     def test_wiring_not_in_the_cover_slot(self):
-        # P-03 rev20.4 item 28 (8 Nov 2026): no cable in the slot between the base panels and the cover skirt.
-        self.assertEqual(self.ids("docs/a.md", "The side trunk cable runs along the cover slot to the rear.\n", "openamrobot-docs"), ["WIRING-ROUTING"])
-        self.assertEqual(self.ids("docs/a.md", "No cable runs in the cover slot.\n", "openamrobot-docs"), [])
-        self.assertEqual(self.ids("docs/a.md", "The motor leads pass through the slot in the electronics bracket.\n", "openamrobot-docs"), [])
-        self.assertEqual(self.ids("docs/a.md", "Sleeve P-clips sit in the T-slot of the static column.\n", "openamrobot-docs"), [])
+        # P-03 rev20.4 item 28 (8 Nov 2026): no cable or busbar in the slot between the panel upper edges and the cover, none on a
+        # panel edge; upper-body cables through the two openings beside the lift.
+        repo = "openamrobot-docs"
+        for text in ("The side trunk cable runs along the cover slot to the rear.\n",
+                     "The side trunk cable runs along the cover slot zone to the rear.\n",   # review on #90: a word elsewhere must not exempt it
+                     "The harness runs through the cover slot; the mast is nearby.\n",
+                     "The BMS busbar rises across the side slot to the tray.\n",
+                     "The trunk cable lies on the upper edge of the side panel.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["WIRING-ROUTING"], text)
+        for text in ("No cable runs in the cover slot.\n",
+                     "The motor leads pass through the slot in the electronics bracket.\n",
+                     "The branch leads pass through the slot in the centre-bracket side wall.\n",
+                     "Sleeve P-clips sit in the T-slot of the static column.\n",
+                     "Upper-body cables enter the base through the two openings left and right of the lift.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        values = " ".join(by_id["WIRING-ROUTING"]["values"])
+        for phrase in ("lower edge of the top cover", "upper edges of the side, front and rear panels", "two openings left and right of the lift",
+                       "at the rear (no LiDAR)", "chassis and the cover do not change"):
+            self.assertIn(phrase, values)
+
+    def test_receiver_frame_20_mm_sides_15_mm_above(self):
+        # P-03 rev20.4 item 28 (8 Nov 2026): no metal within 20 mm of the receiver sides (plastic frame), 15 mm above.
+        repo = "openamrobot-docs"
+        for text in ("No metal within 15 mm of any side of the receiver.\n", "Keep a 15 mm offset from any side of the receiver.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CHARGING"], text)
+        for text in ("No metal within 20 mm of the receiver sides; parts above it sit 15 mm above its top.\n",
+                     "The 15 mm from any side was replaced by the 20 mm plastic frame.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        values = " ".join({d["id"]: d for d in self.decisions}["CHARGING"]["values"])
+        for phrase in ("20 +-10 mm", "within 20 mm of the receiver sides", "plastic frame screwed to the steel base sheet", "designed by Cuma",
+                       "15 mm above its top"):
+            self.assertIn(phrase, values)
 
     def test_tof_pitch_is_10_degrees(self):
         # Alex decision 20 Oct 2026: ToF cliff pitch 10 degrees down; 20 degrees is superseded.
@@ -551,8 +579,8 @@ class RealRegister(unittest.TestCase):
         by_id = {d["id"]: d for d in self.decisions}
         changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
                    "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
-        refined_3_nov = ("CHARGING", "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT")  # Alex decision 2026-11-03
-        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
+        refined_3_nov = ("SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT")  # Alex decision 2026-11-03
+        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING")  # P-03 rev20.4 item 28 (owner decision 8 Nov 2026)
         for did in changed:
             day = "2026-11-08" if did in refined_8_nov else "2026-11-03" if did in refined_3_nov else "2026-11-02"
             doc = "P-03-rev20.4" if did in refined_8_nov else "Alex decision " + day
@@ -580,7 +608,7 @@ class RealRegister(unittest.TestCase):
         battery = " ".join(by_id["BATTERY-PLACEMENT"]["values"])
         for phrase in ("164 x 66 x 21 mm", "right side wall", "SafetyHub 150", "Blue Sea 5046", "busbars", "nothing on top of the cells"):
             self.assertIn(phrase, battery)
-        self.assertIn("15 mm gap", " ".join(by_id["CHARGING"]["values"]))
+        self.assertIn("15 mm above its top", " ".join(by_id["CHARGING"]["values"]))   # 3 Nov gap above the receiver, kept on 8 Nov
         self.assertIn("open U-ring guide", " ".join(by_id["LIFT"]["values"]))
 
     def test_bms_run_ok_dropped(self):
