@@ -13,7 +13,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 
 ## Register in force
 
-- `in_force`: P-03-rev20.2, 2026-11-01 (change request #77, merged 1678735); unchanged by the owner decisions of 2 Nov 2026, which carry a note that they are to be entered in P-03
+- `in_force`: P-03-rev20.4, 2026-11-08 (branch decisions/2026-11-08-owner-decisions); P-03 rev20.4 item 28 enters the owner decisions of 2, 3 and 8 Nov 2026. P-03-rev20.2 was in force from 2026-11-01 (change request #77, merged 1678735)
 - Canonical BOM: Issue 7.14 (BOM-ISSUE-IN-FORCE), from 2026-11-01
 
 ## Current work
@@ -24,7 +24,8 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 | P-03 rev20.1 | #73 | merged as ed98001 (2026-11-01) | none; its OPERATOR-PANEL portrait check is narrowed in #78 |
 | harness activation | this PR | run workflow copied, pinned to 7175860 | founder approval on #43 |
 | Profile 2.0 block | #81 | merged as d99264a (2026-11-04) | none; the LIFT register wording was already updated in #84 |
-| Decisions of 3 Nov 2026 | this PR (decisions/2026-11-03) | ready for review (2026-11-04) | owner review: K1/K2 GX11CAC decided, rear power module, BMS side gap, FB-A/FB-B, receiver 15 mm gap, flag rod guide |
+| Decisions of 3 Nov 2026 | #85 | merged as dafab0e (2026-11-04) | owner review: K1/K2 GX11CAC decided, rear power module, BMS side gap, FB-A/FB-B, receiver 15 mm gap, flag rod guide |
+| P-03 rev20.4 (decisions of 8 Nov 2026) | decisions/2026-11-08-owner-decisions | open for owner review (2026-11-08) | owner review: in_force P-03-rev20.4, ZX80 55 mm lower, head camera 60 mm, receiver 15 mm offset, DOLD CAD, arch backing plate, new WIRING-ROUTING |
 | #83 | #84 | merged as 5ed600e (2026-11-02) | none; the 2 Nov 2026 values are in force |
 | PLATFORM-PIN | #74 | pin 131e500fc4e5afc9f648cbd7dbf5b416280761fb (2.0 base, P-03 rev20.1 item 25 D7), validated by openamr-upperbody-sw #21; merged with this PR (2026-11-01) | none; touches decisions.yaml only |
 
