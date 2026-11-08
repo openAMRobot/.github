@@ -61,6 +61,9 @@ sources:
   P-03-rev20.4:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.4, 8 November 2026 (the addendum in force; item 27: K1/K2 GX11CAC under a sourcing exception, 4 Nov; item 28: owner decisions of 2, 3 and 8 Nov 2026: two battery trays, rear power module, K1/K2 without the Siemens fallback, receiver 15 mm offset, second E-stop on the adapter plate, fixed portrait ZX80 55 mm lower, head camera 60 mm, DOLD supplier CAD, arch backing plate, wiring rules)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  P-03-rev20.6:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, owner rulings A1 to A9 with decision IDs D-01 to D-34; supersedes item 28 on the lift fixing, the receiver keep-out and the slot band)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.5:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.5, 8 November 2026 (item 29: owner decisions of 8 Nov 2026, among them the receiver plastic frame, 20 mm on the sides and 15 mm above, the cable keep-out at the slot band without an inward band, and the two lift cable openings)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
@@ -1176,15 +1179,17 @@ decisions:
 
   - id: COMPUTE
     title: Reference compute
-    summary: "Reference compute: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401; Pi is legacy."
+    summary: "Reference compute: NVIDIA Jetson Orin NX 8 GB on a reComputer Robotics 104; Pi is legacy."
     fix_hint: "Name the Jetson Orin NX, or label Raspberry Pi material as legacy or Gate A."
     kind: value
     status: recorded
-    value: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe; Raspberry Pi removed from active support
+    value: NVIDIA Jetson Orin NX 8 GB on a Seeed reComputer Robotics 104 carrier with NVMe, for build 1 and all products (carrier SKU, fit and power to confirm); Raspberry Pi removed from active support
     unit: none
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-00-rev18.1, item: "txt 14, 90 and 278"}
+    date: 2026-11-08
+    review_by: 2026-12-15
+    source: {document: P-03-rev20.5, item: "item 29 (owner decision 8 Nov 2026), carried as D-01 in P-03-rev20.6 item 30; Raspberry Pi legacy per P-00-rev18.1 txt 14, 90 and 278"}
+    supersedes:
+      - {value: "NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier", source: "P-00-rev18.1 txt 14, 90 and 278; replaced by P-03-rev20.5 item 29 (8 Nov 2026)"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>Raspberry Pi 5)'
@@ -1275,8 +1280,9 @@ decisions:
       - column 530 mm retracted, 880 mm extended, mounted with its 240 mm side fore-aft
       - shoulder 1000 to 1350 mm (304 + 530 or 880 + 166 mm), see ARM-MOUNT
       - lift base plate fore-aft positions centre and +50 mm (bp000, bp050)
-      - "lift base plate on the centre-frame arch, bolted with 4 x M8 class 8.8 through the arch top sheet into captive nuts in a backing plate under the sheet (GI-082, decided 8 Nov 2026; backing plate 5 mm S235 proposed)"
-      - "DOLD supplier CAD (Hexalift EB530 Hub350 with mounting tabs): foot 280 x 60.4 x 10 mm, four fixing screws on a 224 x 40 mm pattern; static profile 240 x 60 mm, top 505 mm above the column base; inner stage 209.5 x 53.3 x 470 mm, top 530 mm retracted, 880 mm extended"
+      - "lift base plate MEC-019 (350 x 140 x 10 mm, 6082-T6) on the centre-frame arch, bolted with 4 x M8 class 8.8 through the arch top sheet into a backing plate under the sheet: one laser-cut tapped steel plate if the mechanical owner confirms the space, otherwise 5 mm S235 with press-in nuts (GI-082; D-21)"
+      - "column to MEC-019: 4 x DIN 7984 M8 x 14 class 8.8 with medium threadlocker from above through the four DOLD foot tabs on a 260 x 30 mm pattern into M8 threads tapped in MEC-019 (9.5 mm engagement, no washer, no inserts); machining released after the DOLD drawing and a dry fit (D-20)"
+      - "DOLD supplier CAD (Hexalift EB530 Hub350 with mounting tabs): foot 280 x 60.4 x 10 mm (its 224 x 40 mm screw pattern is internal to the DOLD assembly); static profile 240 x 60 mm, top 505 mm above the column base; inner stage 209.5 x 53.3 x 470 mm, top 530 mm retracted, 880 mm extended"
       - "lift stop sensors: 3 x SICK IME12-04BNSZC0S on the rear face of the static column at z 120 / 295 / 470 mm above the column base"
       - "flag rod bolted to a rear extension of a one-piece adapter plate (425 x 100 x 10 mm, 6082-T6); supersedes the rear-flush rule (P-03 rev20.1 item 25 D2)"
       - "flag rod second support: an open U-ring guide (PTFE liner) on the head of the static column, open toward the stop sensors and the flag; the rod slides in it over the full travel"
@@ -1285,10 +1291,11 @@ decisions:
       - "DOLD written confirmation received 14 Oct 2026: 800 N held with power off"
       - "release gates: the holding test on the delivered unit after an E-stop during motion and after power loss, supplier CAD, weighed mass, the CAN3 lift interface and the F2S rerun"
     unit: none
-    date: 2026-11-03
+    date: 2026-11-08
     review_by: 2026-12-15
-    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; flag rod guide 3 Nov 2026 (openamrobot-docs #71); lift status, stop sensors, adapter plate and base plate; DOLD confirmation of 14 Oct 2026 and holding-test release gate per P-03-rev20.2 item 26; lift, motion rules and other release gates per P-03-rev18.9 items 6, 8, 14, 15, 16 and 18"}
+    source: {document: P-03-rev20.6, item: "item 30 A3 (D-20 lift fixing, D-21 backing plate, 8 Nov 2026); builds on the decision of 2 Nov 2026; flag rod guide 3 Nov 2026 (openamrobot-docs #71); lift status, stop sensors, adapter plate and base plate; DOLD confirmation of 14 Oct 2026 and holding-test release gate per P-03-rev20.2 item 26; lift, motion rules and other release gates per P-03-rev18.9 items 6, 8, 14, 15, 16 and 18"}
     supersedes:
+      - {value: "column screwed to the lift base plate on the 224 x 40 mm foot pattern; backing plate 5 mm S235 with captive nuts", source: "P-03-rev20.4 item 28 (8 Nov 2026); replaced by P-03-rev20.6 item 30 A3 the same day (D-20 foot tabs 260 x 30 mm, DIN 7984 M8 x 14 into tapped MEC-019; D-21 backing plate)"}
       - {value: "lift base plate on the centre-frame arch, with a doubler or through-bolts with a backing plate on the arch top sheet", source: "Alex decision 2026-11-02 (A7); replaced by P-03-rev20.4 item 28 (through-bolts with a backing plate, 8 Nov 2026)"}
       - {value: "lift approved in principle", source: "P-03-rev18.9; replaced by Alex decision 2026-11-02 (verified in simulation, hardware build and acceptance in progress)"}
       - {value: "adapter plate flush with the rear of the column (rear-flush rule)", source: "P-03-rev20.1 item 25 D2; replaced by Alex decision 2026-11-02 (rear extension carrying the flag rod)"}
