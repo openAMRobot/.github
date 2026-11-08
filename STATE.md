@@ -25,7 +25,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 | harness activation | this PR | run workflow copied, pinned to 7175860 | founder approval on #43 |
 | Profile 2.0 block | #81 | merged as d99264a (2026-11-04) | none; the LIFT register wording was already updated in #84 |
 | Decisions of 3 Nov 2026 | #85 | merged as dafab0e (2026-11-04) | owner review: K1/K2 GX11CAC decided, rear power module, BMS side gap, FB-A/FB-B, receiver 15 mm gap, flag rod guide |
-| P-03 rev20.4 (decisions of 8 Nov 2026) | decisions/2026-11-08-owner-decisions | open for owner review (2026-11-08) | owner review: in_force P-03-rev20.4, ZX80 55 mm lower, head camera 60 mm, receiver frame (no metal within 20 mm of the sides, 15 mm above), DOLD CAD, arch backing plate, new WIRING-ROUTING (slot defined, two lift cable openings, scoped check after review) |
+| P-03 rev20.4 (decisions of 8 Nov 2026) | decisions/2026-11-08-owner-decisions | open for owner review (2026-11-08) | owner review: in_force P-03-rev20.4, ZX80 55 mm lower, head camera 60 mm, receiver frame (no metal within 20 mm of the sides, 15 mm above), DOLD CAD, arch backing plate, new WIRING-ROUTING (slot defined, two lift cable openings, scoped check after review), P-03 rev20.6 item 30: LIFT fixing through the foot tabs 260 x 30 mm (D-20) and backing plate (D-21), COMPUTE Orin NX 8 GB on the Robotics 104 (D-01) |
 | #83 | #84 | merged as 5ed600e (2026-11-02) | none; the 2 Nov 2026 values are in force |
 | PLATFORM-PIN | #74 | pin 131e500fc4e5afc9f648cbd7dbf5b416280761fb (2.0 base, P-03 rev20.1 item 25 D7), validated by openamr-upperbody-sw #21; merged with this PR (2026-11-01) | none; touches decisions.yaml only |
 
