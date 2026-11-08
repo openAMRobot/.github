@@ -1002,7 +1002,7 @@ decisions:
       - SB50 connector, F-CHG 30 A charge branch, KCHG charge relay and the start and fault lines are designed and wired
       - the receiver unit is installed physically later
       - "charging air gap 20 +-10 mm between the floor transmitter and the receiver (TZBOT manual V2.5): it sets the receiver height above the floor and does not change the enclosure or the chassis"
-      - "no metal within 20 mm of the receiver sides (TZBOT manual V2.5, Figure 4, A >= 2 cm): the receiver sits in a plastic frame screwed to the steel base sheet that gives exactly 20 mm on every side (not above or below); the receiver is screwed or otherwise fixed in the frame; first iteration 3D printed, designed by Cuma"
+      - "no metal within 20 mm of the receiver sides (TZBOT manual V2.5, Figure 4, A >= 2 cm): the receiver sits in a plastic frame screwed to the steel base sheet that gives exactly 20 mm on every side (not above or below); the receiver is screwed or otherwise fixed in the frame; first iteration 3D printed, designed by the mechanical owner"
       - "the receiver sits in the base-sheet cut-out (receiver plus the 20 mm frame), flush with the bottom surface, and takes 50 mm of the inside height"
       - "parts above the receiver sit 15 mm above its top (owner decision 8 Nov 2026; TZBOT recommends 20 mm); the 15 mm applies above the receiver only, never to its sides"
       - the release 001 build uses the same WCM-500-24 path (SHARED-BASE, Alex decision 20 Oct 2026); the WCM-300 on the release 001 robot today is an existing unit, not the design
