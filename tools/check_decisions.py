@@ -58,6 +58,21 @@ class DecisionError(ValueError):
     pass
 
 
+UNLESS_SCOPES = {"line", "sentence"}
+SENTENCE_END = re.compile(r"(?<=[.;!?])\s+")
+
+
+def unless_text(line, start, scope):
+    """The text an unless pattern is read in: the whole line, or only the sentence that holds position start."""
+    if scope != "sentence":
+        return line
+    begin = 0
+    for m in SENTENCE_END.finditer(line):
+        if m.end() > start:
+            return line[begin:m.start()]
+        begin = m.end()
+    return line[begin:]
+
 
 def as_date(value):
     """Return a date for an ISO date or a YAML date, otherwise None."""
@@ -82,10 +97,35 @@ def review_warnings(data, today=None):
     return warnings
 
 
+class RegisterLoader(yaml.SafeLoader):
+    """Reject duplicate keys before any register entry can be overwritten."""
+
+    def construct_mapping(self, node, deep=False):
+        seen = set()
+        for key_node, _ in node.value:
+            if key_node.tag == "tag:yaml.org,2002:merge":
+                continue
+            key = self.construct_object(key_node, deep=deep)
+            try:
+                duplicate = key in seen
+                seen.add(key)
+            except TypeError as exc:
+                raise yaml.constructor.ConstructorError(
+                    "while reading a register mapping", node.start_mark,
+                    "unhashable mapping key", key_node.start_mark,
+                ) from exc
+            if duplicate:
+                raise yaml.constructor.ConstructorError(
+                    "while reading a register mapping", node.start_mark,
+                    f"duplicate mapping key {key!r}", key_node.start_mark,
+                )
+        return super().construct_mapping(node, deep=deep)
+
+
 def load_decisions(path, maintainers=None):
     """Load and validate decisions.yaml; return the list of decisions."""
     try:
-        data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        data = yaml.load(Path(path).read_text(encoding="utf-8"), Loader=RegisterLoader)
     except (OSError, yaml.YAMLError) as exc:
         raise DecisionError(f"{path}: {exc}") from exc
     if not isinstance(data, dict) or data.get("schema_version") != SCHEMA_VERSION:
@@ -184,6 +224,8 @@ def load_decisions(path, maintainers=None):
                     errors.append(f"{where}: pattern needs a (?P<found>...) group")
                 if c.get("unless"):
                     re.compile(c["unless"], re.IGNORECASE)
+                if c.get("unless_scope", "line") not in UNLESS_SCOPES:
+                    errors.append(f"{where}: unless_scope must be one of {sorted(UNLESS_SCOPES)}")
             except (KeyError, TypeError, re.error) as exc:
                 errors.append(f"{where}: bad check pattern: {exc}")
     if errors:
@@ -309,7 +351,8 @@ def scan(root, decisions, repository=None, only=None, stats=None):
                     if c.get("files") and not glob_match(rel, c["files"]):
                         continue
                     for m in re.finditer(c["pattern"], line, re.IGNORECASE):
-                        if c.get("unless") and re.search(c["unless"], line, re.IGNORECASE):
+                        if c.get("unless") and re.search(c["unless"], unless_text(line, m.start(), c.get("unless_scope")),
+                                                         re.IGNORECASE):
                             continue
                         record = {
                             "id": d["id"], "file": rel, "line": number,
@@ -358,7 +401,7 @@ def main(argv=None):
           f"{sum(d['status'] == 'open' for d in decisions)} open, "
           f"{sum(d['status'] == 'superseded' for d in decisions)} superseded (citations scanned)")
     try:
-        register_data = yaml.safe_load(a.decisions.read_text(encoding="utf-8"))
+        register_data = yaml.load(a.decisions.read_text(encoding="utf-8"), Loader=RegisterLoader)
     except (OSError, yaml.YAMLError):
         register_data = {}
     for warning in review_warnings(register_data):

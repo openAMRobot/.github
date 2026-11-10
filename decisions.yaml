@@ -53,17 +53,32 @@
 schema_version: 1
 
 in_force:
-  source: P-03-rev20.2
-  date: 2026-11-01
-  note: the owner decisions of 2 November 2026 (source Alex decision 2026-11-02, change request openAMRobot/.github#83) are recorded in this register and are to be entered in P-03
+  source: P-03-rev20.6
+  date: 2026-11-08
+  note: P-03 rev20.6 item 30 records the Build 1 decision baseline of 8 November 2026 (decisions D-01 to D-34, platform-lead rulings A1 to A9); P-03 rev20.4 item 28 and rev20.5 item 29 stay in force where item 30 does not change them; the roadmap model (openamrobot-docs) is the reference for component selection and placement; mass is under ledger review (MASS-LEDGER)
 
 sources:
+  P-03-rev20.4:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.4, 8 November 2026 (the addendum in force; item 27: K1/K2 GX11CAC under a sourcing exception, 4 Nov; item 28: owner decisions of 2, 3 and 8 Nov 2026: two battery trays, rear power module, K1/K2 without the Siemens fallback, receiver 15 mm offset, second E-stop on the adapter plate, fixed portrait ZX80 55 mm lower, head camera 60 mm, DOLD supplier CAD, arch backing plate, wiring rules)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  P-03-rev20.5:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.5, 8 November 2026 (item 29: owner decisions of 8 Nov 2026, among them the receiver plastic frame, 20 mm on the sides and 15 mm above, the cable keep-out at the slot band without an inward band, and the two lift cable openings)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  P-03-rev20.6:
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, decisions D-01 to D-34 and platform-lead rulings A1 to A9: compute, IMU topic, speed ceiling, stop release, UI link loss, lift fixing and backing plate, CTL-017, mass ledger, battery trays, schedule; supersedes item 28 on lift fixing, receiver keep-out and slot band)"
+    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
+  Alex decision 2026-11-08:
+    title: Platform decision of 8 November 2026 (ZX80 15 mm lower again, head camera 60 mm, receiver 15 mm offset from any side, DOLD supplier CAD dimensions, arch backing plate, no cable in the slot between the base panels and the cover skirt); entered in P-03 rev20.4 item 28
+    evidence: decision record, not held in any repository; provenance only, CI never reads it
   P-03-rev20.2:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.2, 1 November 2026 (the addendum in force; item 26: BOM Issue 7.14, component availability, tablet mount, SAFE 24 V converter, EV_ICM-42688-P IMU board, hub-motor brake data, DOLD holding confirmation)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it; values entered from the owner's summary of item 26 (change request openAMRobot/.github#77)
   BOM-Issue-7.14:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.14, 27 October 2026, with the 1 November 2026 changes (canonical per P-03 rev20.2)
     evidence: not held in any repository; provenance only, CI never reads it
+  BOM-Issue-7.15:
+    title: "OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.15 (9 November 2026 workbook: LFT-008 lift foot fasteners, MEC-022 arch backing plate, 21 changed rows): source of the public roadmap parts extract in openamrobot-docs (hardware page PARTS, bom_coverage.csv); not the canonical procurement baseline until the BOM owner confirms it"
+    evidence: not held in any repository; provenance only, CI never reads it; imported by openamrobot-docs scripts/roadmap_model/bom715.py (openamrobot-docs #84)
   P-03-rev20.1:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.1, with the platform lead's decisions of 30 October 2026 (earlier revision; superseded by rev20.2 as the addendum in force; carries the rev20.0 items 15, 17 and 18 head-camera values; item 24: whole chest layout, including the ZX80 operator panel correction of 28 October 2026)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
@@ -183,11 +198,15 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
-    summary: "BOM Issue 7.14 is the canonical OpenAMRobot 2.0 hardware BOM."
-    fix_hint: "Name Issue 7.14 as canonical, or label older issues (Issue 6, Issue 7 to 7.13, B-01) as superseded or earlier."
+    summary: "BOM Issue 7.14 is the canonical 2.0 procurement BOM; Issue 7.15 is the source of the public roadmap parts extract."
+    fix_hint: "Name Issue 7.14 as canonical; Issue 7.15 only as the roadmap parts extract source; label older issues as superseded."
     kind: value
     status: recorded
     value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.14 (27 October 2026, with the 1 November 2026 changes)
+    public_extract:
+      source: BOM-Issue-7.15
+      scope: "the public roadmap parts extract in openamrobot-docs (hardware page PARTS, embedded part details, bom_coverage.csv, mass_export.yaml bom_issue) is imported from BOM Issue 7.15"
+      canonical: "no: Issue 7.14 stays the canonical procurement baseline until the BOM owner confirms Issue 7.15 (not recorded in this register as of 2026-11-10)"
     unit: none
     date: 2026-11-01
     review_by: 2026-12-13
@@ -214,7 +233,7 @@ decisions:
         message: B-01 is superseded
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.14\b)(?:\.\d+)?\b|\bIssue\s*7(?!\.14\b)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier|historical'
-        message: BOM Issue 7.14 is the canonical hardware BOM; Issue 7 to 7.13 (including 7.10 and 7.11) are retired (P-03 rev20.2 item 26)
+        message: BOM Issue 7.14 is the canonical hardware BOM; Issue 7 to 7.13 (including 7.10 and 7.11) are retired, and Issue 7.15 is the roadmap parts extract source, not canonical (P-03 rev20.2 item 26)
     verification:
       machine: Issue 6, Issue 7 to 7.13 (including 7.10 and 7.11) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
@@ -473,17 +492,22 @@ decisions:
     note: The rev18.1 plan set did not record a placement; P-03 rev18.2 recorded 25 percent; rev18.7 item 9 replaced it with a pack as close to the rear edge as practical; Alex decision 2026-11-02 replaces that with two trays in the rear side pockets.
 
   - id: SPEED-CEILING
-    title: 1.5 m/s is a command ceiling, not an operating speed
-    summary: "1.5 m/s is a command ceiling (analytical limit), not an accepted operating speed."
-    fix_hint: "Call 1.5 m/s a command ceiling; take operating speed from the stability model and stopping tests."
+    title: Build 1 base speed ceiling 0.5 m/s; 1.5 m/s is the analytical command ceiling
+    summary: "Build 1 base speed ceiling 0.5 m/s until measured stop acceptance; 1.5 m/s is the analytical command ceiling."
+    fix_hint: "Cap the base at 0.5 m/s until the measured stop tests pass; call 1.5 m/s the analytical command ceiling."
     kind: limit
     status: recorded
-    value: 1.5 m/s command ceiling, treated as an analytical limit; the accepted operating speed follows from the stability model and stopping tests
+    values:
+      - "Build 1 base speed ceiling 0.5 m/s until the measured stop acceptance (stop distance at most 0.15 m); there is no 0.3 m/s cap"
+      - "physical stop tests in steps of 0.2, 0.3 and 0.5 m/s; the full delay chain from E-stop to brake grip is measured"
+      - "the brake coils get a fast quench (TVS or zener), not a plain flyback diode"
+      - 1.5 m/s stays the command ceiling, treated as an analytical limit, not an accepted operating speed
     unit: m/s
-    date: 2026-09-28
-    review_by: 2026-11-09
-    source: {document: P-03-rev18.2, item: speed}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.6, item: "item 30 (decision D-07 and platform-lead ruling A5, 8 Nov 2026); 0.5 m/s ceiling from P-03-rev20.5 item 29; 1.5 m/s command ceiling per P-03-rev18.2"}
     supersedes:
+      - {value: "1.5 m/s command ceiling as the only speed limit", source: "P-03-rev18.2; replaced by P-03-rev20.5 item 29 (0.5 m/s base ceiling until measured stop acceptance)"}
       - {value: 1.5 m/s treated as an accepted operating speed, source: P-00-rev18.1 txt 60 and 352}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
@@ -493,24 +517,28 @@ decisions:
       - pattern: '(?P<found>(?:operating|validated|rated) speed\s*(?:of|is|:)?\s*1\.5\s*m/s)'
         unless: 'ceiling|analytical|not'
         message: 1.5 m/s is not an accepted operating speed
+      - pattern: '(?P<found>\b0\.3\s*m/s (?:speed |base )?(?:cap|ceiling)\b)'
+        unless: '\bno\b|\bnot\b|supersed|historical|\bwas\b|earlier|previous'
+        message: the Build 1 base speed ceiling is 0.5 m/s until measured stop acceptance; there is no 0.3 m/s cap (P-03 rev20.6 item 30, ruling A5)
     verification:
-      machine: 1.5 m/s presented as a software or operating speed limit in text
-      human: {reviewer: platform-lead, evidence: stability model and recorded stopping tests; configured velocity limits in the Nav2 and base parameters}
+      machine: 1.5 m/s presented as a software or operating speed limit in text; a 0.3 m/s base cap presented as current
+      human: {reviewer: platform-lead, evidence: "recorded stop tests at 0.2, 0.3 and 0.5 m/s with the measured delay chain from E-stop to brake grip; configured velocity limits in Nav2, the smoother, the ZLAC8015D and Gazebo at or below 0.5 m/s"}
     owner: platform-lead
 
   - id: DRIVETRAIN
     title: Drivetrain
     summary: "Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D driver on CAN1."
-    fix_hint: "Name the ZLLG80ASM250-L-B; brakes 24 V, 12.5 W, 6 Nm holding (ZLTECH 18 Oct 2026); fail-safe needs evidence."
+    fix_hint: "Name the ZLLG80ASM250-L-B; brakes 6 Nm per ZLTECH 18 Oct 2026 (5 vs 6 Nm open, D-25); fail-safe needs evidence."
     kind: value
     status: recorded
     values:
       - Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D V4.2 driver on CAN1 (CANopen), 200 mm wheels
       - "hub-motor brakes (ZLTECH 18 Oct 2026): 24 V, 12.5 W per motor, 6 Nm holding, release at most 100 ms, engagement at most 30 ms without diode"
+      - "open question (decision D-25, openamr-platform-hw issue #14): 5 Nm (ZLTECH email 21 Sep 2026) and 100 kg per pair (drawing) against 6 Nm and 120 kg per pair (written answer 18 Oct 2026); the dynamic-stop duty of the brake is not answered; brake release gating is decided by the electrical owner"
     unit: none
-    date: 2026-11-01
+    date: 2026-11-08
     review_by: 2026-12-13
-    source: {document: P-03-rev20.2, item: "item 26 (hub-motor brake data, ZLTECH 18 Oct 2026); motors and driver per P-00-rev18.1 txt 16"}
+    source: {document: P-03-rev20.6, item: "item 30 (D-25 evidence hold, 8 Nov 2026); hub-motor brake data per P-03-rev20.2 item 26 (ZLTECH 18 Oct 2026); motors and driver per P-00-rev18.1 txt 16"}
     supersedes:
       - {value: "brake ratings pending supplier evidence", source: "P-00-rev18.1 txt 16 (register fix_hint until P-03-rev20.2 item 26)"}
     applies_to:
@@ -599,17 +627,18 @@ decisions:
       - four MaxBotix MB7060 XL-MaxSonar-WR (-2XX 3/4 inch NPS housing, RS232 output) in the front and back panel left and right edge holes, each on one dedicated STM32 UART at 9600 8N1 with receive inversion and one trigger GPIO
       - two Benewake TF-Luna ToF cliff sensors in the front and back panel centre holes, one UART each, pin 5 tied to 3.3 V
       - IMU on a dedicated SPI, Mode 0
-      - CAN1 traction only, CAN2 BMS, CAN3 reserved for upper-body auxiliary actuators (CANopen, no safety function)
+      - "CAN1 traction only, CAN2 BMS, CAN3 (FDCAN3, CANopen 500 kbit/s) to the upper-body controller CTL-017, node 0x10, a separate board (see UPPERBODY-CONTROLLER); no safety function on CAN3"
       - MCU to Jetson over Ethernet, micro-ROS over UDP; USB for the bench only
     unit: none
-    date: 2026-10-12
-    review_by: 2026-11-23
-    source: {document: P-03-rev19.0, item: "item 19 (base-controller sensor I/O)"}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.6, item: "item 30 (decision D-11: CAN3 node CTL-017, 8 Nov 2026); sensor I/O per P-03-rev19.0 item 19"}
     supersedes:
       - {value: STM32H743 on NUCLEO-H743ZI2, source: P-00-rev18.1 (Gate B bench board)}
       - {value: MB7040 one per I2C bus, source: P-03-rev18.5 item 14}
       - {value: "TF-Luna on UART, one per UART", source: P-03-rev18.7 item 14}
       - {value: "two MaxBotix MB7060 serial sensors, each on one dedicated STM32 UART, 9600 8N1; no sensor I2C off the controller board", source: P-03-rev18.7 item 14}
+      - {value: "CAN3 reserved for upper-body auxiliary actuators, the lift commanded by the base controller through a CAN-to-lift module", source: "P-03-rev20.2 item 24; replaced by P-03-rev20.5 item 29 (CTL-017, a separate upper-body controller)"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>NUCLEO-H743ZI2|STM32H743)'
@@ -631,30 +660,37 @@ decisions:
 
   - id: IMU-TOPIC-OWNERSHIP
     title: IMU topic ownership
-    summary: "Firmware publishes /imu/data_raw; the host filter and EKF own /imu/data."
-    fix_hint: "Make firmware publish /imu/data_raw and leave /imu/data to the host filter."
+    summary: "Firmware publishes /imu/data_raw; the EKF reads it directly (yaw rate only); no host IMU filter in 2.0."
+    fix_hint: "Firmware publishes /imu/data_raw; the EKF imu0 reads /imu/data_raw (angular velocity z only); no host filter."
     kind: distinction
     status: recorded
     values:
       - firmware publishes /imu/data_raw
-      - the host filter and EKF own /imu/data
+      - "the EKF reads /imu/data_raw directly and fuses only angular_velocity.z (robot_localization imu0)"
+      - no host IMU filter in OpenAMRobot 2.0; nothing publishes /imu/data on the 2.0 robot
+      - "the Gate A (legacy) Teensy publishes /imu/data; a Gate A run remaps it to /imu/data_raw"
     unit: none
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-00-rev18.1, item: txt 15 and 345; I8-WP line 224}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.5, item: "item 29 (restates P-03-rev20.0 item 24, decision D-10): EKF imu0 /imu/data_raw, no filter, angular velocity z only"}
+    supersedes:
+      - {value: "the host filter and EKF own /imu/data", source: "P-00-rev18.1 txt 15 and 345, I8-WP line 224; replaced by P-03-rev20.0 item 24 (restated rev20.5 item 29)"}
     applies_to:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.launch.py", "**/*.launch.xml", "**/*.ino", "**/*.cpp", "**/*.h"]
     check:
       - pattern: '(?:micro-?ROS agent|Teensy|firmware|MCU|STM32)[^\n]{0,80}(?P<found>/imu/data)(?!_raw)\b'
-        unless: '\bhost\b|(?<!un)filter|EKF|madgwick|must not|never|outdated|older revisions?'
-        message: firmware publishes /imu/data_raw; /imu/data belongs to the host filter
+        unless: '\bhost\b|(?<!un)filter|EKF|madgwick|must not|never|outdated|older revisions?|Gate A|legacy'
+        message: firmware publishes /imu/data_raw and the EKF reads it directly (P-03 rev20.5 item 29)
+      - pattern: '\bimu0:\s*(?P<found>/?imu/data)(?!_raw)\b'
+        files: ["**/*.yaml", "**/*.yml"]
+        message: the EKF imu0 input is /imu/data_raw; there is no host IMU filter in 2.0 (P-03 rev20.5 item 29, D-10)
       - pattern: '"(?P<found>/?imu/data)"'
         files: ["**/*.ino", "**/*.cpp", "**/*.c", "**/*.h"]
         message: firmware must not publish filtered /imu/data
     verification:
-      machine: text attributing /imu/data to firmware; firmware sources containing the literal topic imu/data
-      human: {reviewer: software-lead, evidence: ros2 topic info on the running bring-up showing one publisher per topic}
+      machine: text attributing /imu/data to firmware outside Gate A or legacy context; firmware sources containing the literal topic imu/data; an EKF imu0 on /imu/data
+      human: {reviewer: software-lead, evidence: "ros2 topic info on the running bring-up: one publisher of /imu/data_raw (firmware) and the EKF subscribed to it; openamr-platform-sw test_ekf_imu_topic.py"}
     owner: software-lead
 
   - id: CAMERAS
@@ -707,13 +743,14 @@ decisions:
     values:
       - Stereolabs ZED Mini, SKU ZED-121210, supplied with the OpenArm 2.0 set
       - mounted on the lift carriage, held at its ends by the mount supplied with the OpenArm set, on a pitch bracket on the arm-profile top
-      - lens 0.057 m ahead of and 0.223 m above the arm mount point, centred; 1223 mm at L1000 and 1573 mm at L1350 (height unchanged)
+      - lens 0.060 m ahead of and 0.223 m above the arm mount point, centred; 1223 mm at L1000 and 1573 mm at L1350 (height unchanged)
       - pitch 15 to 35 degrees down in 5 degree steps about the lens line, baseline 30 degrees
     unit: none
-    date: 2026-11-02
-    review_by: 2026-12-14
-    source: {document: Alex decision 2026-11-02, item: "lens 0.057 m ahead of the arm mount, height unchanged; pitch per P-03-rev20.1 item 15 (value of the P-03-rev20.0 28 Oct 2026 correction, unchanged); camera identity per P-03-rev18.7 item 15"}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.4, item: "item 28 (owner decision 8 Nov 2026): lens 0.060 m ahead of the arm mount, height unchanged; pitch per P-03-rev20.1 item 15 (value of the P-03-rev20.0 28 Oct 2026 correction, unchanged); camera identity per P-03-rev18.7 item 15"}
     supersedes:
+      - {value: "lens 0.057 m ahead of and 0.223 m above the arm mount point", source: "Alex decision 2026-11-02; replaced by P-03-rev20.4 item 28 (8 Nov 2026)"}
       - {value: "lens 0.042 m ahead of and 0.223 m above the arm mount point", source: "P-03-rev20.1 item 18; replaced by Alex decision 2026-11-02"}
       - {value: "lens 0.022 m ahead of and 0.223 m above the arm mount point", source: P-03-rev18.9 item 18}
       - {value: "pitch 15 to 35 degrees down in 5 degree steps, baseline 25 degrees", source: P-03-rev18.7 item 15}
@@ -723,9 +760,9 @@ decisions:
       - pattern: '(?P<found>\bZED[ -]?(?:2i?|X(?:[ -]?Mini)?)\b)'
         unless: 'supersed|historical|legacy|replaced|\bnot\b'
         message: the head camera is the Stereolabs ZED Mini, SKU ZED-121210 (P-03 rev18.7 item 15)
-      - pattern: '(?P<found>\b(?:0\.0[24]2 m|[24]2 mm) ahead\b)'
+      - pattern: '(?P<found>\b(?:0\.0(?:[24]2|57) m|(?:[24]2|57) mm) ahead\b)'
         unless: 'supersed|historical|\bwas\b'
-        message: the head-camera lens is 0.057 m (57 mm) ahead of the arm mount point (Alex decision 2026-11-02)
+        message: the head-camera lens is 0.060 m (60 mm) ahead of the arm mount point (P-03 rev20.4 item 28)
       - pattern: '(?P<found>\b(?:head[- ]camera|ZED Mini)\b[^\n]{0,60}\bpitch\b[^\n]{0,40}\bbaseline:?\s*25\b(?!\s*mm))'
         unless: 'supersed|historical|\bwas\b'
         message: the head-camera baseline pitch is 30 degrees down (P-03 rev20.1 item 15)
@@ -911,10 +948,12 @@ decisions:
       - RESET NC contact input
       - charger fault input
       - TPL7407L outputs for the RESET lamp and KCHG
+      - "the driver part is the TI TPL7407LDR on an Adafruit 1207 SOIC-16 breakout, outputs off from power-up; the DFRobot DFR0457 is not used"
+      - "spare driver channels are not assigned; K2-EN, KPRE-EN and BRAKE-EN wait for the electrical owner's ruling (D-09, D-22, D-25)"
     unit: none
-    date: 2026-10-18
-    review_by: 2026-11-29
-    source: {document: P-03-rev19.6, item: "item 22 (controller I/O); detail in E-01-rev1.3"}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.5, item: "item 29 (decision D-09: TPL7407LDR on Adafruit 1207, platform-lead Slack 4 Nov 2026); controller I/O per P-03-rev19.6 item 22, detail in E-01-rev1.3"}
     supersedes:
       - {value: "separate K1/K2 contactor feedback read by the firmware", source: "earlier contactor design; replaced by the linked auxiliaries in the PNOZ reset loop, P-03-rev19.6 item 22"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
@@ -937,10 +976,14 @@ decisions:
       - an E-stop cuts actuator power only (traction, both arms, lift)
       - the Jetson, the 5 V rail and the regulated 24 V rail stay powered
       - brake release is fed from the actuator side, so an E-stop engages the brakes
+      - "the E-stop is Category 0: motor power is cut and the two spring-applied holding brakes stop the robot; normal and software stops are made by the ZLAC8015D"
+      - "stop distance at most 0.15 m is a physical acceptance test (evidence hold, see SPEED-CEILING)"
     unit: none
-    date: 2026-10-15
-    review_by: 2026-11-26
-    source: {document: P-03-rev19.2, item: "item 20; detail in E-01-rev1.1"}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.5, item: "item 29 (decision D-07: Category 0 E-stop on the holding brakes); scope per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
+    supersedes:
+      - {value: "dynamic stopping on E-stop stays with the ZLAC8015D", source: "P-03-rev20.2 item 21 and E-01 rev1.7 section 4; replaced by P-03-rev20.5 item 29 (Category 0 on the holding brakes)"}
     applies_to:
       repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs", "openamrobot-ui"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
@@ -950,7 +993,7 @@ decisions:
         message: an E-stop cuts actuator power only; the Jetson, 5 V and regulated 24 V stay powered (P-03 rev19.2 item 20)
     verification:
       machine: text saying an E-stop cuts all power or shuts down the Jetson
-      human: {reviewer: platform-lead, evidence: "E-01 rev1.1 power distribution and the hardwired safety-chain test record; two human approvals per the repository ruleset"}
+      human: {reviewer: platform-lead, evidence: "E-01 rev1.1 power distribution, the hardwired safety-chain test record and the measured E-stop stop distance and delay chain; two human approvals per the repository ruleset"}
     owner: electrical-owner
 
   - id: RESET-BUTTON
@@ -988,20 +1031,25 @@ decisions:
     status: recorded
     values:
       - TZBOT WCM-500-24 wireless charging is prepared in OpenAMRobot 2.0; output ordered at 28.4 V after written TZBOT confirmation
-      - "receiver (170 x 150 x 52 mm, TZBOT manual V2.5) position reserved at the rear panel on the centre line, bottom 50 mm above the floor, with the base-sheet cut-out"
+      - "receiver (170 x 150 x 52 mm, about 1.5 kg, TZBOT manual V2.5) position reserved at the rear panel on the centre line, bottom 2 mm below the base sheet (about 50 mm above the floor), with the base-sheet cut-out; the 240 x 210 x 65 mm, 5 kg envelope is withdrawn"
       - SB50 connector, F-CHG 30 A charge branch, KCHG charge relay and the start and fault lines are designed and wired
+      - "the charger is bought later (decision D-05): the robot is wired complete for it, and Build 1 charges manually through SB50"
       - the receiver unit is installed physically later
-      - "the receiver sits in the base-sheet cut-out, flush with the bottom surface, and takes 50 mm of the inside height; parts may sit above it with a 15 mm gap; within 20 mm of the receiver only non-metal parts (TZBOT metal-free margin, to verify with TZBOT)"
+      - "charging air gap 20 +-10 mm between the floor transmitter and the receiver (TZBOT manual V2.5): it sets the receiver height above the floor and does not change the enclosure or the chassis"
+      - "no metal within 20 mm of the receiver sides (TZBOT manual V2.5, Figure 4, A >= 2 cm): the receiver sits in a plastic frame screwed to the steel base sheet that gives exactly 20 mm on every side (not above or below); the receiver is screwed or otherwise fixed in the frame; first iteration 3D printed, designed by the mechanical owner"
+      - "the receiver sits in the base-sheet cut-out (receiver plus the 20 mm frame), flush with the bottom surface, and takes 50 mm of the inside height"
+      - "parts above the receiver sit 15 mm above its top (owner decision 8 Nov 2026; TZBOT recommends 20 mm); the 15 mm applies above the receiver only, never to its sides"
       - the release 001 build uses the same WCM-500-24 path (SHARED-BASE, Alex decision 20 Oct 2026); the WCM-300 on the release 001 robot today is an existing unit, not the design
       - the charge relay NC contact opens the PNOZ supply, so actuators cannot be enabled while charging and a RESET is needed after
       - wired inlet PWR-019 and plug-presence switch PWR-020 are removed
       - manual charging through the SB50 connector with the Daly 28.4 V / 20 A charger (PWR-005) is available at any time
       - docking for wireless charging approaches the station, turns 180 degrees and reverses onto the transmitter (see DOCK-NO-CONTACTS)
     unit: none
-    date: 2026-11-03
+    date: 2026-11-08
     review_by: 2026-12-15
-    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
+    source: {document: P-03-rev20.5, item: "item 29 (owner decision 8 Nov 2026, supersedes item 28 on the receiver; decisions D-02, D-03, D-05, restated in P-03-rev20.6 item 30): receiver frame 20 mm on the sides, 15 mm above; builds on the decisions of 2 and 3 Nov 2026; receiver gap and flag rod guide 3 Nov 2026 (openamrobot-docs #71); wireless charging prepared, receiver installed later, manual SB50 charging, docking approach; charging path per P-03-rev19.2 item 20, detail in E-01-rev1.1"}
     supersedes:
+      - {value: "no metal within 15 mm of any side of the receiver", source: "P-03-rev20.4 item 28 (8 Nov 2026); replaced by P-03-rev20.5 item 29 the same day: the 20 mm plastic frame on the sides and 15 mm above"}
       - {value: "TZBOT WCM-500-24 wireless charger is the 2.0 charging path; receiver, SB50 connector, F-CHG 30 A, charge relay and fault input are designed in", source: "P-03-rev19.2 item 20; refined by Alex decision 2026-11-02 (prepared and wired, receiver installed later)"}
       - {value: "Daly 28.4 V / 20 A charger (PWR-005) is bench only, through the same SB50 connector with the E-stop pressed", source: "P-03-rev19.2 item 20; replaced by Alex decision 2026-11-02"}
       - {value: "manual wired charging via PWR-019 with independent charge-plug-presence inhibition", source: P-03-rev18.1 item 3 line 11}
@@ -1009,6 +1057,9 @@ decisions:
       repositories: ["openamr-platform-*", "openamrobot-docs", "openamrobot-ui", "openamrobot-interfaces"]
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
     check:
+      - pattern: '(?P<found>\bno metal within 15 mm\b|\b15 mm (?:offset )?from any side\b|\bwithin 15 mm of any side\b)'
+        unless: supersed|historical|\bwas\b|earlier|previous|replaced
+        message: no metal within 20 mm of the receiver sides (plastic frame); 15 mm applies above the receiver only (P-03 rev20.5 item 29)
       - pattern: '(?P<found>\b(?:charge[- ])?plug[- ]presence\b)'
         unless: 'supersed|legacy|historical|removed|dropped|no longer|earlier|previous|v0\.0\.1|\bno\b|\bnot\b|without'
         message: the plug-presence switch PWR-020 is removed; charging is the TZBOT wireless path (P-03 rev19.2 item 20)
@@ -1159,23 +1210,28 @@ decisions:
 
   - id: COMPUTE
     title: Reference compute
-    summary: "Reference compute: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401; Pi is legacy."
-    fix_hint: "Name the Jetson Orin NX, or label Raspberry Pi material as legacy or Gate A."
+    summary: "Reference compute: NVIDIA Jetson Orin NX 8 GB on a reComputer Robotics 104; Pi is legacy."
+    fix_hint: "Name the Jetson Orin NX 8 GB on the Robotics 104; label 16 GB, J401 or Raspberry Pi material as superseded or legacy."
     kind: value
     status: recorded
-    value: NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe; Raspberry Pi removed from active support
+    value: "NVIDIA Jetson Orin NX 8 GB (900-13767-0010-000) on the Seeed reComputer Robotics 104 carrier with NVMe; the exact carrier SKU, fit and power are a verification gate; Raspberry Pi removed from active support"
     unit: none
-    date: null
-    review_by: 2026-11-18  # six weeks after this register update (2026-10-07)
-    source: {document: P-00-rev18.1, item: "txt 14, 90 and 278"}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.5, item: "item 29 (decision D-01, restated in P-03-rev20.6 item 30); Raspberry Pi removal per P-00-rev18.1 txt 14, 90 and 278"}
+    supersedes:
+      - {value: "NVIDIA Jetson Orin NX 16 GB on a reComputer Robotics J401 carrier with NVMe", source: "P-00-rev18.1 txt 14, 90 and 278; replaced by P-03-rev20.5 item 29"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
       - pattern: '(?P<found>Raspberry Pi 5)'
         unless: 'legacy|historical|removed|supersed|Gate A|previous|earlier'
         message: Jetson Orin NX is the 2.0 reference compute; label Raspberry Pi material as legacy
+      - pattern: '(?P<found>\bOrin NX 16 ?GB\b|\bRobotics J401\b)'
+        unless: 'supersed|historical|\bwas\b|earlier|previous|replaced|legacy'
+        message: the 2.0 compute is the Jetson Orin NX 8 GB on the reComputer Robotics 104 (P-03 rev20.5 item 29, D-01)
     verification:
-      machine: Raspberry Pi 5 without a legacy label
-      human: {reviewer: software-lead, evidence: bring-up documentation on the Jetson}
+      machine: Raspberry Pi 5 without a legacy label; Orin NX 16 GB or the Robotics J401 presented as current
+      human: {reviewer: software-lead, evidence: "bring-up documentation on the Jetson; the Robotics 104 SKU, its drawing and the compute power budget; the 8 GB benchmark under the full stack"}
     owner: platform-lead
 
   - id: NAV-LIDAR
@@ -1258,19 +1314,25 @@ decisions:
       - column 530 mm retracted, 880 mm extended, mounted with its 240 mm side fore-aft
       - shoulder 1000 to 1350 mm (304 + 530 or 880 + 166 mm), see ARM-MOUNT
       - lift base plate fore-aft positions centre and +50 mm (bp000, bp050)
-      - lift base plate on the centre-frame arch, with a doubler or through-bolts with a backing plate on the arch top sheet
-      - "lift stop sensors: 3 x SICK IME12-04BNSZC0S on the rear face of the static column at z 120 / 295 / 470 mm above the column base"
+      - "lift base plate MEC-019 (6082-T6, 350 x 140 x 10 mm, 10 mm longer at each end than the foot) on the centre-frame arch, bolted with 4 x M8 class 8.8 through the arch top sheet into a backing plate under the sheet (GI-082): one laser-cut tapped steel plate if the mechanical owner confirms the space, otherwise 5 mm S235 with press-in nuts (PEM) (decision D-21)"
+      - "DOLD supplier CAD (Hexalift EB530 Hub350 with mounting tabs): foot 280 x 60.4 x 10 mm; static profile 240 x 60 mm, top 505 mm above the column base; inner stage 209.5 x 53.3 x 470 mm, top 530 mm retracted, 880 mm extended"
+      - "robot fixing of the foot (decision D-20): from above through the four mounting-tab holes on a 260 x 30 mm pattern with 4 x DIN 7984 M8 x 14 class 8.8, medium threadlocker, no washer, no inserts, into M8 threads tapped in MEC-019 (9.5 mm engagement); the 224 x 40 mm pattern is DOLD-internal (internal to the DOLD assembly, not a robot fixing); machining is released only after the DOLD drawing and a dry fit"
+      - "assembly order (owner decision 9 Nov 2026): the column is screwed to MEC-019 on the bench, then column and plate go onto the arch as one unit and are bolted from above into the backing plate; service removes column and plate together at the plate-to-arch bolts (steel threads), so the column-to-plate joint stays assembled; the backing plate is held in place under the arch before assembly (fixing method by the mechanical owner)"
+      - "lift stop sensors: 3 x SICK IME12-04BNSZC0S (NPN, normally open, 10 to 30 V) on the rear face of the static column at z 120 / 295 / 470 mm above the column base, read by CTL-017 (see UPPERBODY-CONTROLLER)"
       - "flag rod bolted to a rear extension of a one-piece adapter plate (425 x 100 x 10 mm, 6082-T6); supersedes the rear-flush rule (P-03 rev20.1 item 25 D2)"
       - "flag rod second support: an open U-ring guide (PTFE liner) on the head of the static column, open toward the stop sensors and the flag; the rod slides in it over the full travel"
       - lift motion only in the stowed or carry safe pose with the base stopped
       - hold-and-move limits 0.05 m/s (drawer reversal) and 0.3 m/s (carrying)
       - "DOLD written confirmation received 14 Oct 2026: 800 N held with power off"
-      - "release gates: the holding test on the delivered unit after an E-stop during motion and after power loss, supplier CAD, weighed mass, the CAN3 lift interface and the F2S rerun"
+      - "release gates: the holding test on the delivered unit after an E-stop during motion and after power loss, supplier CAD, weighed mass, the CTL-017 controller and its fixture tests, and the F2S rerun"
     unit: none
-    date: 2026-11-03
+    date: 2026-11-08
     review_by: 2026-12-15
-    source: {document: Alex decision 2026-11-03, item: "builds on the decision of 2 Nov 2026; flag rod guide 3 Nov 2026 (openamrobot-docs #71); lift status, stop sensors, adapter plate and base plate; DOLD confirmation of 14 Oct 2026 and holding-test release gate per P-03-rev20.2 item 26; lift, motion rules and other release gates per P-03-rev18.9 items 6, 8, 14, 15, 16 and 18"}
+    source: {document: P-03-rev20.6, item: "item 30 (decisions D-20 and D-21, platform-lead ruling A3: most COTS, fewest operations, fewest custom parts; D-11 CTL-017); earlier lift decisions per Alex decision 2026-11-03, which builds on the decision of 2 Nov 2026; flag rod guide 3 Nov 2026 (openamrobot-docs #71); lift status, stop sensors, adapter plate and base plate; DOLD confirmation of 14 Oct 2026 and holding-test release gate per P-03-rev20.2 item 26; lift, motion rules and other release gates per P-03-rev18.9 items 6, 8, 14, 15, 16 and 18"}
     supersedes:
+      - {value: "DOLD foot with four fixing screws on a 224 x 40 mm pattern, screwed from below into the column (DIN 7500)", source: "P-03-rev20.4 item 28; replaced by P-03-rev20.6 item 30 (D-20: 260 x 30 mm tabs from above into tapped MEC-019)"}
+      - {value: "backing plate 5 mm S235 with captive nuts (proposed)", source: "P-03-rev20.4 item 28; replaced by P-03-rev20.6 item 30 (D-21)"}
+      - {value: "lift base plate on the centre-frame arch, with a doubler or through-bolts with a backing plate on the arch top sheet", source: "Alex decision 2026-11-02 (A7); replaced by P-03-rev20.4 item 28 (through-bolts with a backing plate, 8 Nov 2026)"}
       - {value: "lift approved in principle", source: "P-03-rev18.9; replaced by Alex decision 2026-11-02 (verified in simulation, hardware build and acceptance in progress)"}
       - {value: "adapter plate flush with the rear of the column (rear-flush rule)", source: "P-03-rev20.1 item 25 D2; replaced by Alex decision 2026-11-02 (rear extension carrying the flag rod)"}
       - {value: "release gate: written DOLD holding on E-stop and power loss", source: "P-03-rev18.9 items 6, 8, 14, 15, 16"}
@@ -1294,6 +1356,9 @@ decisions:
       - pattern: '(?P<found>\bbp(?:100|150|200)\b|\bfive[- ](?:position|fore-aft|base[- ]plate)\b|\+100, \+150 and \+200)'
         unless: 'supersed|historical|earlier|previous|replac|no longer|rev ?18\.[1-8]\b'
         message: the lift base plate has two fore-aft positions, centre and +50 mm (P-03 rev18.9 item 18)
+      - pattern: '(?P<found>\b(?:fix(?:ing|ed)?|screw(?:s|ed)?|bolt(?:s|ed)?)\b[^\n]{0,40}\b224 x 40 mm\b)'
+        unless: 'internal|supplier|DOLD-|supersed|historical|\bwas\b|earlier|previous|replac|\bnot\b'
+        message: the robot fixes the DOLD foot through the 260 x 30 mm tab holes; 224 x 40 mm is DOLD-internal (P-03 rev20.6 item 30, D-20)
     verification:
       machine: text saying 2.0 has no lift, presenting a fixed mast as current, deferring the lift to 3.0, naming Hexalift V1 as current, or base-plate positions beyond +50 mm
       human: {reviewer: platform-lead, evidence: "P-03 rev18.9 items 16 and 18, the option B drawing set, the adapter plate, stop sensor and arch mounting drawings, and the release-gate records: DOLD confirmation of 14 Oct 2026, the holding-test record on the delivered unit after an E-stop during motion and after power loss, supplier CAD, weighed mass, CAN3 lift interface, F2S rerun"}
@@ -1587,6 +1652,45 @@ decisions:
       human: {reviewer: platform-lead, evidence: "BOM Issue 7.14 supplier columns showing stock at two or more independent suppliers per line"}
     owner: platform-lead
 
+  - id: WIRING-ROUTING
+    title: Base wiring stays inside the enclosure; nothing in the slot under the cover
+    summary: "Base cables inside, fixed; nothing in the slot (214 to 232 mm) or on a panel edge; two openings beside the lift."
+    fix_hint: "Route it inside the base, fixed on the deck or a panel, off the slot and panel edges; lift cables via the two openings."
+    kind: exclusion
+    status: recorded
+    values:
+      - "the slot is the gap between the lower edge of the top cover (232 mm above the floor) and the upper edges of the side, front and rear panels (214 mm)"
+      - "no cable, busbar or tie in the slot band, and none on or over a panel upper edge (the side-panel top flanges included), all around the robot; there is no inward band (the LiDAR looks out through the front, and the slot is visible)"
+      - "at the rear (no LiDAR) parts inside the base may rise above the slot level and their cables may leave at the top and run down inside, clear of the rear panel edge; no part touches the cover"
+      - "every base cable runs inside the base enclosure, laid and fixed on the deck where possible, otherwise fixed on the side panels or the structure, or into a component where needed"
+      - "axis-aligned runs with 45 and 90 degree transitions; no hanging, flying or loose cable and no cable over a component"
+      - "upper-body cables enter the base only through two openings left and right of the lift, near the middle of the platform length (left: power, right: signal), each with an edge grommet; above the base they run in sleeving and in the lift energy chain"
+      - "appearance is wire routing and fixing only: the chassis and the cover do not change"
+      - "the geometry rule is enforced in openamrobot-docs scripts/roadmap_model/slot_rule.py (slot_violations, an exact segment test against each cover_slot keep-out grown by the cable's outer radius), which scripts/check_roadmap.py applies to every routed and fixed cable, busbar and tie of harness_routes.json; components are not checked, so rear parts may sit in or above the band (decision D-06)"
+    unit: mm
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.5, item: "item 29 (owner rules of 3 and 8 Nov 2026; supersedes the item 28 slot wording); geometry in openamrobot-docs facts.yaml cover_slot, harness.py keep-outs and the two lift cable openings"}
+    supersedes:
+      - {value: "no cable or tie within 50 mm inside the slot", source: "P-03-rev20.4 item 28; replaced by P-03-rev20.5 item 29 (8 Nov 2026): no inward band"}
+    applies_to: {repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
+    check:
+      # A named cover, side, front, rear or panel slot is always the prohibited slot, whatever follows it. Only an unqualified
+      # "the slot" followed by "in/of/on the" and a named part of another assembly (a bracket, the column, the mast, an
+      # extrusion profile or rail) is another part's slot. The unless words are read in the sentence of the match only.
+      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:(?:cover|side|front|rear|panel) slot\b|slot\b(?!\s+(?:in|of|on)\s+the\s+(?:(?!cover\b|covers\b|panels?\b|skirts?\b|base\b|enclosure\b)[a-z-]+\s+){0,2}(?:[a-z-]*bracket|column|mast|extrusion|profile|rail)s?\b)))'
+        unless: '\bno\b|\bnot\b|never|keep[- ]out|supersed|historical|\bwas\b'
+        unless_scope: sentence
+        message: no cable or busbar runs in the slot between the panel upper edges and the cover (P-03 rev20.5 item 29)
+      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?)\b[^\n]{0,40}\b(?:on|over|along) the (?:upper|top) edges? of the (?:side|front|rear) panels?)'
+        unless: '\bno\b|\bnot\b|never|supersed|historical|\bwas\b'
+        unless_scope: sentence
+        message: no cable lies on or over a panel upper edge (P-03 rev20.5 item 29)
+    verification:
+      machine: text routing a cable, busbar or wire through or along the slot, or on a panel upper edge; in openamrobot-docs, check_roadmap.py harness_slot_errors (slot_rule.slot_violations) on the routes
+      human: {reviewer: platform-lead, evidence: "harness_routes.json keep-outs cover_slot_* with check_roadmap.py passing, the lift cable openings in openamrobot-docs, and the bench harness mock-up photos"}
+    owner: platform-lead
+
   - id: TABLET-MOUNT
     title: Operator tablet on a fixed portrait mount
     summary: "Getac ZX80 portrait only (149.8 wide x 234 tall) on a fixed mount; no rotation, no landscape."
@@ -1596,14 +1700,15 @@ decisions:
     values:
       - Getac ZX80 tablet in portrait only, 149.8 mm wide x 234 mm tall, on a fixed mount
       - no rotation and no landscape position
-      - tablet centre 40 mm lower than in P-03 rev20.2 item 26
+      - tablet centre 55 mm lower than in P-03 rev20.2 item 26 (40 mm on 2 Nov 2026, 15 mm more on 8 Nov 2026)
       - head light top edge 10 mm below the Getac bottom edge
       - the mount position is fixed and is not a configuration ID (see CONFIG-IDS)
     unit: mm
-    date: 2026-11-02
-    review_by: 2026-12-14
-    source: {document: Alex decision 2026-11-02, item: "ZX80 portrait only on a fixed mount, centre 40 mm lower, head light 10 mm below; replaces the P-03-rev20.2 item 26 rotatable mount"}
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.4, item: "item 28 (owner decisions of 2 and 8 Nov 2026): ZX80 portrait only on a fixed mount, centre 55 mm lower, head light 10 mm below; replaces the P-03-rev20.2 item 26 rotatable mount"}
     supersedes:
+      - {value: "tablet centre 40 mm lower than in P-03 rev20.2 item 26", source: "Alex decision 2026-11-02; replaced by P-03-rev20.4 item 28 (8 Nov 2026)"}
       - {value: "Getac ZX80 on a rotatable mount with two locked positions: landscape (default, 234 x 149.8 mm) and portrait (149.8 x 234 mm)", source: "P-03-rev20.2 item 26; replaced by Alex decision 2026-11-02"}
     applies_to: {repositories: ["*"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
@@ -1616,4 +1721,121 @@ decisions:
     verification:
       machine: landscape or a rotatable mount presented as current for the tablet; the tablet position presented as a configuration ID
       human: {reviewer: platform-lead, evidence: "fixed portrait tablet mount drawing with the ZX80 outline dimensions, the lowered centre and the head light position"}
+    owner: platform-lead
+
+  - id: STOP-RELEASE
+    title: Stop (software) release and goal recovery
+    summary: "Resume needs positive idle evidence from every enabled motion producer; it clears the inhibit only."
+    fix_hint: "Release only on fresh idle evidence from every enabled producer; Resume never restarts motion; resend is a new goal."
+    kind: configuration
+    status: recorded
+    values:
+      - "Resume needs positive idle evidence from every ENABLED motion producer, through one platform node that owns the navigation and dock goal handles"
+      - "the launch profile names the enabled producers; a disabled producer is excluded by name, never inferred from absence"
+      - "a producer that is missing, stale or restarted is UNKNOWN and blocks release; a cancel reply never counts as a terminal state"
+      - "after a clean boot, Resume is possible within 2 s"
+      - "Resume clears the inhibit only and never restarts motion; the UI may offer Send last goal again, which sends a NEW goal on an explicit operator action; a reboot clears the last goal"
+      - "known Build 1 simulation limitation (D-34): the recovery-readiness goal correlation (openamr-platform-sw #127) can leak across goals; readiness is advisory and grants no motion authority; fix later by binding the goal UUID"
+    unit: none
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.6, item: "item 30 (decisions D-13, D-14 and D-34, platform-lead ruling A1, 8 Nov 2026)"}
+    applies_to:
+      repositories: ["openamr-platform-sw", "openamrobot-ui", "openamrobot-interfaces", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\b(?:Resume|release)\b[^\n]{0,40}\b(?:restarts?|resumes?|re-?sends?) (?:the )?(?:last |previous )?(?:goal|motion)\b)'
+        unless: '\bnot\b|never|\bno\b|new goal|operator'
+        message: Resume clears the inhibit only and never restarts motion; a resend is a new goal on an explicit operator action (P-03 rev20.6 item 30, D-14)
+    verification:
+      machine: text saying Resume or release restarts motion or resends the last goal
+      human: {reviewer: software-lead, evidence: "stop gate tests: clean-boot release within 2 s with real action servers and no goal sent, nav-only and dock-enabled profiles, producer restart, status loss and return; two human approvals per the repository ruleset"}
+    owner: platform-lead
+
+  - id: UI-LINK-LOSS
+    title: UI or rosbridge link loss
+    summary: "Manual drive stops on 0.25 s relay staleness; loss of the controlling session cancels an autonomous goal after 2 s."
+    fix_hint: "Manual: 0.25 s staleness stop; autonomous: controlling session lost 2 s -> cancel and stop; observers do nothing."
+    kind: configuration
+    status: recorded
+    values:
+      - manual drive is inhibited on the existing 0.25 s relay staleness
+      - "loss of the CONTROLLING operator session during an autonomous goal cancels the goal and stops the base after 2 s; the 2 s is a liveness budget, not a protective stop limit (the protective stop is the 0.15 m acceptance, see SPEED-CEILING)"
+      - loss of an observer session does nothing
+      - a reconnect never restarts motion
+    unit: s
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.6, item: "item 30 (decision D-15, platform-lead ruling A1, 8 Nov 2026)"}
+    applies_to:
+      repositories: ["openamr-platform-sw", "openamrobot-ui", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\breconnect(?:ion|s|ing)?\b[^\n]{0,40}\b(?:restarts?|resumes?) (?:the )?(?:goal|motion|driving)\b)'
+        unless: '\bnot\b|never|\bno\b'
+        message: a reconnect never restarts motion (P-03 rev20.6 item 30, D-15)
+    verification:
+      machine: text saying a reconnect restarts or resumes motion
+      human: {reviewer: software-lead, evidence: "acceptance scenarios with timestamps (detection, zero command, cancel, motion, UI feedback) for manual and supervised autonomous driving, controlling and observer sessions (openamr-platform-sw issue #88)"}
+    owner: platform-lead
+
+  - id: UPPERBODY-CONTROLLER
+    title: CTL-017 is the single upper-body controller on CAN3
+    summary: "CTL-017: separate upper-body controller on CAN3 (CANopen 500 kbit/s, node 0x10); lift, stop sensors, light bar, ZX80."
+    fix_hint: "Name CTL-017 the upper-body controller on CAN3 node 0x10; stop sensors are NPN NO; board proposed until confirmed."
+    kind: configuration
+    status: recorded
+    values:
+      - "CTL-017 is the single upper-body controller, a separate board on base CAN3 (CANopen 500 kbit/s, node 0x10); the lift is not driven from the base controller"
+      - "scope: the lift H-bridge and the two lift Halls, three SICK IME12-04BNSZC0S stop sensors (NPN, normally open, 10 to 30 V), the light bar (on only during arm operations), the ZX80 power and charge enable, and spare inputs including future safety sensors as functional inputs only; no safety function"
+      - "board recommendation, the electrical owner checks: NUCLEO-G474RE (two as evaluation stock) with BLDC-SHIELD_IFX007T and an SN65HVD230 transceiver; FDCAN1 on PA11/PA12; Halls on TIM5 PB2/PC12; one shared current sense on PC1"
+      - "stop-sensor input: 4.7 kOhm pull-up to 24 V, 27 kOhm / 3.3 kOhm divider, clamp and TVS; an open wire reads as no target, so the firmware stops on a travel timeout and checks the Hall-count window per stop"
+    unit: none
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.6, item: "item 30 (decision D-11 scope from P-03-rev20.5 item 29; board and pins per platform-lead ruling A7, electrical owner checks)"}
+    supersedes:
+      - {value: "lift node CTL-017: a small MCU or CAN-to-lift interface module, the lift commanded by the STM32H723ZG base controller", source: "P-03-rev20.2 item 24; replaced by P-03-rev20.5 item 29"}
+      - {value: "lift stop sensors IME12 PNP 24 V", source: "handover draft pin budget (never a decision); the SICK datasheet and M-01 M-09 give NPN NO"}
+    applies_to:
+      repositories: ["openamr-upperbody-*", "openamr-platform-*", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\bIME12-04BNSZC0S\b[^\n]{0,60}\bPNP\b|\bPNP\b[^\n]{0,60}\bIME12)'
+        unless: 'supersed|historical|\bwas\b|\bnot\b|earlier|previous|wrong'
+        message: the SICK IME12-04BNSZC0S stop sensors are NPN, normally open, 10 to 30 V (UPPERBODY-CONTROLLER)
+      - pattern: '(?P<found>\b(?:base controller|STM32H723ZG|NUCLEO-H723ZG)\b[^\n]{0,40}\bcommands? the lift\b)'
+        unless: 'supersed|historical|\bwas\b|\bnot\b|earlier|previous'
+        message: the lift is driven by CTL-017, a separate upper-body controller on CAN3 (P-03 rev20.5 item 29, D-11)
+    verification:
+      machine: the stop sensors described as PNP; the base controller described as commanding the lift
+      human: {reviewer: platform-lead, evidence: "electrical owner's board confirmation and pin matrix, the input-stage design review and the CTL-017 fixture tests"}
+    owner: electrical-owner
+
+  - id: MASS-LEDGER
+    title: Mass values are estimates under ledger review
+    summary: "Robot masses are estimates under ledger review; base_link mass changes wait for a unique physical-instance ledger."
+    fix_hint: "Label mass and inertia as estimates under ledger review (D-26); do not move base_link mass before the ledger."
+    kind: limit
+    status: recorded
+    values:
+      - "every robot mass and inertia is an estimate under ledger review until a unique physical-instance mass ledger (owner: the mechanical owner) counts each physical part once"
+      - "openamr-platform-sw #126 and the openamrobot-docs #83 mass export are held until that ledger"
+      - "candidate base_link 53.2 kg at (-0.070, -0.003, 0.099) m in base_link, provisional until weighed"
+      - "the 11.7 kg DOLD lift is split into a static and a moving link with real inertia"
+      - "deceleration limits 1.5 m/s2 travel and 1.0 m/s2 hold-and-move, identical in Nav2, the velocity smoother, the ZLAC8015D and Gazebo, follow as a separate PR after openamr-platform-sw #90 (D-29)"
+    unit: kg
+    date: 2026-11-08
+    review_by: 2026-12-20
+    source: {document: P-03-rev20.6, item: "item 30 (decisions D-26 and D-29, platform-lead ruling A6, 8 Nov 2026)"}
+    applies_to:
+      repositories: ["openamr-platform-sw", "openamr-upperbody-sw", "openamrobot-docs"]
+      files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]
+    check:
+      - pattern: '(?P<found>\b(?:verified|final|released) (?:robot |base |base_link )?mass\b)'
+        unless: '\bnot\b|\bno\b|estimate|ledger|until|pending|to be|\bwait'
+        message: robot masses are estimates under ledger review until the unique physical-instance mass ledger (P-03 rev20.6 item 30, D-26)
+    verification:
+      machine: a mass presented as verified, final or released
+      human: {reviewer: robot-description-owner, evidence: "the unique physical-instance mass ledger signed by the mechanical owner, the regenerated mass export, a double-count regression test and the weighed robot"}
     owner: platform-lead

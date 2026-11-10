@@ -41,6 +41,15 @@ def setUpModule():
         os.environ.pop(key, None)
 
 
+class RegisterLoading(unittest.TestCase):
+    def test_duplicate_source_keys_fail_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "decisions.yaml"
+            path.write_text("schema_version: 1\nsources:\n  P-03-rev20.6: first\n  P-03-rev20.6: second\n", encoding="utf-8")
+            with self.assertRaisesRegex(cd.DecisionError, "duplicate mapping key"):
+                cd.load_decisions(path)
+
+
 class FixtureMatrix(unittest.TestCase):
     """Matching value, contradicting value, unlisted file type, superseded citation."""
 
@@ -263,6 +272,19 @@ decisions:
                 with self.assertRaisesRegex(cd.DecisionError, expected):
                     cd.load_decisions(self.write(text))
 
+    def test_unless_scope_sentence(self):
+        text = self.BASE.replace("check: [{pattern: '(?P<found>x)'}]",
+                                 "check: [{pattern: '(?P<found>\\bxx\\b)', unless: 'never', unless_scope: sentence}]")
+        decisions = cd.load_decisions(self.write(text))
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "a.md").write_text("Never xx here. But xx there.\nNever xx; never xx.\n", encoding="utf-8")
+            lines = [f["line"] for f in cd.scan(tmp, decisions)[0]]
+        self.assertEqual(lines, [1])
+        with self.assertRaisesRegex(cd.DecisionError, "unless_scope must be one of"):
+            cd.load_decisions(self.write(text.replace("unless_scope: sentence", "unless_scope: file")))
+        self.assertEqual(cd.unless_text("A b. C d; e f", 6, "sentence"), "C d;")
+        self.assertEqual(cd.unless_text("A b. C d; e f", 6, None), "A b. C d; e f")
+
     def test_owner_and_reviewer_must_be_maintainers_roles(self):
         with self.assertRaisesRegex(cd.DecisionError, "owner 'somebody' is not a role"):
             cd.load_decisions(self.write(self.BASE.replace("owner: platform-lead", "owner: somebody")),
@@ -397,6 +419,81 @@ class RealRegister(unittest.TestCase):
         self.assertEqual(self.ids("docs/a.md", "An uncertified button is fine for prototypes.\n", "x"),
                          ["SAFETY-PROCUREMENT"])
 
+    def test_wiring_not_in_the_cover_slot(self):
+        # P-03 rev20.4 item 28 (8 Nov 2026): no cable or busbar in the slot between the panel upper edges and the cover, none on a
+        # panel edge; upper-body cables through the two openings beside the lift.
+        repo = "openamrobot-docs"
+        for text in ("The side trunk cable runs along the cover slot to the rear.\n",
+                     "The side trunk cable runs along the cover slot zone to the rear.\n",   # review on #90: a word elsewhere must not exempt it
+                     "The harness runs through the cover slot; the mast is nearby.\n",
+                     "The harness runs through the cover slot in the rear cover skirt.\n",
+                     "The cable runs along the cover slot in the rear panel area.\n",
+                     "The wiring runs through the cover slot on the front panel.\n",
+                     "The BMS busbar rises across the side slot to the tray.\n",
+                     "The trunk cable lies on the upper edge of the side panel.\n",
+                     # third review on #90: a named cover slot followed by a location is still the cover slot
+                     "The harness runs through the cover slot.\n",
+                     "The harness runs through the cover slot in the rear cover skirt.\n",
+                     "The cable runs along the cover slot in the rear panel area.\n",
+                     "The wiring runs through the cover slot on the front panel.\n",
+                     # an unqualified slot followed by a cover, panel or base location is the cover slot too
+                     "The cable runs in the slot in the rear cover skirt.\n",
+                     "The cable runs in the slot of the rear panel area.\n",
+                     "The harness runs along the slot on the side panels.\n",
+                     # an allowed route and a prohibited one in one sentence or one line
+                     "The motor leads pass through the slot in the electronics bracket and the trunk cable runs along the cover slot.\n",
+                     "The motor leads pass through the slot in the electronics bracket, while the side trunk harness runs through the cover slot.\n",
+                     "Upper-body cables enter through the two openings left and right of the lift; the trunk cable runs along the cover slot.\n",
+                     "No cable runs in the cover slot at the front. The trunk cable runs along the cover slot at the rear.\n",
+                     "The rear cable was rerouted in October. The harness runs through the cover slot on the front panel.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["WIRING-ROUTING"], text)
+        for text in ("No cable runs in the cover slot.\n",
+                     "The motor leads pass through the slot in the electronics bracket.\n",
+                     "The branch leads pass through the slot in the centre-bracket side wall.\n",
+                     "The sensor cable runs in the slot of the static column.\n",
+                     "The sensor cable runs in the slot of the static column bracket.\n",
+                     "The lift leads pass through the slot in the mast adapter bracket.\n",
+                     "The harness is clipped in the slot of the aluminium extrusion profile.\n",
+                     "Sleeve P-clips sit in the T-slot of the static column.\n",
+                     "Upper-body cables enter the base through the two openings left and right of the lift.\n",
+                     # clearly historical text
+                     "Until 8 Nov 2026 the trunk cable ran along the cover slot (superseded by P-03 rev20.5 item 29).\n",
+                     "The harness was routed through the cover slot in the rear cover skirt in the October model.\n",
+                     "Historical: the cable runs along the cover slot on the front panel (CAD Rev A).\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        by_id = {d["id"]: d for d in self.decisions}
+        values = " ".join(by_id["WIRING-ROUTING"]["values"])
+        for phrase in ("lower edge of the top cover", "upper edges of the side, front and rear panels", "two openings left and right of the lift",
+                       "at the rear (no LiDAR)", "chassis and the cover do not change",
+                       "scripts/roadmap_model/slot_rule.py", "exact segment test"):
+            self.assertIn(phrase, values)
+        self.assertNotIn("sampled every", values)   # the docs check is an exact segment test, not a sampling step
+
+    def test_bom_7_15_is_the_roadmap_extract_source_not_canonical(self):
+        # Owner review of docs #84 (10 Nov 2026): the public roadmap parts extract comes from BOM Issue 7.15; Issue 7.14 stays the
+        # canonical procurement baseline until the BOM owner confirms 7.15.
+        d = {d["id"]: d for d in self.decisions}["BOM-ISSUE-IN-FORCE"]
+        self.assertIn("Issue 7.14", d["value"])
+        self.assertEqual(d["public_extract"]["source"], "BOM-Issue-7.15")
+        self.assertTrue(d["public_extract"]["canonical"].startswith("no:"))
+        data = yaml.load((ROOT / "decisions.yaml").read_text(encoding="utf-8"), Loader=cd.RegisterLoader)
+        self.assertIn("source of the public roadmap parts extract", data["sources"]["BOM-Issue-7.15"]["title"])
+        self.assertEqual(self.ids("docs/a.md", "The canonical BOM is Issue 7.15.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
+        self.assertEqual(self.ids("docs/a.md", "Hardware page PARTS imported from BOM Issue 7.15 (roadmap extract).\n", "x"), [])
+
+    def test_receiver_frame_20_mm_sides_15_mm_above(self):
+        # P-03 rev20.4 item 28 (8 Nov 2026): no metal within 20 mm of the receiver sides (plastic frame), 15 mm above.
+        repo = "openamrobot-docs"
+        for text in ("No metal within 15 mm of any side of the receiver.\n", "Keep a 15 mm offset from any side of the receiver.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), ["CHARGING"], text)
+        for text in ("No metal within 20 mm of the receiver sides; parts above it sit 15 mm above its top.\n",
+                     "The 15 mm from any side was replaced by the 20 mm plastic frame.\n"):
+            self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
+        values = " ".join({d["id"]: d for d in self.decisions}["CHARGING"]["values"])
+        for phrase in ("20 +-10 mm", "within 20 mm of the receiver sides", "plastic frame screwed to the steel base sheet", "designed by the mechanical owner",
+                       "15 mm above its top"):
+            self.assertIn(phrase, values)
+
     def test_tof_pitch_is_10_degrees(self):
         # Alex decision 20 Oct 2026: ToF cliff pitch 10 degrees down; 20 degrees is superseded.
         self.assertEqual(self.ids("docs/a.md", "The TF-Luna is pitched 20 degrees down.\n", "openamrobot-docs"), ["NEAR-FIELD-FRAMES"])
@@ -524,7 +621,7 @@ class RealRegister(unittest.TestCase):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         by_id = {d["id"]: d for d in self.decisions}
         values = " ".join(by_id["CHARGING"]["values"])
-        for phrase in ("prepared in OpenAMRobot 2.0", "170 x 150 x 52 mm", "bottom 50 mm above the floor",
+        for phrase in ("prepared in OpenAMRobot 2.0", "170 x 150 x 52 mm", "bottom 2 mm below the base sheet (about 50 mm above the floor)",
                        "KCHG", "installed physically later", "available at any time", "turns 180 degrees"):
             self.assertIn(phrase, values)
         self.assertIn("turns 180 degrees", by_id["DOCK-NO-CONTACTS"]["value"])
@@ -537,28 +634,56 @@ class RealRegister(unittest.TestCase):
                      "The single row of 8 cells was replaced by two trays.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
+    def test_2026_11_08_baseline_checks(self):
+        # P-03 rev20.6 item 30 (decision baseline of 8 Nov 2026): new and changed patterns
+        cases = [
+            ("config/ekf.yaml", "    imu0: /imu/data\n", "openamr-platform-sw", ["IMU-TOPIC-OWNERSHIP"]),
+            ("config/ekf.yaml", "    imu0: /imu/data_raw\n", "openamr-platform-sw", []),
+            ("docs/a.md", "The 2.0 compute is the Jetson Orin NX 16 GB on a reComputer Robotics J401.\n", "x", ["COMPUTE"]),
+            ("docs/a.md", "Jetson Orin NX 8 GB on the Robotics 104 (was 16 GB on the Robotics J401).\n", "x", []),
+            ("docs/a.md", "The foot is fixed with four screws on a 224 x 40 mm pattern.\n", "x", ["LIFT"]),
+            ("docs/a.md", "The foot is fixed through the 260 x 30 mm tabs; 224 x 40 mm is DOLD-internal.\n", "x", []),
+            ("docs/a.md", "Stop sensors IME12-04BNSZC0S, PNP 24 V.\n", "openamr-upperbody-fw", ["UPPERBODY-CONTROLLER"]),
+            ("docs/a.md", "Stop sensors IME12-04BNSZC0S, NPN NO, 10 to 30 V.\n", "openamr-upperbody-fw", []),
+            ("docs/a.md", "Build 1 uses a 0.3 m/s cap.\n", "x", ["SPEED-CEILING"]),
+            ("docs/a.md", "Resume restarts the last goal.\n", "openamr-platform-sw", ["STOP-RELEASE"]),
+            ("docs/a.md", "Resume never restarts the last goal; the operator sends a new goal.\n", "openamr-platform-sw", []),
+            ("docs/a.md", "A reconnect resumes motion.\n", "openamr-platform-sw", ["UI-LINK-LOSS"]),
+        ]
+        for name, text, repo, want in cases:
+            self.assertEqual(self.ids(name, text, repo), want, text)
+
     def test_2026_11_02_values_recorded(self):
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
         self.assertIn("Alex decision 2026-11-02", data["sources"])
-        self.assertIn("to be entered in P-03", data["in_force"]["note"])
+        self.assertIn("P-03 rev20.4 item 28", data["in_force"]["note"])
         by_id = {d["id"]: d for d in self.decisions}
         changed = ("CHARGING", "DOCK-NO-CONTACTS", "OPERATOR-PANEL", "TABLET-MOUNT", "HEAD-CAMERA-IDENTITY",
                    "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT", "FRAMES-REP105")
-        refined_3_nov = ("CHARGING", "SAFETY-PROCUREMENT", "BATTERY-PLACEMENT", "LIFT")  # Alex decision 2026-11-03
+        refined_3_nov = ("SAFETY-PROCUREMENT", "BATTERY-PLACEMENT")  # Alex decision 2026-11-03
+        refined_8_nov = ("TABLET-MOUNT", "HEAD-CAMERA-IDENTITY", "CHARGING", "LIFT")  # P-03 rev20.4 item 28 to rev20.6 item 30 (8 Nov 2026)
+        doc_8_nov = {"CHARGING": "P-03-rev20.5", "LIFT": "P-03-rev20.6"}  # LIFT: D-20 and D-21 (rev20.6 item 30)
         for did in changed:
-            day = "2026-11-03" if did in refined_3_nov else "2026-11-02"
-            self.assertEqual(by_id[did]["source"]["document"], "Alex decision " + day, did)
+            day = "2026-11-08" if did in refined_8_nov else "2026-11-03" if did in refined_3_nov else "2026-11-02"
+            doc = doc_8_nov.get(did, "P-03-rev20.4") if did in refined_8_nov else "Alex decision " + day
+            self.assertEqual(by_id[did]["source"]["document"], doc, did)
             self.assertEqual(by_id[did]["date"], cd.as_date(day), did)
             self.assertTrue(any("Alex decision 2026-11-02" in s["source"] for s in by_id[did]["supersedes"]), did)
         lift = " ".join(by_id["LIFT"]["values"])
         for phrase in ("verified in simulation", "IME12-04BNSZC0S", "120 / 295 / 470 mm",
-                       "425 x 100 x 10 mm, 6082-T6", "centre-frame arch"):
+                       "425 x 100 x 10 mm, 6082-T6", "centre-frame arch", "260 x 30 mm", "DIN 7984 M8 x 14",
+                       "224 x 40 mm pattern is DOLD-internal", "350 x 140 x 10 mm", "NPN, normally open"):
             self.assertIn(phrase, lift)
+        self.assertEqual(by_id["COMPUTE"]["source"]["document"], "P-03-rev20.5")
+        self.assertIn("Orin NX 8 GB", by_id["COMPUTE"]["value"])
+        self.assertIn("the EKF reads /imu/data_raw directly", " ".join(by_id["IMU-TOPIC-OWNERSHIP"]["values"]))
+        for did in ("STOP-RELEASE", "UI-LINK-LOSS", "UPPERBODY-CONTROLLER", "MASS-LEDGER"):
+            self.assertEqual(by_id[did]["source"]["document"], "P-03-rev20.6", did)
         self.assertNotIn("lift approved in principle", by_id["LIFT"]["values"])
         self.assertTrue(any("wheel radius 0.100 m" in v and "2 mm tyre compression" in v
                             for v in by_id["FRAMES-REP105"]["values"]))
         tablet = " ".join(by_id["TABLET-MOUNT"]["values"])
-        for phrase in ("40 mm lower", "10 mm below the Getac bottom edge", "no rotation and no landscape"):
+        for phrase in ("55 mm lower", "40 mm on 2 Nov 2026", "10 mm below the Getac bottom edge", "no rotation and no landscape"):
             self.assertIn(phrase, tablet)
 
     def test_2026_11_03_values_recorded(self):
@@ -571,8 +696,28 @@ class RealRegister(unittest.TestCase):
         battery = " ".join(by_id["BATTERY-PLACEMENT"]["values"])
         for phrase in ("164 x 66 x 21 mm", "right side wall", "SafetyHub 150", "Blue Sea 5046", "busbars", "nothing on top of the cells"):
             self.assertIn(phrase, battery)
-        self.assertIn("15 mm gap", " ".join(by_id["CHARGING"]["values"]))
+        self.assertIn("15 mm above its top", " ".join(by_id["CHARGING"]["values"]))   # 3 Nov gap above the receiver, kept on 8 Nov
         self.assertIn("open U-ring guide", " ".join(by_id["LIFT"]["values"]))
+
+    def test_2026_11_08_item_30_values_recorded(self):
+        """P-03 rev20.6 item 30: D-20 lift fixing, D-21 backing plate (LIFT) and D-01 compute (COMPUTE)."""
+        data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertIn("P-03-rev20.6", data["sources"])
+        by_id = {d["id"]: d for d in self.decisions}
+        lift = " ".join(by_id["LIFT"]["values"])
+        for phrase in ("260 x 30 mm", "DIN 7984 M8 x 14", "tapped in MEC-019", "350 x 140 x 10 mm", "internal to the DOLD assembly",
+                       "laser-cut tapped steel plate", "press-in nuts"):
+            self.assertIn(phrase, lift)
+        self.assertNotIn("four fixing screws on a 224 x 40 mm pattern", lift)
+        self.assertTrue(any("224 x 40 mm" in s_["value"] for s_ in by_id["LIFT"]["supersedes"]))
+        compute = by_id["COMPUTE"]
+        self.assertIn("Orin NX 8 GB", compute["value"])
+        self.assertIn("Robotics 104", compute["value"])
+        self.assertTrue(any("Orin NX 16 GB" in s_["value"] for s_ in compute["supersedes"]))
+        # Review of #90: ROADMAP.md names the decided module, the 8 GB Orin NX on the Robotics 104, not the J401.
+        roadmap = (ROOT / "ROADMAP.md").read_text(encoding="utf-8")
+        self.assertIn("Jetson Orin NX 8 GB on the reComputer Robotics 104", roadmap)
+        self.assertNotIn("J401", roadmap)
 
     def test_bms_run_ok_dropped(self):
         repo = "openamr-platform-fw"
@@ -734,8 +879,9 @@ class RealRegister(unittest.TestCase):
 
     # P-03 rev20.2 item 26: values recorded without a new pattern.
     def test_rev20_2_values_in_force(self):
+        # P-03 rev20.2 values stay; P-03 rev20.6 (8 Nov 2026) is the addendum in force (item 30: Build 1 decision baseline).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.2", cd.as_date("2026-11-01")))
+        self.assertEqual((data["in_force"]["source"], data["in_force"]["date"]), ("P-03-rev20.6", cd.as_date("2026-11-08")))
         by_id = {d["id"]: d for d in self.decisions}
         self.assertTrue(any("DDR-240B-24" in v and "F-LIFT 15 A" in v for v in by_id["POWER-RAILS"]["values"]))
         self.assertTrue(any("6 Nm holding" in v for v in by_id["DRIVETRAIN"]["values"]))
@@ -844,21 +990,23 @@ class RealRegister(unittest.TestCase):
                      "Planning groups: arm, arm+lift.\n"):
             self.assertEqual(self.ids("docs/a.md", text, "x"), [], text)
 
-    def test_head_camera_lens_57_mm_ahead(self):
-        # Alex decision 2026-11-02: lens 57 mm ahead of the arm mount point, was 42 mm (P-03 rev20.1 item 18), before that 22 mm.
+    def test_head_camera_lens_60_mm_ahead(self):
+        # P-03 rev20.4 item 28 (8 Nov 2026): lens 60 mm ahead of the arm mount point; 57 mm on 2 Nov, 42 mm in P-03 rev20.1 item 18, 22 mm before.
         repo = "openamrobot-docs"
-        for text in ("Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
+        for text in ("Head-camera lens 0.057 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The ZED Mini lens sits 57 mm ahead of the arm mount.\n",
+                     "Head-camera lens 0.022 m ahead of and 0.223 m above the arm mount point.\n",
                      "The ZED Mini lens sits 22 mm ahead of the shoulder.\n",
                      "Head-camera lens 0.042 m ahead of and 0.223 m above the arm mount point.\n",
                      "The ZED Mini lens sits 42 mm ahead of the arm mount.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), ["HEAD-CAMERA-IDENTITY"], text)
-        for text in ("Head-camera lens 0.057 m ahead of and 0.223 m above the arm mount point.\n",
-                     "The lens was 42 mm ahead of the arm mount before the 2 Nov decision.\n",
-                     "Lens 0.042 m ahead (superseded by 57 mm).\n",
+        for text in ("Head-camera lens 0.060 m ahead of and 0.223 m above the arm mount point.\n",
+                     "The lens was 57 mm ahead of the arm mount before the 8 Nov decision.\n",
+                     "Lens 0.042 m ahead (superseded by 60 mm).\n",
                      "Historical layout: lens 22 mm ahead of the shoulder.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         by_id = {d["id"]: d for d in self.decisions}
-        self.assertIn("lens 0.057 m ahead of and 0.223 m above", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
+        self.assertIn("lens 0.060 m ahead of and 0.223 m above", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
 
     def test_head_camera_pitch_baseline_30(self):
         # P-03 rev20.1 items 15 and 17 (values of the rev20.0 28 Oct 2026 corrections): baseline pitch 30 degrees, hp30; was 25 degrees, hp25.
@@ -907,13 +1055,14 @@ class RealRegister(unittest.TestCase):
         # Owner decision 30 Oct 2026: P-03 rev20.1 values stay cited (30 degrees, hp30, ZX80 panel);
         # P-03 rev20.2 is in force from 1 Nov 2026 (test_rev20_2_values_in_force).
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(data["in_force"]["source"], "P-03-rev20.2")
+        self.assertEqual(data["in_force"]["source"], "P-03-rev20.6")
         self.assertIn("P-03-rev20.1", data["sources"])
         by_id = {d["id"]: d for d in self.decisions}
         self.assertEqual(by_id["CONFIG-IDS"]["source"]["document"], "P-03-rev20.1")
         # Alex decision 2026-11-02 is the primary source; the rev20.1 values stay cited in the item.
+        expected = {"HEAD-CAMERA-IDENTITY": "P-03-rev20.4", "OPERATOR-PANEL": "Alex decision 2026-11-02"}
         for did in ("HEAD-CAMERA-IDENTITY", "OPERATOR-PANEL"):
-            self.assertEqual(by_id[did]["source"]["document"], "Alex decision 2026-11-02", did)
+            self.assertEqual(by_id[did]["source"]["document"], expected[did], did)
             self.assertIn("P-03-rev20.1", by_id[did]["source"]["item"], did)
         self.assertIn("baseline 30 degrees", " ".join(by_id["HEAD-CAMERA-IDENTITY"]["values"]))
         self.assertIn("(baseline hp30)", " ".join(by_id["CONFIG-IDS"]["values"]))
