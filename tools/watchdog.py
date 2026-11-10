@@ -170,7 +170,8 @@ def accepted_words_table(decisions):
             # The finding's Why line carries the same message, so a reader can find the row.
             why = re.sub(r"\s*\([^)]*\)$", "", check.get("message") or "").strip()
             label = f"*{why}*: " if len(d["_checks"]) > 1 and why else ""
-            cells.append(label + (", ".join(f"`{w}`" for w in words) if words
+            scope = " (in the same sentence as the finding)" if words and check.get("unless_scope") == "sentence" else ""
+            cells.append(label + (", ".join(f"`{w}`" for w in words) + scope if words
                                   else "no label; correct the line or add a decision-allow marker"))
         rows.append(f"| {d['id']} | {d['status']} | " + "<br>".join(cells).replace("|", "\\|") + " |")
     return rows

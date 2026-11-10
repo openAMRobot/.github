@@ -14,7 +14,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 ## Register in force
 
 - `in_force`: P-03-rev20.6, 2026-11-08 (branch decisions/2026-11-08-owner-decisions); P-03 rev20.6 item 30 records the Build 1 decision baseline of 8 Nov 2026 (D-01 to D-34); rev20.4 item 28 and rev20.5 item 29 enter the owner decisions of 2, 3 and 8 Nov 2026. P-03-rev20.2 was in force from 2026-11-01 (change request #77, merged 1678735)
-- Canonical BOM: Issue 7.14 (BOM-ISSUE-IN-FORCE), from 2026-11-01
+- Canonical BOM: Issue 7.14 (BOM-ISSUE-IN-FORCE), from 2026-11-01; Issue 7.15 is the source of the public roadmap parts extract (openamrobot-docs #84), not canonical until the BOM owner confirms it (2026-11-10)
 
 ## Current work
 
@@ -25,7 +25,7 @@ The PR evidence check fails when STATE.md exists and a PR neither updates it nor
 | harness activation | this PR | run workflow copied, pinned to 7175860 | founder approval on #43 |
 | Profile 2.0 block | #81 | merged as d99264a (2026-11-04) | none; the LIFT register wording was already updated in #84 |
 | Decisions of 3 Nov 2026 | #85 | merged as dafab0e (2026-11-04) | owner review: K1/K2 GX11CAC decided, rear power module, BMS side gap, FB-A/FB-B, receiver 15 mm gap, flag rod guide |
-| P-03 rev20.4 (decisions of 8 Nov 2026) | decisions/2026-11-08-owner-decisions | open for owner review (2026-11-08) | owner review: in_force P-03-rev20.4, ZX80 55 mm lower, head camera 60 mm, receiver frame (no metal within 20 mm of the sides, 15 mm above), DOLD CAD, arch backing plate, new WIRING-ROUTING (slot defined, two lift cable openings, scoped check after review), P-03 rev20.6 item 30: LIFT fixing through the foot tabs 260 x 30 mm (D-20) and backing plate (D-21), COMPUTE Orin NX 8 GB on the Robotics 104 (D-01) |
+| P-03 rev20.4 (decisions of 8 Nov 2026) | decisions/2026-11-08-owner-decisions | open for owner review (2026-11-08) | owner review: in_force P-03-rev20.4, ZX80 55 mm lower, head camera 60 mm, receiver frame (no metal within 20 mm of the sides, 15 mm above), DOLD CAD, arch backing plate, new WIRING-ROUTING (slot defined, two lift cable openings, scoped check after review), P-03 rev20.6 item 30: LIFT fixing through the foot tabs 260 x 30 mm (D-20) and backing plate (D-21), COMPUTE Orin NX 8 GB on the Robotics 104 (D-01); review of 9 Nov 2026 (2026-11-10): one P-03-rev20.6 source, duplicate YAML keys rejected by the loader, WIRING-ROUTING cover-slot matcher narrowed (unless read per sentence), slot geometry enforced by openamrobot-docs slot_rule.py, BOM 7.15 recorded as the roadmap extract source, ROADMAP.md compute |
 | #83 | #84 | merged as 5ed600e (2026-11-02) | none; the 2 Nov 2026 values are in force |
 | PLATFORM-PIN | #74 | pin 131e500fc4e5afc9f648cbd7dbf5b416280761fb (2.0 base, P-03 rev20.1 item 25 D7), validated by openamr-upperbody-sw #21; merged with this PR (2026-11-01) | none; touches decisions.yaml only |
 

@@ -151,6 +151,13 @@ class Guide(unittest.TestCase):
         section = self.text.split("<!-- BEGIN ACCEPTED WORDS -->\n", 1)[1].split("<!-- END ACCEPTED WORDS -->", 1)[0]
         self.assertEqual(section, out, "regenerate with: python3 tools/watchdog.py --accepted-words")
 
+    def test_sentence_scoped_words_are_labelled(self):
+        # Review of #90: WIRING-ROUTING reads its accepted words in the sentence of the finding only.
+        row = next(line for line in self.text.splitlines() if line.startswith("| WIRING-ROUTING |"))
+        self.assertIn("(in the same sentence as the finding)", row)
+        row = next(line for line in self.text.splitlines() if line.startswith("| COMPUTE |"))
+        self.assertNotIn("same sentence", row)
+
     def test_every_decision_is_listed(self):
         for d in watchdog.cd.load_decisions(ROOT / "decisions.yaml"):
             self.assertIn(f"| {d['id']} | {d['status']} |", self.text)

@@ -58,6 +58,21 @@ class DecisionError(ValueError):
     pass
 
 
+UNLESS_SCOPES = {"line", "sentence"}
+SENTENCE_END = re.compile(r"(?<=[.;!?])\s+")
+
+
+def unless_text(line, start, scope):
+    """The text an unless pattern is read in: the whole line, or only the sentence that holds position start."""
+    if scope != "sentence":
+        return line
+    begin = 0
+    for m in SENTENCE_END.finditer(line):
+        if m.end() > start:
+            return line[begin:m.start()]
+        begin = m.end()
+    return line[begin:]
+
 
 def as_date(value):
     """Return a date for an ISO date or a YAML date, otherwise None."""
@@ -209,6 +224,8 @@ def load_decisions(path, maintainers=None):
                     errors.append(f"{where}: pattern needs a (?P<found>...) group")
                 if c.get("unless"):
                     re.compile(c["unless"], re.IGNORECASE)
+                if c.get("unless_scope", "line") not in UNLESS_SCOPES:
+                    errors.append(f"{where}: unless_scope must be one of {sorted(UNLESS_SCOPES)}")
             except (KeyError, TypeError, re.error) as exc:
                 errors.append(f"{where}: bad check pattern: {exc}")
     if errors:
@@ -334,7 +351,8 @@ def scan(root, decisions, repository=None, only=None, stats=None):
                     if c.get("files") and not glob_match(rel, c["files"]):
                         continue
                     for m in re.finditer(c["pattern"], line, re.IGNORECASE):
-                        if c.get("unless") and re.search(c["unless"], line, re.IGNORECASE):
+                        if c.get("unless") and re.search(c["unless"], unless_text(line, m.start(), c.get("unless_scope")),
+                                                         re.IGNORECASE):
                             continue
                         record = {
                             "id": d["id"], "file": rel, "line": number,
