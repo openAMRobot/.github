@@ -112,7 +112,7 @@ Vision
 - Safety I/O
 
 ## Main Compute (OpenAMRobot 2.0)
-- NVIDIA Jetson Orin NX on the reComputer Robotics J401 carrier
+- NVIDIA Jetson Orin NX on the reComputer Robotics 104 carrier
 - Navigation
 - SLAM
 - ROS 2 System Management

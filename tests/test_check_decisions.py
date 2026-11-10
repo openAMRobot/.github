@@ -41,6 +41,15 @@ def setUpModule():
         os.environ.pop(key, None)
 
 
+class RegisterLoading(unittest.TestCase):
+    def test_duplicate_source_keys_fail_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "decisions.yaml"
+            path.write_text("schema_version: 1\nsources:\n  P-03-rev20.6: first\n  P-03-rev20.6: second\n", encoding="utf-8")
+            with self.assertRaisesRegex(cd.DecisionError, "duplicate mapping key"):
+                cd.load_decisions(path)
+
+
 class FixtureMatrix(unittest.TestCase):
     """Matching value, contradicting value, unlisted file type, superseded citation."""
 
@@ -404,6 +413,9 @@ class RealRegister(unittest.TestCase):
         for text in ("The side trunk cable runs along the cover slot to the rear.\n",
                      "The side trunk cable runs along the cover slot zone to the rear.\n",   # review on #90: a word elsewhere must not exempt it
                      "The harness runs through the cover slot; the mast is nearby.\n",
+                     "The harness runs through the cover slot in the rear cover skirt.\n",
+                     "The cable runs along the cover slot in the rear panel area.\n",
+                     "The wiring runs through the cover slot on the front panel.\n",
                      "The BMS busbar rises across the side slot to the tray.\n",
                      "The trunk cable lies on the upper edge of the side panel.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), ["WIRING-ROUTING"], text)

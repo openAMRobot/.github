@@ -61,14 +61,11 @@ sources:
   P-03-rev20.4:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.4, 8 November 2026 (the addendum in force; item 27: K1/K2 GX11CAC under a sourcing exception, 4 Nov; item 28: owner decisions of 2, 3 and 8 Nov 2026: two battery trays, rear power module, K1/K2 without the Siemens fallback, receiver 15 mm offset, second E-stop on the adapter plate, fixed portrait ZX80 55 mm lower, head camera 60 mm, DOLD supplier CAD, arch backing plate, wiring rules)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
-  P-03-rev20.6:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, owner rulings A1 to A9 with decision IDs D-01 to D-34; supersedes item 28 on the lift fixing, the receiver keep-out and the slot band)"
-    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.5:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.5, 8 November 2026 (item 29: owner decisions of 8 Nov 2026, among them the receiver plastic frame, 20 mm on the sides and 15 mm above, the cable keep-out at the slot band without an inward band, and the two lift cable openings)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.6:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, decisions D-01 to D-34 and platform-lead rulings A1 to A9: compute, IMU topic, speed ceiling, stop release, UI link loss, lift fixing and backing plate, CTL-017, mass ledger, battery trays, schedule)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, decisions D-01 to D-34 and platform-lead rulings A1 to A9: compute, IMU topic, speed ceiling, stop release, UI link loss, lift fixing and backing plate, CTL-017, mass ledger, battery trays, schedule; supersedes item 28 on lift fixing, receiver keep-out and slot band)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-11-08:
     title: Platform decision of 8 November 2026 (ZX80 15 mm lower again, head camera 60 mm, receiver 15 mm offset from any side, DOLD supplier CAD dimensions, arch backing plate, no cable in the slot between the base panels and the cover skirt); entered in P-03 rev20.4 item 28
@@ -1662,7 +1659,7 @@ decisions:
       - "axis-aligned runs with 45 and 90 degree transitions; no hanging, flying or loose cable and no cable over a component"
       - "upper-body cables enter the base only through two openings left and right of the lift, near the middle of the platform length (left: power, right: signal), each with an edge grommet; above the base they run in sleeving and in the lift energy chain"
       - "appearance is wire routing and fixing only: the chassis and the cover do not change"
-      - "openamrobot-docs scripts/check_roadmap.py checks every routed and fixed cable, busbar and tie of harness_routes.json against the cover_slot keep-outs (sampled every 1 mm); components are not checked, so rear parts may sit in or above the band (decision D-06)"
+      - "openamrobot-docs scripts/check_roadmap.py checks every routed and fixed cable, busbar and tie of harness_routes.json against the cover_slot keep-outs (see the roadmap slot validator); components are not checked, so rear parts may sit in or above the band (decision D-06)"
     unit: mm
     date: 2026-11-08
     review_by: 2026-12-20
@@ -1671,7 +1668,7 @@ decisions:
       - {value: "no cable or tie within 50 mm inside the slot", source: "P-03-rev20.4 item 28; replaced by P-03-rev20.5 item 29 (8 Nov 2026): no inward band"}
     applies_to: {repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
-      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:cover |side |front |rear |panel )?slot\b(?!\s+(?:in|of|on)\s+the\s+(?!cover\b|panels?\b|base\b)[a-z][a-z-]*))'
+      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:(?:cover|side|front|rear|panel) slot\b|slot\b(?!\s+(?:in|of|on)\s+the\s+(?:electronics bracket|centre-bracket|mast)\b)))'
         unless: '\bno\b|\bnot\b|never|keep[- ]out|supersed|historical|\bwas\b'
         message: no cable or busbar runs in the slot between the panel upper edges and the cover (P-03 rev20.5 item 29)
       - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?)\b[^\n]{0,40}\b(?:on|over|along) the (?:upper|top) edges? of the (?:side|front|rear) panels?)'

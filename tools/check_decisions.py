@@ -82,10 +82,35 @@ def review_warnings(data, today=None):
     return warnings
 
 
+class RegisterLoader(yaml.SafeLoader):
+    """Reject duplicate keys before any register entry can be overwritten."""
+
+    def construct_mapping(self, node, deep=False):
+        seen = set()
+        for key_node, _ in node.value:
+            if key_node.tag == "tag:yaml.org,2002:merge":
+                continue
+            key = self.construct_object(key_node, deep=deep)
+            try:
+                duplicate = key in seen
+                seen.add(key)
+            except TypeError as exc:
+                raise yaml.constructor.ConstructorError(
+                    "while reading a register mapping", node.start_mark,
+                    "unhashable mapping key", key_node.start_mark,
+                ) from exc
+            if duplicate:
+                raise yaml.constructor.ConstructorError(
+                    "while reading a register mapping", node.start_mark,
+                    f"duplicate mapping key {key!r}", key_node.start_mark,
+                )
+        return super().construct_mapping(node, deep=deep)
+
+
 def load_decisions(path, maintainers=None):
     """Load and validate decisions.yaml; return the list of decisions."""
     try:
-        data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        data = yaml.load(Path(path).read_text(encoding="utf-8"), Loader=RegisterLoader)
     except (OSError, yaml.YAMLError) as exc:
         raise DecisionError(f"{path}: {exc}") from exc
     if not isinstance(data, dict) or data.get("schema_version") != SCHEMA_VERSION:
@@ -358,7 +383,7 @@ def main(argv=None):
           f"{sum(d['status'] == 'open' for d in decisions)} open, "
           f"{sum(d['status'] == 'superseded' for d in decisions)} superseded (citations scanned)")
     try:
-        register_data = yaml.safe_load(a.decisions.read_text(encoding="utf-8"))
+        register_data = yaml.load(a.decisions.read_text(encoding="utf-8"), Loader=RegisterLoader)
     except (OSError, yaml.YAMLError):
         register_data = {}
     for warning in review_warnings(register_data):
