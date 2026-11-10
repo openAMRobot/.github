@@ -263,6 +263,36 @@ decisions:
                 with self.assertRaisesRegex(cd.DecisionError, expected):
                     cd.load_decisions(self.write(text))
 
+    def test_duplicate_key_is_rejected(self):
+        # Review of #90: yaml.safe_load keeps only the last of two equal keys, so the first source record was lost silently.
+        dup_source = self.BASE.replace("sources: {D: {title: t}}", "sources:\n  D: {title: first}\n  D: {title: second}")
+        self.assertEqual(yaml.safe_load(dup_source)["sources"], {"D": {"title": "second"}})   # what the plain loader does
+        dup_field = self.BASE.replace("    unit: mm\n", "    unit: mm\n    unit: m\n")
+        for text in (dup_source, dup_field):
+            with self.assertRaisesRegex(cd.DecisionError, "duplicate key"):
+                cd.load_decisions(self.write(text))
+        with self.assertRaisesRegex(yaml.YAMLError, "duplicate key 'D'"):
+            cd.load_register(dup_source)
+
+    def test_real_register_has_no_duplicate_key(self):
+        data = cd.load_register((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(list(data["sources"]).count("P-03-rev20.6"), 1)
+        self.assertIn("supersedes item 28 on the lift fixing", data["sources"]["P-03-rev20.6"]["title"])
+        self.assertIn("D-01 to D-34", data["sources"]["P-03-rev20.6"]["title"])
+
+    def test_unless_scope_sentence(self):
+        text = self.BASE.replace("check: [{pattern: '(?P<found>x)'}]",
+                                 "check: [{pattern: '(?P<found>\\bxx\\b)', unless: 'never', unless_scope: sentence}]")
+        decisions = cd.load_decisions(self.write(text))
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "a.md").write_text("Never xx here. But xx there.\nNever xx; never xx.\n", encoding="utf-8")
+            lines = [f["line"] for f in cd.scan(tmp, decisions)[0]]
+        self.assertEqual(lines, [1])
+        with self.assertRaisesRegex(cd.DecisionError, "unless_scope must be one of"):
+            cd.load_decisions(self.write(text.replace("unless_scope: sentence", "unless_scope: file")))
+        self.assertEqual(cd.unless_text("A b. C d; e f", 6, "sentence"), "C d;")
+        self.assertEqual(cd.unless_text("A b. C d; e f", 6, None), "A b. C d; e f")
+
     def test_owner_and_reviewer_must_be_maintainers_roles(self):
         with self.assertRaisesRegex(cd.DecisionError, "owner 'somebody' is not a role"):
             cd.load_decisions(self.write(self.BASE.replace("owner: platform-lead", "owner: somebody")),
@@ -405,19 +435,55 @@ class RealRegister(unittest.TestCase):
                      "The side trunk cable runs along the cover slot zone to the rear.\n",   # review on #90: a word elsewhere must not exempt it
                      "The harness runs through the cover slot; the mast is nearby.\n",
                      "The BMS busbar rises across the side slot to the tray.\n",
-                     "The trunk cable lies on the upper edge of the side panel.\n"):
+                     "The trunk cable lies on the upper edge of the side panel.\n",
+                     # third review on #90: a named cover slot followed by a location is still the cover slot
+                     "The harness runs through the cover slot.\n",
+                     "The harness runs through the cover slot in the rear cover skirt.\n",
+                     "The cable runs along the cover slot in the rear panel area.\n",
+                     "The wiring runs through the cover slot on the front panel.\n",
+                     # an unqualified slot followed by a cover, panel or base location is the cover slot too
+                     "The cable runs in the slot in the rear cover skirt.\n",
+                     "The cable runs in the slot of the rear panel area.\n",
+                     "The harness runs along the slot on the side panels.\n",
+                     # an allowed route and a prohibited one in one sentence or one line
+                     "The motor leads pass through the slot in the electronics bracket and the trunk cable runs along the cover slot.\n",
+                     "The motor leads pass through the slot in the electronics bracket, while the side trunk harness runs through the cover slot.\n",
+                     "Upper-body cables enter through the two openings left and right of the lift; the trunk cable runs along the cover slot.\n",
+                     "No cable runs in the cover slot at the front. The trunk cable runs along the cover slot at the rear.\n",
+                     "The rear cable was rerouted in October. The harness runs through the cover slot on the front panel.\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), ["WIRING-ROUTING"], text)
         for text in ("No cable runs in the cover slot.\n",
                      "The motor leads pass through the slot in the electronics bracket.\n",
                      "The branch leads pass through the slot in the centre-bracket side wall.\n",
+                     "The sensor cable runs in the slot of the static column.\n",
+                     "The lift leads pass through the slot in the mast adapter bracket.\n",
+                     "The harness is clipped in the slot of the aluminium extrusion profile.\n",
                      "Sleeve P-clips sit in the T-slot of the static column.\n",
-                     "Upper-body cables enter the base through the two openings left and right of the lift.\n"):
+                     "Upper-body cables enter the base through the two openings left and right of the lift.\n",
+                     # clearly historical text
+                     "Until 8 Nov 2026 the trunk cable ran along the cover slot (superseded by P-03 rev20.5 item 29).\n",
+                     "The harness was routed through the cover slot in the rear cover skirt in the October model.\n",
+                     "Historical: the cable runs along the cover slot on the front panel (CAD Rev A).\n"):
             self.assertEqual(self.ids("docs/a.md", text, repo), [], text)
         by_id = {d["id"]: d for d in self.decisions}
         values = " ".join(by_id["WIRING-ROUTING"]["values"])
         for phrase in ("lower edge of the top cover", "upper edges of the side, front and rear panels", "two openings left and right of the lift",
-                       "at the rear (no LiDAR)", "chassis and the cover do not change"):
+                       "at the rear (no LiDAR)", "chassis and the cover do not change",
+                       "scripts/roadmap_model/slot_rule.py", "exact segment test"):
             self.assertIn(phrase, values)
+        self.assertNotIn("sampled every", values)   # the docs check is an exact segment test, not a sampling step
+
+    def test_bom_7_15_is_the_roadmap_extract_source_not_canonical(self):
+        # Owner review of docs #84 (10 Nov 2026): the public roadmap parts extract comes from BOM Issue 7.15; Issue 7.14 stays the
+        # canonical procurement baseline until the BOM owner confirms 7.15.
+        d = {d["id"]: d for d in self.decisions}["BOM-ISSUE-IN-FORCE"]
+        self.assertIn("Issue 7.14", d["value"])
+        self.assertEqual(d["public_extract"]["source"], "BOM-Issue-7.15")
+        self.assertTrue(d["public_extract"]["canonical"].startswith("no:"))
+        data = cd.load_register((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
+        self.assertIn("source of the public roadmap parts extract", data["sources"]["BOM-Issue-7.15"]["title"])
+        self.assertEqual(self.ids("docs/a.md", "The canonical BOM is Issue 7.15.\n", "x"), ["BOM-ISSUE-IN-FORCE"])
+        self.assertEqual(self.ids("docs/a.md", "Hardware page PARTS imported from BOM Issue 7.15 (roadmap extract).\n", "x"), [])
 
     def test_receiver_frame_20_mm_sides_15_mm_above(self):
         # P-03 rev20.4 item 28 (8 Nov 2026): no metal within 20 mm of the receiver sides (plastic frame), 15 mm above.

@@ -61,14 +61,11 @@ sources:
   P-03-rev20.4:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.4, 8 November 2026 (the addendum in force; item 27: K1/K2 GX11CAC under a sourcing exception, 4 Nov; item 28: owner decisions of 2, 3 and 8 Nov 2026: two battery trays, rear power module, K1/K2 without the Siemens fallback, receiver 15 mm offset, second E-stop on the adapter plate, fixed portrait ZX80 55 mm lower, head camera 60 mm, DOLD supplier CAD, arch backing plate, wiring rules)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
-  P-03-rev20.6:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, owner rulings A1 to A9 with decision IDs D-01 to D-34; supersedes item 28 on the lift fixing, the receiver keep-out and the slot band)"
-    evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.5:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.5, 8 November 2026 (item 29: owner decisions of 8 Nov 2026, among them the receiver plastic frame, 20 mm on the sides and 15 mm above, the cable keep-out at the slot band without an inward band, and the two lift cable openings)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   P-03-rev20.6:
-    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, decisions D-01 to D-34 and platform-lead rulings A1 to A9: compute, IMU topic, speed ceiling, stop release, UI link loss, lift fixing and backing plate, CTL-017, mass ledger, battery trays, schedule)"
+    title: "OpenAMRobot 2.0 Decision Addendum rev20.6, 8 November 2026 (item 30: Build 1 decision baseline, decisions D-01 to D-34 and platform-lead rulings A1 to A9: compute, IMU topic, speed ceiling, stop release, UI link loss, lift fixing and backing plate, CTL-017, mass ledger, battery trays, schedule; supersedes item 28 on the lift fixing, the receiver keep-out and the slot band)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
   Alex decision 2026-11-08:
     title: Platform decision of 8 November 2026 (ZX80 15 mm lower again, head camera 60 mm, receiver 15 mm offset from any side, DOLD supplier CAD dimensions, arch backing plate, no cable in the slot between the base panels and the cover skirt); entered in P-03 rev20.4 item 28
@@ -79,6 +76,9 @@ sources:
   BOM-Issue-7.14:
     title: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.14, 27 October 2026, with the 1 November 2026 changes (canonical per P-03 rev20.2)
     evidence: not held in any repository; provenance only, CI never reads it
+  BOM-Issue-7.15:
+    title: "OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.15 (9 November 2026 workbook: LFT-008 lift foot fasteners, MEC-022 arch backing plate, 21 changed rows): source of the public roadmap parts extract in openamrobot-docs (hardware page PARTS, bom_coverage.csv); not the canonical procurement baseline until the BOM owner confirms it"
+    evidence: not held in any repository; provenance only, CI never reads it; imported by openamrobot-docs scripts/roadmap_model/bom715.py (openamrobot-docs #84)
   P-03-rev20.1:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.1, with the platform lead's decisions of 30 October 2026 (earlier revision; superseded by rev20.2 as the addendum in force; carries the rev20.0 items 15, 17 and 18 head-camera values; item 24: whole chest layout, including the ZX80 operator panel correction of 28 October 2026)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it
@@ -198,11 +198,15 @@ exclude:
 decisions:
   - id: BOM-ISSUE-IN-FORCE
     title: Canonical hardware BOM issue for OpenAMRobot 2.0
-    summary: "BOM Issue 7.14 is the canonical OpenAMRobot 2.0 hardware BOM."
-    fix_hint: "Name Issue 7.14 as canonical, or label older issues (Issue 6, Issue 7 to 7.13, B-01) as superseded or earlier."
+    summary: "BOM Issue 7.14 is the canonical 2.0 procurement BOM; Issue 7.15 is the source of the public roadmap parts extract."
+    fix_hint: "Name Issue 7.14 as canonical; Issue 7.15 only as the roadmap parts extract source; label older issues as superseded."
     kind: value
     status: recorded
     value: OpenAMRobot 2.0 Detailed Hardware BOM, Issue 7.14 (27 October 2026, with the 1 November 2026 changes)
+    public_extract:
+      source: BOM-Issue-7.15
+      scope: "the public roadmap parts extract in openamrobot-docs (hardware page PARTS, embedded part details, bom_coverage.csv, mass_export.yaml bom_issue) is imported from BOM Issue 7.15"
+      canonical: "no: Issue 7.14 stays the canonical procurement baseline until the BOM owner confirms Issue 7.15 (not recorded in this register as of 2026-11-10)"
     unit: none
     date: 2026-11-01
     review_by: 2026-12-13
@@ -229,7 +233,7 @@ decisions:
         message: B-01 is superseded
       - pattern: '(?P<found>(?:canonical|in force|of record)[^\n]{0,40}\bIssue\s*7(?!\.14\b)(?:\.\d+)?\b|\bIssue\s*7(?!\.14\b)(?:\.\d+)?\b[^\n]{0,40}\b(?:canonical|in force|of record))'
         unless: 'supersed|replaced|previous|earlier|historical'
-        message: BOM Issue 7.14 is the canonical hardware BOM; Issue 7 to 7.13 (including 7.10 and 7.11) are retired (P-03 rev20.2 item 26)
+        message: BOM Issue 7.14 is the canonical hardware BOM; Issue 7 to 7.13 (including 7.10 and 7.11) are retired, and Issue 7.15 is the roadmap parts extract source, not canonical (P-03 rev20.2 item 26)
     verification:
       machine: Issue 6, Issue 7 to 7.13 (including 7.10 and 7.11) or B-01 presented as the canonical BOM; citations of P-03 rev18.1 line 7
       human: {reviewer: platform-lead, evidence: the BOM file header and issue number in the released BOM}
@@ -1662,7 +1666,7 @@ decisions:
       - "axis-aligned runs with 45 and 90 degree transitions; no hanging, flying or loose cable and no cable over a component"
       - "upper-body cables enter the base only through two openings left and right of the lift, near the middle of the platform length (left: power, right: signal), each with an edge grommet; above the base they run in sleeving and in the lift energy chain"
       - "appearance is wire routing and fixing only: the chassis and the cover do not change"
-      - "openamrobot-docs scripts/check_roadmap.py checks every routed and fixed cable, busbar and tie of harness_routes.json against the cover_slot keep-outs (sampled every 1 mm); components are not checked, so rear parts may sit in or above the band (decision D-06)"
+      - "the geometry rule is enforced in openamrobot-docs scripts/roadmap_model/slot_rule.py (slot_violations, an exact segment test against each cover_slot keep-out grown by the cable's outer radius), which scripts/check_roadmap.py applies to every routed and fixed cable, busbar and tie of harness_routes.json; components are not checked, so rear parts may sit in or above the band (decision D-06)"
     unit: mm
     date: 2026-11-08
     review_by: 2026-12-20
@@ -1671,14 +1675,19 @@ decisions:
       - {value: "no cable or tie within 50 mm inside the slot", source: "P-03-rev20.4 item 28; replaced by P-03-rev20.5 item 29 (8 Nov 2026): no inward band"}
     applies_to: {repositories: ["openamr-platform-*", "openamr-upperbody-*", "openamrobot-docs"], files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html"]}
     check:
-      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:cover |side |front |rear |panel )?slot\b(?!\s+(?:in|of|on)\s+the\s+(?!cover\b|panels?\b|base\b)[a-z][a-z-]*))'
+      # A named cover, side, front, rear or panel slot is always the prohibited slot, whatever follows it. Only an unqualified
+      # "the slot" followed by "in/of/on the" and a named part of another assembly (a bracket, the column, the mast, an
+      # extrusion profile or rail) is another part's slot. The unless words are read in the sentence of the match only.
+      - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?|conductors?)\b[^\n]{0,40}\b(?:through|in|along|via|across|over) the (?:(?:cover|side|front|rear|panel) slot\b|slot\b(?!\s+(?:in|of|on)\s+the\s+(?:(?!cover\b|covers\b|panels?\b|skirts?\b|base\b|enclosure\b)[a-z-]+\s+){0,2}(?:[a-z-]*bracket|column|mast|extrusion|profile|rail)s?\b)))'
         unless: '\bno\b|\bnot\b|never|keep[- ]out|supersed|historical|\bwas\b'
+        unless_scope: sentence
         message: no cable or busbar runs in the slot between the panel upper edges and the cover (P-03 rev20.5 item 29)
       - pattern: '(?P<found>\b(?:cables?|harness(?:es)?|wires?|wiring|leads?|busbars?)\b[^\n]{0,40}\b(?:on|over|along) the (?:upper|top) edges? of the (?:side|front|rear) panels?)'
         unless: '\bno\b|\bnot\b|never|supersed|historical|\bwas\b'
+        unless_scope: sentence
         message: no cable lies on or over a panel upper edge (P-03 rev20.5 item 29)
     verification:
-      machine: text routing a cable, busbar or wire through or along the slot, or on a panel upper edge; in openamrobot-docs, check_roadmap.py harness_slot_errors on the routes
+      machine: text routing a cable, busbar or wire through or along the slot, or on a panel upper edge; in openamrobot-docs, check_roadmap.py harness_slot_errors (slot_rule.slot_violations) on the routes
       human: {reviewer: platform-lead, evidence: "harness_routes.json keep-outs cover_slot_* with check_roadmap.py passing, the lift cable openings in openamrobot-docs, and the bench harness mock-up photos"}
     owner: platform-lead
 
