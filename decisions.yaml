@@ -70,6 +70,9 @@ sources:
   Alex decision 2026-11-08:
     title: Platform decision of 8 November 2026 (ZX80 15 mm lower again, head camera 60 mm, receiver 15 mm offset from any side, DOLD supplier CAD dimensions, arch backing plate, no cable in the slot between the base panels and the cover skirt); entered in P-03 rev20.4 item 28
     evidence: decision record, not held in any repository; provenance only, CI never reads it
+  Tushar Goel datum decision 2026-11-12:
+    title: "M07 disposition, datum owner decision of 12 November 2026 by Tushar Goel (Tushargoel230), datum owner for joint_rest_margin_rad in the combined model: M07 stays WARN, recorded as a simulation limitation; rule M07-REST-STATE as proposed on openamr-upperbody-sw #14 on 20 Oct 2026 and confirmed by Om Jagtap (Brinex45) on 21 Oct 2026"
+    evidence: "openamr-upperbody-sw PR #48 comment 6837861823 (2026-11-12T22:37:51Z) at head 6491de7, Model tests run 43284446733, A7 job 131413988854, artifact a7-evidence; confirmation: openamr-upperbody-sw PR #14 comment 6324807540 (2026-10-21T19:35:18Z); provenance only, CI never reads it"
   P-03-rev20.2:
     title: "OpenAMRobot 2.0 Decision Addendum rev20.2, 1 November 2026 (the addendum in force; item 26: BOM Issue 7.14, component availability, tablet mount, SAFE 24 V converter, EV_ICM-42688-P IMU board, hub-motor brake data, DOLD holding confirmation)"
     evidence: plan-set document, not held in any repository; provenance only, CI never reads it; values entered from the owner's summary of item 26 (change request openAMRobot/.github#77)
@@ -1839,3 +1842,32 @@ decisions:
       machine: a mass presented as verified, final or released
       human: {reviewer: robot-description-owner, evidence: "the unique physical-instance mass ledger signed by the mechanical owner, the regenerated mass export, a double-count regression test and the weighed robot"}
     owner: platform-lead
+
+  - id: M07-REST-STATE
+    title: Combined-model rest state against the URDF joint limits (M07, simulation only)
+    summary: "M07: no measured joint rests over 0.001 rad past its URDF limit; upstream-limit rests are WARN, a simulation limitation."
+    fix_hint: "Report M07 as WARN (simulation limitation), not PASS or physical acceptance; beyond joint_rest_margin_rad is FAIL."
+    kind: limit
+    status: recorded
+    values:
+      - "in the combined model's rest state, each independently measured joint must not read more than joint_rest_margin_rad beyond its URDF limit, with at least 50 finite samples per joint"
+      - "joint_rest_margin_rad = 0.001 rad, a placeholder pending approval by the engineering owner"
+      - "a joint that rests on a limit inherited unchanged from upstream openarm_description is reported as WARN, not PASS (openarm_{left,right}_finger_joint1, openarm_{left,right}_joint4); a reading beyond the margin is FAIL, also for those joints"
+      - "lift_joint and the mimic finger_joint2 joints are not independently measured"
+      - "status of the check: WARN, recorded as a simulation limitation; it closes only through (a) an upstream limit or rest-pose change with its own engineering justification, or (b) the rest state measured on hardware"
+      - "scope: simulation of the combined model in openamr-upperbody-sw; not physical acceptance of the rest position"
+    unit: rad
+    date: 2026-11-12
+    review_by: 2026-12-24
+    source: {document: Tushar Goel datum decision 2026-11-12, item: "M07 disposition by the datum owner Tushar Goel (Tushargoel230), openamr-upperbody-sw PR #48 comment 6837861823 at head 6491de7 (Model tests run 43284446733, artifact a7-evidence); rule confirmed by Om Jagtap (Brinex45), PR #14 comment 6324807540, 21 Oct 2026"}
+    applies_to:
+      repositories: ["openamr-upperbody-sw"]
+      files: ["**/*.md"]
+    check:
+      - pattern: '(?P<found>\bM07\b:? (?:(?:is|now|reports?|stays?|returns?) )?(?:PASS(?:ES|ED)?|pass(?:es|ed)?)\b)'
+        unless: '\bnot\b|\bno\b|never|WARN|FAIL|historical|supersed|\bwas\b|before|earlier'
+        message: M07 is a documented WARN, a simulation limitation, not a pass or physical acceptance of the rest state (M07-REST-STATE)
+    verification:
+      machine: text saying M07 passes (M07 directly followed by PASS or passes) in a line that names no WARN, FAIL or negation
+      human: {reviewer: robot-description-owner, evidence: "the A7 report JSON M07 rows (four WARN joints, 50 or more finite samples per joint) and, to close the WARN, the upstream limit change with its justification or the hardware rest-state measurement"}
+    owner: software-lead
