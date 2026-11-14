@@ -172,6 +172,7 @@ identical to the register.
 | UI-LINK-LOSS | recorded | `not`, `never`, `no` |
 | UPPERBODY-CONTROLLER | recorded | *the SICK IME12-04BNSZC0S stop sensors are NPN, normally open, 10 to 30 V*: `supersed (superseded, supersedes)`, `historical`, `was`, `not`, `earlier`, `previous`, `wrong`<br>*the lift is driven by CTL-017, a separate upper-body controller on CAN3*: `supersed (superseded, supersedes)`, `historical`, `was`, `not`, `earlier`, `previous` |
 | MASS-LEDGER | recorded | `not`, `no`, `estimate`, `ledger`, `until`, `pending`, `to be`, `wait` |
+| M07-REST-STATE | recorded | `not`, `no`, `never`, `WARN`, `FAIL`, `historical`, `supersed (superseded, supersedes)`, `was`, `before`, `earlier` |
 <!-- END ACCEPTED WORDS -->
 
 ## Approved public contacts

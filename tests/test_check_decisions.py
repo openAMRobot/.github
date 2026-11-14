@@ -653,6 +653,28 @@ class RealRegister(unittest.TestCase):
         for name, text, repo, want in cases:
             self.assertEqual(self.ids(name, text, repo), want, text)
 
+    def test_m07_rest_state(self):
+        # M07-REST-STATE (datum owner decision of 12 Nov 2026, openamr-upperbody-sw PR #48)
+        cases = [
+            ("docs/verification.md", "M07 passes on the combined model.\n", "openamr-upperbody-sw", ["M07-REST-STATE"]),
+            ("docs/verification.md", "A7: M07 PASS.\n", "openamr-upperbody-sw", ["M07-REST-STATE"]),
+            ("docs/verification.md", "M07 stays WARN, a simulation limitation; WARN is not PASS.\n", "openamr-upperbody-sw", []),
+            ("docs/verification.md", "M07 is not a pass on joint margin.\n", "openamr-upperbody-sw", []),
+            ("docs/verification.md", "a P17 M07 run, and the 12 of the P17 passes\n", "openamr-upperbody-sw", []),
+            ("docs/verification.md", "M07 passes on the combined model.\n", "openamr-platform-sw", []),
+        ]
+        for name, text, repo, want in cases:
+            self.assertEqual(self.ids(name, text, repo), want, (text, repo))
+        by_id = {d["id"]: d for d in self.decisions}
+        entry = by_id["M07-REST-STATE"]
+        self.assertEqual(entry["source"]["document"], "Tushar Goel datum decision 2026-11-12")
+        self.assertEqual((entry["owner"], entry["verification"]["human"]["reviewer"]),
+                         ("software-lead", "robot-description-owner"))
+        values = " ".join(entry["values"])
+        for phrase in ("joint_rest_margin_rad = 0.001 rad, a placeholder", "at least 50 finite samples",
+                       "WARN, not PASS", "not physical acceptance", "lift_joint and the mimic finger_joint2"):
+            self.assertIn(phrase, values)
+
     def test_2026_11_02_values_recorded(self):
         data = yaml.safe_load((ROOT / "decisions.yaml").read_text(encoding="utf-8"))
         self.assertIn("Alex decision 2026-11-02", data["sources"])
