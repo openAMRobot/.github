@@ -1,6 +1,6 @@
 # Contributor agreement transition to version 2.0
 
-Status on 22 November 2026: version 2.0 texts approved in direction by the owner and prepared for review. **Not activated.** The live status is the table in [CLA.md](CLA.md).
+Status: version 2.0 was activated on 22 November 2026, 18:05 UTC, after legal review and owner approval. The live status and the activation evidence are in [CLA.md](CLA.md).
 
 ## What changes
 
