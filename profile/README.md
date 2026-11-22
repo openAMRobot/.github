@@ -514,14 +514,14 @@ What 2.0 brings:
 
 ## Licensing, ownership, and contributions
 
-OpenAMRobot is a project of **Botshare LTD**. Botshare LTD owns the transferable economic rights in original OpenAMRobot materials created by or validly assigned to it. Third-party materials remain subject to their respective owners, licences, and notices.
+OpenAMRobot is a project of **Botshare LTD**. Botshare LTD owns the original OpenAMRobot materials it created or that were assigned to it, and holds a permanent, sublicensable licence to contributions whose authors keep ownership. Third-party materials remain subject to their respective owners, licences, and notices.
 
 Public availability under MIT or another applicable open-source or open-hardware licence grants the permissions stated in that licence; it does not transfer ownership of underlying copyright, trademarks, patents, or other intellectual property.
 
 Accepted external contributions require:
 
 1. DCO sign-off for every commit; and
-2. an accepted Individual or Corporate Contributor Agreement governing assignment of transferable economic rights to Botshare LTD.
+2. a recorded Individual or Corporate contributor agreement. Under version 2.0 contributors keep ownership and license Botshare LTD; contributions accepted under version 1.1 were assigned.
 
 Contributor attribution and legally non-waivable authorship or moral rights remain recognized.
 
