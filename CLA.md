@@ -6,10 +6,10 @@ Botshare LTD requires a recorded contributor agreement before accepting an exter
 
 | Version | Model | Documents | Status |
 |---|---|---|---|
-| 2.0 | Contributor keeps ownership; Botshare LTD receives a permanent, irrevocable, worldwide, royalty-free, transferable and sublicensable licence | [Individual Contributor License Agreement](INDIVIDUAL_CONTRIBUTOR_LICENSE_AGREEMENT.md), [Corporate Contributor License Agreement](CORPORATE_CONTRIBUTOR_LICENSE_AGREEMENT.md), [Guardian Consent](MINOR_CONTRIBUTOR_GUARDIAN_CONSENT.md) | Approved text. **Not yet offered for acceptance.** |
-| 1.1 | Assignment of transferable economic rights to Botshare LTD | [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md), [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md) | Currently offered through CLA Assistant. Closed to new acceptances from the activation date of version 2.0. |
+| 2.0 | Contributor keeps ownership; Botshare LTD receives a permanent, irrevocable, worldwide, royalty-free, transferable and sublicensable licence | [Individual Contributor License Agreement](INDIVIDUAL_CONTRIBUTOR_LICENSE_AGREEMENT.md), [Corporate Contributor License Agreement](CORPORATE_CONTRIBUTOR_LICENSE_AGREEMENT.md), [Guardian Consent](MINOR_CONTRIBUTOR_GUARDIAN_CONSENT.md) | **Offered for acceptance through CLA Assistant since 22 November 2026.** |
+| 1.1 | Assignment of transferable economic rights to Botshare LTD | [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md), [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md) | Closed to new acceptances since 22 November 2026. Still governs the contributions accepted under it. |
 
-**Activation date of version 2.0:** not set. Botshare LTD records the date here, in the same change that records the activation evidence below. Until then, CLA Assistant presents version 1.1, and nobody is covered by version 2.0.
+**Activation date of version 2.0:** 22 November 2026, 18:05 UTC. From that time CLA Assistant presents version 2.0 and asks every contributor, including those who accepted version 1.1, for a new acceptance on their next pull request. A contributor is covered by version 2.0 only from that contributor's own recorded acceptance.
 
 The version whose acceptance is recorded for a contributor governs that contributor's contributions:
 
@@ -81,7 +81,13 @@ Version 2.0 is activated only when all of the following are done and recorded:
 6. The organization-wide CLA Assistant link is switched to the version 2.0 document, and the activation date is entered above.
 7. Every open external pull request is rechecked so that it asks for version 2.0.
 
-Activation evidence (filled in at activation): CLA Assistant document URL and revision: not set. SHA-256 of the Individual text: not set. Test pull request: not set.
+Activation evidence:
+
+- CLA Assistant document: https://gist.github.com/BotshareAI/8f69c728da49ce67e44c56ff24ac6481 , file `OpenAMRobot-ICLA-v2.0.md`, revision `81f04ae27b56598c1ad046e28185d9e3cb541b6f`.
+- SHA-256 of `INDIVIDUAL_CONTRIBUTOR_LICENSE_AGREEMENT.md` on main (commit fa9757a), the text submitted to that document: `189dadd0aa16b5ce4958f5e34f870cf3087622841d6103bd46bc0eac8ea237c6`.
+- Test: on openamr-platform-fw pull request 72, opened by an account that had accepted version 1.1, the `license/cla` status changed to "not signed yet" after the switch, and the signing page showed document identifier OpenAMRobot-ICLA-2.0 from its first line to its last clause, with all five links resolving.
+- Version 1.1 had 21 recorded acceptances at the switch; their history was exported and is kept privately.
+- Open pull requests were rechecked through CLA Assistant after the switch.
 
 ## Version changes
 
