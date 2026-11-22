@@ -2,7 +2,7 @@
 
 **Document identifier:** OpenAMRobot-ICLA-2.0  
 **Agreement version:** 2.0, 22 November 2026  
-**Status:** approved text. It applies to a contributor only from the moment that contributor's acceptance of this exact version is recorded (section 16). The date from which Botshare LTD offers this version for acceptance is recorded in [CLA.md](CLA.md).
+**Status:** approved text. It applies to a contributor only from the moment that contributor's acceptance of this exact version is recorded (section 16). The date from which Botshare LTD offers this version for acceptance is recorded in [CLA.md](https://github.com/openAMRobot/.github/blob/main/CLA.md).
 
 This Contributor License Agreement ("Agreement") is between **Botshare LTD**, Company ID HE479056, VAT 60197356L, of Chrysanthou Mylona 1, Panayides Building, Floor 2, Office 1, 3030 Limassol, Cyprus ("Company"), and the individual who accepts it ("Contributor").
 
@@ -85,7 +85,7 @@ In consideration of the parties' mutual promises, and of Company's evaluation, p
 
 5.3 Background Material that a Contribution refers to or can optionally be used with, and that is not included in the pull request, is not licensed by this Agreement. Naming it in the pull request, with its location and licence, is sufficient. A Contribution must not need such material to be built, manufactured, run or used unless the material is publicly available under a licence that the Third-Party Material Policy allows, or Company approves it in writing before acceptance.
 
-5.4 Third-Party Material may be included in, or required by, a Contribution only if: (a) its source, rights holder, exact version, licence and required notices are stated in the pull request; and (b) its licence allows commercial use, modification, manufacturing, redistribution and use in proprietary products without royalty and without requiring Company to publish its own material, as set out in the [Third-Party Material Policy](THIRD_PARTY_POLICY.md); or (c) Company approves it in writing before acceptance.
+5.4 Third-Party Material may be included in, or required by, a Contribution only if: (a) its source, rights holder, exact version, licence and required notices are stated in the pull request; and (b) its licence allows commercial use, modification, manufacturing, redistribution and use in proprietary products without royalty and without requiring Company to publish its own material, as set out in the [Third-Party Material Policy](https://github.com/openAMRobot/.github/blob/main/THIRD_PARTY_POLICY.md); or (c) Company approves it in writing before acceptance.
 
 5.5 This Agreement does not relicense Third-Party Material. Upstream licences, notices and attribution are preserved. Contributor will not present third-party, employer-owned, university-owned, confidential or unlicensed material as Contributor's own original work.
 
@@ -139,7 +139,7 @@ Contributor confirms, at submission and again at acceptance, that:
 
 (b) the Contribution is Contributor's original work, except for Background Material and Third-Party Material disclosed under section 5;
 
-(c) Contributor has the right to grant these licences, and either no employer, university, client, sponsor, co-author or funding body has rights in the Contribution, or that party has given written permission. Where an organization owns or controls the work, the [Corporate Contributor License Agreement](CORPORATE_CONTRIBUTOR_LICENSE_AGREEMENT.md) applies instead;
+(c) Contributor has the right to grant these licences, and either no employer, university, client, sponsor, co-author or funding body has rights in the Contribution, or that party has given written permission. Where an organization owns or controls the work, the [Corporate Contributor License Agreement](https://github.com/openAMRobot/.github/blob/main/CORPORATE_CONTRIBUTOR_LICENSE_AGREEMENT.md) applies instead;
 
 (d) Contributor has not granted, and will not grant, rights that conflict with this Agreement;
 
@@ -149,7 +149,7 @@ Contributor confirms, at submission and again at acceptance, that:
 
 ## 11. Contributors under 18
 
-11.1 A person under 18 may contribute only after a parent or legal guardian has signed the [Guardian Consent](MINOR_CONTRIBUTOR_GUARDIAN_CONSENT.md) and Company has confirmed in writing that it is on record. An electronic acceptance given by the minor alone does not cover the minor's Contributions.
+11.1 A person under 18 may contribute only after a parent or legal guardian has signed the [Guardian Consent](https://github.com/openAMRobot/.github/blob/main/MINOR_CONTRIBUTOR_GUARDIAN_CONSENT.md) and Company has confirmed in writing that it is on record. An electronic acceptance given by the minor alone does not cover the minor's Contributions.
 
 11.2 The guardian enters this Agreement on the minor's behalf and in the guardian's own name, and grants the licences in this Agreement for the minor's Accepted Contributions.
 
@@ -159,7 +159,7 @@ Contributor confirms, at submission and again at acceptance, that:
 
 12.1 Every commit needs a valid DCO sign-off. The DCO certifies origin and authority. It does not license or assign rights and does not replace this Agreement.
 
-12.2 Company may keep records of the agreement version, the electronic acceptance, the GitHub identity, pull requests, commit hashes and acceptance decisions, as described in the [Contributor Privacy Notice](CONTRIBUTOR_PRIVACY_NOTICE.md).
+12.2 Company may keep records of the agreement version, the electronic acceptance, the GitHub identity, pull requests, commit hashes and acceptance decisions, as described in the [Contributor Privacy Notice](https://github.com/openAMRobot/.github/blob/main/CONTRIBUTOR_PRIVACY_NOTICE.md).
 
 12.3 At Company's request and reasonable expense, Contributor will confirm the licences in this Agreement in writing, for example to a customer, investor, acquirer or registry. Company's rights do not depend on that confirmation.
 
