@@ -27,8 +27,8 @@ Signed-off-by: Legal Name <email@example.com>
 
 The name must identify the contributor and the email must be controlled by them. All commits in a pull request, including web edits and commits added after review, must pass the DCO check.
 
-## DCO and assignment are separate
+## DCO and the contributor agreement are separate
 
-DCO confirms provenance and authority to contribute. It does **not** transfer copyright. Assignment of transferable economic rights in accepted contributions is governed by the applicable OpenAMRobot Contributor Agreement.
+DCO confirms provenance and authority to contribute. It does **not** transfer or license copyright. Rights in accepted contributions are governed by the contributor agreement version the contributor accepted: a licence to Botshare LTD under version 2.0, an assignment under version 1.1. See [CLA.md](CLA.md).
 
 A pull request cannot be accepted while its DCO or Contributor Agreement requirement is unsatisfied.
