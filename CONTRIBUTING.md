@@ -34,7 +34,7 @@ are in [AGENTS.md](AGENTS.md).
 
 ## 2. Set up
 
-1. Sign the contributor agreement once: see [CLA.md](CLA.md).
+1. Accept the contributor agreement: see [CLA.md](CLA.md). Contributors under 18 need the guardian consent described there first.
 2. Fork the repository and create **one branch per work package**.
 3. Sign off every commit: `git commit -s`. The sign-off certifies the [DCO](DCO.md) with your
    own name and e-mail.
@@ -108,8 +108,7 @@ A maintainer merges; approval or a green check alone does not accept a contribut
 ## Legal, conduct and contact
 
 Contributions are governed by the [IP Policy](IP_POLICY.md), the
-[Individual](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md) or
-[Corporate](CORPORATE_CONTRIBUTOR_AGREEMENT.md) Contributor Agreement, the
+contributor agreement version you accepted ([CLA.md](CLA.md)), the
 [AI contribution policy](AI_CONTRIBUTION_POLICY.md) and the
 [third-party policy](THIRD_PARTY_POLICY.md). Identify any material you did not create
 yourself with its source and licence. Do not submit secrets, personal data or confidential
