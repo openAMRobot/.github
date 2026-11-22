@@ -1,8 +1,8 @@
 # OpenAMRobot Contributor Privacy Notice
 
-**Version:** 1.0 — 29 August 2026
+**Version:** 1.1 — 22 November 2026
 
-This notice explains how **Botshare LTD** (Company ID HE479056), Chrysanthou Mylona 1, Panayides Building, Office 1, 3030 Limassol, Cyprus (“Botshare”, “we”), processes personal data relating to OpenAMRobot contributors.
+This notice explains how **Botshare LTD** (Company ID HE479056), Chrysanthou Mylona 1, Panayides Building, Floor 2, Office 1, 3030 Limassol, Cyprus (“Botshare”, “we”), processes personal data relating to OpenAMRobot contributors.
 
 Contact: info@botshare.ai.
 
@@ -12,7 +12,8 @@ We may process:
 
 - legal name, signature, address, country, email, and professional affiliation;
 - GitHub usernames, commit identity, pull requests, reviews, and contribution history;
-- agreement type, version, execution and acceptance dates;
+- agreement type, version, execution and acceptance dates, and the fields entered at electronic acceptance;
+- for a contributor under 18: the guardian's name, relationship and contact details, the contributor's date of birth, and the signed guardian consent;
 - employer or organizational authorization and Authorized Contributor status;
 - disclosed provenance, third-party rights, and contribution-related correspondence; and
 - records needed to establish, exercise, or defend legal claims.
@@ -32,7 +33,7 @@ Providing data required to execute an agreement is contractual. Without it, Bots
 
 ## Sources and recipients
 
-Data is obtained from the contributor, the contributor’s organization, public GitHub records, and contribution communications. It may be disclosed only as reasonably necessary to Botshare personnel and service providers, professional advisers, courts, regulators, counterparties in due diligence or a corporate transaction subject to appropriate safeguards, and the public where the contributor deliberately publishes data through GitHub.
+Data is obtained from the contributor, the contributor’s organization, public GitHub records, and contribution communications. Electronic acceptance of the Individual agreement is collected through CLA Assistant (cla-assistant.io), which receives the GitHub identity, the accepted document and the acceptance time. Data may be disclosed only as reasonably necessary to Botshare personnel and service providers, professional advisers, courts, regulators, counterparties in due diligence or a corporate transaction subject to appropriate safeguards, and the public where the contributor deliberately publishes data through GitHub.
 
 ## International transfers
 
@@ -42,7 +43,9 @@ GitHub and other service providers may process data outside the EEA. Botshare wi
 
 Public Git and contribution records may remain available indefinitely as part of the project’s technical and authorship history.
 
-Executed agreements, authority records, and chain-of-title evidence are retained for the life of the relevant intellectual-property rights and thereafter for the period reasonably necessary to establish, exercise, or defend claims, subject to applicable limitation periods and legal obligations. Data not needed for these purposes will be deleted or anonymized.
+Executed agreements, authority records, and chain-of-title evidence are retained for the life of the relevant intellectual-property rights and thereafter for the period reasonably necessary to establish, exercise, or defend claims, subject to applicable limitation periods and legal obligations. Data not needed for these purposes will be deleted or anonymized. A date of birth supplied on a guardian consent is deleted once the contributor has accepted the agreement personally as an adult.
+
+A residential address is not collected for electronic acceptance.
 
 ## Rights
 

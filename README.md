@@ -57,8 +57,11 @@ The ecosystem encourages open-source collaboration, education, research, and ind
 - [IP Policy](IP_POLICY.md)
 - [Contributor Agreement Process](CLA.md)
 - [Contributor Agreement Recordkeeping](CLA_RECORDKEEPING.md)
-- [Individual Contributor Agreement](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md)
-- [Corporate Contributor Agreement](CORPORATE_CONTRIBUTOR_AGREEMENT.md)
+- [Individual Contributor License Agreement 2.0](INDIVIDUAL_CONTRIBUTOR_LICENSE_AGREEMENT.md)
+- [Corporate Contributor License Agreement 2.0](CORPORATE_CONTRIBUTOR_LICENSE_AGREEMENT.md)
+- [Guardian Consent for contributors under 18](MINOR_CONTRIBUTOR_GUARDIAN_CONSENT.md)
+- [Individual Contributor Agreement 1.1](INDIVIDUAL_CONTRIBUTOR_AGREEMENT.md)
+- [Corporate Contributor Agreement 1.1](CORPORATE_CONTRIBUTOR_AGREEMENT.md)
 - [Trademark Policy](TRADEMARK_POLICY.md)
 
 ## Security & Support
@@ -109,7 +112,7 @@ OpenAMRobot encourages contributions from:
 - educators,
 - industrial partners.
 
-OpenAMRobot is operated by **Botshare LTD**. Accepted external contributions require DCO sign-off and an applicable Contributor Agreement assigning transferable economic rights to Botshare LTD. Accepted project material is distributed under the applicable repository or file licence. Authorship, attribution, non-waivable moral rights, and third-party rights remain recognized as required.
+OpenAMRobot is operated by **Botshare LTD**. Accepted external contributions require DCO sign-off and a recorded contributor agreement ([CLA.md](CLA.md)). Under version 2.0 contributors keep ownership and grant Botshare LTD a permanent, royalty-free, sublicensable licence; contributions accepted under version 1.1 were assigned to Botshare LTD. Accepted project material is distributed under the applicable repository or file licence. Authorship, attribution, non-waivable moral rights, and third-party rights remain recognized as required.
 
 ---
 

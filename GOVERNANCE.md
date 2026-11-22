@@ -16,7 +16,7 @@ Maintainer status grants operational authority only. It does not transfer owners
 
 Contributors may propose changes through issues, discussions, and pull requests. Contributions must comply with [CONTRIBUTING.md](CONTRIBUTING.md), [DCO.md](DCO.md), [CLA.md](CLA.md), the applicable repository licence, and all third-party notices.
 
-Transferable economic rights in accepted external contributions are governed by the applicable Contributor Agreement. Attribution and legally applicable authorship or moral rights remain recognized.
+Rights in accepted external contributions are governed by the contributor agreement version the contributor accepted ([CLA.md](CLA.md)): contributors keep ownership and license Botshare LTD under version 2.0; version 1.1 assigned transferable economic rights. Attribution and legally applicable authorship or moral rights remain recognized.
 
 ## Decisions
 
