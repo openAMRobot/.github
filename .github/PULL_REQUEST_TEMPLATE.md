@@ -67,6 +67,7 @@ platform lead. Telemetry and fixtures are not safety evidence. -->
 
 - [ ] Every commit is signed off under the [DCO](https://github.com/openAMRobot/.github/blob/main/DCO.md).
 - [ ] I am covered by an accepted [Contributor Agreement](https://github.com/openAMRobot/.github/blob/main/CLA.md).
-- [ ] Third-party material is identified with source and licence.
+- [ ] Third-party and background material is identified with source and licence, and nothing included or required is under non-commercial, copyleft or other restricted terms ([policy](https://github.com/openAMRobot/.github/blob/main/THIRD_PARTY_POLICY.md)).
+- [ ] Any dataset, simulation asset, model or weights comes with its provenance card.
 - [ ] No confidential, personal, credential or export-controlled information is included.
 - [ ] No partner, customer or private person is named; the application is Use_Case_1.
