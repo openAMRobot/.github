@@ -14,6 +14,8 @@ An open-source mobile base with a 350 mm lift and two [OpenArm](https://github.c
 >
 > **[See packages and pre-order on botshare.ai →](https://botshare.ai/openamrobot)**
 
+Prices, packages and pre-orders: https://botshare.ai/openamrobot
+
 <img src="nvidia-inception.jpg" alt="Botshare LTD is a member of the NVIDIA Inception Program" height="70"/>
 
 The project began as an autonomous dual-arm mobile robot platform and is now evolving toward a full-cycle infrastructure for:
