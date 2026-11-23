@@ -16,5 +16,6 @@ repositories:
   - {name: openamrobot-ui, default_branch: main, agent_rules: required}
   - {name: openamrobot-comm, default_branch: main, agent_rules: required}
   - {name: openamrobot-docs, default_branch: main, agent_rules: required}
+  - {name: openamrobot-embodied-ai, default_branch: main, agent_rules: required}
   - {name: openamrobot-manifest, default_branch: main, agent_rules: required}
   - {name: openamrobot-release, default_branch: main, agent_rules: required}

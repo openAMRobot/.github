@@ -1,0 +1,306 @@
+{
+ "https://api.github.com/repos/openAMRobot/fixture-alpha/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100": {
+  "body": {
+   "total_count": 7,
+   "workflow_runs": [
+    {
+     "conclusion": "failure",
+     "created_at": "2026-10-28T12:00:00Z",
+     "event": "pull_request",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "someone/fixture-alpha"
+     },
+     "html_url": "https://github.com/someone/fixture-alpha/actions/runs/104",
+     "id": 104,
+     "name": "CI",
+     "path": ".github/workflows/ci.yml",
+     "status": "completed",
+     "updated_at": "2026-10-28T12:00:00Z",
+     "workflow_id": 924
+    },
+    {
+     "conclusion": "success",
+     "created_at": "2026-10-28T10:00:00Z",
+     "event": "push",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "openAMRobot/fixture-alpha"
+     },
+     "html_url": "https://github.com/openAMRobot/fixture-alpha/actions/runs/101",
+     "id": 101,
+     "name": "CI",
+     "path": ".github/workflows/ci.yml",
+     "status": "completed",
+     "updated_at": "2026-10-28T10:00:00Z",
+     "workflow_id": 924
+    },
+    {
+     "conclusion": "cancelled",
+     "created_at": "2026-10-27T11:00:00Z",
+     "event": "push",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "openAMRobot/fixture-alpha"
+     },
+     "html_url": "https://github.com/openAMRobot/fixture-alpha/actions/runs/103",
+     "id": 103,
+     "name": "Docs",
+     "path": ".github/workflows/docs.yml",
+     "status": "completed",
+     "updated_at": "2026-10-27T11:00:00Z",
+     "workflow_id": 926
+    },
+    {
+     "conclusion": "failure",
+     "created_at": "2026-10-27T10:00:00Z",
+     "event": "push",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "openAMRobot/fixture-alpha"
+     },
+     "html_url": "https://github.com/openAMRobot/fixture-alpha/actions/runs/102",
+     "id": 102,
+     "name": "CI",
+     "path": ".github/workflows/ci.yml",
+     "status": "completed",
+     "updated_at": "2026-10-27T10:00:00Z",
+     "workflow_id": 924
+    }
+   ]
+  },
+  "headers": {
+   "Link": "<https://api.github.com/repositories/1001/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100&page=2>; rel=\"next\", <https://api.github.com/repositories/1001/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100&page=2>; rel=\"last\""
+  },
+  "status": 200
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-alpha/issues?state=open&per_page=100": {
+  "body": [
+   {
+    "assignees": [],
+    "created_at": "2026-09-20T08:00:00Z",
+    "html_url": "https://github.com/openAMRobot/fixture-alpha/issues/3",
+    "labels": [],
+    "number": 3,
+    "pull_request": {
+     "url": "https://api.github.com/repos/openAMRobot/fixture-alpha/pulls/3"
+    },
+    "state": "open",
+    "title": "Fixture change 3",
+    "updated_at": "2026-10-10T08:00:00Z",
+    "user": {
+     "login": "dev-one"
+    }
+   },
+   {
+    "assignees": [
+     {
+      "login": "dev-one"
+     }
+    ],
+    "created_at": "2026-10-20T08:00:00Z",
+    "html_url": "https://github.com/openAMRobot/fixture-alpha/issues/7",
+    "labels": [
+     {
+      "name": "rc.1"
+     },
+     {
+      "name": "triage"
+     }
+    ],
+    "number": 7,
+    "state": "open",
+    "title": "Release checklist",
+    "updated_at": "2026-10-28T08:00:00Z",
+    "user": {
+     "login": "dev-one"
+    }
+   },
+   {
+    "assignees": [],
+    "created_at": "2026-10-25T08:00:00Z",
+    "html_url": "https://github.com/openAMRobot/fixture-alpha/issues/8",
+    "labels": [],
+    "number": 8,
+    "state": "open",
+    "title": "[rc.1] Release notes",
+    "updated_at": "2026-10-26T08:00:00Z",
+    "user": {
+     "login": "dev-one"
+    }
+   },
+   {
+    "assignees": [],
+    "created_at": "2026-09-01T08:00:00Z",
+    "html_url": "https://github.com/openAMRobot/fixture-alpha/issues/9",
+    "labels": [],
+    "number": 9,
+    "state": "open",
+    "title": "Old question",
+    "updated_at": "2026-10-01T08:00:00Z",
+    "user": {
+     "login": "dev-one"
+    }
+   }
+  ],
+  "headers": {},
+  "status": 200
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-alpha/pulls?state=open&per_page=100": {
+  "body": [
+   {
+    "created_at": "2026-09-20T08:00:00Z",
+    "draft": false,
+    "html_url": "https://github.com/openAMRobot/fixture-alpha/pull/3",
+    "number": 3,
+    "state": "open",
+    "title": "Fixture change 3",
+    "updated_at": "2026-10-10T08:00:00Z",
+    "user": {
+     "login": "dev-one",
+     "type": "User"
+    }
+   },
+   {
+    "created_at": "2026-10-27T08:00:00Z",
+    "draft": true,
+    "html_url": "https://github.com/openAMRobot/fixture-alpha/pull/5",
+    "number": 5,
+    "state": "open",
+    "title": "Fixture change 5",
+    "updated_at": "2026-10-28T08:00:00Z",
+    "user": {
+     "login": "dev-two",
+     "type": "User"
+    }
+   }
+  ],
+  "headers": {},
+  "status": 200
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-beta/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100": {
+  "body": {
+   "message": "Not Found"
+  },
+  "headers": {},
+  "status": 404
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-delta/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100": [
+  {
+   "body": {
+    "message": "API rate limit exceeded"
+   },
+   "headers": {
+    "X-RateLimit-Remaining": "0",
+    "X-RateLimit-Reset": "1793248865"
+   },
+   "status": 403
+  },
+  {
+   "body": {
+    "total_count": 0,
+    "workflow_runs": []
+   },
+   "headers": {},
+   "status": 200
+  }
+ ],
+ "https://api.github.com/repos/openAMRobot/fixture-delta/issues?state=open&per_page=100": {
+  "body": [],
+  "headers": {},
+  "status": 200
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-delta/pulls?state=open&per_page=100": [
+  {
+   "body": {
+    "message": "Server Error"
+   },
+   "headers": {},
+   "status": 502
+  },
+  {
+   "body": [],
+   "headers": {},
+   "status": 200
+  }
+ ],
+ "https://api.github.com/repos/openAMRobot/fixture-gamma/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100": {
+  "body": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "headers": {},
+  "status": 200
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-gamma/issues?state=open&per_page=100": {
+  "body": {
+   "message": "Issues are disabled for this repo"
+  },
+  "headers": {},
+  "status": 410
+ },
+ "https://api.github.com/repos/openAMRobot/fixture-gamma/pulls?state=open&per_page=100": {
+  "body": [],
+  "headers": {},
+  "status": 200
+ },
+ "https://api.github.com/repositories/1001/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100&page=2": {
+  "body": {
+   "total_count": 7,
+   "workflow_runs": [
+    {
+     "conclusion": "failure",
+     "created_at": "2026-10-28T09:00:00Z",
+     "event": "schedule",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "openAMRobot/fixture-alpha"
+     },
+     "html_url": "https://github.com/openAMRobot/fixture-alpha/actions/runs/105",
+     "id": 105,
+     "name": "Lint | @everyone",
+     "path": ".github/workflows/lint.yml",
+     "status": "completed",
+     "updated_at": "2026-10-28T09:00:00Z",
+     "workflow_id": 926
+    },
+    {
+     "conclusion": "success",
+     "created_at": "2026-10-26T09:00:00Z",
+     "event": "schedule",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "openAMRobot/fixture-alpha"
+     },
+     "html_url": "https://github.com/openAMRobot/fixture-alpha/actions/runs/106",
+     "id": 106,
+     "name": "Lint",
+     "path": ".github/workflows/lint.yml",
+     "status": "completed",
+     "updated_at": "2026-10-26T09:00:00Z",
+     "workflow_id": 926
+    },
+    {
+     "conclusion": "success",
+     "created_at": "2026-10-22T01:00:00Z",
+     "event": "push",
+     "head_branch": "main",
+     "head_repository": {
+      "full_name": "openAMRobot/fixture-alpha"
+     },
+     "html_url": "https://github.com/openAMRobot/fixture-alpha/actions/runs/107",
+     "id": 107,
+     "name": "CI",
+     "path": ".github/workflows/ci.yml",
+     "status": "completed",
+     "updated_at": "2026-10-22T01:00:00Z",
+     "workflow_id": 924
+    }
+   ]
+  },
+  "headers": {
+   "Link": "<https://api.github.com/repos/openAMRobot/fixture-alpha/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100>; rel=\"first\", <https://api.github.com/repos/openAMRobot/fixture-alpha/actions/runs?branch=main&status=completed&created=%3E%3D2026-10-22&per_page=100>; rel=\"prev\""
+  },
+  "status": 200
+ }
+}

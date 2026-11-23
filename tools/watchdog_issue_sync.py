@@ -21,6 +21,12 @@ banner, findings of repositories that were not scanned are never cleared, and th
 non-zero. If the expected list itself cannot be read, the dashboard is not overwritten: only an
 INCOMPLETE notice is posted and the tool exits non-zero.
 
+Daily section (--daily FILE, used by .github/workflows/watchdog-daily.yml): replace only the
+"Daily" section of the dashboard issue with the text of daily.md from tools/watchdog_daily.py,
+leaving the rest of the body as the Thursday scan wrote it. If the file is missing, the section
+says the daily report is INCOMPLETE and the tool exits non-zero. The Thursday scan, when it
+rewrites the dashboard, carries the existing Daily section over unchanged.
+
 The register remains human-approved. A decision-review issue tells the platform lead when an
 entry is due; the owner then updates the source document first and uses a normal reviewed PR
 to update decisions.yaml and affected repositories.
@@ -71,6 +77,9 @@ MODES = ("dashboard", "groups")
 DEFAULT_MODE = "dashboard"
 DASHBOARD_TITLE = "[watchdog] Organization dashboard"
 DASHBOARD_FILE_LINKS = 5
+DAILY_START = "<!-- watchdog:daily:start -->"
+DAILY_END = "<!-- watchdog:daily:end -->"
+DAILY_LIMIT = 20000
 
 
 def resolve_mode(value):
@@ -478,6 +487,59 @@ def dashboard_body(reports, blocked, plan_data, run_url, run_date, links):
     return "\n".join(lines)
 
 
+def daily_text(path, run_url, run_date):
+    """The Daily section for one run. Returns (section, ok); a missing report is INCOMPLETE."""
+    try:
+        text = Path(path).read_text(encoding="utf-8")
+        ok = bool(text.strip())
+    except (OSError, UnicodeDecodeError):
+        text, ok = "", False
+    if not ok:
+        text = (f"**Daily report INCOMPLETE on {run_date}: no daily report was produced in this run. "
+                "Nothing in this section is current.**")
+    for token in (DAILY_START, DAILY_END, DASHBOARD_MARKER):
+        text = text.replace(token, "")  # the report cannot move or close the section
+    text = REDACT_SECRET.sub("[redacted credential]", text.strip())
+    if len(text) > DAILY_LIMIT:
+        text = text[:DAILY_LIMIT] + "\n\nDaily report truncated; the workflow artifact holds all of it."
+    run = f"\n\nRun: {run_url}" if run_url else ""
+    return f"{DAILY_START}\n## Daily\n\n{text}{run}\n{DAILY_END}", ok
+
+
+def daily_section(body):
+    """The Daily section of a dashboard body, or None."""
+    body = body or ""
+    start, end = body.find(DAILY_START), body.find(DAILY_END)
+    if start < 0 or end < start:
+        return None
+    return body[start:end + len(DAILY_END)]
+
+
+def with_daily(body, section):
+    """Body with its Daily section replaced by section (appended when there is none)."""
+    body = body or ""
+    current = daily_section(body)
+    if current is not None:
+        return body.replace(current, section, 1)
+    return f"{body.rstrip()}\n\n{section}" if body.strip() else section
+
+
+def apply_daily(repository, existing, section, token, call=None):
+    """Replace only the Daily section of the open dashboard; create the dashboard if none exists."""
+    call = call or api
+    dashboard = next((i for i in existing if DASHBOARD_MARKER in (i.get("body") or "") and i.get("state") == "open"), None)
+    ensure_labels(repository, ["watchdog-report"], token, call)
+    if not dashboard:
+        create_issue(repository, {"title": DASHBOARD_TITLE, "body": f"{DASHBOARD_MARKER}\n\n{section}",
+                                  "labels": ["watchdog-report"], "assignees": ["BotshareAI"]}, token, call)
+        return "created"
+    body = with_daily(dashboard.get("body"), section)
+    if body == dashboard.get("body"):
+        return "unchanged"
+    call("PATCH", f"https://api.github.com/repos/{repository}/issues/{dashboard['number']}", token, {"body": body})
+    return "updated"
+
+
 def api(method, url, token, data=None):
     request = urllib.request.Request(url, method=method, data=json.dumps(data).encode("utf-8") if data is not None else None, headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json", "Content-Type": "application/json", "User-Agent": "openamrobot-watchdog"})
     with urllib.request.urlopen(request, timeout=30) as response:
@@ -556,8 +618,11 @@ def apply(repository, plan_data, reports, blocked, token, run_url, run_date, cal
         # Update the one dashboard in place, and only when its content changed.
         current = OBSERVATION_RE.search(dashboard.get("body") or "")
         if not current or current.group(1) != dashboard_hash:
+            # The Daily section belongs to the daily workflow: carry it over unchanged.
+            daily = daily_section(dashboard.get("body"))
+            body = with_daily(dashboard_text, daily) if daily else dashboard_text
             call("PATCH", f"https://api.github.com/repos/{repository}/issues/{dashboard['number']}", token,
-                 {"title": DASHBOARD_TITLE, "body": dashboard_text})
+                 {"title": DASHBOARD_TITLE, "body": body})
     elif last_observation(dashboard) != dashboard_hash:
         call("POST", f"https://api.github.com/repos/{repository}/issues/{dashboard['number']}/comments", token, {"body": f"{OBSERVATION_PREFIX}{dashboard_hash}{OBSERVATION_SUFFIX}\n{dashboard_text}"})
     print(f"Watchdog issue sync (mode {mode}{', INCOMPLETE' if (plan_data.get('status') or {}).get('incomplete') else ''}): {len(plan_data['open'])} opened, {len(plan_data['updates'])} comments, dashboard updated={not bool(dashboard)}")
@@ -579,18 +644,26 @@ def publish_unreadable(repository, existing, reason, token, run_url, run_date, c
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--reports", type=Path, required=True)
+    parser.add_argument("--reports", type=Path)
     parser.add_argument("--blocked", type=Path)
-    parser.add_argument("--maintainers", type=Path, required=True)
-    parser.add_argument("--decisions", type=Path, required=True)
+    parser.add_argument("--maintainers", type=Path)
+    parser.add_argument("--decisions", type=Path)
     parser.add_argument("--repository", default="openAMRobot/.github")
-    parser.add_argument("--run-url", required=True)
+    parser.add_argument("--run-url")
     parser.add_argument("--run-date", default=date.today().isoformat())
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--mode", help="dashboard or groups; default: WATCHDOG_ISSUE_MODE, else dashboard")
     parser.add_argument("--expected", type=Path,
                         help="JSON list of repositories the scan had to cover (the workflow always passes it)")
+    parser.add_argument("--daily", type=Path,
+                        help="daily.md of tools/watchdog_daily.py: replace only the dashboard's Daily section")
     args = parser.parse_args(argv)
+    if args.daily is not None:
+        return main_daily(args)
+    missing = [f"--{name.replace('_', '-')}" for name in ("reports", "maintainers", "decisions", "run_url")
+               if getattr(args, name) is None]
+    if missing:
+        parser.error(f"the following arguments are required: {', '.join(missing)}")
     try:
         mode = resolve_mode(args.mode if args.mode is not None else os.environ.get("WATCHDOG_ISSUE_MODE"))
     except ValueError as exc:
@@ -623,6 +696,19 @@ def main(argv=None):
     if args.apply:
         apply(args.repository, data, reports, blocked, token, args.run_url, args.run_date)
     return 1 if status["incomplete"] else 0
+
+
+def main_daily(args):
+    section, ok = daily_text(args.daily, args.run_url, args.run_date)
+    token = os.environ.get("GITHUB_TOKEN")
+    if args.apply and not token:
+        print("--apply requires GITHUB_TOKEN", file=sys.stderr)
+        return 2
+    print(section)
+    if args.apply:
+        result = apply_daily(args.repository, fetch_existing(args.repository, token), section, token)
+        print(f"Watchdog daily section: dashboard {result}")
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
