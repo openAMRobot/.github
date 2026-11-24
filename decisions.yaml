@@ -527,18 +527,21 @@ decisions:
 
   - id: DRIVETRAIN
     title: Drivetrain
-    summary: "Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D driver on CAN1."
-    fix_hint: "Name the ZLLG80ASM250-L-B; brakes 6 Nm per ZLTECH 18 Oct 2026 (5 vs 6 Nm open, D-25); fail-safe needs evidence."
+    summary: "Two ZLTECH ZLLG80ASM250-L-B2 V1.01 hub motors with brakes, one ZLAC8015D driver on CAN1."
+    fix_hint: "Use the ordered B2 V1.01 variant. Preserve the 18 Oct brake and load evidence; supplier drawing conflicts remain OPEN. Fail-safe behaviour needs evidence."
     kind: value
     status: recorded
     values:
-      - Two ZLTECH ZLLG80ASM250-L-B hub motors with brakes, one ZLAC8015D V4.2 driver on CAN1 (CANopen), 200 mm wheels
+      - Two ZLTECH ZLLG80ASM250-L-B2 V1.01 hub motors with brakes, one ZLAC8015D V4.2 driver on CAN1 (CANopen), 200 mm wheels
       - "hub-motor brakes (ZLTECH 18 Oct 2026): 24 V, 12.5 W per motor, 6 Nm holding, release at most 100 ms, engagement at most 30 ms without diode"
       - "open question (decision D-25, openamr-platform-hw issue #14): 5 Nm (ZLTECH email 21 Sep 2026) and 100 kg per pair (drawing) against 6 Nm and 120 kg per pair (written answer 18 Oct 2026); the dynamic-stop duty of the brake is not answered; brake release gating is decided by the electrical owner"
+      - "supplier drawing ZLLG80ASM250-L-B2 V1.01 dated 9 Oct 2026, data received 23 Nov: double shaft with brake, diameter 200 ±2 mm, overall width 167.8 mm, tyre width 49.4 mm, M14 x 1.5 both sides, cable 600 ±50 mm; 24 V, rated 5.5 Nm / 6.5 A / 200 r/min, peak 16 Nm / 19 A, maximum 260 r/min, 15 pole pairs, 1024 lines"
+      - "OPEN: supplier drawing says 100 kg per 2 sets, asked 23 Nov; brake voltage and torque not on drawing, motor weight and rotor inertia pending; drawing unsigned"
+      - "estimate from supplier STEP, assumed densities, not supplier data: rotating mass about 2.74 kg, wheel-axis inertia about 0.0097 kg m2 (0.0092 to 0.0103)"
     unit: none
-    date: 2026-11-08
+    date: 2026-11-23
     review_by: 2026-12-13
-    source: {document: P-03-rev20.6, item: "item 30 (D-25 evidence hold, 8 Nov 2026); hub-motor brake data per P-03-rev20.2 item 26 (ZLTECH 18 Oct 2026); motors and driver per P-00-rev18.1 txt 16"}
+    source: {document: P-03-rev20.6, item: "item 30 (D-25 evidence hold, 8 Nov 2026); hub-motor brake data per P-03-rev20.2 item 26 (ZLTECH 18 Oct 2026); motors and driver per P-00-rev18.1 txt 16; supplier drawing B2 V1.01 dated 9 Oct 2026, data received 23 Nov 2026"}
     supersedes:
       - {value: "brake ratings pending supplier evidence", source: "P-00-rev18.1 txt 16 (register fix_hint until P-03-rev20.2 item 26)"}
     applies_to:
@@ -546,7 +549,7 @@ decisions:
       files: ["**/*.md", "**/*.yaml", "**/*.yml", "**/*.html", "**/*.xacro", "**/*.urdf"]
     check:
       - pattern: '(?P<found>ZLLG80ASM250-L)(?!-B)\b'
-        message: the selected motor variant is ZLLG80ASM250-L-B
+        message: the selected motor variant is ZLLG80ASM250-L-B2 V1.01
       - pattern: '(?P<found>ZL ?TECH[^\n]{0,40}\b(?:alternative|option(?:al)?)\b)'
         message: ZLTECH is the selected 2.0 drivetrain, not an option
       - pattern: '(?P<found>fail-safe brakes?)'
