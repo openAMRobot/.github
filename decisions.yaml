@@ -528,7 +528,7 @@ decisions:
   - id: DRIVETRAIN
     title: Drivetrain
     summary: "Two ZLTECH ZLLG80ASM250-L-B2 V1.01 hub motors with brakes, one ZLAC8015D driver on CAN1."
-    fix_hint: "Use the ordered B2 V1.01 variant. Preserve the 18 Oct brake and load evidence; supplier drawing conflicts remain OPEN. Fail-safe behaviour needs evidence."
+    fix_hint: "Use B2 V1.01; preserve 18 Oct evidence. Load and brake conflicts OPEN; fail-safe behaviour needs verification."
     kind: value
     status: recorded
     values:
